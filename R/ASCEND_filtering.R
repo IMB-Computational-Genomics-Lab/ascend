@@ -62,7 +62,7 @@ FilterByExpressedGenesPerCell <- function(object, pct.value){
   object@Log$Filtering <- updated.log
 
   # Updating the metrics
-  object <- UpdateBatchInformation(object)
+  object <- UpdateBatchInfo(object)
   object <- GenerateMetrics(object)
   remove(expression.matrix)
   return(object)
@@ -111,7 +111,7 @@ FilterByCustomControl <- function(control.name, percentage.threshold, object){
   # Update the object and return
   object@Log$Filtering <- updated.log
   object@ExpressionMatrix <- custom.filtered.matrix
-  object <- UpdateBatchInformation(object)
+  object <- UpdateBatchInfo(object)
   object <- GenerateMetrics(object)
   return(object)
 }
@@ -205,15 +205,14 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   }
 
   ## Identify cells to remove based on proportion of expression
+  print("Identifying outliers...")
   controls.counts <- BiocParallel::bplapply(percentage.lists.counts, function(x) FindOutliers(x, nmads=ControlThreshold, type="higher")) ## Use nmad to identify outliers
+  print("Removing cells by library size...")
   drop.barcodes.controls <- BiocParallel::bplapply(controls.counts, function(x) which(x)) ## Identify cell barcodes to remove
+  print("Updating object information...")
   drop.barcodes.controls.names <- BiocParallel::bplapply(drop.barcodes.controls, function(x) names(x))
 
-  #  controls.counts <- lapply(percentage.lists.counts, function(x) FindOutliers(x, nmads=ControlThreshold, type="higher")) ## Use nmad to identify outliers
-  #  drop.barcodes.controls <- lapply(controls.counts, function(x) which(x)) ## Identify cell barcodes to remove
-  #  drop.barcodes.controls.names <- lapply(drop.barcodes.controls, function(x) names(x))
-
-  ### Barcode master list of cells to remove
+    ### Barcode master list of cells to remove
   remove.cell.barcodes <- c(drop.barcodes.libsize, drop.barcodes.feature, drop.barcodes.controls)
   remove.cells.bool <- colnames(expression.matrix) %in% unique(names(remove.cell.barcodes))
   filtered.expression.matrix <- expression.matrix[,!remove.cells.bool]
@@ -240,7 +239,7 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   filtered.object@Log <- list(Filtering=filtering.log, FilteringLog = writing.log.df)
 
   ### Rerun metrics
-  filtered.object <- UpdateBatchInformation(filtered.object)
+  filtered.object <- UpdateBatchInfo(filtered.object)
   filtered.object <- GenerateMetrics(filtered.object)
   return(filtered.object)
 }

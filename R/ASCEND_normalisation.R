@@ -125,6 +125,7 @@ NormaliseLibSize <- function(object){
   object@Log <- c(object@Log, list(NormaliseLibSize=TRUE))
   object@ExpressionMatrix <- LoadSparseMatrix(normalised.exprs.mtx)
   new.object <- GenerateMetrics(object)
+  new.object@Log <- c(object@Log, list(NormalisationMethod="NormaliseLibSize"))
   return(new.object)
 }
 

@@ -23,11 +23,29 @@ CalcRowVariance <- function(x){
 
 #' RunTSNE
 #'
-#' @param x An expression matrix than can either be a full count matrix or a PCA-reduced matrix.
+#' @param object An \linkS4class{AEMSet} object, or an expression matrix than can either be a full count matrix or a PCA-reduced matrix.
 #' @param PCA Set this PCA flag to true if you are using a PCA-reduced matrix.
 #' @param dimensions Number of dimensions you would like to reduce to
 #'
-RunTSNE <- function(x, PCA=FALSE, dimensions = 2){
+RunTSNE <- function(object, PCA=FALSE, dimensions = 2){
+  if (class(object) == "AEMSet"){
+    if (PCA){
+      if (!is.null(object@PCA$ReducedPCA)){
+        x <- object@PCA$ReducedPCA
+        PCA <- TRUE
+      } else if(is.null(object@PCA$PCA)){
+        x <- object@PCA$PCA
+        PCA <- TRUE
+      } else{
+        x <- object@ExpressionMatrix
+        PCA <- FALSE
+      }
+    }
+  } else if(is.matrix(object) || is.data.frame(object)){
+    x <- object
+  } else{
+    stop("Please supply an AEMSet, matrix or dataframe.")
+  }
   # Will load a matrix to work with, regardless
   if (PCA){
     transposed.matrix <- as.matrix(x)
@@ -45,7 +63,7 @@ RunTSNE <- function(x, PCA=FALSE, dimensions = 2){
     rownames(tsne.mtx) <- colnames(x)
   }
 
-  return(x)
+  return(tsne.mtx)
 }
 
 #' RunPCA
@@ -80,8 +98,8 @@ RunPCA <- function(object, ngenes = 1500, scaling = TRUE){
   # Output back to AEMSet
   print("PCA complete! Returning object...")
   pca.result.matrix <- as.data.frame(pca.result$x)
-  x@PCA <- list(PCA = pca.result.matrix, PCAPercentVariance = pca.percent.var)
-  x@Log <- c(x@Log, list(PCA=TRUE))
-  return(x)
+  object@PCA <- list(PCA = pca.result.matrix, PCAPercentVariance = pca.percent.var)
+  object@Log <- c(object@Log, list(PCA=TRUE))
+  return(object)
 }
 

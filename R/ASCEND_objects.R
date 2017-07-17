@@ -407,7 +407,7 @@ setMethod("GetBatchInfo", signature("AEMSet"), function(object){
   return(object@BatchInformation)
 })
 
-#' UpdateBatchInformation
+#' UpdateBatchInfo
 #'
 #' Can be called by the user or by a filtering function. Updates Batch Information in a \linkS4class{AEMSet} object, removing cells that have been filtered out.
 #'
@@ -427,6 +427,20 @@ setMethod("UpdateBatchInfo", signature("AEMSet"), function(object) {
   # Update the object
   object@BatchInformation <- updated.barcode.list
   return(object)
+})
+
+#' GetGeneAnnotation
+#' 
+#' Retrieve gene annotation information from an \linkS4class{AEMSet} object.
+#' @param object A \linkS4class{AEMSet} object.
+#' 
+setGeneric(name = "GetGeneAnnotation", def = function(object){
+  standardGeneric("GetGeneAnnotation")
+})
+
+setMethod("GetGeneAnnotation", signature("AEMSet"), function(object){
+  gene.annotation <- object@GeneAnnotation
+  return(gene.annotation)
 })
 
 #' ConvertGeneAnnotation

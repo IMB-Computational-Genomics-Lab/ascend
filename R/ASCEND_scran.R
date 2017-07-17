@@ -26,7 +26,7 @@ ConvertToScater <- function(object, control.list = list()){
   }
 
   # Convert AEMSet to SCESet
-  expression.matrix <- GetExpressionMatrix(object)
+  expression.matrix <- GetExpressionMatrix(object, "data.frame")
   sce.obj <- scater::newSCESet(countData = expression.matrix)
   sce.obj <- scater::calculateQCMetrics(sce.obj, feature_controls = control.list)
   return(sce.obj)

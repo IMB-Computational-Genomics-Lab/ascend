@@ -124,7 +124,7 @@ LoadMatrix <- function(x){
       matrix <- x
     }
   } else if(class(x) == "AEMSet"){
-    matrix <- as.matrix(GetExpressionMatrix(x))
+    matrix <- as.matrix(GetExpressionMatrix(x, "matrix"))
   } else {
     stop("Please supply a matrix, dataframe or AEMSet object.")
   }

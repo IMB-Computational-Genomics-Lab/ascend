@@ -71,8 +71,8 @@ PlotStability <- function(object){
   key.stats.tidy <- reshape2::melt(key.stats.df, id='Height')
   key.stats.tidy$Height <-as.numeric(key.stats.tidy$Height)
 
-  diagnostic.plot <- ggplot(key.stats.tidy)
-  diagnostic.plot <- diagnostic.plot + geom_line(aes(x=Height, y=value,  colour=variable)) +theme_bw() + theme(axis.text=element_text(size=18), axis.title=element_text(size=18))+ theme(legend.text=element_text(size=18))+theme(legend.title=element_blank()) +xlab('Parameter from 0.025 to 1') +ylab('Scores')
+  diagnostic.plot <- ggplot2::ggplot(key.stats.tidy)
+  diagnostic.plot <- diagnostic.plot + ggplot2::geom_line(aes(x=Height, y=value,  colour=variable)) + ggplot2::theme_bw() + ggplot2::theme(axis.text=element_text(size=18), axis.title=element_text(size=18))+ theme(legend.text=element_text(size=18)) + ggplot2::theme(legend.title=element_blank()) + ggplot2::xlab('Parameter from 0.025 to 1') + ggplot2::ylab('Scores')
 
   return(diagnostic.plot)
 }
@@ -287,11 +287,11 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
 #' @param n Number of PCA values on the plot
 #'
 PlotPCAVariance <- function(object, n){
-  if(is.null(object@object@PCA$PCAPercentVariance)){
+  if(is.null(object@PCA$PCAPercentVariance)){
     stop("Please supply an object that has undergone PCA reduction.")
   }
 
-  pca.obj <- qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="line")
+  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="line", xlab="Principal Component (PC)", ylab="% Variance", main="Percent Variance per PC")
   return(pca.obj)
 
 }
@@ -302,8 +302,9 @@ PlotPCAVariance <- function(object, n){
 #'
 #' @param Original An un-normalised \linkS4class{AEMSet}
 #' @param Normalised A normalised \linkS4class{AEMSet}
-#'
-PlotNormalisationQC <- function(Original = NULL, Normalised = NULL) {
+#' @param Gene Gene to plot expression levels for (optional)
+#' 
+PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL) {
   # Insert Check For Normalisation
   if(!is.null(Original@Log$NormalisationMethod)){
     stop("Please supply an un-normalised AEMSet object.")
@@ -327,14 +328,14 @@ PlotNormalisationQC <- function(Original = NULL, Normalised = NULL) {
 
   # If normalised by scater, unlog results
   if(Normalised@Log$NormalisationMethod == "scranNormalise"){
-    matrix.normalised <- UnLog2Matrix(matrix.normalised)
+    matrix.normalised <- as.data.frame(UnLog2Matrix(matrix.normalised))
     libsize.normalised <- colSums(matrix.normalised)
   }
 
   # Generate histogram
   print("Plotting libsize histograms...")
-  libsize.plot.original <- qplot(libsize.original,main='Before normalisation',ylab='Total reads per cell', xlab='Cells')
-  libsize.plot.normalised <- qplot(libsize.normalised,main='After normalisation', ylab='Total reads per cell', xlab='Cells')
+  libsize.plot.original <- ggplot2::qplot(libsize.original, main='Before normalisation', ylab='Total reads per cell', xlab='Cells')
+  libsize.plot.normalised <- ggplot2::qplot(libsize.normalised, main='After normalisation', ylab='Total reads per cell', xlab='Cells')
 
   # Remove zero counts
   matrix.original <- matrix.original[which(rowSums(matrix.original) > 0),]
@@ -345,38 +346,44 @@ PlotNormalisationQC <- function(Original = NULL, Normalised = NULL) {
   gapdh <- "GAPDH"
   gapdh.counts.1 <- matrix.original[gapdh,][which(matrix.original[gapdh, ] > 0)]
   gapdh.counts.2 <- matrix.normalised[gapdh,][which(matrix.normalised[gapdh, ] > 0)]
-  gapdh.scatter.1 <- qplot(x = 1:length(gapdh.counts.1), y = unlist(gapdh.counts.1), geom="point", alpha=0.2, main='Expression of GAPDH (Before normalisation)', xlab="Cells" , ylab="Gene expression")
-  gapdh.scatter.2 <- qplot(x = 1:length(gapdh.counts.2), y = unlist(gapdh.counts.2), geom="point", alpha=0.2, main='Expression of GAPDH (After normalisation)', xlab="Cells", ylab="Gene expression")
+  gapdh.scatter.1 <- ggplot2::qplot(x = 1:length(gapdh.counts.1), y = unlist(gapdh.counts.1), geom="point", alpha=0.2, main='Expression of GAPDH (Before normalisation)', xlab="Cells" , ylab="Gene expression")
+  gapdh.scatter.2 <- ggplot2::qplot(x = 1:length(gapdh.counts.2), y = unlist(gapdh.counts.2), geom="point", alpha=0.2, main='Expression of GAPDH (After normalisation)', xlab="Cells", ylab="Gene expression")
 
   # Plot scatter for a random gene
   # This while loop ensures a gene is selected where there are at least ten cells with expression over zero
-  success <- FALSE
-  while (!success){
-    gene <- sample(rownames(matrix.normalised), 1)
+  if (missing(Gene)){
+    success <- FALSE
+    while (!success){
+      gene <- sample(rownames(matrix.normalised), 1)
+      gene.original <- matrix.original[gene,][which(matrix.original[gene, ] > 0)]
+      gene.normalised <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
+      success <- (length(gene.original) > 10) && (length(gene.normalised) > 10)
+    }
+  } else {
     gene.original <- matrix.original[gene,][which(matrix.original[gene, ] > 0)]
     gene.normalised <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
-    success <- (length(gene.original) > 10) && (length(gene.normalised) > 10)
-  }
+  }    
 
   print(sprintf("Plotting %s expression...", gene))
-  original.scatter <- qplot(x = 1:length(gene.original), y = unlist(gene.original), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation", gene), xlab="Cells" , ylab="Gene expression")
-  normalised.scatter <- qplot(x = 1:length(gene.normalised), y = unlist(gene.normalised), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation", gene), xlab="Cells" , ylab="Gene expression")
+  original.scatter <- ggplot2::qplot(x = 1:length(gene.original), y = unlist(gene.original), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation", gene), xlab="Cells" , ylab="Gene expression")
+  normalised.scatter <- ggplot2::qplot(x = 1:length(gene.normalised), y = unlist(gene.normalised), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation", gene), xlab="Cells" , ylab="Gene expression")
 
   # Generate box plots
   print("Plotting gene expression box plots...")
   ordered1 <- matrix.original[order(rowSums(matrix.original), decreasing=T),]
   ordered2 <- matrix.normalised[order(rowSums(matrix.normalised), decreasing=T),]
+
   ordered1 <- stack(ordered1[,1:100])
   ordered2 <- stack(ordered2[,1:100])
 
-  original.boxplot <- ggplot(ordered1, aes(x=ind, y=values)) + geom_boxplot()
-  normalised.boxplot <- ggplot(ordered2, aes(x=ind, y=values)) + geom_boxplot()
+  original.boxplot <- ggplot2::ggplot(ordered1, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot()
+  normalised.boxplot <- ggplot2::ggplot(ordered2, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot()
 
-  original.boxplot <- original.boxplot + labs(title='Before normalisation',  y='Gene expression', x='Cells')
-  normalised.boxplot <- normalised.boxplot + labs(title='After normalisation',  y='Gene expression', x='Cells')
+  original.boxplot <- original.boxplot + ggplot2::labs(title='Before normalisation',  y='Gene expression', x='Cells')
+  normalised.boxplot <- normalised.boxplot + ggplot2::labs(title='After normalisation',  y='Gene expression', x='Cells')
 
-  original.boxplot <- original.boxplot +  theme(axis.text.x=element_blank())
-  normalised.boxplot <- normalised.boxplot +  theme(axis.text.x=element_blank())
+  original.boxplot <- original.boxplot + ggplot2::theme(axis.text.x = ggplot2::element_blank())
+  normalised.boxplot <- normalised.boxplot + ggplot2::theme(axis.text.x = ggplot2::element_blank())
 
   print("Plots complete!")
   # Return a list of output
@@ -401,25 +408,25 @@ z_theme <- function() {
   color.axis.title = palette[7]
   color.title = palette[8]
   # Begin construction of chart
-  theme_bw(base_size=9) +
+  ggplot2::theme_bw(base_size=9) +
     # Set the entire chart region to a light gray color
-    theme(panel.background=element_rect(fill=color.background, color=color.background)) +
-    theme(plot.background=element_rect(fill=color.background, color=color.background)) +
-    theme(panel.border=element_rect(color=color.background)) +
+    ggplot2::theme(panel.background = ggplot2::element_rect(fill=color.background, color=color.background)) +
+    ggplot2::theme(plot.background= ggplot2::element_rect(fill=color.background, color=color.background)) +
+    ggplot2::theme(panel.border= ggplot2::element_rect(color=color.background)) +
     # Format the grid
-    theme(panel.grid.major=element_line(color=color.grid.major,size=.25)) +
-    theme(panel.grid.minor=element_blank()) +
-    theme(axis.ticks=element_blank()) +
+    ggplot2::theme(panel.grid.major= ggplot2::element_line(color=color.grid.major,size=.25)) +
+    ggplot2::theme(panel.grid.minor= ggplot2::element_blank()) +
+    ggplot2::theme(axis.ticks= ggplot2::element_blank()) +
     # Format the legend, but hide by default
-    theme(legend.position="none") +
-    theme(legend.background = element_rect(fill=color.background)) +
-    theme(legend.text = element_text(size=7,color=color.axis.title)) +
+    ggplot2::theme(legend.position="none") +
+    ggplot2::theme(legend.background = ggplot2::element_rect(fill=color.background)) +
+    ggplot2::theme(legend.text = ggplot2::element_text(size=7,color=color.axis.title)) +
     # Set title and axis labels, and format these and tick marks
-    theme(plot.title=element_text(color=color.title, size=20, vjust=1.25)) +
-    theme(axis.text.x=element_text(size=14,color=color.axis.text)) +
-    theme(axis.text.y=element_text(size=14,color=color.axis.text)) +
-    theme(axis.title.x=element_text(size=16,color=color.axis.title, vjust=0)) +
-    theme(axis.title.y=element_text(size=16,color=color.axis.title, vjust=1.25))
+    ggplot2::theme(plot.title = ggplot2::element_text(color=color.title, size=20, vjust=1.25)) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(size=14, color=color.axis.text)) +
+    ggplot2::theme(axis.text.y = ggplot2::element_text(size=14, color=color.axis.text)) +
+    ggplot2::theme(axis.title.x = ggplot2::element_text(size=16, color=color.axis.title, vjust=0)) +
+    ggplot2::theme(axis.title.y = ggplot2::element_text(size=16, color=color.axis.title, vjust=1.25))
 }
 
 #' PlotTopGenesPerSample
@@ -456,11 +463,11 @@ PlotTopGenesPerSample <- function(object){
   combined.df <- as.data.frame(combined.data)
 
   # ggplot
-  gradient.ramp <- scale_colour_gradient(low="#001b7f", high="#f1d351")
-  control.plot <- ggplot(combined.df, aes(x = factor(BatchInfo), y = Percentage500, colour = Percentage100))
-  control.plot <- control.plot + geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
-  control.plot <- control.plot + gradient.ramp + scale_x_discrete(limits = batch.names) + xlab("Sample") + ylab("Total mapped reads per cell")
-  control.plot <- control.plot + ggtitle("Total mapped reads and genes per sample")
+  gradient.ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
+  control.plot <- ggplot2::ggplot(combined.df, ggplot2::aes(x = factor(BatchInfo), y = Percentage500, colour = Percentage100))
+  control.plot <- control.plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
+  control.plot <- control.plot + gradient.ramp + ggplot2::scale_x_discrete(limits = batch.names) + ggplot2::xlab("Sample") + ggplot2::ylab("Total mapped reads per cell")
+  control.plot <- control.plot + ggplot2::ggtitle("Total mapped reads and genes per sample")
 
   remove(expression.matrix)
   return(control.plot)
@@ -491,11 +498,11 @@ PlotLibrarySizesPerSample <- function(object){
   combined.df <- as.data.frame(combined.data)
 
   # ggplot
-  gradient.ramp <- scale_colour_gradient(low="#001b7f", high="#f1d351")
-  control.plot <- ggplot(combined.df, aes(x = factor(BatchInfo), y = TotalCounts, colour = FeatureCounts))
-  control.plot <- control.plot + geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
-  control.plot <- control.plot + gradient.ramp + scale_x_discrete(limits = batch.names) + xlab("Sample") + ylab("Total mapped reads per cell")
-  control.plot <- control.plot + ggtitle("Total mapped reads and genes per sample")
+  gradient.ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
+  control.plot <- ggplot2::ggplot(combined.df, ggplot2::aes(x = factor(BatchInfo), y = TotalCounts, colour = FeatureCounts))
+  control.plot <- control.plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
+  control.plot <- control.plot + gradient.ramp + ggplot2::scale_x_discrete(limits = batch.names) + ggplot2::xlab("Sample") + ggplot2::ylab("Total mapped reads per cell")
+  control.plot <- control.plot + ggplot2::ggtitle("Total mapped reads and genes per sample")
 
   remove(expression.matrix)
   return(control.plot)
@@ -528,13 +535,13 @@ PlotControlPercentagesPerSample <- function(object, control.name){
 
   # Use ggplot to generate a violin/beeswarm plot
   ## Colour palette
-  gradient.ramp <- scale_colour_gradient(low="#001b7f", high="#f1d351")
+  gradient.ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
   plot.title <- sprintf("Percentage of reads mapped to %s genes", control.name)
 
   ## ggplot call
-  control.plot <- ggplot(combined.df, aes(x = factor(BatchInfo), y = Percentages, colour = Counts))
-  control.plot <- control.plot + geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
-  control.plot <- control.plot + gradient.ramp + scale_x_discrete(limits = batch.names) + xlab("Sample") + ylab("% Reads")  + ggtitle(plot.title)
+  control.plot <- ggplot2::ggplot(combined.df, ggplot2::aes(x = factor(BatchInfo), y = Percentages, colour = Counts))
+  control.plot <- control.plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
+  control.plot <- control.plot + gradient.ramp + ggplot2::scale_x_discrete(limits = batch.names) + ggplot2::xlab("Sample") + ggplot2::ylab("% Reads")  + ggplot2::ggtitle(plot.title)
 
   remove(expression.matrix)
   return(control.plot)
@@ -547,8 +554,16 @@ PlotControlPercentagesPerSample <- function(object, control.name){
 #' @param object A AEMSet object
 #' @param n Number of genes to be plotted
 #'
-PlotTopGeneExpression <- function(object, n = 50){
+PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
   # Prep data to feed in
+  if(!controls){
+    control.list <- object@Controls
+    if(names(control.list) == c("Mt", "Rb")){
+      object <- ExcludeControl(object, "Mt")
+      object <- ExcludeControl(object, "Rb")
+    }  
+  }
+  
   plot.title <- sprintf("Top %i Expressed Genes", n)
   sparse.matrix <- object@ExpressionMatrix
   expression.matrix <- LoadDataFrame(sparse.matrix)
@@ -565,8 +580,8 @@ PlotTopGeneExpression <- function(object, n = 50){
   transposed.gene.expression <- t(top.gene.expression.per.cell)
   melted.gene.expression <- reshape2::melt(as.matrix(transposed.gene.expression))
   melted.gene.expression$Var2 <- factor(melted.gene.expression$Var2, levels = (rev(top.gene.list)))
-  ggplot.obj <- ggplot2::ggplot(melted.gene.expression, aes(y = value,x = Var2)) + ggplot2::geom_boxplot(aes(fill=Var2), alpha=.5, outlier.colour = NULL)
-  ggplot.obj <- ggplot.obj + coord_flip() + z_theme() + xlab("Gene") + ylab("% Expression") + ggtitle(plot.title)
+  ggplot.obj <- ggplot2::ggplot(melted.gene.expression, ggplot2::aes(y = value,x = Var2)) + ggplot2::geom_boxplot(ggplot2::aes(fill=Var2), alpha=.5, outlier.colour = NULL)
+  ggplot.obj <- ggplot.obj + ggplot2::coord_flip() + z_theme() + ggplot2::xlab("Gene") + ggplot2::ylab("% Expression") + ggplot2::ggtitle(plot.title)
 
   remove(expression.matrix)
   return(ggplot.obj)
@@ -582,7 +597,7 @@ PlotGeneralQC <- function(object){
   output.list <- list()
   # 1. Plot library sizes and expressed gene histograms
   print("Plotting Total Count and Library Size...")
-  libsize.plot <- ggplot2::qplot(object@Metrics$TotalCounts/1e6, geom="histogram", main="Distribution of library sizes across dataset", xlab="", ylab="Number of cells")
+  libsize.plot <- ggplot2::qplot(object@Metrics$TotalCounts/1e6, geom="histogram", main="Distribution of library sizes across dataset", xlab="Library sizes (millions)", ylab="Number of cells")
   feature.counts.per.cell <- ggplot2::qplot(object@Metrics$TotalFeatureCountsPerCell/1e6, geom="histogram", xlab="Number of expressed genes", main="Number of expressed genes per cell", ylab="Number of cells")
   output.list[["LibSize"]] <- libsize.plot
   output.list[["FeatureCountsPerCell"]] <- feature.counts.per.cell
