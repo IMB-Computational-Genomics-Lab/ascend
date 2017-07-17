@@ -323,8 +323,8 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
   libsize.original.2 <- libsize.original[which(names(libsize.original) %in% names(libsize.normalised))]
 
   # Get Expression Matrices
-  matrix.original <- GetExpressionMatrix(Original, "data.frame")
-  matrix.normalised <- GetExpressionMatrix(Normalised, "data.frame")
+  matrix.original <- GetExpressionMatrix(original, "data.frame")
+  matrix.normalised <- GetExpressionMatrix(normalised, "data.frame")
 
   # If normalised by scater, unlog results
   if(Normalised@Log$NormalisationMethod == "scranNormalise"){
