@@ -300,9 +300,9 @@ PlotPCAVariance <- function(object, n){
 #'
 #' Generates a series of plots comparing an un-normalised and a normalised \linkS4class{AEMSet}.
 #'
-#' @param Original An un-normalised \linkS4class{AEMSet}
-#' @param Normalised A normalised \linkS4class{AEMSet}
-#' @param Gene Gene to plot expression levels for (optional)
+#' @param original An un-normalised \linkS4class{AEMSet}
+#' @param normalised A normalised \linkS4class{AEMSet}
+#' @param gene Gene to plot expression levels for (optional)
 #' 
 PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL) {
   # Insert Check For Normalisation
