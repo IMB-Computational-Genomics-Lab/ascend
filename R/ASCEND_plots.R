@@ -327,7 +327,7 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
   matrix.normalised <- GetExpressionMatrix(normalised, "data.frame")
 
   # If normalised by scater, unlog results
-  if(Normalised@Log$NormalisationMethod == "scranNormalise"){
+  if(normalised@Log$NormalisationMethod == "scranNormalise"){
     matrix.normalised <- as.data.frame(UnLog2Matrix(matrix.normalised))
     libsize.normalised <- colSums(matrix.normalised)
   }
@@ -351,7 +351,7 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
 
   # Plot scatter for a random gene
   # This while loop ensures a gene is selected where there are at least ten cells with expression over zero
-  if (missing(Gene)){
+  if (missing(gene)){
     success <- FALSE
     while (!success){
       gene <- sample(rownames(matrix.normalised), 1)
