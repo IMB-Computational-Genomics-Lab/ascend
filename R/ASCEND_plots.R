@@ -306,18 +306,18 @@ PlotPCAVariance <- function(object, n){
 #' 
 PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL) {
   # Insert Check For Normalisation
-  if(!is.null(Original@Log$NormalisationMethod)){
+  if(!is.null(original@Log$NormalisationMethod)){
     stop("Please supply an un-normalised AEMSet object.")
   }
 
-  if(is.null(Normalised@Log$NormalisationMethod)){
+  if(is.null(normalised@Log$NormalisationMethod)){
     stop("Please supply a normalised AEMSet object.")
   }
 
   # Get metrics we need from old and new object
   print("Retrieving data from AEMSets...")
-  libsize.original <- Original@Metrics$TotalCounts
-  libsize.normalised <- Normalised@Metrics$TotalCounts
+  libsize.original <- original@Metrics$TotalCounts
+  libsize.normalised <- normalised@Metrics$TotalCounts
 
   # Get libsize with cells that are in normalised from original
   libsize.original.2 <- libsize.original[which(names(libsize.original) %in% names(libsize.normalised))]
