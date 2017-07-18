@@ -8,12 +8,13 @@ GetNodeInfo <- function(x, count.table){
     return(nleaves)
   }
 }
+
 #' PlotDendrogram
 #'
 PlotDendrogram <- function(object){
   # Input Checks
-  if(class(x) == "AEMSet"){
-    if(is.null(x@Clusters$Hclust)){
+  if(class(object) == "AEMSet"){
+    if(is.null(object@Clusters$Hclust)){
       stop("Please make sure you have run FindOptimalClusters on this AEMSet object before using this function.")
     }
   } else{
@@ -21,22 +22,24 @@ PlotDendrogram <- function(object){
   }
 
   # Extract required values from the object
-  hclust.obj <- x@Clusters$Hclust
-  optimal.height <- x@Clusters$OptimalTreeHeight
-  nclusters <- x@Clusters$NumberOfClusters
-  cluster.list <- x@Clusters$Clusters
+  hclust.obj <- object@Clusters$Hclust
+  optimal.height <- object@Clusters$OptimalTreeHeight
+  nclusters <- object@Clusters$NumberOfClusters
+  cluster.list <- object@Clusters$Clusters
 
   # Count table
   cluster.df <- as.data.frame(table(cluster.list))
 
   # Calculate cut height and cut dendrogram
   cut.height <- max(hclust.obj$height) * optimal.height
+  hclust.obj$labels <- rep("", length(hclust.obj$labels))
   dendro.obj <- as.dendrogram(hclust.obj)
+  
+  # Get values
   cut.tree <- cut(dendro.obj, h = cut.height)$upper
-
-  # Retrieve labels from cut object
-  node.info <- stats::dendrapply(cut.tree, function(x) GetNodeInfo(x, cluster.df))
-  dendextend::labels(cut.tree) <- node.info
+  node.info <- unlist(stats::dendrapply(cut.tree, function(x) GetNodeInfo(x, cluster.df)))
+  coloured.dendro <- dendextend::color_branches(dendro.obj, h = cut.height, groupLabels = node.info)
+  plot(coloured.dendro)
 }
 
 #' PlotStability
@@ -72,7 +75,7 @@ PlotStability <- function(object){
   key.stats.tidy$Height <-as.numeric(key.stats.tidy$Height)
 
   diagnostic.plot <- ggplot2::ggplot(key.stats.tidy)
-  diagnostic.plot <- diagnostic.plot + ggplot2::geom_line(aes(x=Height, y=value,  colour=variable)) + ggplot2::theme_bw() + ggplot2::theme(axis.text=element_text(size=18), axis.title=element_text(size=18))+ theme(legend.text=element_text(size=18)) + ggplot2::theme(legend.title=element_blank()) + ggplot2::xlab('Parameter from 0.025 to 1') + ggplot2::ylab('Scores')
+  diagnostic.plot <- diagnostic.plot + ggplot2::geom_line(ggplot2::aes(x=Height, y=value,  colour=variable)) + ggplot2::theme_bw() + ggplot2::theme(axis.text = ggplot2::element_text(size=18), axis.title = ggplot2::element_text(size=18))+ ggplot2::theme(legend.text = ggplot2::element_text(size=18)) + ggplot2::theme(legend.title = ggplot2::element_blank()) + ggplot2::xlab('Parameter from 0.025 to 1') + ggplot2::ylab('Scores')
 
   return(diagnostic.plot)
 }
@@ -277,6 +280,10 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
   }
   for (j in 0:(nColorRows + nTextRows)) lines(x = c(0, 1),
                                               y = c(yBottom[j + 1], yBottom[j + 1]))
+}
+
+PlotTSNE <- function(x){
+  
 }
 
 #' PlotPCAVariance

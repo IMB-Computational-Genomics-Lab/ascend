@@ -496,6 +496,21 @@ setMethod("ReplaceExpressionMatrix", signature("matrix", "AEMSet"), function(x, 
   return(updated.sea.set)
 })
 
+#' GetClusters
+#' 
+#' @param object An \linkS4class{AEMSet} that has undergone clustering.
+#' 
+setGeneric(name = "GetClusters", def = function(object) {
+  standardGeneric("GetClusters")
+})
+
+setMethod("GetClusters", signature("AEMSet"), function(object) {
+  if(length(object@Clusters) == 0){
+    stop("Please run FindOptimalClusters before using this function.")
+  }
+  return(object@Clusters$Clusters)
+})
+
 #' SubsetBatch
 #'
 #' Subset a specific batch from a \linkS4class{AEMSet} object.

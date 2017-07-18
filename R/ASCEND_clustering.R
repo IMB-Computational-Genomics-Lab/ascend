@@ -82,33 +82,28 @@ FindOptimalResult <- function(key.stats.df){
     }
   } else{
     consecutive <- c()
-    restart.positions <- list()
+    counter <- 0
+    
     for (i in 1:length(stability)){
       if (i != length(stability)){
-        current.idx <- i
-        next.idx <- i + 1
-        current.val <- stability[current.idx]
-        next.val <- stability[next.idx]
-        step.val <- next.val - current.val
-        if (step.val == 1){
-          if (length(consecutive) > 0){
-            if (current.val - consecutive[length(consecutive)] == 1){
-              consecutive <- c(consecutive, current.val)
-            }
-          } else{
-            consecutive <- c(consecutive, current.val)
-          }
+        current.idx <- i;
+        next.idx <- i + 1;
+        current.val <- stability[current.idx];
+        next.val <- stability[next.idx];
+        if (current.val != next.val){
+          counter <- 1
         } else{
-          restart.positions[[as.character(current.idx)]] <- length(consecutive)
-          consecutive <- c()
+          counter <- counter + 1
         }
+      } else{
+        counter <- counter + 1
       }
+      consecutive <- c(consecutive, counter)
     }
 
     # Get the longest continuous flatline
-    longest.seq <- max(unlist(restart.positions))
-    endpoint <- as.numeric(names(which(restart.positions == longest.seq)))
-    optimal.param <- endpoint - longest.seq
+    endpoint <- min(which(max(consecutive) == consecutive))
+    optimal.param <- endpoint - max(consecutive)
   }
   return(optimal.param)
 }

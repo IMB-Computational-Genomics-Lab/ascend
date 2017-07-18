@@ -5,6 +5,7 @@
 #' @param filename Name of the file you would like to output to
 #' @param width Width of the PDF
 #' @param height Height of the PDF
+#'
 PlotPDF <- function(plot.list, filename = NULL, width = 11, height = 8.5){
   if (missing(filename)){
     stop("Please specify a filename.")
@@ -32,6 +33,7 @@ PlotPDF <- function(plot.list, filename = NULL, width = 11, height = 8.5){
 #'
 #' Converts count values of a matrix that had undergone normalisation via scran's deconvolution method.
 #' @param expression.matrix An expression.matrix
+#'
 UnLog2Matrix <- function(expression.matrix){
   unlog.matrix <-apply(expression.matrix, 1, function(x) 2^x)
   unlog.matrix.sub.1 <- unlog.matrix -1

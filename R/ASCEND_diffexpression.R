@@ -42,6 +42,8 @@ PrepareCountData <- function(x){
       if (identical(x@Log$NormalisationMethod, "scranNormalise")){
         print("Data has been normalised via scran's deconvolution method. Converting values...")
         expression.matrix <- UnLog2Matrix(as.matrix(x@ExpressionMatrix))
+      } else{
+        expression.matrix <- GetExpressionMatrix(x, "matrix")
       }
     }
 
@@ -59,7 +61,9 @@ PrepareCountData <- function(x){
   expression.matrix <- round(expression.matrix + 1)
 
   print("Chunking matrix...")
-  chunked.matrix <- ChunkMatrix(expression.matrix, axis=0, chunks=10)
+  # We want chunks with 1K rows
+  chunk.size <- nrow(expression.matrix) / 1000
+  chunked.matrix <- ChunkMatrix(expression.matrix, axis=0, chunks=chunk.size)
   return(chunked.matrix)
 }
 
