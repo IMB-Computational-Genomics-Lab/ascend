@@ -10,6 +10,7 @@ scranNormalise <- function(object){
   }
 
   # Convert a scryeR object to a SCRAN object
+  print("Converting AEMSet to SCESet...")
   sce.obj <- ConvertToScater(object)
 
   # Remove controls from SCESet object
@@ -51,7 +52,7 @@ scranNormalise <- function(object){
   return(normalised.obj)
 }
 
-NormWithinBatch <- function(expression.matrix, batch.id, batch.list){
+NormWithinBatch <- function(batch.id, expression.matrix = NULL, batch.list = NULL){
   # Function called by NormaliseBatches
   barcodes <- names(batch.list[batch.list == batch.id])
   sub.mtx <- expression.matrix[,barcodes]
@@ -91,7 +92,7 @@ NormaliseBatches <- function(object){
   # Loop to get batch-specific data
   # PARALLEL
   print("Retrieving batch-specific data...")
-  batch.data <- BiocParallel::bplapply(unique.batch.identifiers, function(x) NormWithinBatch(exprs.mtx, x, batch.list))
+  batch.data <- BiocParallel::bplapply(unique.batch.identifiers, NormWithinBatch, expression.matrix = exprs.mtx, batch.list = batch.list)
 
   # Unpacking results
   print("Scaling data...")
@@ -154,10 +155,15 @@ NormaliseByRLE <- function(object){
   if(!is.null(object@Log$NormalisationMethod)){
     stop("This data is already normalised.")
   }
-
   expression.matrix <- as.matrix(object@ExpressionMatrix)
+  
+  print("Calculating geometric means...")
   geo.means <- apply(expression.matrix, 1, CalcGeoMeans)
+  
+  print("Calculating normalisation factors...")
   norm.factor <- apply(expression.matrix, 2, function(x) CalcNormFactor(x, geo.means))
+  
+  print("Normalising data...")
   normalised.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
   object@ExpressionMatrix <- LoadSparseMatrix(normalised.matrix)
   object@Log <- c(object@Log, list(NormalisationMethod="NormaliseByRLE"))

@@ -2,7 +2,7 @@
 # Requires DESeq to run, and parallel
 
 # Called by RunDiffExpression
-RunDESeq <- function(condition.list = list(), data = NULL, condition.a = NULL, condition.b = NULL){
+RunDESeq <- function(data, condition.list = list(), condition.a = NULL, condition.b = NULL){
   library(DESeq)
   count.dataset <- DESeq::newCountDataSet(data, condition.list)
   count.dataset <- DESeq::estimateSizeFactors(count.dataset)
@@ -12,7 +12,7 @@ RunDESeq <- function(condition.list = list(), data = NULL, condition.a = NULL, c
 }
 
 # Called by RunClusterDiffExpression
-GenerateConditionList <- function(condition.a = NULL, condition.b = NULL, barcode.list = list()){
+GenerateConditionList <- function(barcode.list, condition.a = NULL, condition.b = NULL){
   condition.a.idx <- which(barcode.list == as.character(condition.a))
   condition.b.idx <- which(barcode.list != as.character(condition.a))
   condition.list <- as.vector(barcode.list)
@@ -117,8 +117,10 @@ RunDiffExpression <- function(x, condition.a = NULL, condition.b = "Other", cond
   condition.a <- as.character(condition.a)
   condition.b <- as.character(condition.b)
 
+  
+  # Add all of this information into an environment to load into parallel
   print("Running DESeq...")
-  result.list <- BiocParallel::bplapply(chunked.matrix, function(x) RunDESeq(data = x, condition.list = condition.list, condition.a = condition.a, condition.b = condition.b))
+  result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, condition.list = condition.list, condition.a = condition.a, condition.b = condition.b)
 
   print("Differential expression complete!")
   print("Returning values...")
@@ -150,7 +152,7 @@ RunClusterDiffExpression <- function(object){
   cluster.list <- as.factor(object@Clusters$Clusters)
   clusters <- sort(unique(cluster.list))
   print("Generating conditions...")
-  condition.lists <- lapply(clusters, function(x){ GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = cluster.list)})
+  condition.lists <- BiocParallel::bplapply(clusters, GenerateConditionList, condition.a = x, condition.b = "Others", barcode.list = cluster.list)
   names(condition.lists) <- clusters
 
   for (x in names(condition.lists)){

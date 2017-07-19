@@ -206,11 +206,11 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
 
   ## Identify cells to remove based on proportion of expression
   print("Identifying outliers...")
-  controls.counts <- BiocParallel::bplapply(percentage.lists.counts, function(x) FindOutliers(x, nmads=ControlThreshold, type="higher")) ## Use nmad to identify outliers
+  controls.counts <- BiocParallel::bplapply(percentage.lists.counts, FindOutliers, nmads=ControlThreshold, type="higher") ## Use nmad to identify outliers
   print("Removing cells by library size...")
-  drop.barcodes.controls <- BiocParallel::bplapply(controls.counts, function(x) which(x)) ## Identify cell barcodes to remove
+  drop.barcodes.controls <- BiocParallel::bplapply(controls.counts, which) ## Identify cell barcodes to remove
   print("Updating object information...")
-  drop.barcodes.controls.names <- BiocParallel::bplapply(drop.barcodes.controls, function(x) names(x))
+  drop.barcodes.controls.names <- BiocParallel::bplapply(drop.barcodes.controls, names)
 
     ### Barcode master list of cells to remove
   remove.cell.barcodes <- c(drop.barcodes.libsize, drop.barcodes.feature, drop.barcodes.controls)

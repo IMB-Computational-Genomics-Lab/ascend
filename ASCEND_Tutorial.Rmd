@@ -350,10 +350,11 @@ This dendrogram shows each cluster and their members.
 *WARNING! This step is computationally intensive!*
 This workflow uses DESeq to determine which genes are differentially expressed. 
 
-#### Running differential expression with ASCEND (Slower)
-This method is slow and more memory intensive, but does not require much input from the user.
+#### Running differential expression
+
 ##### Differential expression with a defined condition
-```{r, eval = FALSE}
+
+```{r}
 # Prepare condition - Cluster 1 vs Others
 condition.a <- "1"
 condition.b <- "Others"
@@ -372,6 +373,8 @@ diff.exp.obj <- RunDiffExpression(clustered.obj, condition.a = condition.a, cond
 ```
 
 ##### Differential expression comparing each cluster to others
+You can also compare each cluster to other clusters using RunClusterDiffExpression.
+
 ```{r}
 diff.exp.obj <- RunClusterDiffExpression(clustered.obj)
 ```
