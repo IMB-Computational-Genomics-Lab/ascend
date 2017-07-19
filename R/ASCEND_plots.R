@@ -282,8 +282,42 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
                                               y = c(yBottom[j + 1], yBottom[j + 1]))
 }
 
-PlotTSNE <- function(x){
+#' PlotTSNE
+#' 
+#' Generates a TSNE plot.
+#' 
+PlotTSNE2D <- function(object, PCA = TRUE, condition.list = list()){
+  # Input checks
+  if (class(object) != "AEMSet"){
+    stop("Please supply an AEMSet to this function.")
+  }
+  if(PCA){
+    if (!(length(object@PCA) > 0)){
+      stop("Please reduce this dataset with RunPCA before using this function.")
+    } else{
+      pca.barcodes <- rownames(object@PCA$ReducedPCA)
+      condition.list <- condition.list[pca.barcodes]
+      if (!(length(condition.list) > 0)){
+        stop("Please ensure all cell identifiers specified in the condition list are in the AEMSet.")
+      }
+    }
+  } else{
+    if (!all(names(condition.list) %in% object@ExpressionMatrix)){
+      stop("Please ensure all cell identifiers specified in the condition list are in the AEMSet.")
+    }
+  }
   
+  # Run TSNE in 2D
+  tsne.df <- RunTSNE(object, PCA = PCA, dimensions = 2)
+  
+  # Generate Plots
+  if (length(condition.list) > 0){
+    tsne.df$conditions <- condition.list
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
+  } else{
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point()
+  }
+  return(tsne.plot)
 }
 
 #' PlotPCAVariance

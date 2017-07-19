@@ -23,8 +23,8 @@ CalcRowVariance <- function(x){
 
 #' RunTSNE
 #'
-#' @param object An \linkS4class{AEMSet} object, or an expression matrix than can either be a full count matrix or a PCA-reduced matrix.
-#' @param PCA Set this PCA flag to true if you are using a PCA-reduced matrix.
+#' @param object An \linkS4class{AEMSet} object.
+#' @param PCA Set this PCA flag to true if you would like to reduce the PCA matrix stored in the \linkS4class{AEMSet}.
 #' @param dimensions Number of dimensions you would like to reduce to
 #'
 RunTSNE <- function(object, PCA=FALSE, dimensions = 2){
@@ -41,11 +41,10 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2){
         PCA <- FALSE
       }
     }
-  } else if(is.matrix(object) || is.data.frame(object)){
-    x <- object
   } else{
     stop("Please supply an AEMSet, matrix or dataframe.")
   }
+  
   # Will load a matrix to work with, regardless
   if (PCA){
     transposed.matrix <- as.matrix(x)
@@ -63,7 +62,10 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2){
     rownames(tsne.mtx) <- colnames(x)
   }
 
-  return(tsne.mtx)
+  output.list <- list()
+  output.list[[as.character(dimensions)]] <- tsne.mtx
+  object@TSNE <- c(object@TSNE, output.list)
+  return(object)
 }
 
 #' RunPCA
