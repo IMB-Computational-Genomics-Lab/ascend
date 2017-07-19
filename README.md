@@ -33,12 +33,13 @@ Here are some example configurations:
 #### Single-machine multicore (Linux/Unix)
 ```R
 ncores <- parallel::detectCores() - 1
-register(MulticoreParam(workers = ncores), default = TRUE)
+register(MulticoreParam(workers = ncores, progressbar = TRUE), default = TRUE)
 ```
 
 #### Single-machine multicore (Windows, SNOW)
 ```R
-example snow code
+workers <- 3
+register(SnowParam(workers = workers, type = "SOCK", progressbar = TRUE), default = TRUE)
 ```
 
 #### Cluster (PBSPro)

@@ -268,8 +268,8 @@ GenerateClusteringMatrix <- function(original.clusters, cluster.list){
   return(cluster.matrix)
 }
 
-RetrieveCluster <- function(hclust.obj, dist.mtx, height=0){
-  clusters <- unname(dynamicTreeCut::cutreeDynamic(hclust.obj, distM=as.matrix(dist.mtx), minSplitHeight=height, verbose=0))
+RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
+  clusters <- unname(dynamicTreeCut::cutreeDynamic(hclust.obj, distM=as.matrix(distance.matrix), minSplitHeight=height, verbose=0))
   return(clusters)
 }
 
@@ -314,7 +314,7 @@ FindOptimalClusters <- function(object){
   # Features number of clusters produced at varying dendrogram cut heights
   # Perform 40 dynamic tree cuts at varying heights
   print("Determining best number of clusters...")
-  cluster.list <- BiocParallel::bplapply(seq(0.025:1, by=0.025), function(x) RetrieveCluster(original.tree, distance.matrix, height = x))
+  cluster.list <- BiocParallel::bplapply(seq(0.025:1, by=0.025), RetrieveCluster, hclust.obj = original.tree, distance.matrix = distance.matrix)
   height.list <- BiocParallel::bplapply(seq(0.025:1, by=0.025), function(x) x)
   cluster.matrix <- GenerateClusteringMatrix(original.clusters, cluster.list)
 

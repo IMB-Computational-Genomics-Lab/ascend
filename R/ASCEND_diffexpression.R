@@ -152,7 +152,7 @@ RunClusterDiffExpression <- function(object){
   cluster.list <- as.factor(object@Clusters$Clusters)
   clusters <- sort(unique(cluster.list))
   print("Generating conditions...")
-  condition.lists <- BiocParallel::bplapply(clusters, GenerateConditionList, condition.a = x, condition.b = "Others", barcode.list = cluster.list)
+  condition.lists <- BiocParallel::bplapply(clusters, function(x) GenerateConditionList, condition.a = x, condition.b = "Others", barcode.list = cluster.list)
   names(condition.lists) <- clusters
 
   for (x in names(condition.lists)){
