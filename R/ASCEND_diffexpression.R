@@ -12,7 +12,7 @@ RunDESeq <- function(data, condition.list = list(), condition.a = NULL, conditio
 }
 
 # Called by RunClusterDiffExpression
-GenerateConditionList <- function(barcode.list, condition.a = NULL, condition.b = NULL){
+GenerateConditionList <- function(condition.a = NULL, condition.b = NULL, barcode.list = NULL){
   condition.a.idx <- which(barcode.list == as.character(condition.a))
   condition.b.idx <- which(barcode.list != as.character(condition.a))
   condition.list <- as.vector(barcode.list)
@@ -152,7 +152,7 @@ RunClusterDiffExpression <- function(object){
   cluster.list <- as.factor(object@Clusters$Clusters)
   clusters <- sort(unique(cluster.list))
   print("Generating conditions...")
-  condition.lists <- BiocParallel::bplapply(clusters, function(x) GenerateConditionList, condition.a = x, condition.b = "Others", barcode.list = cluster.list)
+  condition.lists <- lapply(clusters, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = cluster.list))
   names(condition.lists) <- clusters
 
   for (x in names(condition.lists)){
