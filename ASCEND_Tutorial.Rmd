@@ -17,7 +17,7 @@ library(Matrix)
 This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html) for its functions. Before you begin, you should register a BiocParallel backend in order to get the best performance out of this package.
 
 ##### Single-machine multicore (Linux/Unix)
-```{r, eval = TRUE}
+```{r BiocParallelSetupUnix, eval=TRUE}
 ncores <- parallel::detectCores() - 1
 register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
 ```
@@ -302,7 +302,7 @@ print(scran.qc$LibSizeHistograms$Normalised)
 Principal component analysis (PCA) .........
 
 ```{r}
-pca.obj <- RunPCA(rle.obj)
+pca.obj <- RunPCA(scran.obj)
 ```
 
 We can plot the results using PlotPCAVariance and see how much the top principal components contribute to the dataset.
@@ -316,17 +316,16 @@ As we can see, the majority of the variances occur in the top five principal com
 reduced.pca <- ReduceDimensions(pca.obj, n = 20)
 ```
 
-***PCA plots?***
-
 #### Dimension reduction via t-Distributed Stochastic Neighbour Embedding (TSNE)
 We can visualise the distances between cells using tSNE. Usually, this method is computationally intensive but as we have reduced our dataset via PCA, we can simply run Rtsne's TSNE function on the reduced matrix. This reduces all the information into the number of dimensions of your own choosing.
 
-```{r}
-tsne.obj <- RunTSNE(reduced.pca, PCA = TRUE, dimensions = 2)
-tsne.obj[1:10,]
-```
+We can also colour the TSNE plot by adding additional information, such as batch information.
 
-*** PlotTSNE function ***
+```{r}
+condition.list <- GetBatchInfo(reduced.pca)
+tsne.plot <- PlotTSNE(reduced.pca, dimensions = 2, PCA = TRUE, condition.list = condition.list)
+print(tsne.plot)
+```
 
 ### Clustering
 We can perform unsupervised clustering with the FindOptimalClusters function. This function performs a series of dynamicTreeCut and determines which cut height produces the most stable number of clusters. 
@@ -354,7 +353,7 @@ This workflow uses DESeq to determine which genes are differentially expressed.
 
 ##### Differential expression with a defined condition
 
-```{r, echo = FALSE}
+```{r, eval = FALSE}
 # Prepare condition - Cluster 1 vs Others
 condition.a <- "1"
 condition.b <- "Others"
@@ -374,7 +373,7 @@ diff.exp.obj <- RunDiffExpression(clustered.obj, condition.a = condition.a, cond
 ##### Differential expression comparing each cluster to others
 You can also compare each cluster to other clusters using RunClusterDiffExpression.
 
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 diff.exp.obj <- RunClusterDiffExpression(clustered.obj)
 ```
 

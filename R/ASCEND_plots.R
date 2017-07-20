@@ -34,7 +34,7 @@ PlotDendrogram <- function(object){
   cut.height <- max(hclust.obj$height) * optimal.height
   hclust.obj$labels <- rep("", length(hclust.obj$labels))
   dendro.obj <- as.dendrogram(hclust.obj)
-  
+
   # Get values
   cut.tree <- cut(dendro.obj, h = cut.height)$upper
   node.info <- unlist(stats::dendrapply(cut.tree, function(x) GetNodeInfo(x, cluster.df)))
@@ -282,15 +282,60 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
                                               y = c(yBottom[j + 1], yBottom[j + 1]))
 }
 
+#' PlotMDS
+#' 
+#' Generates a Multi-Dimensional Scaling (MDS) plot.
+#' 
+#'  @param object An \linkS4class{AEMSet} that has undergone clustering with \code{FindOptimalClusters}.
+#'  @param PCA If true, use PCA-reduced matrix to generate MDS plot
+PlotMDS <- function(object, PCA = TRUE){
+  if (class(object) != "AEMSet"){
+    stop("Please supply an AEMSet object.")
+  }
+  
+  # Retrieve distance matrix
+  if (PCA){
+    # Stop if user hasn't run PCA.
+    if (length(object@PCA) == 0){
+      stop("Please use RunPCA on this object before using the PCA argument for this function.")
+    }
+    
+    # Retrieve distance matrix
+    if (length(object@Clusters) > 0){
+      distance.matrix <- object@Clusters$DistanceMatrix    
+    } else{
+      print("Calculating distance matrix from top 20 PCAs...")
+      pca.matrix <- object@PCA$PCA[,1:20]
+      distance.matrix <- stats::dist(pca.matrix)
+    }    
+  } else{
+    print("Calculating distance matrix from expression data...")
+    expression.matrix <- GetExpressionMatrix(object, "matrix")
+    transposed.matrix <- Matrix::t(expression.matrix)
+    distance.matrix <- stats::dist(transposed.matrix)
+  }
+
+  # Scale matrix
+  mds.matrix <-stats::cmdscale(distance.matrix, k = 2, eig = TRUE, add = TRUE, x.ret = TRUE)
+  
+  # 
+}
+
 #' PlotTSNE
+#'
+#' Generates a TSNE plot. 
+#'
+#' @param object An \linkS4class{AEMSet}.
+#' @param PCA Set to FALSE to not use PCA-reduced values
+#' @param dimensions 2D or 3D plot
+#' @param condition.list Optional - a list of cell identifiers and their associated condition.
 #' 
-#' Generates a TSNE plot.
-#' 
-PlotTSNE2D <- function(object, PCA = TRUE, condition.list = list()){
+PlotTSNE <- function(object, dimensions = 2, PCA = TRUE, condition.list = list(), seed = 0){
   # Input checks
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet to this function.")
   }
+
   if(PCA){
     if (!(length(object@PCA) > 0)){
       stop("Please reduce this dataset with RunPCA before using this function.")
@@ -306,18 +351,55 @@ PlotTSNE2D <- function(object, PCA = TRUE, condition.list = list()){
       stop("Please ensure all cell identifiers specified in the condition list are in the AEMSet.")
     }
   }
-  
+
   # Run TSNE in 2D
-  tsne.df <- RunTSNE(object, PCA = PCA, dimensions = 2)
-  
+  tsne.df<- RunTSNE(object, PCA = PCA, dimensions = dimensions, seed = seed)
+
   # Generate Plots
-  if (length(condition.list) > 0){
-    tsne.df$conditions <- condition.list
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
+  if (dimensions == 2){
+    if (length(condition.list) > 0){
+      tsne.df$conditions <- as.factor(unlist(condition.list))
+      tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
+    } else{
+      tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point()
+    }
   } else{
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point()
+    tsne.plot <- "Plot 3D"
   }
-  return(tsne.plot)
+
+  # Store TSNE matrix and plot in TSNE slot
+  output <- list(TSNE = tsne.df, Plot = tsne.plot, Seed = seed)
+  return(output)
+}
+
+#' PlotPCA
+#' 
+#' Plot two principal components (PCs) on a scatter plot.
+#' 
+#' @param object An \linkS4class{AEMSet} object that has undergone PCA
+#' @param dim1 Principal component to plot on the x-axis
+#' @param dim2 Principal component to plot on the y-axis
+#' @param condition.list (Optional) A list of barcodes and associated conditions to colour points by
+#' 
+PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition.list = list()){
+  # Check if PCA has been run
+  if(length(object@PCA) == 0){
+    stop("Please supply an object that has undergone PCA reduction.")
+  }
+  
+  # Extract dimensions to plot
+  pca.matrix <- object@PCA$PCA
+  plot.matrix <- pca.matrix[,c(dim1, dim2)]
+  colnames(plot.matrix) <- c("x", "y")
+  
+  if (length(condition.list) > 0){
+    plot.matrix$conditions <- as.factor(unlist(condition.list))
+    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
+  } else{
+    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point()
+  }
+  
+  return(pca.plot)
 }
 
 #' PlotPCAVariance
@@ -344,7 +426,7 @@ PlotPCAVariance <- function(object, n){
 #' @param original An un-normalised \linkS4class{AEMSet}
 #' @param normalised A normalised \linkS4class{AEMSet}
 #' @param gene Gene to plot expression levels for (optional)
-#' 
+#'
 PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL) {
   # Insert Check For Normalisation
   if(!is.null(original@Log$NormalisationMethod)){
@@ -403,7 +485,7 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
   } else {
     gene.original <- matrix.original[gene,][which(matrix.original[gene, ] > 0)]
     gene.normalised <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
-  }    
+  }
 
   print(sprintf("Plotting %s expression...", gene))
   original.scatter <- ggplot2::qplot(x = 1:length(gene.original), y = unlist(gene.original), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation", gene), xlab="Cells" , ylab="Gene expression")
@@ -602,9 +684,9 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
     if(names(control.list) == c("Mt", "Rb")){
       object <- ExcludeControl(object, "Mt")
       object <- ExcludeControl(object, "Rb")
-    }  
+    }
   }
-  
+
   plot.title <- sprintf("Top %i Expressed Genes", n)
   sparse.matrix <- object@ExpressionMatrix
   expression.matrix <- LoadDataFrame(sparse.matrix)

@@ -5,24 +5,43 @@
 
 ### Installation
 #### Required Packages
-- BiocParallel
-- Matrix
-- dplyr
-- data.table
-- reshape2
-- ggplot2
-- RColorBrewer
+- **BiocParallel**
+- **Matrix**
+- **dplyr**
+- **data.table**
+- **reshape2**
+- **ggplot2**
+- **RColorBrewer**
 
 #### Recommended Packages
-- scater
-- scran
-- limSolve
-- dynamicTreeCut
-- Rtsne
-- DESeq
+- **scater**
+  - Required for the following functions:
+    - scranNormalise
+- **scran**
+  - Required for the following functions:
+    - scranNormalise
+- **limSolve**
+  - Required for the following functions:
+- **dynamicTreeCut**
+  - Required for the following functions:
+    - FindOptimalClusters
+    - RunClusterDiffExpression
+- **Rtsne**
+  - Required for the following functions:
+    - PlotTSNE
+- **DESeq**
+  - Required for the following functions:
+    - RunClusterDiffExpression
+    - RunDiffExpression
+- **cellrangerRkit**
+  - Required for the following functions:
+    - MergeCellRanger
 
 #### Installing ASCEND
-Installation instructions here.
+This package is still undergoing development, so is best installed via devtools.
+```R
+devtools::load_all("/Path/To/ASCEND")
+```
 
 ### Getting started
 #### Configuring BiocParallel
@@ -59,6 +78,7 @@ More details here.
 
 You can also use publicly available data, such as:
 
+
 ##### Expression Matrix
 The main source of input is an expression matrix, or a gene/cell matrix containing transcript counts. They are usually produced at the end of single cell RNA-seq processing pipelines such as Cell Ranger and DropSeq.
 
@@ -72,6 +92,8 @@ ASCEND is able to use any row and column names in the expression matrix, provide
 
 ##### Combining expression matrices from different batches
 You can concatenate multiple expression matrices with the function *MergeExprsMtx*. The tutorial will later explain how to normalise counts between these combined expression matrices.
+
+If you would like to aggregate expression matrices from Cell Ranger, it is recommended you use Cell Ranger's aggr function or the *MergeCellRanger* function that comes with this package.
 
 #### Batch Information
 Batch Information is a named list containing cell identifiers and their associated batch. ASCEND will automatically generate batch information for an expression matrix if none are provided. However, it will make the assumption that there is only one batch of cells in the expression matrix.

@@ -23,11 +23,11 @@ CalcRowVariance <- function(x){
 
 #' RunTSNE
 #'
-#' @param object An \linkS4class{AEMSet} object.
-#' @param PCA Set this PCA flag to true if you would like to reduce the PCA matrix stored in the \linkS4class{AEMSet}.
+#' @param object An expression matrix or a PCA-reduced matrix.
+#' @param PCA Set this PCA flag to true if the object is a PCA-reduced matrix.
 #' @param dimensions Number of dimensions you would like to reduce to
 #'
-RunTSNE <- function(object, PCA=FALSE, dimensions = 2){
+RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0){
   if (class(object) == "AEMSet"){
     if (PCA){
       if (!is.null(object@PCA$ReducedPCA)){
@@ -52,6 +52,7 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2){
     transposed.matrix <- as.matrix(Matrix::t(x))
   }
 
+  set.seed(seed)
   tsne.3d <- Rtsne::Rtsne(transposed.matrix,dims=dimensions, pca = PCA, ignore_duplicates = TRUE)
   tsne.mtx <- data.frame(tsne.3d$Y)
 
@@ -62,10 +63,7 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2){
     rownames(tsne.mtx) <- colnames(x)
   }
 
-  output.list <- list()
-  output.list[[as.character(dimensions)]] <- tsne.mtx
-  object@TSNE <- c(object@TSNE, output.list)
-  return(object)
+  return(tsne.mtx)
 }
 
 #' RunPCA
