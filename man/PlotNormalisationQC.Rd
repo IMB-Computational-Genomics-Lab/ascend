@@ -4,12 +4,14 @@
 \alias{PlotNormalisationQC}
 \title{PlotNormalisationQC}
 \usage{
-PlotNormalisationQC(Original = NULL, Normalised = NULL)
+PlotNormalisationQC(original = NULL, normalised = NULL, gene = NULL)
 }
 \arguments{
-\item{Original}{An un-normalised \linkS4class{AEMSet}}
+\item{original}{An un-normalised \linkS4class{AEMSet}}
 
-\item{Normalised}{A normalised \linkS4class{AEMSet}}
+\item{normalised}{A normalised \linkS4class{AEMSet}}
+
+\item{gene}{Gene to plot expression levels for (optional)}
 }
 \description{
 Generates a series of plots comparing an un-normalised and a normalised \linkS4class{AEMSet}.

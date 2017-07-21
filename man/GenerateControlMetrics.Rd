@@ -4,7 +4,8 @@
 \alias{GenerateControlMetrics}
 \title{GenerateControlMetrics}
 \usage{
-GenerateControlMetrics(x, expression.matrix, control.list, total.counts)
+GenerateControlMetrics(x, expression.matrix = NULL, control.list = NULL,
+  total.counts = NULL)
 }
 \arguments{
 \item{x}{Name of a control listed in Controls}

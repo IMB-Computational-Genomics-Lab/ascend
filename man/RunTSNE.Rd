@@ -4,14 +4,21 @@
 \alias{RunTSNE}
 \title{RunTSNE}
 \usage{
-RunTSNE(x, PCA = FALSE, dimensions = 2)
+RunTSNE(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 30,
+  theta = 0.5)
 }
 \arguments{
-\item{x}{An expression matrix than can either be a full count matrix or a PCA-reduced matrix.}
+\item{object}{An expression matrix or a PCA-reduced matrix.}
 
-\item{PCA}{Set this PCA flag to true if you are using a PCA-reduced matrix.}
+\item{PCA}{Set this PCA flag to true if the object is a PCA-reduced matrix.}
 
 \item{dimensions}{Number of dimensions you would like to reduce to}
+
+\item{seed}{(Optional) Set to a specific value for reproducible TSNE plots}
+
+\item{perplexity}{(Optional) Numeric; perplexity parameter}
+
+\item{theta}{(Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)}
 }
 \description{
 RunTSNE

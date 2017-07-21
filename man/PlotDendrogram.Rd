@@ -6,6 +6,9 @@
 \usage{
 PlotDendrogram(object)
 }
+\arguments{
+\item{object}{An \linkS4class{AEMSet} that has undergone clustering}
+}
 \description{
 PlotDendrogram
 }

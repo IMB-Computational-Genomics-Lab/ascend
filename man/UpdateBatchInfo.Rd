@@ -2,7 +2,7 @@
 % Please edit documentation in R/ASCEND_objects.R
 \name{UpdateBatchInfo}
 \alias{UpdateBatchInfo}
-\title{UpdateBatchInformation}
+\title{UpdateBatchInfo}
 \usage{
 UpdateBatchInfo(object)
 }

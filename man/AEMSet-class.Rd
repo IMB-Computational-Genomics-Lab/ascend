@@ -22,6 +22,8 @@ An S4 class to contain data in a format ASCEND can work with for analysis.
 
 \item{\code{PCA}}{Objects related to dimension reduction, such as a PCA matrix, a reduced PCA matrix and a list of percentage variance values per principle component.}
 
+\item{\code{TSNE}}{TSNE-reduced matrices used for plotting.}
+
 \item{\code{Clusters}}{Objects related to clustering, including a distance matrix, a hclust object, cell identifiers and their associated cluster.}
 
 \item{\code{DifferentialExpression}}{Differential expression results from DESeq.}

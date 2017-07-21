@@ -4,7 +4,7 @@
 \alias{PlotTopGeneExpression}
 \title{PlotTopGeneExpression}
 \usage{
-PlotTopGeneExpression(object, n = 50)
+PlotTopGeneExpression(object, n = 50, controls = TRUE)
 }
 \arguments{
 \item{object}{A AEMSet object}
