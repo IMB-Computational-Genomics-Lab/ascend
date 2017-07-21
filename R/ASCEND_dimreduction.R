@@ -26,8 +26,11 @@ CalcRowVariance <- function(x){
 #' @param object An expression matrix or a PCA-reduced matrix.
 #' @param PCA Set this PCA flag to true if the object is a PCA-reduced matrix.
 #' @param dimensions Number of dimensions you would like to reduce to
-#'
-RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0){
+#' @param seed (Optional) Set to a specific value for reproducible TSNE plots
+#' @param perplexity (Optional) Numeric; perplexity parameter
+#' @param theta (Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)
+#' 
+RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5){
   if (class(object) == "AEMSet"){
     if (PCA){
       if (!is.null(object@PCA$ReducedPCA)){
@@ -52,10 +55,11 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0){
     transposed.matrix <- as.matrix(Matrix::t(x))
   }
 
+  print("Running Rtsne...")
   set.seed(seed)
-  tsne.3d <- Rtsne::Rtsne(transposed.matrix,dims=dimensions, pca = PCA, ignore_duplicates = TRUE)
-  tsne.mtx <- data.frame(tsne.3d$Y)
-
+  tsne <- Rtsne::Rtsne(transposed.matrix, dims=dimensions, pca = PCA, perplexity = perplexity, theta = theta, ignore_duplicates = TRUE)
+  tsne.mtx <- data.frame(tsne$Y)
+  print("Rtsne complete! Returning matrix...")
   # Add cell names back to the results
   if (PCA){
     rownames(tsne.mtx) <- rownames(x)

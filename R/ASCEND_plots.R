@@ -11,6 +11,8 @@ GetNodeInfo <- function(x, count.table){
 
 #' PlotDendrogram
 #'
+#' @param object An \linkS4class{AEMSet} that has undergone clustering
+#' 
 PlotDendrogram <- function(object){
   # Input Checks
   if(class(object) == "AEMSet"){
@@ -39,7 +41,7 @@ PlotDendrogram <- function(object){
   cut.tree <- cut(dendro.obj, h = cut.height)$upper
   node.info <- unlist(stats::dendrapply(cut.tree, function(x) GetNodeInfo(x, cluster.df)))
   coloured.dendro <- dendextend::color_branches(dendro.obj, h = cut.height, groupLabels = node.info)
-  plot(coloured.dendro)
+  return(coloured.dendro)
 }
 
 #' PlotStability
@@ -80,9 +82,7 @@ PlotStability <- function(object){
   return(diagnostic.plot)
 }
 
-
-
-PlotClusterDendro <- function (object, groupLabels = NULL, rowText = NULL,
+PlotClusterDendro <- function (dendro, colors, groupLabels = NULL, rowText = NULL,
                                rowTextAlignment = c("left", "center", "right"), rowTextIgnore = NULL,
                                textPositions = NULL, setLayout = TRUE, autoColorHeight = TRUE,
                                colorHeight = 0.2, rowWidths = NULL, dendroLabels = NULL,
@@ -91,8 +91,8 @@ PlotClusterDendro <- function (object, groupLabels = NULL, rowText = NULL,
                                cex.rowText = 0.8, marAll = c(1, 5, 3, 1), saveMar = TRUE,
                                abHeight = NULL, abCol = "red", ...)
 {
-  dendro <- object@Clusters$HClust
-  colors <- object@Clusters$ClusteringMatrix
+  #dendro <- object@Clusters$HClust
+  #colors <- object@Clusters$ClusteringMatrix
   dendro$labels <- rep('', length(dendro$labels))
 
   oldMar = par("mar")
@@ -282,13 +282,35 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
                                               y = c(yBottom[j + 1], yBottom[j + 1]))
 }
 
+#' PlotStabilityDendro
+#' 
+#' @param object A \links4class{AEMSet} that has undergone clustering.
+#' 
+PlotStabilityDendro <- function(object){
+  # Check that the user has done the required steps.
+  if (length(object@Clusters) == 0){
+    stop("Please run FindOptimalClusters on this object before using this function.")
+  }  
+  
+  # Get the variables
+  dendro <- object@Clusters$Hclust
+  colours <- object@Clusters$ClusteringMatrix
+  
+  # Plotting function
+  print(PlotClusterDendro(dendro, colours))
+}
+
+
 #' PlotMDS
 #' 
 #' Generates a Multi-Dimensional Scaling (MDS) plot.
 #' 
 #'  @param object An \linkS4class{AEMSet} that has undergone clustering with \code{FindOptimalClusters}.
 #'  @param PCA If true, use PCA-reduced matrix to generate MDS plot
-PlotMDS <- function(object, PCA = TRUE){
+#'  @param dim1 Which dimension to plot on the x-axis
+#'  @param dim2 Which dimension to plot on the y-axis
+#'  
+PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = list()){
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet object.")
   }
@@ -316,21 +338,34 @@ PlotMDS <- function(object, PCA = TRUE){
   }
 
   # Scale matrix
+  print("Running cmdscale...")
   mds.matrix <-stats::cmdscale(distance.matrix, k = 2, eig = TRUE, add = TRUE, x.ret = TRUE)
+  print("Cmdscale complete! Processing scaled data...")
+  mds.matrix.vals <- as.data.frame(mds.matrix$x[,c(dim1,dim2)])
+  rownames(mds.matrix.vals) <- rownames(mds.matrix$points)
   
-  # 
+  print("Generating MDS plot...")
+  if (length(condition.list) > 0){
+    mds.matrix.vals$condition <- unlist(condition.list)
+    mds.plot <- ggplot2::ggplot(mds.matrix.vals, ggplot2::aes(V1,V2, col=factor(condition))) + ggplot2::geom_point()
+  } else{
+    mds.plot <- ggplot2::ggplot(mds.matrix.vals, ggplot2::aes(V1,V2)) + ggplot2::geom_point()
+  }
+  return(mds.plot)
 }
 
 #' PlotTSNE
 #'
-#' Generates a TSNE plot. 
+#' Generates a 2D TSNE plot. 
 #'
 #' @param object An \linkS4class{AEMSet}.
 #' @param PCA Set to FALSE to not use PCA-reduced values
-#' @param dimensions 2D or 3D plot
-#' @param condition.list Optional - a list of cell identifiers and their associated condition.
+#' @param condition.list (Optional) A list of cell identifiers and their associated condition
+#' @param seed (Optional) Set to a specific value for reproducible TSNE plots
+#' @param perplexity (Optional) Numeric; perplexity parameter
+#' @param theta (Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)
 #' 
-PlotTSNE <- function(object, dimensions = 2, PCA = TRUE, condition.list = list(), seed = 0){
+PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perplexity = 30, theta = 0.5){
   # Input checks
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet to this function.")
@@ -353,18 +388,14 @@ PlotTSNE <- function(object, dimensions = 2, PCA = TRUE, condition.list = list()
   }
 
   # Run TSNE in 2D
-  tsne.df<- RunTSNE(object, PCA = PCA, dimensions = dimensions, seed = seed)
+  tsne.df<- RunTSNE(object, PCA = PCA, dimensions = 2, seed = seed, perplexity = perplexity, theta = theta)
 
   # Generate Plots
-  if (dimensions == 2){
-    if (length(condition.list) > 0){
-      tsne.df$conditions <- as.factor(unlist(condition.list))
-      tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
-    } else{
-      tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point()
-    }
+  if (length(condition.list) > 0){
+    tsne.df$conditions <- as.factor(unlist(condition.list))
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
   } else{
-    tsne.plot <- "Plot 3D"
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point()
   }
 
   # Store TSNE matrix and plot in TSNE slot
