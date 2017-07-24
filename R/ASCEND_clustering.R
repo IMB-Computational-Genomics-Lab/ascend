@@ -9,14 +9,21 @@ GetConsecutiveSequence <- function(x){
       current.val <- x[current.idx]
       next.val <- x[next.idx]
       step.val <- next.val - current.val
-      if (step.val == 1){
-        if (length(consecutive) > 0){
-          if (current.val - consecutive[length(consecutive)] == 1){
-            consecutive <- c(consecutive, current.val)
-          }
-        } else{
+    } else{
+      current.idx <- i
+      previous.idx <- i - 1
+      previous.val <- x[previous.idx]
+      current.val <- x[current.idx]
+      step.val <- current.val - previous.val
+    }
+    
+    if (step.val == 1){
+      if (length(consecutive) > 0){
+        if (current.val - consecutive[length(consecutive)] == 1){
           consecutive <- c(consecutive, current.val)
         }
+      } else{
+        consecutive <- c(consecutive, current.val)
       }
     }
   }
@@ -27,85 +34,39 @@ GetConsecutiveSequence <- function(x){
 # Called by FindOptimalClusters
 FindOptimalResult <- function(key.stats.df){
   # Set up iterative variables
-  optimal.param <- 0
-  stability <- key.stats.df$Stability
-  unique.stability <-unique(stability)
-
-  # Determine stability centre
-  max.stability <- stability[which.max(stability)]
-  stability.max.centre <- unique.stability[-which(unique.stability == stability[1])];
-  stability.max.centre <- stability.max.centre[-which(stability.max.centre == stability[40])];
-  stability.max.centre <- stability.max.centre[which.max(stability.max.centre)]
-
-  # Default stability minus max
-  stability.sub.max <- stability - max.stability
-
-  # Split stability into half
-  stability.1 <- stability[1:20]
-  stability.2 <- stability[21:40]
-
-  # Check if either end does not change
-  initial.check <- c(FALSE, FALSE)
-  if (length(unique(stability.1)) == 1){
-    initial.check[1] <- TRUE
-  }
-
-  if (length(unique(stability.2)) == 1){
-    initial.check[2] <- TRUE
-  }
-
-  # Changes lie in the first 20
-  # Or within the last 20
-  # Or somewhere in between
-  if (identical(initial.check, c(TRUE, FALSE))){
-    if (stability.1[20] %in% stability.2){
-      stability.2.idx <- which(stability.2 == stability.1[20])
-      if (21 %in% stability.2.idx){
-        consecutive.index <- GetConsecutiveSequence(stability.2.idx)
-        optimal.param <- stability.2[max(consecutive.index)]
-      } else{
-        optimal.param <- stability.1[2]
-      }
-    } else{
-      optimal.param <-stability.1[20]
-    }
-  } else if (identical(initial.check, c(FALSE, TRUE))){
-    if (stability.2[1] %in% stability.1){
-      stability.idx <- c(which(stability.1 == stability.2[1]))
-      if (19 %in% stability.idx){
-        consecutive.index <- GetConsecutiveSequence(stability.idx)
-        optimal.param <- stability.1[min(consecutive.index)]
-      }
-      optimal.param <- min(stability.idx)
-    } else{
-      optimal.param <- stability.2[1]
-    }
+  # Find Optimal Values
+  key.stats <- BuildKeyStat(rand.idx.matrix)
+  # Get stability values for most clusters and least clusters
+  # Which one is greater than the other one?
+  max.min.idx <- c(1,40)
+  stability <- key.stats$Stability
+  endpoint.stability.idx <- max.min.idx[which(stability[max.min.idx] == max(stability[max.min.idx]))]
+  endpoint.stability.value <- stability[endpoint.stability.idx]
+  if (endpoint.stability.value >= 0.5){
+    optimal.idx <- endpoint.stability.idx
   } else{
-    consecutive <- c()
-    counter <- 0
+    # Find plateaus
+    left.plateau <- GetConsecutiveSequence(which(stability == stability[1]))
+    right.plateau <- GetConsecutiveSequence(which(stability == stability[40]))
     
-    for (i in 1:length(stability)){
-      if (i != length(stability)){
-        current.idx <- i;
-        next.idx <- i + 1;
-        current.val <- stability[current.idx];
-        next.val <- stability[next.idx];
-        if (current.val != next.val){
-          counter <- 1
-        } else{
-          counter <- counter + 1
-        }
-      } else{
-        counter <- counter + 1
+    # Get rand indexes
+    rand.idx.values <- key.stats$RandIndex[max(left.plateau)+1:min(right.plateau)-1]
+    unique.rand.idx <- unique(rand.idx.values)
+    consecutive.vals <- list()
+    for (idx in unique.rand.idx){
+      indexes <- which(key.stats$RandIndex == idx)
+      if (length(indexes) > 1){
+        consecutive.indexes <- GetConsecutiveSequence(indexes)
+        consecutive.vals[[as.character(idx)]] <- consecutive.indexes
       }
-      consecutive <- c(consecutive, counter)
     }
-
-    # Get the longest continuous flatline
-    endpoint <- min(which(max(consecutive) == consecutive))
-    optimal.param <- endpoint - max(consecutive)
+    
+    # Match longest
+    optimal.rand.idx <- names(consecutive.vals)[which.max(sapply(consecutive.vals, length))]
+    optimal.rows <- consecutive.vals[[optimal.rand.idx]]
+    optimal.idx <- min(optimal.rows)
   }
-  return(optimal.param)
+  return(optimal.idx) 
 }
 
 # Generates a bunch of values based on other calculates.

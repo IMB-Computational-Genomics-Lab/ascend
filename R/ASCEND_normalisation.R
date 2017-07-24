@@ -2,7 +2,7 @@
 #'
 #' Normalise an \linkS4class{AEMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
 #'
-#' @param object An \linkS4class{AEMSEt} that has not undergone normalisation.
+#' @param object An \linkS4class{AEMSet} that has not undergone normalisation.
 #'
 scranNormalise <- function(object){
   if(!is.null(object@Log$NormalisationMethod)){
@@ -156,13 +156,13 @@ NormaliseByRLE <- function(object){
     stop("This data is already normalised.")
   }
   expression.matrix <- as.matrix(object@ExpressionMatrix)
-  
+
   print("Calculating geometric means...")
   geo.means <- apply(expression.matrix, 1, CalcGeoMeans)
-  
+
   print("Calculating normalisation factors...")
   norm.factor <- apply(expression.matrix, 2, function(x) CalcNormFactor(x, geo.means))
-  
+
   print("Normalising data...")
   normalised.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
   object@ExpressionMatrix <- LoadSparseMatrix(normalised.matrix)

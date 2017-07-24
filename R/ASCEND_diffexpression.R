@@ -117,7 +117,7 @@ RunDiffExpression <- function(x, condition.a = NULL, condition.b = "Other", cond
   condition.a <- as.character(condition.a)
   condition.b <- as.character(condition.b)
 
-  
+
   # Add all of this information into an environment to load into parallel
   print("Running DESeq...")
   result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, condition.list = condition.list, condition.a = condition.a, condition.b = condition.b)
@@ -135,7 +135,7 @@ RunDiffExpression <- function(x, condition.a = NULL, condition.b = "Other", cond
 #'
 #' Compare the differential expression of genes in each cluster versus other clusters.
 #'
-#' @param object A \linkS4class{AEMSet} object that has undergone clustering with the \link{\code{FindOptimalClusters}} function.
+#' @param object A \linkS4class{AEMSet} object that has undergone clustering with the \code{\link{FindOptimalClusters}} function.
 #'
 RunClusterDiffExpression <- function(object){
   # Object Check

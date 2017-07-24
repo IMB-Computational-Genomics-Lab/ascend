@@ -7,8 +7,8 @@
 PlotStability(object)
 }
 \arguments{
-\item{object}{An \linkS4class(AEMSet) object that has undergone clustering.}
+\item{object}{An \linkS4class{AEMSet} object that has undergone clustering}
 }
 \description{
-Plots
+Plots Stability, Consecutive RI and Rand Index.
 }

@@ -28,7 +28,7 @@ CalcRowVariance <- function(x){
 #' @param dimensions Number of dimensions you would like to reduce to
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
 #' @param perplexity (Optional) Numeric; perplexity parameter
-#' @param theta (Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)
+#' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)
 #' 
 RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5){
   if (class(object) == "AEMSet"){

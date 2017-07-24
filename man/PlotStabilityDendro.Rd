@@ -7,7 +7,7 @@
 PlotStabilityDendro(object)
 }
 \arguments{
-\item{object}{A \links4class{AEMSet} that has undergone clustering.}
+\item{object}{A \linkS4class{AEMSet} that has undergone clustering.}
 }
 \description{
 PlotStabilityDendro

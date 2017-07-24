@@ -7,7 +7,7 @@
 scranNormalise(object)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSEt} that has not undergone normalisation.}
+\item{object}{An \linkS4class{AEMSet} that has not undergone normalisation.}
 }
 \description{
 Normalise an \linkS4class{AEMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.

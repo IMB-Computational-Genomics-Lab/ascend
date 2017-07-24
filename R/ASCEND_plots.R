@@ -12,7 +12,7 @@ GetNodeInfo <- function(x, count.table){
 #' PlotDendrogram
 #'
 #' @param object An \linkS4class{AEMSet} that has undergone clustering
-#' 
+#'
 PlotDendrogram <- function(object){
   # Input Checks
   if(class(object) == "AEMSet"){
@@ -46,8 +46,9 @@ PlotDendrogram <- function(object){
 
 #' PlotStability
 #'
-#' Plots
-#' @param object An \linkS4class(AEMSet) object that has undergone clustering.
+#' Plots Stability, Consecutive RI and Rand Index.
+#'
+#' @param object An \linkS4class{AEMSet} object that has undergone clustering
 #'
 PlotStability <- function(object){
   # User can supply a AEMSet or data frame with rand results to this function
@@ -69,8 +70,8 @@ PlotStability <- function(object){
   }
 
   rand.idx.matrix$stability_count <- rand.idx.matrix$stability_count/40
-  key.stats.df <- as.data.frame(cbind(as.numeric(rand.idx.matrix$order)*0.025, rand.idx.matrix$stability_count, rand.idx.matrix$cluster.index.ref, rand.idx.matrix$cluster.index.consec))
-  colnames(key.stats.df) <-c('Height', 'Stability', 'RandIndex', 'ConsecutiveRI')
+  key.stats.df <- as.data.frame(cbind(as.numeric(rand.idx.matrix$order)*0.025, rand.idx.matrix$stability_count, rand.idx.matrix$cluster.index.ref, rand.idx.matrix$cluster.index.consec, rand.idx.matrix$cluster_count/10))
+  colnames(key.stats.df) <-c('Height', 'Stability', 'RandIndex', 'ConsecutiveRI', 'ClusterCount/10')
 
   key.stats.df$Height <-as.character(key.stats.df$Height)
   key.stats.tidy <- reshape2::melt(key.stats.df, id='Height')
@@ -283,53 +284,53 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
 }
 
 #' PlotStabilityDendro
-#' 
-#' @param object A \links4class{AEMSet} that has undergone clustering.
-#' 
+#'
+#' @param object A \linkS4class{AEMSet} that has undergone clustering.
+#'
 PlotStabilityDendro <- function(object){
   # Check that the user has done the required steps.
   if (length(object@Clusters) == 0){
     stop("Please run FindOptimalClusters on this object before using this function.")
-  }  
-  
+  }
+
   # Get the variables
   dendro <- object@Clusters$Hclust
   colours <- object@Clusters$ClusteringMatrix
-  
+
   # Plotting function
   print(PlotClusterDendro(dendro, colours))
 }
 
 
 #' PlotMDS
-#' 
+#'
 #' Generates a Multi-Dimensional Scaling (MDS) plot.
-#' 
+#'
 #'  @param object An \linkS4class{AEMSet} that has undergone clustering with \code{FindOptimalClusters}.
 #'  @param PCA If true, use PCA-reduced matrix to generate MDS plot
 #'  @param dim1 Which dimension to plot on the x-axis
 #'  @param dim2 Which dimension to plot on the y-axis
-#'  
+#'
 PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = list()){
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet object.")
   }
-  
+
   # Retrieve distance matrix
   if (PCA){
     # Stop if user hasn't run PCA.
     if (length(object@PCA) == 0){
       stop("Please use RunPCA on this object before using the PCA argument for this function.")
     }
-    
+
     # Retrieve distance matrix
     if (length(object@Clusters) > 0){
-      distance.matrix <- object@Clusters$DistanceMatrix    
+      distance.matrix <- object@Clusters$DistanceMatrix
     } else{
       print("Calculating distance matrix from top 20 PCAs...")
       pca.matrix <- object@PCA$PCA[,1:20]
       distance.matrix <- stats::dist(pca.matrix)
-    }    
+    }
   } else{
     print("Calculating distance matrix from expression data...")
     expression.matrix <- GetExpressionMatrix(object, "matrix")
@@ -343,7 +344,7 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
   print("Cmdscale complete! Processing scaled data...")
   mds.matrix.vals <- as.data.frame(mds.matrix$x[,c(dim1,dim2)])
   rownames(mds.matrix.vals) <- rownames(mds.matrix$points)
-  
+
   print("Generating MDS plot...")
   if (length(condition.list) > 0){
     mds.matrix.vals$condition <- unlist(condition.list)
@@ -356,7 +357,7 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
 
 #' PlotTSNE
 #'
-#' Generates a 2D TSNE plot. 
+#' Generates a 2D TSNE plot.
 #'
 #' @param object An \linkS4class{AEMSet}.
 #' @param PCA Set to FALSE to not use PCA-reduced values
@@ -364,7 +365,7 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
 #' @param perplexity (Optional) Numeric; perplexity parameter
 #' @param theta (Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)
-#' 
+#'
 PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perplexity = 30, theta = 0.5){
   # Input checks
   if (class(object) != "AEMSet"){
@@ -404,32 +405,32 @@ PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perp
 }
 
 #' PlotPCA
-#' 
+#'
 #' Plot two principal components (PCs) on a scatter plot.
-#' 
+#'
 #' @param object An \linkS4class{AEMSet} object that has undergone PCA
 #' @param dim1 Principal component to plot on the x-axis
 #' @param dim2 Principal component to plot on the y-axis
 #' @param condition.list (Optional) A list of barcodes and associated conditions to colour points by
-#' 
+#'
 PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition.list = list()){
   # Check if PCA has been run
   if(length(object@PCA) == 0){
     stop("Please supply an object that has undergone PCA reduction.")
   }
-  
+
   # Extract dimensions to plot
   pca.matrix <- object@PCA$PCA
   plot.matrix <- pca.matrix[,c(dim1, dim2)]
   colnames(plot.matrix) <- c("x", "y")
-  
+
   if (length(condition.list) > 0){
     plot.matrix$conditions <- as.factor(unlist(condition.list))
     pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
   } else{
     pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point()
   }
-  
+
   return(pca.plot)
 }
 
@@ -468,6 +469,9 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
     stop("Please supply a normalised AEMSet object.")
   }
 
+  # Set output
+  output.list <- list()
+
   # Get metrics we need from old and new object
   print("Retrieving data from AEMSets...")
   libsize.original <- original@Metrics$TotalCounts
@@ -496,12 +500,15 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
   matrix.normalised <- matrix.normalised[which(rowSums(matrix.normalised) > 0),]
 
   # Plot scatter for GAPDH
-  print("Plotting GAPDH expression...")
-  gapdh <- "GAPDH"
-  gapdh.counts.1 <- matrix.original[gapdh,][which(matrix.original[gapdh, ] > 0)]
-  gapdh.counts.2 <- matrix.normalised[gapdh,][which(matrix.normalised[gapdh, ] > 0)]
-  gapdh.scatter.1 <- ggplot2::qplot(x = 1:length(gapdh.counts.1), y = unlist(gapdh.counts.1), geom="point", alpha=0.2, main='Expression of GAPDH (Before normalisation)', xlab="Cells" , ylab="Gene expression")
-  gapdh.scatter.2 <- ggplot2::qplot(x = 1:length(gapdh.counts.2), y = unlist(gapdh.counts.2), geom="point", alpha=0.2, main='Expression of GAPDH (After normalisation)', xlab="Cells", ylab="Gene expression")
+  gapdh <- rownames(matrix.normalised)[which("GAPDH" == toupper(rownames(matrix.normalised)))]
+  if(length(gapdh) > 0){
+    print("Plotting GAPDH expression...")
+    gapdh.counts.1 <- matrix.original[gapdh,][which(matrix.original[gapdh, ] > 0)]
+    gapdh.counts.2 <- matrix.normalised[gapdh,][which(matrix.normalised[gapdh, ] > 0)]
+    gapdh.scatter.1 <- ggplot2::qplot(x = 1:length(gapdh.counts.1), y = unlist(gapdh.counts.1), geom="point", alpha=0.2, main='Expression of GAPDH (Before normalisation)', xlab="Cells" , ylab="Gene expression")
+    gapdh.scatter.2 <- ggplot2::qplot(x = 1:length(gapdh.counts.2), y = unlist(gapdh.counts.2), geom="point", alpha=0.2, main='Expression of GAPDH (After normalisation)', xlab="Cells", ylab="Gene expression")
+    output.list <- c(output.list, GAPDHScatter = list(Original = gapdh.scatter.1, Normalised = gapdh.scatter.2))
+  }
 
   # Plot scatter for a random gene
   # This while loop ensures a gene is selected where there are at least ten cells with expression over zero
@@ -541,12 +548,11 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
 
   print("Plots complete!")
   # Return a list of output
-  output.list <- list(
+  output.list <- c(output.list, list(
     LibSizeHistograms = list(Original = libsize.plot.original, Normalised = libsize.plot.normalised),
-    GAPDHScatter = list(Original = gapdh.scatter.1, Normalised = gapdh.scatter.2),
     RandomGeneScatter = list(Original = original.scatter, Normalised = normalised.scatter),
     GeneExpressionBoxplot = list(Original = original.boxplot, Normalised = normalised.boxplot)
-  )
+  ))
 
   return(output.list)
 }

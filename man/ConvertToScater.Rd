@@ -7,7 +7,7 @@
 ConvertToScater(object, control.list = list())
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object}
+\item{object}{An \linkS4class{AEMSet} object}
 
 \item{control.list}{Optional - a named list containing mitochondrial and ribosomal genes}
 }

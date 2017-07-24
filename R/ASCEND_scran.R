@@ -3,7 +3,7 @@
 #' Convert a \linkS4class{AEMSet} object into a \linkS4class{SCESet} for use with \pkg{scater} and \pkg{scran}.
 #' In order to use this function, you must have mitochondrial and ribosomal genes in your expression data.
 #'
-#' @param object A \linkS4class{AEMSet} object
+#' @param object An \linkS4class{AEMSet} object
 #' @param control.list Optional - a named list containing mitochondrial and ribosomal genes
 #'
 ConvertToScater <- function(object, control.list = list()){

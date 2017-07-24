@@ -7,7 +7,7 @@
 RunClusterDiffExpression(object)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object that has undergone clustering with the \link{\code{FindOptimalClusters}} function.}
+\item{object}{A \linkS4class{AEMSet} object that has undergone clustering with the \code{\link{FindOptimalClusters}} function.}
 }
 \description{
 Compare the differential expression of genes in each cluster versus other clusters.

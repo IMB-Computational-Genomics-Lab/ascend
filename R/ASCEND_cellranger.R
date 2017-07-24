@@ -62,7 +62,7 @@ IdentifyBatches <- function(barcode.obj){
 
 #' BuildCellRangerDataset
 #'
-#' Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{CellRangerToScryer}}. This function reads in the following files:
+#' Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{CellRangerToASCEND}}. This function reads in the following files:
 #' \itemize{
 #' \item{\strong{barcodes.tsv} - Filtered cellular barcodes recognised by Cell Ranger}
 #' \item{\strong{genes.tsv} - ENSEMBL transcript IDs and their associated gene symbols}
