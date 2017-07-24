@@ -33,13 +33,10 @@ GetConsecutiveSequence <- function(x){
 # Finds the optimal result from trends in stability
 # Called by FindOptimalClusters
 FindOptimalResult <- function(key.stats.df){
-  # Set up iterative variables
-  # Find Optimal Values
-  key.stats <- BuildKeyStat(rand.idx.matrix)
   # Get stability values for most clusters and least clusters
   # Which one is greater than the other one?
   max.min.idx <- c(1,40)
-  stability <- key.stats$Stability
+  stability <- key.stats.df$Stability
   endpoint.stability.idx <- max.min.idx[which(stability[max.min.idx] == max(stability[max.min.idx]))]
   endpoint.stability.value <- stability[endpoint.stability.idx]
   if (endpoint.stability.value >= 0.5){
@@ -50,11 +47,11 @@ FindOptimalResult <- function(key.stats.df){
     right.plateau <- GetConsecutiveSequence(which(stability == stability[40]))
     
     # Get rand indexes
-    rand.idx.values <- key.stats$RandIndex[max(left.plateau)+1:min(right.plateau)-1]
+    rand.idx.values <- key.stats.df$RandIndex[max(left.plateau)+1:min(right.plateau)-1]
     unique.rand.idx <- unique(rand.idx.values)
     consecutive.vals <- list()
     for (idx in unique.rand.idx){
-      indexes <- which(key.stats$RandIndex == idx)
+      indexes <- which(key.stats.df$RandIndex == idx)
       if (length(indexes) > 1){
         consecutive.indexes <- GetConsecutiveSequence(indexes)
         consecutive.vals[[as.character(idx)]] <- consecutive.indexes
@@ -71,12 +68,13 @@ FindOptimalResult <- function(key.stats.df){
 
 # Generates a bunch of values based on other calculates.
 # Called by FindOptimalClusters
-BuildKeyStat <- function(rand.idx.matrix){
+BuildKeyStat <- function(rand.matrix){
   # Set up a key stat dataframe
-  key.stats.df <- as.data.frame(cbind(as.numeric(rand.idx.matrix$order)*0.025, rand.idx.matrix$stability_count, rand.idx.matrix$cluster.index.ref, rand.idx.matrix$cluster.index.consec))
-  colnames(key.stats.df) <-c('Height', 'Stability', 'RandIndex', 'ConsecutiveRI')
+  rand.matrix <- as.data.frame(rand.matrix)
+  key.stats.df <- cbind(as.numeric(rand.matrix$order)*0.025, rand.matrix$stability_count, rand.matrix$cluster.index.ref, rand.matrix$cluster.index.consec, rand.matrix$cluster_count)
+  colnames(key.stats.df) <-c('Height', 'Stability', 'RandIndex', 'ConsecutiveRI', "ClusterCount")
+  key.stats.df <- as.data.frame(key.stats.df)
   key.stats.df$Height <-as.character(key.stats.df$Height)
-  key.stats.df$Cluster_Count <- rand.idx.matrix$cluster_count
   return(key.stats.df)
 }
 
@@ -275,8 +273,8 @@ FindOptimalClusters <- function(object){
   # Features number of clusters produced at varying dendrogram cut heights
   # Perform 40 dynamic tree cuts at varying heights
   print("Determining best number of clusters...")
-  cluster.list <- BiocParallel::bplapply(seq(0.025:1, by=0.025), RetrieveCluster, hclust.obj = original.tree, distance.matrix = distance.matrix)
-  height.list <- BiocParallel::bplapply(seq(0.025:1, by=0.025), function(x) x)
+  cluster.list <- lapply(seq(0.025:1, by=0.025), RetrieveCluster, hclust.obj = original.tree, distance.matrix = distance.matrix)
+  height.list <- lapply(seq(0.025:1, by=0.025), function(x) x)
   cluster.matrix <- GenerateClusteringMatrix(original.clusters, cluster.list)
 
   # Generate RAND index
