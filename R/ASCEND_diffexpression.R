@@ -152,8 +152,18 @@ RunClusterDiffExpression <- function(object){
   cluster.list <- as.factor(object@Clusters$Clusters)
   clusters <- sort(unique(cluster.list))
   print("Generating conditions...")
-  condition.lists <- lapply(clusters, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = cluster.list))
-  names(condition.lists) <- clusters
+  if(length(clusters) > 2){
+    condition.lists <- lapply(clusters, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = cluster.list))
+    names(condition.lists) <- clusters    
+  }
+  
+  if(length(clusters) == 2){
+    condition.lists <- list()
+    condition.lists[[as.character(clusters[1])]] <- as.factor(cluster.list)
+  } else{
+    stop("Pairwise comparisons of clusters require more than one cluster.")
+  }
+
 
   for (x in names(condition.lists)){
     diff.exp <- RunDiffExpression(object, condition.a = x, condition.b = "Others", condition.list = condition.lists[[x]])

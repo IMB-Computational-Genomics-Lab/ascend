@@ -1,26 +1,3 @@
-#' GetReducedDimensions
-#'
-#' @param object An \linkS4class{AEMSet} object that has undergone PCA reduction.
-#' @param n The number of PC dimensions you would like to select. Refer to vignette on how to select this value.
-#'
-ReduceDimensions <- function(object, n = 10){
-  pca.matrix <- object@PCA$PCA
-  reduced.pca <- as.data.frame(pca.matrix[, 1:n])
-  object@PCA <- c(object@PCA, list(ReducedPCA = reduced.pca))
-  return(object)
-}
-
-# Functions for PCA
-CalcColVariance <- function(x){
-  col.variance <- sqrt(colSums((x - colMeans(x))^2)/(dim(x)[1] - 1))
-  return(col.variance)
-}
-
-CalcRowVariance <- function(x){
-  row.variance <- sqrt(rowSums((x - rowMeans(x))^2)/(dim(x)[2] - 1))
-  return(row.variance)
-}
-
 #' RunTSNE
 #'
 #' @param object An expression matrix or a PCA-reduced matrix.
@@ -68,6 +45,33 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30
   }
 
   return(tsne.mtx)
+}
+
+#' GetReducedDimensions
+#'
+#' @param object An \linkS4class{AEMSet} object that has undergone PCA reduction.
+#' @param n The number of PC dimensions you would like to select. Refer to vignette on how to select this value.
+#'
+ReduceDimensions <- function(object, n = 10){
+  if (length(object@PCA) == 0){
+    stop("Please run RunPCA on this object before using this function.")
+  }
+  
+  pca.matrix <- object@PCA$PCA
+  reduced.pca <- as.data.frame(pca.matrix[, 1:n])
+  object@PCA$PCA <- reduced.pca
+  return(object)
+}
+
+# Functions for PCA
+CalcColVariance <- function(x){
+  col.variance <- sqrt(colSums((x - colMeans(x))^2)/(dim(x)[1] - 1))
+  return(col.variance)
+}
+
+CalcRowVariance <- function(x){
+  row.variance <- sqrt(rowSums((x - rowMeans(x))^2)/(dim(x)[2] - 1))
+  return(row.variance)
 }
 
 #' RunPCA
