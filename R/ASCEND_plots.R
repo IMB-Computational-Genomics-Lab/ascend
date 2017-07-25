@@ -28,20 +28,29 @@ PlotDendrogram <- function(object){
   optimal.height <- object@Clusters$OptimalTreeHeight
   nclusters <- object@Clusters$NumberOfClusters
   cluster.list <- object@Clusters$Clusters
-
+  
   # Count table
   cluster.df <- as.data.frame(table(cluster.list))
 
   # Calculate cut height and cut dendrogram
-  cut.height <- max(hclust.obj$height) * optimal.height
   hclust.obj$labels <- rep("", length(hclust.obj$labels))
   dendro.obj <- as.dendrogram(hclust.obj)
-
-  # Get values
-  cut.tree <- cut(dendro.obj, h = cut.height)$upper
-  node.info <- unlist(stats::dendrapply(cut.tree, function(x) GetNodeInfo(x, cluster.df)))
-  coloured.dendro <- dendextend::color_branches(dendro.obj, h = cut.height, groupLabels = node.info)
-  return(coloured.dendro)
+  
+  # Sort clusters by order in dendrogram
+  ordered.clusters <- cluster.list[stats::order.dendrogram(dendro.obj)]
+  # Sort cluster sizes in same order.
+  dendro.labels <- cluster.df$Freq[unique(ordered.clusters)]
+  
+  # Apply labels directly to dendrogram  
+  coloured.dendro <- dendextend::color_branches(dendro.obj, k = nclusters, groupLabels = dendro.labels)
+  
+  # Add coloured bars
+  plot(coloured.dendro)
+  dendro.colours <- unique(dendextend::get_leaves_branches_col(coloured.dendro)[ordered.clusters])
+  coloured.order <- stats::order.dendrogram(coloured.dendro)
+  sorted.levels <- dendextend::sort_levels_values(as.vector(cluster.list)[coloured.order])
+  sorted.levels <- sorted.levels[match(seq_along(coloured.order), coloured.order)]
+  dendextend::colored_bars(palette[sorted.levels], coloured.dendro, rowLabels = "Cluster")
 }
 
 #' PlotStability
