@@ -254,10 +254,10 @@ FindOptimalClusters <- function(object){
   if (class(object) == "AEMSet"){
     # Making sure user has run PCA and reduced dimensions
     if ( !object@Log$PCA ){
-      stop("Please run RunPCA followed by GetReducedDimensions on this object before running this function.")
+      stop("Please run RunPCA followed by ReduceDimensions on this object before running this function.")
     }
-    if ( is.null(object@PCA$ReducedPCA) ){
-      stop("Please reduce the PCA dimensions of this object with GetReducedDimensions before running this function.")
+    if ( is.null(object@PCA$PCA) ){
+      stop("Please reduce this dataset with RunPCA and ReduceDimensions.")
     }
   } else {
     stop("Please supply a AEMSet object.")
@@ -265,7 +265,12 @@ FindOptimalClusters <- function(object){
 
   # Generate distance matrix and hclust objects as normal
   print("Performing unsupervised clustering...")
-  distance.matrix <- stats::dist(object@PCA$ReducedPCA)
+  if (ncol(object@PCA$PCA) > 20){
+    pca.matrix <- object@PCA$PCA[,1:20]
+  } else{
+    pca.matrix <- object@PCA$PCA
+  }
+  distance.matrix <- stats::dist(pca.matrix)
   original.tree <- stats::hclust(distance.matrix, method="ward.D2")
   original.clusters <- unname(dynamicTreeCut::cutreeDynamic(original.tree, distM=as.matrix(distance.matrix), verbose=0))
 

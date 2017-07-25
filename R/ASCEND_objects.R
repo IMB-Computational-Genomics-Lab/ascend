@@ -105,7 +105,7 @@ CheckAEMSet <- function(object) {
 #' @slot BatchInformation A named list containing each cell identifier and its associated batch/sample.
 #' @slot Controls A named list featuring gene identifiers to use as controls. These gene identifiers must match the identifiers used in the expression matrix.
 #' @slot Conditions A named list containing a list of conditions and what category each cell identifier falls into.
-#' @slot PCA Objects related to dimension reduction, such as a PCA matrix, a reduced PCA matrix and a list of percentage variance values per principle component. Populated by \code{\link{RunPCA}}.
+#' @slot PCA Objects related to dimension reduction, such as a PCA matrixand a list of percentage variance values per principle component (PC). Populated by \code{\link{RunPCA}}.
 #' @slot TSNE TSNE-reduced matrices used for plotting. Populated by \code{\link{PlotTSNE}}.
 #' @slot Clusters Objects related to clustering, including a distance matrix, a hclust object, cell identifiers and their associated cluster. Populated by \code{\link{FindOptimalClusters}}.
 #' @slot DifferentialExpression Differential expression results from DESeq. Populated by \code{\link{RunDiffExpression}} and \code{\link{RunClusterDiffExpression}}.
@@ -676,10 +676,6 @@ setMethod("SubsetBatch", signature("AEMSet", "numeric"), function(object, x) {
     subset.obj@PCA$PCA <- object@PCA$PCA[barcode.list,]
   }
 
-  if (!is.null(object@PCA$ReducedPCA)) {
-    subset.obj@PCA$ReducedPCA <- object@PCA$ReducedPCA[barcode.list,]
-  }
-
   if (!is.null(object@Clusters$DistanceMatrix)) {
     distance.matrix <-
       as.matrix(object@Clusters$DistanceMatrix)[barcode.list,
@@ -739,7 +735,6 @@ setMethod("SubsetCluster", signature("AEMSet", "numeric"), function(object, x) {
 
   # Other information will be extracted if they exist
   subset.obj@PCA$PCA <- object@PCA$PCA[barcode.list,]
-  subset.obj@PCA$ReducedPCA <- object@PCA$ReducedPCA[barcode.list,]
   distance.matrix <-
     as.matrix(object@Clusters$DistanceMatrix)[barcode.list,
                                               barcode.list]
