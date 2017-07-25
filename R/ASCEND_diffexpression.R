@@ -28,8 +28,9 @@ ProcessDEResults <- function(output.list){
   # Adjust Foldchange
   print("Adjusting fold change values...")
   adjusted.foldchange <- (de.result.df$baseMeanB - 1) / (de.result.df$baseMeanA - 1)
-  de.result.df$adjFoldChange <- adjusted.foldchange
-  de.result.df <- de.result.df[,c(1,2,3,4,5,9,6,7,8)]
+  log2.adjusted.foldchange <- log2(adjusted.foldchange)
+  de.result.df$foldChange <- adjusted.foldchange
+  de.result.df$log2FoldChange <- log2.adjusted.foldchange
   de.result.df <- de.result.df[order(de.result.df$pval, decreasing = F), ]
   return(de.result.df)
 }
@@ -138,38 +139,45 @@ RunDiffExpression <- function(x, condition.a = NULL, condition.b = "Other", cond
 #' @param object A \linkS4class{AEMSet} object that has undergone clustering with the \code{\link{FindOptimalClusters}} function.
 #'
 RunClusterDiffExpression <- function(object){
-  # Object Check
+  # Object check
   if ( class(object) != "AEMSet" ){
     stop("Please supply a AEMSet object.")
   }
-
   # Clustering check
   if ( is.null(object@Clusters$Clusters)){
     stop("Please run the FindOptimalClusters function on this object before using this function.")
   }
-
+  
   # Prepare Clusters
   cluster.list <- as.factor(object@Clusters$Clusters)
   clusters <- sort(unique(cluster.list))
-  print("Generating conditions...")
-  if(length(clusters) > 2){
-    condition.lists <- lapply(clusters, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = cluster.list))
-    names(condition.lists) <- clusters    
+  
+  if (length(clusters) > 1){
+    condition.lists <- list()
+    if (length(clusters) > 2){
+      condition.lists <- lapply(clusters, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = cluster.list))
+      names(condition.lists) <- clusters
+    } else{
+      condition.lists[[as.character(clusters[1])]] <- cluster.list
+    }
+    
+    # Loop over condition lists and run DE
+    for (x in names(condition.lists)){
+      condition.a <- x
+      condition.b <- clusters[-which(clusters == x)]
+      if (length(condition.b) > 1){
+        condition.b <- "Others"
+      } else{
+        condition.b <- condition.b[1]
+      }
+      diff.exp <- RunDiffExpression(object, condition.a = x, condition.b = condition.b, condition.list = condition.lists[[x]])
+      output <- list()
+      output[[as.character(x)]] <- diff.exp
+      object@DifferentialExpression <- c(object@DifferentialExpression, output)
+    }
+  } else{
+    stop("You must have more than one cluster in order to run pairwise comparisons of clusters.")
   }
   
-  if(length(clusters) == 2){
-    condition.lists <- list()
-    condition.lists[[as.character(clusters[1])]] <- as.factor(cluster.list)
-  } else{
-    stop("Pairwise comparisons of clusters require more than one cluster.")
-  }
-
-
-  for (x in names(condition.lists)){
-    diff.exp <- RunDiffExpression(object, condition.a = x, condition.b = "Others", condition.list = condition.lists[[x]])
-    output <- list()
-    output[[as.character(x)]] <- diff.exp
-    object@DifferentialExpression <- c(object@DifferentialExpression, output)
-  }
   return(object)
 }
