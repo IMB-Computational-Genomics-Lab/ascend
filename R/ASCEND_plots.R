@@ -351,15 +351,15 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
   print("Running cmdscale...")
   mds.matrix <-stats::cmdscale(distance.matrix, k = 2, eig = FALSE, add = FALSE, x.ret = FALSE)
   print("Cmdscale complete! Processing scaled data...")
-  mds.matrix.vals <- as.data.frame(mds.matrix$x[,c(dim1,dim2)])
-  rownames(mds.matrix.vals) <- rownames(mds.matrix$points)
+  mds.matrix <- as.data.frame(mds.matrix)
+  colnames(mds.matrix) <- c("Dim1", "Dim2")
 
   print("Generating MDS plot...")
   if (length(condition.list) > 0){
-    mds.matrix.vals$condition <- unlist(condition.list)
-    mds.plot <- ggplot2::ggplot(mds.matrix.vals, ggplot2::aes(V1,V2, col=factor(condition))) + ggplot2::geom_point()
+    mds.matrix$condition <- unlist(condition.list)
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point()
   } else{
-    mds.plot <- ggplot2::ggplot(mds.matrix.vals, ggplot2::aes(V1,V2)) + ggplot2::geom_point()
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point()
   }
   return(mds.plot)
 }
