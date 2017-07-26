@@ -50,7 +50,7 @@ PlotDendrogram <- function(object){
   coloured.order <- stats::order.dendrogram(coloured.dendro)
   sorted.levels <- dendextend::sort_levels_values(as.vector(cluster.list)[coloured.order])
   sorted.levels <- sorted.levels[match(seq_along(coloured.order), coloured.order)]
-  dendextend::colored_bars(palette[sorted.levels], coloured.dendro, rowLabels = "Cluster")
+  dendextend::colored_bars(dendro.colours[sorted.levels], coloured.dendro, rowLabels = "Cluster")
 }
 
 #' PlotStability
@@ -349,7 +349,7 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
 
   # Scale matrix
   print("Running cmdscale...")
-  mds.matrix <-stats::cmdscale(distance.matrix, k = 2, eig = TRUE, add = TRUE, x.ret = TRUE)
+  mds.matrix <-stats::cmdscale(distance.matrix, k = 2, eig = FALSE, add = FALSE, x.ret = FALSE)
   print("Cmdscale complete! Processing scaled data...")
   mds.matrix.vals <- as.data.frame(mds.matrix$x[,c(dim1,dim2)])
   rownames(mds.matrix.vals) <- rownames(mds.matrix$points)
