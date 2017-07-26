@@ -385,7 +385,7 @@ PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perp
     if (!(length(object@PCA) > 0)){
       stop("Please reduce this dataset with RunPCA before using this function.")
     } else{
-      pca.barcodes <- rownames(object@PCA$ReducedPCA)
+      pca.barcodes <- rownames(object@PCA$PCA)
       condition.list <- condition.list[pca.barcodes]
       if (!(length(condition.list) > 0)){
         stop("Please ensure all cell identifiers specified in the condition list are in the AEMSet.")
@@ -408,9 +408,7 @@ PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perp
     tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point()
   }
 
-  # Store TSNE matrix and plot in TSNE slot
-  output <- list(TSNE = tsne.df, Plot = tsne.plot, Seed = seed)
-  return(output)
+  return(tsne.plot)
 }
 
 #' PlotPCA
