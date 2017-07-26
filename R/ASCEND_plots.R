@@ -46,7 +46,7 @@ PlotDendrogram <- function(object){
   
   # Add coloured bars
   plot(coloured.dendro)
-  dendro.colours <- unique(dendextend::get_leaves_branches_col(coloured.dendro)[ordered.clusters])
+  dendro.colours <- unique(dendextend::get_leaves_branches_col(coloured.dendro))
   coloured.order <- stats::order.dendrogram(coloured.dendro)
   sorted.levels <- dendextend::sort_levels_values(as.vector(cluster.list)[coloured.order])
   sorted.levels <- sorted.levels[match(seq_along(coloured.order), coloured.order)]
