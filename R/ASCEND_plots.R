@@ -154,6 +154,10 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
                                cex.rowLabels = 1, cex.rowText = 0.8, startAt = 0, ...) {
   colors = as.matrix(colors)
   dimC = dim(colors)
+  
+  # Create a colour ramp
+  gradient_palette <- grDevices::colorRampPalette(c("#cc0000", "#000000"))
+  palette(gradient_palette(8))
   if (is.null(rowLabels) & (length(dimnames(colors)[[2]]) ==
                             dimC[2]))
     rowLabels = colnames(colors)
@@ -260,6 +264,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
     yb = rep(yBottom[jj], dimC[1])
     yt = rep(yTop[jj], dimC[1])
     if (is.null(dim(C))) {
+      print(as.character(C))
       rect(xl, yb, xr, yt, col = as.character(C), border = as.character(C))
     }
     else {
@@ -466,7 +471,7 @@ PlotPCAVariance <- function(object, n){
 #' @param normalised A normalised \linkS4class{AEMSet}
 #' @param gene Gene to plot expression levels for (optional)
 #'
-PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL) {
+PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = list()) {
   # Insert Check For Normalisation
   if(!is.null(original@Log$NormalisationMethod)){
     stop("Please supply an un-normalised AEMSet object.")
@@ -499,27 +504,45 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
 
   # Generate histogram
   print("Plotting libsize histograms...")
-  libsize.plot.original <- ggplot2::qplot(libsize.original, main='Before normalisation', ylab='Total reads per cell', xlab='Cells')
-  libsize.plot.normalised <- ggplot2::qplot(libsize.normalised, main='After normalisation', ylab='Total reads per cell', xlab='Cells')
-
+  
+  # Get ylim
+  ylim.original <- as.numeric(rownames(as.data.frame(sort(table(libsize.original), decreasing = TRUE)[1])))
+  ylim.normalised<- as.numeric(rownames(as.data.frame(sort(table(libsize.normalised), decreasing = TRUE)[1])))
+  ylim.val <- (max(ylim.original, ylim.normalised)) * 1.5
+  
+  # Plot it
+  libsize.plot.original <- ggplot2::qplot(libsize.original, main='Before normalisation', ylab='Total reads per cell', xlab='Cells', ylim = c(0, ylim.val))
+  libsize.plot.normalised <- ggplot2::qplot(libsize.normalised, main='After normalisation', ylab='Total reads per cell', xlab='Cells', ylim = c(0, ylim.val))
+  output.list <- c(output.list, list(LibsizeHistograms=list(Original = libsize.plot.original, Normalised = libsize.plot.normalised)))
+                   
   # Remove zero counts
   matrix.original <- matrix.original[which(rowSums(matrix.original) > 0),]
   matrix.normalised <- matrix.normalised[which(rowSums(matrix.normalised) > 0),]
+  
+  # Plot scatter for housekeeping genes
+  if(length(gene.list) > 0){
+    gene.scatter.list <- list()
+    for (gene in gene.list){
+      # Check if there are any counts
+      gene.counts.2 <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
+      if(length(gene.counts.2) > 0){
+        print(sprintf("Plotting %s expression...", gene))
+        gene.counts.1 <- matrix.original[gene,][which(matrix.original[gene, ] > 0)]
 
-  # Plot scatter for GAPDH
-  gapdh <- rownames(matrix.normalised)[which("GAPDH" == toupper(rownames(matrix.normalised)))]
-  if(length(gapdh) > 0){
-    print("Plotting GAPDH expression...")
-    gapdh.counts.1 <- matrix.original[gapdh,][which(matrix.original[gapdh, ] > 0)]
-    gapdh.counts.2 <- matrix.normalised[gapdh,][which(matrix.normalised[gapdh, ] > 0)]
-    gapdh.scatter.1 <- ggplot2::qplot(x = 1:length(gapdh.counts.1), y = unlist(gapdh.counts.1), geom="point", alpha=0.2, main='Expression of GAPDH (Before normalisation)', xlab="Cells" , ylab="Gene expression")
-    gapdh.scatter.2 <- ggplot2::qplot(x = 1:length(gapdh.counts.2), y = unlist(gapdh.counts.2), geom="point", alpha=0.2, main='Expression of GAPDH (After normalisation)', xlab="Cells", ylab="Gene expression")
-    output.list <- c(output.list, GAPDHScatter = list(Original = gapdh.scatter.1, Normalised = gapdh.scatter.2))
-  }
-
-  # Plot scatter for a random gene
-  # This while loop ensures a gene is selected where there are at least ten cells with expression over zero
-  if (missing(gene)){
+        # Get ylim
+        ylim.original <- max(gene.counts.1)
+        ylim.normalised<- max(gene.counts.2)
+        ylim.val <- (max(ylim.original, ylim.normalised)) * 1.5
+        
+        gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main=sprintf('Expression of %s (Before normalisation)', gene), xlab="Cells" , ylab="Gene expression", ylim = c(0,ylim.val))
+        gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main=sprintf('Expression of %s (After normalisation)', gene), xlab="Cells", ylab="Gene expression", ylim = c(0,ylim.val))
+        gene.scatter.list[[gene]] <- list(Original = gene.scatter.1, Normalised = gene.scatter.2)
+      }
+    }
+    output.list <- c(output.list, list(GeneScatterPlots=gene.scatter.list))} 
+  else{
+    # Plot scatter for a random gene
+    # This while loop ensures a gene is selected where there are at least ten cells with expression over zero
     success <- FALSE
     while (!success){
       gene <- sample(rownames(matrix.normalised), 1)
@@ -527,14 +550,16 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
       gene.normalised <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
       success <- (length(gene.original) > 10) && (length(gene.normalised) > 10)
     }
-  } else {
-    gene.original <- matrix.original[gene,][which(matrix.original[gene, ] > 0)]
-    gene.normalised <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
+    print(sprintf("Plotting %s expression...", gene))
+    # Get ylim
+    ylim.original <- max(gene.original)
+    ylim.normalised<- max(gene.normalised)
+    ylim.val <- (max(ylim.original, ylim.normalised)) * 1.5
+    
+    original.scatter <- ggplot2::qplot(x = 1:length(gene.original), y = unlist(gene.original), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0,ylim.val))
+    normalised.scatter <- ggplot2::qplot(x = 1:length(gene.normalised), y = unlist(gene.normalised), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation)?", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0,ylim.val))
+    output.list <- c(output.list, list(GeneScatterPlots=list(Original = original.scatter, Normalised = normalised.scatter)))
   }
-
-  print(sprintf("Plotting %s expression...", gene))
-  original.scatter <- ggplot2::qplot(x = 1:length(gene.original), y = unlist(gene.original), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation", gene), xlab="Cells" , ylab="Gene expression")
-  normalised.scatter <- ggplot2::qplot(x = 1:length(gene.normalised), y = unlist(gene.normalised), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation", gene), xlab="Cells" , ylab="Gene expression")
 
   # Generate box plots
   print("Plotting gene expression box plots...")
@@ -556,8 +581,6 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene = NULL)
   print("Plots complete!")
   # Return a list of output
   output.list <- c(output.list, list(
-    LibSizeHistograms = list(Original = libsize.plot.original, Normalised = libsize.plot.normalised),
-    RandomGeneScatter = list(Original = original.scatter, Normalised = normalised.scatter),
     GeneExpressionBoxplot = list(Original = original.boxplot, Normalised = normalised.boxplot)
   ))
 

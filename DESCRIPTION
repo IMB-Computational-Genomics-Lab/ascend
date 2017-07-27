@@ -24,8 +24,7 @@ Imports: methods,
     ggbeeswarm,
     plyr,
     reshape2,
-Suggests:
-    limSolve
+Suggests: limSolve,
     scater,
     scran,
     DESeq

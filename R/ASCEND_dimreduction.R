@@ -10,10 +10,7 @@
 RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5){
   if (class(object) == "AEMSet"){
     if (PCA){
-      if (!is.null(object@PCA$ReducedPCA)){
-        x <- object@PCA$ReducedPCA
-        PCA <- TRUE
-      } else if(is.null(object@PCA$PCA)){
+     if(is.null(object@PCA$PCA)){
         x <- object@PCA$PCA
         PCA <- TRUE
       } else{
@@ -22,7 +19,12 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30
       }
     }
   } else{
-    stop("Please supply an AEMSet, matrix or dataframe.")
+    if (!(is.matrix(expression.matrix) || is.data.frame(expression.matrix) || class(expression.matrix) == "dgCMatrix")){
+      stop("Please supply an AEMSet, matrix or dataframe.") 
+    } else{
+      object <- x
+      PCA = FALSE
+    }
   }
   
   # Will load a matrix to work with, regardless
@@ -43,7 +45,6 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30
   } else{
     rownames(tsne.mtx) <- colnames(x)
   }
-
   return(tsne.mtx)
 }
 
