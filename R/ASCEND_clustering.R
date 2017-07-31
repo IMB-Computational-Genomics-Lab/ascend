@@ -32,13 +32,15 @@ GetConsecutiveSequence <- function(x){
 
 # Finds the optimal result from trends in stability
 # Called by FindOptimalClusters
-FindOptimalResult <- function(key.stats.df){
+FindOptimalResult <- function(key.stats){
   # Get stability values for most clusters and least clusters
   # Which one is greater than the other one?
   max.min.idx <- c(1,40)
-  stability <- key.stats.df$Stability
+  stability <- key.stats$Stability
   endpoint.stability.idx <- max.min.idx[which(stability[max.min.idx] == max(stability[max.min.idx]))]
   endpoint.stability.value <- stability[endpoint.stability.idx]
+  
+  # If one end of the stability graph are stable in at least 50% of clusters, then it is stable
   if (endpoint.stability.value >= 0.5){
     optimal.idx <- endpoint.stability.idx
   } else{
@@ -47,18 +49,20 @@ FindOptimalResult <- function(key.stats.df){
     right.plateau <- GetConsecutiveSequence(which(stability == stability[40]))
     
     # Get rand indexes
-    rand.idx.values <- key.stats.df$RandIndex[max(left.plateau)+1:min(right.plateau)-1]
+    rand.idx.values <- key.stats$RandIndex[max(left.plateau)+1:min(right.plateau)-1]
     unique.rand.idx <- unique(rand.idx.values)
     consecutive.vals <- list()
+    
+    # Search for stability between the plateau
     for (idx in unique.rand.idx){
-      indexes <- which(key.stats.df$RandIndex == idx)
+      indexes <- which(key.stats$RandIndex[max(left.plateau)+1:min(right.plateau-1)] == idx)
       if (length(indexes) > 1){
         consecutive.indexes <- GetConsecutiveSequence(indexes)
         consecutive.vals[[as.character(idx)]] <- consecutive.indexes
       }
     }
     
-    # Match longest
+    # Find the stablist flatline
     optimal.rand.idx <- names(consecutive.vals)[which.max(sapply(consecutive.vals, length))]
     optimal.rows <- consecutive.vals[[optimal.rand.idx]]
     optimal.idx <- min(optimal.rows)
@@ -277,22 +281,27 @@ FindOptimalClusters <- function(object){
   # Generate clustering matrix
   # Features number of clusters produced at varying dendrogram cut heights
   # Perform 40 dynamic tree cuts at varying heights
-  print("Determining best number of clusters...")
+  print("Generating clusters by running dynamicTreeCut at different heights...")
   cluster.list <- lapply(seq(0.025:1, by=0.025), RetrieveCluster, hclust.obj = original.tree, distance.matrix = distance.matrix)
   height.list <- lapply(seq(0.025:1, by=0.025), function(x) x)
+  
   cluster.matrix <- GenerateClusteringMatrix(original.clusters, cluster.list)
 
+  print("Calculating rand indices...")
   # Generate RAND index
   rand.idx.matrix <- GenerateRandIndexMatrix(cluster.matrix, original.clusters, cluster.list)
 
+  print("Calculating stbaility values...")
   # Generate Stability Values
   rand.idx.matrix <- GenerateStabilityValues(rand.idx.matrix)
 
+  print("Aggregating data...")
   # Add new cluster counts to rand matrix
   cluster.counts <- BiocParallel::bplapply(cluster.list, function(x) length(unique(x)) )
   rand.idx.matrix$cluster_count <- as.vector(as.numeric(cluster.counts))
   rand.idx.matrix$stability_count <- rand.idx.matrix$stability_count/40
 
+  print("Finding optimal number of clusters...")
   # Find Optimal Values
   key.stats <- BuildKeyStat(rand.idx.matrix)
   optimal.idx <- FindOptimalResult(key.stats)
