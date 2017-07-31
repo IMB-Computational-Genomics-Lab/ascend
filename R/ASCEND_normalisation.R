@@ -16,7 +16,15 @@ scranNormalise <- function(object){
   # Remove controls from SCESet object
   mt.idx <- match(object@Controls$Mt, rownames(sce.obj))
   rb.idx <- match(object@Controls$Rb, rownames(sce.obj))
-  remove.idx <- c(mt.idx, rb.idx)
+
+  # Remove ERCC sequences if in dataset
+  ercc.idx <- grep("^ercc", ignore.case=TRUE, rownames(object@ExpressionMatrix))
+  if (length(ercc.idx) == 0){
+    ercc.idx <- c()
+  }
+  
+  # Remove these items
+  remove.idx <- c(mt.idx, rb.idx, ercc.idx)
   sce.obj_rmMtRb <- sce.obj[-remove.idx,]
 
   # Run computeSumFactors based on number of samples
@@ -44,8 +52,9 @@ scranNormalise <- function(object){
 
   # Convert log-transformed results back into counts
   print("Normalisation complete. Converting SCESet back to AEMSet...")
-  dcvl.matrix <-as.matrix(Biobase::exprs(dcvl.sce.obj))
-  normalised.obj <- ReplaceExpressionMatrix(dcvl.matrix, object)
+  dcvl.matrix <- as.matrix(scater::norm_exprs(dcvl.sce.obj))
+  unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
+  normalised.obj <- ReplaceExpressionMatrix(unlog.dcvl.matrix, object)
   normalised.obj@Log <- c(normalised.obj@Log, list(NormalisationMethod = "scranNormalise"))
 
   remove(sce.obj)

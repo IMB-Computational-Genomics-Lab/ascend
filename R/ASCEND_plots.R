@@ -1,14 +1,3 @@
-GetNodeInfo <- function(x, count.table){
-  if (is.leaf(x)){
-    att.obj <- attributes(x)
-    nleaves <- att.obj$x.member
-    branch.name <- att.obj$label
-
-    #cluster.name <- cluster.df$cluster.list[which(cluster.df$Freq == nleaves)]
-    return(nleaves)
-  }
-}
-
 #' PlotDendrogram
 #'
 #' @param object An \linkS4class{AEMSet} that has undergone clustering
@@ -28,22 +17,22 @@ PlotDendrogram <- function(object){
   optimal.height <- object@Clusters$OptimalTreeHeight
   nclusters <- object@Clusters$NumberOfClusters
   cluster.list <- object@Clusters$Clusters
-  
+
   # Count table
   cluster.df <- as.data.frame(table(cluster.list))
 
   # Calculate cut height and cut dendrogram
   hclust.obj$labels <- rep("", length(hclust.obj$labels))
   dendro.obj <- as.dendrogram(hclust.obj)
-  
+
   # Sort clusters by order in dendrogram
   ordered.clusters <- cluster.list[stats::order.dendrogram(dendro.obj)]
   # Sort cluster sizes in same order.
   dendro.labels <- cluster.df$Freq[unique(ordered.clusters)]
-  
-  # Apply labels directly to dendrogram  
+
+  # Apply labels directly to dendrogram
   coloured.dendro <- dendextend::color_branches(dendro.obj, k = nclusters, groupLabels = dendro.labels)
-  
+
   # Add coloured bars
   plot(coloured.dendro)
   dendro.colours <- unique(dendextend::get_leaves_branches_col(coloured.dendro))
@@ -154,7 +143,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
                                cex.rowLabels = 1, cex.rowText = 0.8, startAt = 0, ...) {
   colors = as.matrix(colors)
   dimC = dim(colors)
-  
+
   # Create a colour ramp
   gradient_palette <- grDevices::colorRampPalette(c("#cc0000", "#000000"))
   palette(gradient_palette(8))
@@ -486,103 +475,117 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
 
   # Get metrics we need from old and new object
   print("Retrieving data from AEMSets...")
-  libsize.original <- original@Metrics$TotalCounts
-  libsize.normalised <- normalised@Metrics$TotalCounts
-
-  # Get libsize with cells that are in normalised from original
-  libsize.original.2 <- libsize.original[which(names(libsize.original) %in% names(libsize.normalised))]
-
-  # Get Expression Matrices
-  matrix.original <- GetExpressionMatrix(original, "data.frame")
-  matrix.normalised <- GetExpressionMatrix(normalised, "data.frame")
-
-  # If normalised by scater, unlog results
-  if(normalised@Log$NormalisationMethod == "scranNormalise"){
-    matrix.normalised <- as.data.frame(UnLog2Matrix(matrix.normalised))
-    libsize.normalised <- colSums(matrix.normalised)
-  }
-
+  matrix.1 <- GetExpressionMatrix(original, "data.frame")
+  matrix.2 <- GetExpressionMatrix(normalised, "data.frame")
+  
+  # As normalisation removes cells and genes, trim original matrix.
+  common.rows <- intersect(rownames(matrix.1), rownames(matrix.2))
+  common.cols <- intersect(colnames(matrix.1), colnames(matrix.1))
+  matrix.1 <- matrix.1[common.rows, common.cols]
+  
+  # Retrieve library sizes
+  libsize.1 <- original@Metrics$TotalCounts
+  libsize.2 <- normalised@Metrics$TotalCounts
+  
+  # Retrieve feature counts
+  cells.per.gene.1 <- original@Metrics$CellsPerGene
+  cells.per.gene.2 <- normalised@Metrics$CellsPerGene
+  
   # Generate histogram
   print("Plotting libsize histograms...")
+  # Combine libsizes
+  libsize.df.1 <- data.frame(Libsize = libsize.1, Dataset=rep("Original", length(libsize.1)))
+  libsize.df.2 <- data.frame(Libsize = libsize.2, Dataset=rep("Normalised", length(libsize.2)))
   
-  # Get ylim
-  ylim.original <- as.numeric(rownames(as.data.frame(sort(table(libsize.original), decreasing = TRUE)[1])))
-  ylim.normalised<- as.numeric(rownames(as.data.frame(sort(table(libsize.normalised), decreasing = TRUE)[1])))
-  ylim.val <- (max(ylim.original, ylim.normalised)) * 1.5
+  # Get largest library size
+  max.libsize <- max(c(libsize.1, libsize.2))
+  libsize.df <- rbind(libsize.df.1, libsize.df.2)
+  libsize.hist <- ggplot2::ggplot(libsize.df, ggplot2::aes(Libsize, fill = Dataset)) + ggplot2::geom_histogram(alpha = 0.2, position = "identity") + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::ggtitle("Library sizes across cells")
+  max.counts <- max(ggplot2::ggplot_build(libsize.hist)$data[[1]]$count)
   
-  # Plot it
-  libsize.plot.original <- ggplot2::qplot(libsize.original, main='Before normalisation', ylab='Total reads per cell', xlab='Cells', ylim = c(0, ylim.val))
-  libsize.plot.normalised <- ggplot2::qplot(libsize.normalised, main='After normalisation', ylab='Total reads per cell', xlab='Cells', ylim = c(0, ylim.val))
-  output.list <- c(output.list, list(LibsizeHistograms=list(Original = libsize.plot.original, Normalised = libsize.plot.normalised)))
-                   
+  libsize.hist.1 <- ggplot2::qplot(libsize.1, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "Before normalisation", xlab = "Library size", ylab = "Number of cells")
+  libsize.hist.2 <- ggplot2::qplot(libsize.2, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "After normalisation", xlab = "Library size", ylab = "Number of cells")
+
+  #output.libsize.hist <- gridExtra::grid.arrange(libsize.hist.1, libsize.hist.2, ncol = 2)
+  output.list <- c(output.list, list(Libsize=list(Original = libsize.hist.1, Normalised = libsize.hist.2)))
+  
   # Remove zero counts
-  matrix.original <- matrix.original[which(rowSums(matrix.original) > 0),]
-  matrix.normalised <- matrix.normalised[which(rowSums(matrix.normalised) > 0),]
-  
+  matrix.1 <- matrix.1[which(rowSums(matrix.1) > 0),]
+  matrix.2 <- matrix.2[which(rowSums(matrix.2) > 0),]
+
   # Plot scatter for housekeeping genes
   if(length(gene.list) > 0){
     gene.scatter.list <- list()
     for (gene in gene.list){
       # Check if there are any counts
-      gene.counts.2 <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
-      if(length(gene.counts.2) > 0){
+      gene.counts.1 <- matrix.1[gene, ][which(matrix.1[gene, ] > 0)]
+      gene.counts.2 <- matrix.2[gene, ][which(matrix.2[gene, ] > 0)]
+      
+      if((length(gene.counts.1) > 0) && (length(gene.counts.2) > 0)){
         print(sprintf("Plotting %s expression...", gene))
-        gene.counts.1 <- matrix.original[gene,][which(matrix.original[gene, ] > 0)]
-
+      
         # Get ylim
-        ylim.original <- max(gene.counts.1)
-        ylim.normalised<- max(gene.counts.2)
-        ylim.val <- (max(ylim.original, ylim.normalised)) * 1.5
+        ylim.1 <- max(gene.counts.1)
+        ylim.2 <- max(gene.counts.2)
+        ylim.max <- (max(ylim.1, ylim.2)) * 1.5
         
-        gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main=sprintf('Expression of %s (Before normalisation)', gene), xlab="Cells" , ylab="Gene expression", ylim = c(0,ylim.val))
-        gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main=sprintf('Expression of %s (After normalisation)', gene), xlab="Cells", ylab="Gene expression", ylim = c(0,ylim.val))
+        gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main=sprintf('Expression of %s (Before normalisation)', gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
+        gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main=sprintf('Expression of %s (After normalisation)', gene), xlab="Cells", ylab="Gene expression", ylim = c(0, ylim.max))
         gene.scatter.list[[gene]] <- list(Original = gene.scatter.1, Normalised = gene.scatter.2)
+        # gene.scatter.list[[gene]] <- gridExtra::grid.arrange(gene.scatter.1, gene.scatter.2, ncol = 1)
       }
     }
-    output.list <- c(output.list, list(GeneScatterPlots=gene.scatter.list))} 
+    output.list <- c(output.list, list(GeneScatterPlots=gene.scatter.list))}
   else{
-    # Plot scatter for a random gene
-    # This while loop ensures a gene is selected where there are at least ten cells with expression over zero
+    # While loop - look for a suitable gene
     success <- FALSE
     while (!success){
-      gene <- sample(rownames(matrix.normalised), 1)
-      gene.original <- matrix.original[gene,][which(matrix.original[gene, ] > 0)]
-      gene.normalised <- matrix.normalised[gene,][which(matrix.normalised[gene, ] > 0)]
-      success <- (length(gene.original) > 10) && (length(gene.normalised) > 10)
+      gene <- sample(rownames(matrix.2), 1)
+      gene.counts.1 <- matrix.1[gene,][which(matrix.1[gene, ] > 0)]
+      gene.counts.2 <- matrix.2[gene,][which(matrix.2[gene, ] > 0)]
+      success <- (length(gene.counts.1) > 10) && (length(gene.counts.2) > 10)
     }
+    
+    # Found a gene!
     print(sprintf("Plotting %s expression...", gene))
     # Get ylim
-    ylim.original <- max(gene.original)
-    ylim.normalised<- max(gene.normalised)
-    ylim.val <- (max(ylim.original, ylim.normalised)) * 1.5
+    ylim.1 <- max(gene.counts.1)
+    ylim.2<- max(gene.counts.2)
+    ylim.max <- max(ylim.1, ylim.2) * 1.5
     
-    original.scatter <- ggplot2::qplot(x = 1:length(gene.original), y = unlist(gene.original), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0,ylim.val))
-    normalised.scatter <- ggplot2::qplot(x = 1:length(gene.normalised), y = unlist(gene.normalised), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation)?", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0,ylim.val))
-    output.list <- c(output.list, list(GeneScatterPlots=list(Original = original.scatter, Normalised = normalised.scatter)))
+    gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
+    gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
+    output.list <- c(output.list, list(GeneScatterPlots = list(Original = gene.scatter.1, Normalised = gene.scatter.2)))
+    # output.list <- c(output.list, list(GeneScatterPlots=gridExtra::grid.arrange(gene.scatter.1, gene.scatter.2, ncol = 2)))
   }
 
   # Generate box plots
   print("Plotting gene expression box plots...")
-  ordered1 <- matrix.original[order(rowSums(matrix.original), decreasing=T),]
-  ordered2 <- matrix.normalised[order(rowSums(matrix.normalised), decreasing=T),]
+  # Generate box plots
+  print("Plotting gene expression box plots...")
+  ordered.1 <- matrix.1[order(rowSums(matrix.1), decreasing=T),]
+  ordered.2 <- matrix.2[order(rowSums(matrix.2), decreasing=T),]
+ 
+  ordered.1 <- stack(ordered.1[,1:100])
+  ordered.2 <- stack(ordered.2[,1:100])
 
-  ordered1 <- stack(ordered1[,1:100])
-  ordered2 <- stack(ordered2[,1:100])
-
-  original.boxplot <- ggplot2::ggplot(ordered1, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot()
-  normalised.boxplot <- ggplot2::ggplot(ordered2, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot()
-
-  original.boxplot <- original.boxplot + ggplot2::labs(title='Before normalisation',  y='Gene expression', x='Cells')
-  normalised.boxplot <- normalised.boxplot + ggplot2::labs(title='After normalisation',  y='Gene expression', x='Cells')
-
-  original.boxplot <- original.boxplot + ggplot2::theme(axis.text.x = ggplot2::element_blank())
-  normalised.boxplot <- normalised.boxplot + ggplot2::theme(axis.text.x = ggplot2::element_blank())
+  ylim <- max(ordered.1$values[1], ordered.2$values[1])
+  
+  boxplot.1 <- ggplot2::ggplot(ordered.1, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.5))
+  boxplot.2 <- ggplot2::ggplot(ordered.2, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.5))
+  
+  boxplot.1 <- boxplot.1 + ggplot2::labs(title='Gene expression (Before normalisation)',  y='Gene expression', x='Cells')
+  boxplot.2 <- boxplot.2 + ggplot2::labs(title='Gene expression (After normalisation)',  y='Gene expression', x='Cells')
+ 
+  boxplot.1 <- boxplot.1 + ggplot2::theme(axis.text.x = ggplot2::element_blank())
+  boxplot.2 <- boxplot.2 + ggplot2::theme(axis.text.x = ggplot2::element_blank())
 
   print("Plots complete!")
   # Return a list of output
-  output.list <- c(output.list, list(
-    GeneExpressionBoxplot = list(Original = original.boxplot, Normalised = normalised.boxplot)
-  ))
+  output.list <- c(output.list, list(GeneExpressionBoxplot = list(Original = boxplot.1, Normalised = boxplot.2)))
+  #output.list <- c(output.list, list(
+  #  GeneExpressionBoxplot = gridExtra::grid.arrange(boxplot.1, boxplot.2, ncol = 1)
+  #))
 
   return(output.list)
 }
@@ -796,8 +799,8 @@ PlotGeneralQC <- function(object){
   print("Plotting Average Counts...")
   log10.average.gene.count <- ggplot2::qplot(log10(object@Metrics$AverageCounts), geom="histogram", main="Average Count of Genes", xlab=expression(Log[10]~"Average Count"))
   smooth.scatter <- graphics::smoothScatter(log10(object@Metrics$AverageCounts), object@Metrics$CellsPerGene, xlab=expression(Log[10]~"Average Count"),ylab="Number of expressing cells", main = "Average Expression of Genes Per Cell")
-  log2.average.count <- ggplot2::qplot(log2(object@Metrics$AverageCounts), geom="histogram", xlab="Log2 number of cells expressing the gene", ylab="Number of genes", main="Number of cells a gene was detected")
-  average.gene.count <- ggplot2::qplot(object@Metrics$AverageCounts, xlab="Number of cells expressing the gene", ylab="Number of genes", main="Number of cells vs detected gene was detected")
+  log2.average.count <- ggplot2::qplot(log2(object@Metrics$AverageCounts), geom="histogram", xlab=Log[2]~"Average Count", ylab="Number of genes", main="Average Count of Genes")
+  average.gene.count <- ggplot2::qplot(object@Metrics$AverageCounts, xlab="Average Count", ylab="Number of genes", main="Average Count of Genes")
 
   output.list[["Log10AverageGeneCount"]] <- log10.average.gene.count
   output.list[["AverageCountSmoothScatter"]] <- smooth.scatter
@@ -812,7 +815,7 @@ PlotGeneralQC <- function(object){
     for (control.name in names(object@Metrics$PercentageTotalCounts)){
       xlab.string <- paste0("%", sprintf("%s proportion ", control.name))
       title.string <- sprintf("Proportion of control: %s", control.name)
-      subplot <- ggplot2::qplot(unlist(object@Metrics$PercentageTotalCounts[control.name]), xlab=xlab.string, ylab="Number of cells", main=title.string)
+      subplot <- ggplot2::qplot(unlist(object@Metrics$PercentageTotalCounts[[control.name]]), xlab=xlab.string, ylab="Number of cells", main=title.string)
       percentage.total.plots[[control.name]] <- subplot
     }
 

@@ -147,11 +147,11 @@ RunClusterDiffExpression <- function(object){
   if ( is.null(object@Clusters$Clusters)){
     stop("Please run the FindOptimalClusters function on this object before using this function.")
   }
-  
+
   # Prepare Clusters
   cluster.list <- as.factor(object@Clusters$Clusters)
   clusters <- sort(unique(cluster.list))
-  
+  output <- list()
   if (length(clusters) > 1){
     condition.lists <- list()
     if (length(clusters) > 2){
@@ -160,7 +160,6 @@ RunClusterDiffExpression <- function(object){
     } else{
       condition.lists[[as.character(clusters[1])]] <- cluster.list
     }
-    
     # Loop over condition lists and run DE
     for (x in names(condition.lists)){
       condition.a <- x
@@ -171,13 +170,10 @@ RunClusterDiffExpression <- function(object){
         condition.b <- condition.b[1]
       }
       diff.exp <- RunDiffExpression(object, condition.a = x, condition.b = condition.b, condition.list = condition.lists[[x]])
-      output <- list()
-      output[[as.character(x)]] <- diff.exp
-      object@DifferentialExpression <- c(object@DifferentialExpression, output)
+      output[[paste0(as.character(x), "vs", condition.b)]] <- diff.exp
     }
   } else{
     stop("You must have more than one cluster in order to run pairwise comparisons of clusters.")
   }
-  
-  return(object)
+  return(output)
 }

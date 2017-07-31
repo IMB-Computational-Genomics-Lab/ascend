@@ -42,14 +42,8 @@ ConvertScaterToASCEND <- function(SCESet, AEMSet){
   # Retrieve counts from SCESet
   expression.matrix <- scater::counts(SCESet)
 
-  # Convert matrix to sparse
-  sparse.matrix <- LoadSparseMatrix(expression.matrix)
-
-  # Load it back into AEMSet
-  AEMSet@ExpressionMatrix <- sparse.matrix
-
-  # Run Metrics again
-  AEMSet <- GenerateMetrics(AEMSet)
+  # Convert to sparse, re-run metrics and add to slot
+  AEMSet <- ReplaceExpressionMatrix(AEMSet, expression.matrix)
 
   # Return updated object
   return(AEMSet)
