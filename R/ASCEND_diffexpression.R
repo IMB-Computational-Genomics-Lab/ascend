@@ -39,15 +39,7 @@ ProcessDEResults <- function(output.list){
 PrepareCountData <- function(x){
   # Set up expression matrix
   if (class(x) == "AEMSet"){
-    if (!is.null(x@Log$NormalisationMethod)){
-      if (identical(x@Log$NormalisationMethod, "scranNormalise")){
-        print("Data has been normalised via scran's deconvolution method. Converting values...")
-        expression.matrix <- UnLog2Matrix(as.matrix(x@ExpressionMatrix))
-      } else{
-        expression.matrix <- GetExpressionMatrix(x, "matrix")
-      }
-    }
-
+    expression.matrix <- GetExpressionMatrix(x, "matrix")
   } else if(is.data.frame(x)){
     expression.matrix <- as.matrix(x)
   } else if(is.matrix(x)){
