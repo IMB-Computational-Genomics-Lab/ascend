@@ -18,7 +18,7 @@ RunTSNE(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 30,
 
 \item{perplexity}{(Optional) Numeric; perplexity parameter}
 
-\item{theta}{(Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)}
+\item{theta}{(Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)}
 }
 \description{
 RunTSNE

@@ -4,7 +4,8 @@
 \alias{PlotNormalisationQC}
 \title{PlotNormalisationQC}
 \usage{
-PlotNormalisationQC(original = NULL, normalised = NULL, gene = NULL)
+PlotNormalisationQC(original = NULL, normalised = NULL,
+  gene.list = list())
 }
 \arguments{
 \item{original}{An un-normalised \linkS4class{AEMSet}}

@@ -15,8 +15,6 @@ NewAEMSet(ExpressionMatrix = NULL, GeneAnnotation = NULL,
 \item{BatchInformation}{A named list of cell identifiers (usually barcodes) and an integer representing which batch they belong to. This is an optional field, and it best used for experiments that contain data from multiple samples.}
 
 \item{Controls}{A named list of controls, eg. mitochondrial genes, ribosomal genes and ERCC spike-ins. These genes must be specified using the identifier used in the expression matrix. This is required.}
-
-\item{Conditions}{A named list of conditions for use in differential expression. Supplying this information is optional.}
 }
 \value{
 This function generates an object belonging to the \linkS4class{AEMSet}.
