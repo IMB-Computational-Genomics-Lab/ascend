@@ -90,8 +90,6 @@ PlotClusterDendro <- function (dendro, colors, groupLabels = NULL, rowText = NUL
                                cex.rowText = 0.8, marAll = c(1, 5, 3, 1), saveMar = TRUE,
                                abHeight = NULL, abCol = "red", ...)
 {
-  #dendro <- object@Clusters$HClust
-  #colors <- object@Clusters$ClusteringMatrix
   dendro$labels <- rep('', length(dendro$labels))
 
   oldMar = par("mar")
@@ -477,38 +475,38 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
   print("Retrieving data from AEMSets...")
   matrix.1 <- GetExpressionMatrix(original, "data.frame")
   matrix.2 <- GetExpressionMatrix(normalised, "data.frame")
-  
+
   # As normalisation removes cells and genes, trim original matrix.
   common.rows <- intersect(rownames(matrix.1), rownames(matrix.2))
   common.cols <- intersect(colnames(matrix.1), colnames(matrix.1))
   matrix.1 <- matrix.1[common.rows, common.cols]
-  
+
   # Retrieve library sizes
   libsize.1 <- original@Metrics$TotalCounts
   libsize.2 <- normalised@Metrics$TotalCounts
-  
+
   # Retrieve feature counts
   cells.per.gene.1 <- original@Metrics$CellsPerGene
   cells.per.gene.2 <- normalised@Metrics$CellsPerGene
-  
+
   # Generate histogram
   print("Plotting libsize histograms...")
   # Combine libsizes
   libsize.df.1 <- data.frame(Libsize = libsize.1, Dataset=rep("Original", length(libsize.1)))
   libsize.df.2 <- data.frame(Libsize = libsize.2, Dataset=rep("Normalised", length(libsize.2)))
-  
+
   # Get largest library size
   max.libsize <- max(c(libsize.1, libsize.2))
   libsize.df <- rbind(libsize.df.1, libsize.df.2)
   libsize.hist <- ggplot2::ggplot(libsize.df, ggplot2::aes(Libsize, fill = Dataset)) + ggplot2::geom_histogram(alpha = 0.2, position = "identity") + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::ggtitle("Library sizes across cells")
   max.counts <- max(ggplot2::ggplot_build(libsize.hist)$data[[1]]$count)
-  
+
   libsize.hist.1 <- ggplot2::qplot(libsize.1, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "Before normalisation", xlab = "Library size", ylab = "Number of cells")
   libsize.hist.2 <- ggplot2::qplot(libsize.2, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "After normalisation", xlab = "Library size", ylab = "Number of cells")
 
   #output.libsize.hist <- gridExtra::grid.arrange(libsize.hist.1, libsize.hist.2, ncol = 2)
   output.list <- c(output.list, list(Libsize=list(Original = libsize.hist.1, Normalised = libsize.hist.2)))
-  
+
   # Remove zero counts
   matrix.1 <- matrix.1[which(rowSums(matrix.1) > 0),]
   matrix.2 <- matrix.2[which(rowSums(matrix.2) > 0),]
@@ -520,15 +518,15 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
       # Check if there are any counts
       gene.counts.1 <- matrix.1[gene, ][which(matrix.1[gene, ] > 0)]
       gene.counts.2 <- matrix.2[gene, ][which(matrix.2[gene, ] > 0)]
-      
+
       if((length(gene.counts.1) > 0) && (length(gene.counts.2) > 0)){
         print(sprintf("Plotting %s expression...", gene))
-      
+
         # Get ylim
         ylim.1 <- max(gene.counts.1)
         ylim.2 <- max(gene.counts.2)
         ylim.max <- (max(ylim.1, ylim.2)) * 1.5
-        
+
         gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main=sprintf('Expression of %s (Before normalisation)', gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
         gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main=sprintf('Expression of %s (After normalisation)', gene), xlab="Cells", ylab="Gene expression", ylim = c(0, ylim.max))
         gene.scatter.list[[gene]] <- list(Original = gene.scatter.1, Normalised = gene.scatter.2)
@@ -545,14 +543,14 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
       gene.counts.2 <- matrix.2[gene,][which(matrix.2[gene, ] > 0)]
       success <- (length(gene.counts.1) > 10) && (length(gene.counts.2) > 10)
     }
-    
+
     # Found a gene!
     print(sprintf("Plotting %s expression...", gene))
     # Get ylim
     ylim.1 <- max(gene.counts.1)
     ylim.2<- max(gene.counts.2)
     ylim.max <- max(ylim.1, ylim.2) * 1.5
-    
+
     gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
     gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
     output.list <- c(output.list, list(GeneScatterPlots = list(Original = gene.scatter.1, Normalised = gene.scatter.2)))
@@ -565,18 +563,18 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
   print("Plotting gene expression box plots...")
   ordered.1 <- matrix.1[order(rowSums(matrix.1), decreasing=T),]
   ordered.2 <- matrix.2[order(rowSums(matrix.2), decreasing=T),]
- 
+
   ordered.1 <- stack(ordered.1[,1:100])
   ordered.2 <- stack(ordered.2[,1:100])
 
   ylim <- max(ordered.1$values[1], ordered.2$values[1])
-  
+
   boxplot.1 <- ggplot2::ggplot(ordered.1, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.5))
   boxplot.2 <- ggplot2::ggplot(ordered.2, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.5))
-  
+
   boxplot.1 <- boxplot.1 + ggplot2::labs(title='Gene expression (Before normalisation)',  y='Gene expression', x='Cells')
   boxplot.2 <- boxplot.2 + ggplot2::labs(title='Gene expression (After normalisation)',  y='Gene expression', x='Cells')
- 
+
   boxplot.1 <- boxplot.1 + ggplot2::theme(axis.text.x = ggplot2::element_blank())
   boxplot.2 <- boxplot.2 + ggplot2::theme(axis.text.x = ggplot2::element_blank())
 
@@ -783,8 +781,10 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #' PlotGeneralQC
 #'
 #' This function generates the following plots:
-#'
-#' @param object A \linkS4class{AEMSet} object
+#' \itemize{
+#' \item{\strong{Library Size}: A histogram depicting library sizes across the dataset.}
+#' }
+#' @param object An \linkS4class{AEMSet} object
 #'
 PlotGeneralQC <- function(object){
   output.list <- list()
