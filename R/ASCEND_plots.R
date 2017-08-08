@@ -328,8 +328,14 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
     if (length(object@Clusters) > 0){
       distance.matrix <- object@Clusters$DistanceMatrix
     } else{
-      print("Calculating distance matrix from top 20 PCAs...")
-      pca.matrix <- object@PCA$PCA[,1:20]
+      pca.matrix <- object@PCA$PCA
+      if (ncol(pca.matrix) >= 20){
+        n <- 20
+        pca.matrix <- pca.matrix[,1:n]
+      } else{
+        n <- ncol(pca.matrix)
+      }
+      print(sprintf("Calculating distance matrix from top %s PCAs..."), n)
       distance.matrix <- stats::dist(pca.matrix)
     }
   } else{
@@ -349,9 +355,9 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
   print("Generating MDS plot...")
   if (length(condition.list) > 0){
     mds.matrix$condition <- unlist(condition.list)
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point()
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(show.legend = FALSE, ggplot2::aes(alpha = 0.2))
   } else{
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point()
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point(show.legend = FALSE, ggplot2::aes(alpha = 0.2))
   }
   return(mds.plot)
 }
@@ -395,9 +401,9 @@ PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perp
   # Generate Plots
   if (length(condition.list) > 0){
     tsne.df$conditions <- as.factor(unlist(condition.list))
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions), alpha = 0.2))
   } else{
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point()
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(show.legend = FALSE, ggplot2::aes(alpha = 0.2))
   }
 
   return(tsne.plot)
@@ -427,7 +433,7 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition.list = list()){
     plot.matrix$conditions <- as.factor(unlist(condition.list))
     pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
   } else{
-    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point()
+    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(show.legend = FALSE)
   }
 
   return(pca.plot)
@@ -445,7 +451,7 @@ PlotPCAVariance <- function(object, n){
     stop("Please supply an object that has undergone PCA reduction.")
   }
 
-  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="line", xlab="Principal Component (PC)", ylab="% Variance", main="Percent Variance per PC")
+  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="point", xlab="Principal Component (PC)", ylab="% Variance", main="Percent Variance per PC")
   return(pca.obj)
 
 }
@@ -498,11 +504,11 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
   # Get largest library size
   max.libsize <- max(c(libsize.1, libsize.2))
   libsize.df <- rbind(libsize.df.1, libsize.df.2)
-  libsize.hist <- ggplot2::ggplot(libsize.df, ggplot2::aes(Libsize, fill = Dataset)) + ggplot2::geom_histogram(alpha = 0.2, position = "identity") + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::ggtitle("Library sizes across cells")
+  libsize.hist <- ggplot2::ggplot(libsize.df, ggplot2::aes(Libsize, fill = Dataset)) + ggplot2::geom_histogram(alpha = 0.2, position = "identity", binwidth = 1000) + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::ggtitle("Library sizes across cells")
   max.counts <- max(ggplot2::ggplot_build(libsize.hist)$data[[1]]$count)
 
-  libsize.hist.1 <- ggplot2::qplot(libsize.1, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "Before normalisation", xlab = "Library size", ylab = "Number of cells")
-  libsize.hist.2 <- ggplot2::qplot(libsize.2, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "After normalisation", xlab = "Library size", ylab = "Number of cells")
+  libsize.hist.1 <- ggplot2::qplot(libsize.1, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "Before normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
+  libsize.hist.2 <- ggplot2::qplot(libsize.2, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "After normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
 
   #output.libsize.hist <- gridExtra::grid.arrange(libsize.hist.1, libsize.hist.2, ncol = 2)
   output.list <- c(output.list, list(Libsize=list(Original = libsize.hist.1, Normalised = libsize.hist.2)))
@@ -530,7 +536,6 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
         gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main=sprintf('Expression of %s (Before normalisation)', gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
         gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main=sprintf('Expression of %s (After normalisation)', gene), xlab="Cells", ylab="Gene expression", ylim = c(0, ylim.max))
         gene.scatter.list[[gene]] <- list(Original = gene.scatter.1, Normalised = gene.scatter.2)
-        # gene.scatter.list[[gene]] <- gridExtra::grid.arrange(gene.scatter.1, gene.scatter.2, ncol = 1)
       }
     }
     output.list <- c(output.list, list(GeneScatterPlots=gene.scatter.list))}
@@ -554,7 +559,6 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
     gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
     gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
     output.list <- c(output.list, list(GeneScatterPlots = list(Original = gene.scatter.1, Normalised = gene.scatter.2)))
-    # output.list <- c(output.list, list(GeneScatterPlots=gridExtra::grid.arrange(gene.scatter.1, gene.scatter.2, ncol = 2)))
   }
 
   # Generate box plots
@@ -579,12 +583,9 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
   boxplot.2 <- boxplot.2 + ggplot2::theme(axis.text.x = ggplot2::element_blank())
 
   print("Plots complete!")
+
   # Return a list of output
   output.list <- c(output.list, list(GeneExpressionBoxplot = list(Original = boxplot.1, Normalised = boxplot.2)))
-  #output.list <- c(output.list, list(
-  #  GeneExpressionBoxplot = gridExtra::grid.arrange(boxplot.1, boxplot.2, ncol = 1)
-  #))
-
   return(output.list)
 }
 
@@ -790,17 +791,17 @@ PlotGeneralQC <- function(object){
   output.list <- list()
   # 1. Plot library sizes and expressed gene histograms
   print("Plotting Total Count and Library Size...")
-  libsize.plot <- ggplot2::qplot(object@Metrics$TotalCounts/1e6, geom="histogram", main="Distribution of library sizes across dataset", xlab="Library sizes (millions)", ylab="Number of cells")
-  feature.counts.per.cell <- ggplot2::qplot(object@Metrics$TotalFeatureCountsPerCell/1e6, geom="histogram", xlab="Number of expressed genes", main="Number of expressed genes per cell", ylab="Number of cells")
+  libsize.plot <- ggplot2::qplot(aem.set@Metrics$TotalCounts, geom="histogram", main="Distribution of library sizes across dataset", xlab="Library size", ylab="Number of cells", binwidth=1000) + ggplot2::theme_bw()
+  feature.counts.per.cell <- ggplot2::qplot(object@Metrics$TotalFeatureCountsPerCell, geom="histogram", xlab="Number of expressed genes", main="Number of expressed genes across cells", ylab="Number of cells", binwidth = 250) + ggplot2::theme_bw()
   output.list[["LibSize"]] <- libsize.plot
   output.list[["FeatureCountsPerCell"]] <- feature.counts.per.cell
 
   # 2. Average Counts
   print("Plotting Average Counts...")
-  log10.average.gene.count <- ggplot2::qplot(log10(object@Metrics$AverageCounts), geom="histogram", main="Average Count of Genes", xlab=expression(Log[10]~"Average Count"))
-  smooth.scatter <- graphics::smoothScatter(log10(object@Metrics$AverageCounts), object@Metrics$CellsPerGene, xlab=expression(Log[10]~"Average Count"),ylab="Number of expressing cells", main = "Average Expression of Genes Per Cell")
-  log2.average.count <- ggplot2::qplot(log2(object@Metrics$AverageCounts), geom="histogram", xlab=Log[2]~"Average Count", ylab="Number of genes", main="Average Count of Genes")
-  average.gene.count <- ggplot2::qplot(object@Metrics$AverageCounts, xlab="Average Count", ylab="Number of genes", main="Average Count of Genes")
+  smooth.scatter <- graphics::smoothScatter(log10(object@Metrics$AverageCounts), object@Metrics$CellsPerGene, xlab=expression(Log[10]~"Average Count"),ylab="Number of expressing cells", main = "Average gene expression across cells")
+  average.gene.count <- ggplot2::qplot(object@Metrics$AverageCounts, xlab="Average Transcript Count", ylab="Number of genes", main="Average Transcript Count of Genes", binwidth = 10) + ggplot2::theme_bw()
+  log2.average.count <- ggplot2::qplot(log2(object@Metrics$AverageCounts)[!is.infinite(log2(object@Metrics$AverageCounts))], geom="histogram", xlab=Log[2]~"Average Transcript Count", ylab="Number of genes", main="Average Transcript Count of Genes", binwidth = 1) + ggplot2::theme_bw()
+  log10.average.gene.count <- ggplot2::qplot(log10(object@Metrics$AverageCounts)[!is.infinite(log10(object@Metrics$AverageCounts))], geom="histogram", xlab=Log[10]~"Average Transcript Count", ylab="Number of genes", main="Average Transcript Count of Genes", binwidth = 0.1) + ggplot2::theme_bw()
 
   output.list[["Log10AverageGeneCount"]] <- log10.average.gene.count
   output.list[["AverageCountSmoothScatter"]] <- smooth.scatter
@@ -815,8 +816,11 @@ PlotGeneralQC <- function(object){
     for (control.name in names(object@Metrics$PercentageTotalCounts)){
       xlab.string <- paste0("%", sprintf("%s proportion ", control.name))
       title.string <- sprintf("Proportion of control: %s", control.name)
-      subplot <- ggplot2::qplot(unlist(object@Metrics$PercentageTotalCounts[[control.name]]), xlab=xlab.string, ylab="Number of cells", main=title.string)
-      percentage.total.plots[[control.name]] <- subplot
+      percentage.total.counts <- as.data.frame(object@Metrics$PercentageTotalCounts[[control.name]])
+      colnames(percentage.total.counts) <- c("Percentage")
+      pct.hist <- ggplot2::ggplot(percentage.total.counts, aes(Percentage)) + ggplot2::geom_histogram(binwidth = 5) + ggplot2::ggtitle(title.string) + ggplot2::theme_bw()
+      pct.hist <- pct.hist + ggplot2::xlab(xlab.string) + ggplot2::ylab("Number of cells") + ggplot2::ggtitle(title.string)
+      percentage.total.plots[[control.name]] <- pct.hist
     }
 
     # 6. Plot Controls Per Sample

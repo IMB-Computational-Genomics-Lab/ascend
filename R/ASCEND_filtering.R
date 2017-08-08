@@ -38,7 +38,7 @@ ExcludeControl <- function(object, control.name){
 #' FilterByExpressedGenesPerCell
 #'
 #' Filtered cells by the proportion of expressed genes in the cell. This step is usually done after the other filtering steps and prior to normalisation.
-#' @param object AEMSet (scryeR) object that has been filtered by \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.
+#' @param object AEMSet (ASCEND) object that has been filtered by \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.
 #' @param pct.value Percentage threshold as a decimal.
 #'
 FilterByExpressedGenesPerCell <- function(object, pct.value){
