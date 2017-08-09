@@ -355,9 +355,9 @@ PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = lis
   print("Generating MDS plot...")
   if (length(condition.list) > 0){
     mds.matrix$condition <- unlist(condition.list)
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(show.legend = FALSE, ggplot2::aes(alpha = 0.2))
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(alpha = 0.5) + ggplot2::labs(colour = "Condition")
   } else{
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point(show.legend = FALSE, ggplot2::aes(alpha = 0.2))
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
   }
   return(mds.plot)
 }
@@ -401,9 +401,9 @@ PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perp
   # Generate Plots
   if (length(condition.list) > 0){
     tsne.df$conditions <- as.factor(unlist(condition.list))
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions), alpha = 0.2))
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = "Condition")
   } else{
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(show.legend = FALSE, ggplot2::aes(alpha = 0.2))
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
   }
 
   return(tsne.plot)
@@ -431,9 +431,9 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition.list = list()){
 
   if (length(condition.list) > 0){
     plot.matrix$conditions <- as.factor(unlist(condition.list))
-    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)))
+    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = "Condition")
   } else{
-    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(show.legend = FALSE)
+    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
   }
 
   return(pca.plot)
@@ -504,11 +504,11 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
   # Get largest library size
   max.libsize <- max(c(libsize.1, libsize.2))
   libsize.df <- rbind(libsize.df.1, libsize.df.2)
-  libsize.hist <- ggplot2::ggplot(libsize.df, ggplot2::aes(Libsize, fill = Dataset)) + ggplot2::geom_histogram(alpha = 0.2, position = "identity", binwidth = 1000) + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::ggtitle("Library sizes across cells")
+  libsize.hist <- ggplot2::ggplot(libsize.df, ggplot2::aes(Libsize, fill = Dataset)) + ggplot2::geom_histogram(alpha = 0.5, position = "identity", binwidth = 1000) + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::ggtitle("Library sizes across cells")
   max.counts <- max(ggplot2::ggplot_build(libsize.hist)$data[[1]]$count)
 
-  libsize.hist.1 <- ggplot2::qplot(libsize.1, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "Before normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
-  libsize.hist.2 <- ggplot2::qplot(libsize.2, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.5), main = "After normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
+  libsize.hist.1 <- ggplot2::qplot(libsize.1, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.1), main = "Before normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
+  libsize.hist.2 <- ggplot2::qplot(libsize.2, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.1), main = "After normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
 
   #output.libsize.hist <- gridExtra::grid.arrange(libsize.hist.1, libsize.hist.2, ncol = 2)
   output.list <- c(output.list, list(Libsize=list(Original = libsize.hist.1, Normalised = libsize.hist.2)))
@@ -531,7 +531,7 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
         # Get ylim
         ylim.1 <- max(gene.counts.1)
         ylim.2 <- max(gene.counts.2)
-        ylim.max <- (max(ylim.1, ylim.2)) * 1.5
+        ylim.max <- (max(ylim.1, ylim.2)) * 1.1
 
         gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main=sprintf('Expression of %s (Before normalisation)', gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
         gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main=sprintf('Expression of %s (After normalisation)', gene), xlab="Cells", ylab="Gene expression", ylim = c(0, ylim.max))
@@ -554,7 +554,7 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
     # Get ylim
     ylim.1 <- max(gene.counts.1)
     ylim.2<- max(gene.counts.2)
-    ylim.max <- max(ylim.1, ylim.2) * 1.5
+    ylim.max <- max(ylim.1, ylim.2) * 1.1
 
     gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
     gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
@@ -573,8 +573,8 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
 
   ylim <- max(ordered.1$values[1], ordered.2$values[1])
 
-  boxplot.1 <- ggplot2::ggplot(ordered.1, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.5))
-  boxplot.2 <- ggplot2::ggplot(ordered.2, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.5))
+  boxplot.1 <- ggplot2::ggplot(ordered.1, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.1))
+  boxplot.2 <- ggplot2::ggplot(ordered.2, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.1))
 
   boxplot.1 <- boxplot.1 + ggplot2::labs(title='Gene expression (Before normalisation)',  y='Gene expression', x='Cells')
   boxplot.2 <- boxplot.2 + ggplot2::labs(title='Gene expression (After normalisation)',  y='Gene expression', x='Cells')

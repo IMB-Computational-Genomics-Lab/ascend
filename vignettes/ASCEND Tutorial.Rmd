@@ -9,11 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The `ASCEND` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools performs tasks such as filtering, normalisation, clustering and differential expression.
+The `ASCEND` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
 ## Before you begin
 ### System Requirements
-Datasets produced by scRNASeq experiments are very large, ranging from a few hundred to a million cells. The number of cells affect how much computational resources are required to process the dataset. Therefore, you need to determine if you have enough computational power and time to complete the analysis. ASCEND can comfortably analyse datasets of up to 10000 cells on a single machine with 8GB of RAM and a quad-core CPU. Datasets larger than this should be run on a high performance cluster (HPC).
+Datasets produced by scRNASeq experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. ASCEND can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
 
 ### Configuring BiocParallel
 This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling ASCEND to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
@@ -40,26 +40,27 @@ library(Rmpi)
 ```
 
 #### Loading ASCEND
-As this package is still under development, please use devtools to load the package.
+Please use `devtools` to load the development version of `ASCEND`.
 
 ```{r LoadASCEND}
 devtools::load_all("/Users/a.senabouth/Code Repositories/ASCEND")
 ```
 
-You can also use devtools' install_github function to install the package. You can then load the package as normal.
+You can also use devtools' install_github function to install the package, and then load it as normal.
 
 ```{r LoadASCENDGit, eval = FALSE}
 devtools::install_github("MB-Computational-Genomics-Lab/ASCEND")
+library(ASCEND)
 ```
 
 ## Loading Data for use in ASCEND
 ### Preparing data manually
-The vignette uses the public dataset ["Aggregate of t_3k and t_4k"](https://support.10xgenomics.com/single-cell-gene-expression/datasets/2.0.1/t_3k_4k_aggregate) by 10x Genomics. This dataset consists of 8093 pan T cells that are divided into two batches. The cells were isolated from a healthy donor.
+This vignette uses the public dataset ["Aggregate of t_3k and t_4k"](https://support.10xgenomics.com/single-cell-gene-expression/datasets/2.0.1/t_3k_4k_aggregate) by 10x Genomics. The dataset consists of 8093 pan T cells that were isolated from a healthy donor, and are divided into two batches. 
 
 You can download the dataset from [here](http://cf.10xgenomics.com/samples/cell-exp/1.3.0/t_3k_4k_aggregate/t_3k_4k_aggregate_filtered_gene_bc_matrices_mex.tar.gz).
 
 
-The **Gene / cell matrix (filtered)** download contains the following files:
+This download - **Gene / cell matrix (filtered)**, contains the following files:
 
 - barcodes.tsv
 - genes.tsv
@@ -68,7 +69,7 @@ The **Gene / cell matrix (filtered)** download contains the following files:
 These files contain all the information we need to create an `AEMSet` - the main data object of the ASCEND package. 
 
 #### Expression matrix
-The main source of input is an expression matrix, or a gene/cell matrix containing transcript counts. Each row represents a gene and each column represents a cell. Cell Ranger - the processing pipeline for the Chromium platform, has stored the expression matrix in a Market Exchange Format (MEX) file called `matrix.mtx`. We need to use the `readMM` function from the `Matrix` package to load the data into R.
+The main source of input is an expression matrix, or a gene/cell matrix where each row represents a transcript and each column represents a cell. Cell Ranger - the processing pipeline for the Chromium platform, has stored the expression matrix in a Market Exchange Format (MEX) file called `matrix.mtx`. We need to use the `readMM` function from the `Matrix` package to load the data into R.
 
 ```{r ReadExpressionMatrix}
 library(Matrix)
@@ -78,18 +79,18 @@ expression.matrix <- as.data.frame(as.matrix(expression.matrix))
 expression.matrix[1:5,1:5]
 ```
 
-`readMM` reads the data in as a sparse matrix. This format uses less memory than data frames and matrices. We have converted the expression matrix into a data frame so we can view its contents. As you can see, there column and row labels aren't very helpful. This is because Cell Ranger has stored them in the two other files - `barcodes.tsv` and `genes.tsv`.
+`readMM` reads the data in as a sparse matrix, using less memory than data frames and matrices. The expression matrix can be kept in this format, but as we want to view the contents of the matrix for this tutorial – we have converted it into a data frame.  This data frame lacks row and column labels as Cell Ranger has stored them in the two other files - `barcodes.tsv` and `genes.tsv`.
 
 #### Cell Identifiers and Batch Information
+`barcodes.tsv` is a CSV file containing cell identifier and batch information. Chromium uses actual cell barcodes as cell identifiers and has attached a number to each barcode. This number represents the batch the cell originated from.
+
 ```{r ReadBarcodes}
 barcodes.tsv <- "/Users/a.senabouth/Data/t_3k_and_t_4k/outs/filtered_gene_bc_matrices_mex/GRCh38/barcodes.tsv"
 barcodes <- read.csv(barcodes.tsv, sep="\t", header = FALSE)
 barcodes[1:5,]
 ```
 
-`barcodes.tsv` is a CSV file that contains cell identifer and batch information. Chromium uses the actual cell barcodes as cell identifiers, and the number attached to each barcode sequence represents the batch it originated from.
-
-Extract the batch numbers from the cell identifiers by splitting each string at the '-' symbol and retrieve the second part of the string. We can then link each cell barcode to its associated batch by transforming the vector into a named list.
+Extract the batch numbers from the cell identifiers by splitting each string at the '-' symbol and retrieve the second part of the string. Next, link each cell barcode to its associated batch by transforming the vector into a named list.
 
 ```{r ProcessBatchID}
 batch.information <- lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)
@@ -97,7 +98,7 @@ names(batch.information) <- barcodes$V1
 batch.information[1:5]
 ```
 
-We can also add the cell identifiers to the expression matrix as column names.
+Finally, add the cell identifiers to the expression matrix as column names.
 
 ```{r NameColumns}
 colnames(expression.matrix) <- barcodes$V1
@@ -105,6 +106,8 @@ expression.matrix[1:5, 1:5]
 ```
 
 #### Gene Annotation
+`genes.tsv` contains the names of transcripts identified by Cell Ranger. This csv file contains ENSEMBL transcript IDs in one column and their corresponding gene name in the other column. Either of these identifiers can be used as row names in the expression matrix. 
+
 ```{r ReadGenes}
 genes.tsv <- "/Users/a.senabouth/Data/t_3k_and_t_4k/outs/filtered_gene_bc_matrices_mex/GRCh38/genes.tsv"
 gene.annotations <- read.csv(genes.tsv, sep="\t", header = FALSE)
@@ -112,9 +115,7 @@ colnames(gene.annotations) <- c("ensembl_id", "gene_name")
 gene.annotations[1:5,]
 ```
 
-`genes.tsv` contains the names of transcripts identified by Cell Ranger. As you can see, it lists ENSEMBL transcript IDs and their corresponding gene name. You can use either of these identifiers as row names for the expression matrix. 
-
-For this tutorial, we will use gene names. As genes can have more than one transcript associated with them, we need to make the names unique before adding them to the expression matrix.
+For this tutorial, we will use gene names. As genes can be associated with more than one transcript, we need to make the names unique with `make.unique` before adding them to the expression matrix.
 
 ```{r SetRownames}
 gene.names <- make.unique(as.vector(gene.annotations$gene_name))
@@ -122,7 +123,7 @@ rownames(expression.matrix) <- gene.names
 expression.matrix[1:5, 1:5]
 ```
 
-We can swap the gene names with ENSEMBL transcript IDs at a later stage as we will store the `genes` data frame in the `AEMSet`. We just need to update the `gene_name` column in the `genes` data frame with the unique gene names vector we have created.
+Now that the gene names have been modified, the gene_names column in the `gene.annotations` data frame needs to be updated. This will link the information in this data frame with the rows of the expression matrix.
 
 ```{r ReplaceGeneNames}
 gene.annotations$gene_name <- gene.names
@@ -130,7 +131,7 @@ gene.annotations[1:15,]
 ```
 
 #### Defining Controls
-The last thing we need to do is to identify our controls. Usually, ribosomal and mitochondrial genes are used as controls for single-cell experiments. If used, spike-ins are also included as controls. For this tutorial, we will use ribosomal and mitochondrial genes as controls.
+Finally, we need to identify controls for this experiment. Ribosomal and mitochondrial genes are typically used as controls for single-cell experiments, so will use these genes for the tutorial. Spike-ins should be used as controls if they are included in the experiment.
 
 ```{r DefineControls}
 # Mitochondrial gene list from
@@ -144,7 +145,7 @@ controls <- list(Mt = mito.genes, Rb = ribo.genes)
 ```
 
 #### Building an AEMSet
-Now that we have prepared the data, we can load it into an AEMSet.
+We can now load all of this information into an `AEMSet`, using the `NewAEMSet` function.
 
 ```{r BuildAEMSet}
 aem.set <- NewAEMSet(ExpressionMatrix = expression.matrix, GeneAnnotation = gene.annotations, BatchInformation = batch.information, Controls = controls)
@@ -161,12 +162,14 @@ aem.set <- CellRangerToASCEND("/Users/a.senabouth/Data/t_3k_and_t_4k", "GRCh38")
 This function loads the data into an AEMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
 
 ## Single-cell post-processing and normalisation workflow
-This workflow is based off [A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor][1] by Lun *et al* 2016. 
+The filtering workflow is based off [A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor][1] by Lun, McCarthy & Marioni 2016.
 
 ### Preliminary QC
-Now that we have our data loaded, we can assess its quality through a series of plots generated by `PlotGeneralQC`. We will use these plots to guide our filtering. 
+We can assess the quality of the data through a series of plots generated by `PlotGeneralQC`. These plots will be used to guide the filtering process.
 
+#### Printing plots to PDF
 The resulting plots are stored in a named list. You can use the `PlotPDF` function to output the plots in this list to a PDF file.
+
 ```{r, echo=FALSE, fig.show='hide'}
 raw.qc.plots <- PlotGeneralQC(aem.set)
 PlotPDF(raw.qc.plots, "RawQC.pdf")
@@ -174,45 +177,40 @@ PlotPDF(raw.qc.plots, "RawQC.pdf")
 
 
 ### Cell filtering 
-#### Filtering cells by library size and genes expressed.
-First we want to remove cells with library sizes that are too small or too large, as shown on the following plot.
+#### Filter cells by library size and gene expression
+First, we will filter cells based on outliers in term of library size, number of non-control genes expressed and control genes expressed. 
+
+We can use the following plots to examine the distributions of these values.
 ```{r, fig.width=5, fig.height=4, fig.align="center"}
 print(raw.qc.plots$LibSize)
-```
-
-We also want to remove cells that express express too many or too few genes, as shown on the following plot.
-```{r, fig.width=5, fig.height=4, fig.align="center"}
 print(raw.qc.plots$FeatureCountsPerCell)
-```
-
-And finally, we want to remove cells if they are expressing too few or too many control genes; for our tutorial, the controls are mitochondrial and ribosomal genes. The following plots show how many cells are expressing a certain percentage of mitochondrial and ribosomal genes.
-
-```{r, fig.width=5, fig.height=4, fig.align="center"}
 print(raw.qc.plots$ControlPercentageTotalCounts$Mt)
 print(raw.qc.plots$ControlPercentageTotalCounts$Rb)
 ```
 
-We can filter these cells out by using the `FilterByOutliers` function. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required.
+The `FilterByOutliers` function will remove outliers based on these criteria. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required
 
-```{r FilterByOutliers, echo = FALSE}
+```{r FilterByOutliers}
 aem.set <- FilterByOutliers(aem.set, CellThreshold = 3, ControlThreshold = 3)
 ```
 
 #### Filter cells by control gene expression
-We removed a significant number of cells in the previous step that were expressing too many, or too few control genes. As ribosomal and mitochondrial genes are indicative of a stressed or dying cell, we need to perform some additional filtering and remove cells where they contribute to the bulk of the cell's expression. This can be seen on the following beehive plots.
+We removed a significant number of cells in the previous step that were expressing too many, or too few control genes. As ribosomal and mitochondrial genes are indicative of a stressed or dying cell, we need to perform some additional filtering and remove cells where they contribute to the bulk of the cell's expression.
+
+The beehive plots below show the percentage of control genes in the transcriptomes of each cell, per sample.
 
 ```{r ControlPercentagePlots, fig.width=5, fig.height=4, fig.align="center"}
 print(raw.qc.plots$ControlPercentageSampleCounts$Mt)
 print(raw.qc.plots$ControlPercentageSampleCounts$Rb)
 ```
 
-You can review your control list by using `GetControls`. As you can see, we have stored the mitochondrial genes under "Mt" and ribosomal genes under "Rb."
+Review the control list by using `GetControls`. As you can see, we have stored the mitochondrial genes under "Mt" and ribosomal genes under "Rb."
 
 ```{r RetrieveControls}
 print(GetControls(aem.set))
 ```
 
-We can use `FilterByCustomControl` to remove cells that are mostly expressing these genes. To use this function, we have to specify the name of the list of control genes and the minimum percentage expression to filter by.
+Use `FilterByCustomControl` to remove cells that are mostly expressing control genes. This function takes two arguments - the name of the list of control genes and the minimum percentage expression to filter by.
 
 ```{r FilterByControl, echo = FALSE}
 # Filter by mitochondrial genes
@@ -221,49 +219,40 @@ aem.set <- FilterByCustomControl("Mt", 20, aem.set)
 aem.set <- FilterByCustomControl("Rb", 50, aem.set)
 ```
 
-You will need to remove the controls from all cells for some analyses. This is best done after normalisation.
+Some analyses will require the removal of these controls. This should not be done at this stage; it is best done after normalisation.
 
 #### Filtering by expression
-The final step of filtering is to remove low-abundance genes. The average expression of genes can be reviewed on the AverageGeneCount plots.
+The final step of filtering is to remove low-abundance genes. The average expression of genes can be reviewed on the average transcript count plots.
 
 ```{r AverageGeneCountPlots, fig.width=5, fig.height=4, fig.align="center"}
 print(raw.qc.plots$AverageGeneCount)
 ```
 
-Due to the nature of single-cell RNASeq, many genes will have zero or near-zero expression. We can have a closer look at the distribution with the Log2 and Log10 Average Transcript Count plots. 
+Due to the nature of single-cell RNASeq, many genes will have zero or near-zero expression. Have a closer look at the distribution with the Log2 and Log10 average transcript count plots. 
 
 ```{r AverageGeneCountLogPlots, fig.width=5, fig.height=4, fig.align="center"}
 print(raw.qc.plots$Log2AverageGeneCount)
 print(raw.qc.plots$Log10AverageGeneCount)
 ```
 
-We will remove genes that have zero expression in at least a certain percentage of the cell population. In this case, we have chosen 1% of cells. 
+Use `FilterByExpressedGenesPerCell` to remove genes that have zero or near-zero expression in at least a certain percentage of the cell population. We will use the value of 1% for this tutorial.
 
 ```{r FilterByExpressedGenesPerCell}
 aem.set <- FilterByExpressedGenesPerCell(aem.set, 0.01)
 ```
 
 #### Filtering Review
-We can review the impact of filtering on our dataset by running `PlotGeneralQC` again. `ASCEND` has also kept track of what changes were made to the dataset, and we can view this log with the function `DisplayLog`.
+Review the impact of filtering on the dataset by running `PlotGeneralQC` again. `ASCEND` has also kept track of the filtering process and has recorded which cells and genes were filtered from the dataset.
 
-```{r CheckFiltering, echo = FALSE, results = "hide", fig.show="hide"}
+```{r CheckFiltering, echo = FALSE}
 filtered.qc.plots <- PlotGeneralQC(aem.set)
-```
-```{r, fig.width=5, fig.height=4, fig.align="center"}
 print(filtered.qc.plots$LibSize)
 print(filtered.qc.plots$FeatureCountsPerCell)
 ```
 
+You can view the log with `DisplayLog`.
 ```{r CheckLogFiltering}
 DisplayLog(aem.set)
-```
-
-##### PlotTopGeneExpression
-We can also view the top expressed genes by using the function `PlotTopGeneExpression`. This function gets called by `PlotGeneralQC`, but in this case we want to exclude the controls and see only the top 10.
-
-```{r PlotTopGeneExpression, fig.width=5, fig.height=4, fig.align="center"}
-top.50.expression <- PlotTopGeneExpression(aem.set, n = 10, controls = FALSE)
-print(top.50.expression)
 ```
 
 ### Normalisation
@@ -280,7 +269,7 @@ How you use these functions depends on the dataset.
 #### NormaliseBatches
 Normalisation between batches needs to be done prior to filtering.
 
-However, for this tutorial - we do not need to use the `NormaliseBatches` as this dataset was prepared with Cell Ranger's *aggr* pipeline. This pipeline uses a subsampling process to normalise between batches [(Zheng et al. 2017)][2].
+For this tutorial - we do not need to use the `NormaliseBatches` as this dataset was prepared with Cell Ranger's *aggr* pipeline. This pipeline uses a subsampling process to normalise between batches [(Zheng et al. 2017)][2].
 
 We do need to normalise between cells so we can use one of the following functions: `NormaliseByRLE` or `scranNormalise`.
 
@@ -302,39 +291,34 @@ This method is computationally intensive; we do not recommend running datasets l
 
 To ensure compatibility with `scran` and `scater`, the `AEMSet` needs to have mitochondrial and ribosomal genes as controls. The control list also needs to be formatted as follows:
 
-```{r}
+```{r GetControlsScran}
 print(GetControls(aem.set))
 ```
 
-You can then use the function.
+Run `scranNormalise` as follows:
 
 ```{r scranNormalise, eval = FALSE}
 norm.set <- scranNormalise(aem.set)
 ```
 
 #### Reviewing the normalisation process
-We can examine the impact of the normalisation methods by comparing the normalised object to the un-normalised object.
+`PlotNormQC` will generate a series of plots for the review of the normalisation process. This function can only be used if you have retained the un-normalised `AEMSet`.
 
 ```{r PlotNormalisationQC}
 norm.qc <- PlotNormalisationQC(original = aem.set, normalised = norm.set, gene.list = c("GAPDH", "ACTB"))
 ```
 
-We can review how normalisation has affected the library sizes with the library size histograms. The `NormaliseByRLE` method does not affect library size as drastically as the scranNormalise method; instead, the changes are more apparent on a gene level.
+The first set of graphs are library size histograms. The `NormaliseByRLE` method does not affect library size as drastically as the `scranNormalise` method. Instead, the changes are more apparent on a gene level.
 
 ```{r NormLibsizePlot, fig.show = "hold", fig.align="center"}
 print(norm.qc$Libsize$Original)
 print(norm.qc$Libsize$Normalised)
 ```
 
-For example, here are the expression levels of GAPDH before and after normalisation.
-```{r NormGAPDH,fig.show = "hold", fig.align="center"}
+The gene scatter plots show how expression has changed on a gene level. As GAPDH is highly expressed in this dataset, the effect of normalisation is not as apparent as it is for ACTB.
+```{r NormScatter,fig.show = "hold", fig.align="center"}
 print(norm.qc$GeneScatterPlots$GAPDH$Original)
 print(norm.qc$GeneScatterPlots$GAPDH$Normalised)
-```
-
-The differences are more apparent with ACTB.
-
-```{r NormACTB}
 print(norm.qc$GeneScatterPlots$ACTB$Original)
 print(norm.qc$GeneScatterPlots$ACTB$Normalised)
 ```
@@ -346,23 +330,22 @@ print(norm.qc$GeneExpressionBoxplot$Original)
 print(norm.qc$GeneExpressionBoxplot$Normalised)
 ```
 
-
 ### Control Removal
-As we can see from the top 20 expressed genes plot, ribosomal genes dominate expression.
+The plot generated by `PlotTopExpression` show ribosomal genes dominate the list of the most-expressed genes.
 
 ```{r ControlRemovalPlot1, fig.width = 5, fig.height = 4, fig.align="center"}
 top.20.plot <- PlotTopGeneExpression(aem.set, n = 20, controls = TRUE)
 print(top.20.plot)
 ```
 
-For our tutorial, we are interested in other genes so we will remove the controls from the dataset.
+As we are interested in the expression of non-control genes, we will need to remove the controls from the dataset. This can be done with the `ExcludeControl` function.
 
 ```{r ExcludeControls}
 aem.set <- ExcludeControl(aem.set, "Mt")
 aem.set <- ExcludeControl(aem.set, "Rb")
 ```
 
-This will reveal other genes that might be interesting.
+Now that the control genes have been removed, the plot reveals many other genes of interest.
 
 ```{r ControlRemovalPlot2, fig.width = 5, fig.height = 4, fig.align="center"}
 top.20.plot <- PlotTopGeneExpression(aem.set, n = 20, controls = TRUE)
@@ -376,75 +359,111 @@ We have filtered our dataset down to 6100 cells and 33604 genes. We can reduce t
 aem.set <- RunPCA(aem.set)
 ```
 
-We need to determine how many principal components (PCs) to keep. `PlotPCAVariance` generates what is known as a *scree plot*, which depicts what percentage each PC contributes to the total variance of the data.
+PlotPCAVariance` generates what is known as a *scree plot*, which depicts what percentage each PC contributes to the total variance of the data. This will help determine how many PCs the dataset should be reduced to.
 
 ```{r PlotPCAVariance}
 pca.variance <- PlotPCAVariance(aem.set, 50)
 print(pca.variance)
 ```
 
-The scree plot shows most of the variance in the dataset is due to the top 20 PCs. Therefore, the dataset can be reduced further by retaining only these PCs.
+The scree plot shows most of the variance is due to the top 20 PCs. Reduce the dataset to 20 PCs with the `ReduceDimensions` function.
 
 ```{r ReduceDimensions}
 aem.set <- ReduceDimensions(aem.set, 20)
 ```
 
-#### Plotting dimension-reduced data
-Dimension reduction is often used to reduce a dataset to dimensions that can be plotted.
-
-##### PCA Plot
-```{r PlotPCA}
-batch.info <- GetBatchInfo(aem.set)
-pca.plot <- PlotPCA(aem.set, condition.list = batch.info)
-print(pca.plot)
-```
-
-##### Dimension reduction via t-Distributed Stochastic Neighbour Embedding (TSNE)
-
-tSNE plots can be used only for the purpose of displaying results from other independent analysis such as clustering results from our ASCEND pipeline or normlized gene expression results. tSNE plots often show good separation of clusters (identified by other methods independent of tSNe), but the distance between cells and clusters should not be intepreted as the relative difference between them.
-
-sually, this method is computationally intensive but as we have reduced our dataset via PCA, we can simply run Rtsne's TSNE function on the reduced matrix. This reduces all the information into the number of dimensions of your own choosing.
-
-The function also takes arguments to pass on to the Rtsne function, such as perplexity and theta. If you wish to reproduce the plot at a later stage, you can set a seed value.
-
-```{r PlotTSNE}
-tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition.list = batch.info, seed = 0, perplexity = 30, theta = 0.5)
-print(tsne.plot)
-```
-
-##### MDS Plot
-```{r PlotMDS}
-mds.plot <- PlotMDS(aem.set, PCA = TRUE, condition.list = batch.info)
-print(mds.plot)
-```
-
 ### Clustering
+Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `FindOptimalClusters` to identify clusters.
 
 ```{r FindOptimalClusters}
 aem.set <- FindOptimalClusters(aem.set)
 ```
 
+The `FindOptimalClusters` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to 40 values ranging from 0.025 (the bottom of the tree) to 1 (the top of the tree). 
+
+The `PlotStabilityDendro` generates a plot that represents this part of the process. In addition to the dendrogram, it generates the distribution of clusters across the 40 cut heights.
 
 ```{r PlotStabilityDendro}
 PlotStabilityDendro(aem.set)
 ```
 
+The clustering results are then compared quantitatively using rand indices, which calculates every pair of cells being in the same cluster or not. It is used as an indicator of the stability of a clustering result. If a rand index is stable across multiple tree-height values, this indicates the tree-height produces the most stable clustering result.  
+
+This information is shown on a plot generated by the `PlotStability` function.
+
+```{r PlotStability}
+PlotStability(aem.set)
+```
+
+The rand index is stable in 50% of tree-cut heights that correspond to the lowest number of clusters. Therefore, the optimal number of clusters is 2.
+
+The `PlotDendrogram` function generates a dendrogram that depicts each cluster and its members.
 
 ```{r PlotDendrogram}
 PlotDendrogram(aem.set)
 ```
 
 ### Differential Expression
-#### Batch vs Batch
+This package uses `DESeq` to perform differential expression, and can be done with or without clustering. Each cell needs to be assigned one of two conditions; for this tutorial, we will use batch information and clustering information. This step is computationally intensive for larger datasets.
+
+#### Differential expression by condition
+The `RunDiffExpression` function requires an `AEMSet`, two conditions and a list of cells and their associated condition.
+
+We already have this condition list – batch information, which we can retrieve from the `AEMSet`. The conditions are therefore “1” and “2”.
+
 ```{r RunDiffExpression}
 batch.info <- GetBatchInfo(aem.set)
 batch.de.result <- RunDiffExpression(aem.set, condition.a = "1", condition.b = "2", condition.list = batch.info)
 ```
 
-#### Cluster vs Cluster
+The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
+
+```{r DEResult1}
+batch.de.result[1:10,]
+```
+
+
+#### Differential expression by cluster comparison
+`RunClusterDiffExpression` compares each cluster against other clusters. This function returns a list of differential expression results.
+
 ```{r RunClusterDiffExpression}
 cluster.de.result <- RunClusterDiffExpression(aem.set)
+```
 
+As there are only two clusters, only one comparison was made.
+
+```{r DEResult2}
+cluster.de.result$`1vs2`[1:10,]
+```
+
+## Visualising data with ASCEND
+`ASCEND` provides functions for generating PCA, TSNE and MDS plots that can be supplied with a condition list. The conditions can be of clustering results, batch information or the expression of specific genes.
+
+#### Generating a condition list
+The function `MakeGeneCondition` generates a condition list, labelling if a cell is expressing the selected gene, or not. This can be used to highlight cells that are expressing genes on plots generated by the `ASCEND` package.
+
+We will label cells that are expressing the IGLC2 transcript.
+
+```{r ConditionList}
+condition.list <- MakeGeneCondition(aem.set, "IGLC2")
+```
+
+#### PlotPCA
+```{r PlotPCA}
+pca.plot <- PlotPCA(aem.set, condition.list = condition.list)
+print(pca.plot)
+```
+
+#### PlotTSNE
+```{r PlotTSNE}
+tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition.list = condition.list)
+print(tsne.plot)
+```
+
+#### PlotMDS
+```{r PlotMDS}
+mds.plot <- PlotMDS(aem.set, PCA = TRUE, condition.list = condition.list)
+print(mds.plot)
 ```
 
 ## References
