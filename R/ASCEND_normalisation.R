@@ -22,7 +22,7 @@ scranNormalise <- function(object){
   if (length(ercc.idx) == 0){
     ercc.idx <- c()
   }
-  
+
   # Remove these items
   remove.idx <- c(mt.idx, rb.idx, ercc.idx)
   sce.obj_rmMtRb <- sce.obj[-remove.idx,]
@@ -56,6 +56,7 @@ scranNormalise <- function(object){
   unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
   normalised.obj <- ReplaceExpressionMatrix(unlog.dcvl.matrix, object)
   normalised.obj@Log <- c(normalised.obj@Log, list(NormalisationMethod = "scranNormalise"))
+  normalised.obj@Log$ExcludeControls <- list(Mt = TRUE, Rb = TRUE)
 
   remove(sce.obj)
   return(normalised.obj)

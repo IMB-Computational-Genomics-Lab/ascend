@@ -368,6 +368,7 @@ setGeneric(
 )
 
 setMethod("ReplaceExpressionMatrix", signature("matrix", "AEMSet"), function(x, object) {
+  # Replace the matrix
   object@ExpressionMatrix <- LoadSparseMatrix(x)
   updated.sea.set <- GenerateMetrics(object)
   return(updated.sea.set)
@@ -420,8 +421,7 @@ setMethod("SubsetBatch", signature("AEMSet", "numeric"), function(object, x) {
   subset.obj <- object
 
   # Retrieve cells that belong to this batch from the AEMSet obejct
-  batch.list <-
-    object@BatchInformation[which(object@BatchInformation == as.character(x))]
+  batch.list <- object@BatchInformation[which(object@BatchInformation == as.character(x))]
   barcode.list <- names(batch.list)
 
   # Other information will be extracted if they exist
@@ -430,26 +430,20 @@ setMethod("SubsetBatch", signature("AEMSet", "numeric"), function(object, x) {
   }
 
   if (!is.null(object@Clusters$DistanceMatrix)) {
-    distance.matrix <-
-      as.matrix(object@Clusters$DistanceMatrix)[barcode.list,
-                                                barcode.list]
+    distance.matrix <- as.matrix(object@Clusters$DistanceMatrix)[barcode.list, barcode.list]
     subset.obj@Clusters$DistanceMatrix <- as.dist(distance.matrix)
   }
 
   if (!is.null(object@Clusters$PutativeClusters)) {
-    subset.obj@Clusters$PutativeClusters <-
-      object@Clusters$PutativeClusters[barcode.list]
+    subset.obj@Clusters$PutativeClusters <- object@Clusters$PutativeClusters[barcode.list]
   }
 
   if (!is.null(object@Clusters$Clusters)) {
-    subset.obj@Clusters$Clusters <-
-      object@Clusters$Clusters[barcode.list]
-    subset.obj@Clusters$NumberOfClusters <-
-      length(unique(subset.obj@Clusters$Clusters))
+    subset.obj@Clusters$Clusters <- object@Clusters$Clusters[barcode.list]
+    subset.obj@Clusters$NumberOfClusters <-length(unique(subset.obj@Clusters$Clusters))
   }
 
-  subset.obj@ExpressionMatrix <-
-    object@ExpressionMatrix[, barcode.list]
+  subset.obj@ExpressionMatrix <- object@ExpressionMatrix[, barcode.list]
   subset.obj@BatchInformation <- batch.list
   subset.obj <- GenerateMetrics(subset.obj)
   subset.obj@Log <- c(subset.obj@Log, list(SubsetByCluster = TRUE))
@@ -484,27 +478,101 @@ setMethod("SubsetCluster", signature("AEMSet", "numeric"), function(object, x) {
   subset.obj <- object
 
   # Retrieve cells that belong to this batch from the AEMSet obejct
-  cluster.list <-
-    object@Clusters$Clusters[which(object@Clusters$Clusters ==
-                                     as.character(x))]
+  cluster.list <- object@Clusters$Clusters[which(object@Clusters$Clusters == as.character(x))]
   barcode.list <- names(cluster.list)
 
   # Other information will be extracted if they exist
   subset.obj@PCA$PCA <- object@PCA$PCA[barcode.list,]
-  distance.matrix <-
-    as.matrix(object@Clusters$DistanceMatrix)[barcode.list,
-                                              barcode.list]
+  distance.matrix <- as.matrix(object@Clusters$DistanceMatrix)[barcode.list, barcode.list]
   subset.obj@Clusters$DistanceMatrix <- as.dist(distance.matrix)
-  subset.obj@Clusters$PutativeClusters <-
-    object@Clusters$PutativeClusters[barcode.list]
+  subset.obj@Clusters$PutativeClusters <- object@Clusters$PutativeClusters[barcode.list]
   subset.obj@Clusters$Clusters <- cluster.list
   subset.obj@Clusters$NumberOfClusters <- 1
 
-  subset.obj@ExpressionMatrix <-
-    object@ExpressionMatrix[, barcode.list]
+  subset.obj@ExpressionMatrix <- object@ExpressionMatrix[, barcode.list]
   subset.obj <- GenerateMetrics(subset.obj)
   subset.obj@Log <- c(subset.obj@Log, list(SubsetByCluster = TRUE))
   return(subset.obj)
+})
+
+#' SubsetCells
+#'
+#' Subset cells in the supplied list from an \linkS4class{AEMSet}.
+#'
+#' @param object An \linkS4class{AEMSet}
+#' @param list A list of cell identifiers to subset from the \linkS4class{AEMSet}
+#' @return An \linkS4class{AEMSet}
+#' @include ASCEND_objects.R
+#'
+setGeneric(
+  name = "SubsetCells",
+  def = function(object, list) {
+    standardGeneric("SubsetCells")
+  }
+)
+
+setMethod("SubsetCells", signature("AEMSet"), function(object, list){
+  # Check cells are in the expression matrix.
+  expression.matrix <- GetExpressionMatrix(object, "data.frame")
+  batch.information <- GetBatchInfo(object)
+  gene.annotation <- GetGeneAnnotation(object)
+  control.list <- GetControls(object)
+  present.cells <- list[list %in% colnames(expression.matrix)]
+
+  # Missing cell catch
+  if (length(present.cells) == 0){
+    stop("All listed cells were not present in the AEMSet.")
+  } else{
+    # Subset out information
+    subset.matrix <- expression.matrix[,present.cells]
+    subset.batch.info <- batch.information[list]
+    subset.object <- NewAEMSet(ExpressionMatrix = subset.matrix, BatchInformation = subset.batch.info, GeneAnnotation = gene.annotation, Controls = control.list)
+    return(subset.object)
+  }
+})
+
+#' ExcludeControl
+#'
+#' Removes the specified control from the expression matrix.
+#' @param object A \linkS4class{AEMSet} object. It is recommended that you run this step after this object has undergone filtering.
+#' @param control.name Name of the control set you want to remove from the dataset.
+#'
+setGeneric(
+  name = "ExcludeControl",
+  def = function(object, control.name) {
+    standardGeneric("ExcludeControl")
+    }
+)
+
+setMethod("ExcludeControl", signature("AEMSet"), function(object, control.name){
+  # Identify indices of control genes in the current expression matrix
+  # Keep this matrix sparse for faster processing power
+  expression.matrix <- object@ExpressionMatrix
+
+  # Convert the control list into a boolean so we can remove rows from the sparse matrix
+  control.list <- object@Controls[[ control.name ]]
+  control.in.mtx <- rownames(object@ExpressionMatrix) %in% control.list
+
+  # Remove control genes from the matrix by identified matrices
+  endogenous.exprs.mtx <- expression.matrix[ !control.in.mtx, ]
+
+  # Reload the expression matrix with the updated matrix
+  object@ExpressionMatrix <- endogenous.exprs.mtx
+
+  # Update the log
+  updated.log <- list()
+  updated.log[[control.name]] <- TRUE
+
+  if (is.null(object@Log$ExcludeControls)){
+    remove.log <- updated.log
+    object@Log$ExcludeControls <- remove.log
+  } else {
+    object@Log$ExcludeControls <- c(object@Log$ExcludeControls, updated.log)
+  }
+
+  # Regenerate metrics and return the updated object
+  return.object <- GenerateMetrics(object)
+  return(return.object)
 })
 
 #' DisplayLog
@@ -520,6 +588,14 @@ setGeneric(
 )
 
 setMethod("DisplayLog", signature("AEMSet"), function(object){
-  log <- object@Log
+  if(is.null(object@Log$FilteringLog)){
+    log <- object@Log
+
+  } else{
+    log <- object@Log[object@Log != "FilteringLog"]
+    log.df <- object@Log$FilteringLog
+  }
   print(log)
+  print("Filtering Log:")
+  print(log.df)
 })

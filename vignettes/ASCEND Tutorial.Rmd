@@ -212,7 +212,7 @@ print(GetControls(aem.set))
 
 Use `FilterByCustomControl` to remove cells that are mostly expressing control genes. This function takes two arguments - the name of the list of control genes and the minimum percentage expression to filter by.
 
-```{r FilterByControl, echo = FALSE}
+```{r FilterByControl}
 # Filter by mitochondrial genes
 aem.set <- FilterByCustomControl("Mt", 20, aem.set)
 # Filter by ribosomal genes

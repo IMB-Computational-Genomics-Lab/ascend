@@ -76,7 +76,7 @@ PlotStability <- function(object){
   key.stats.tidy$Height <-as.numeric(key.stats.tidy$Height)
 
   diagnostic.plot <- ggplot2::ggplot(key.stats.tidy)
-  diagnostic.plot <- diagnostic.plot + ggplot2::geom_line(ggplot2::aes(x=Height, y=value,  colour=variable)) + ggplot2::theme_bw() + ggplot2::theme(axis.text = ggplot2::element_text(size=18), axis.title = ggplot2::element_text(size=18))+ ggplot2::theme(legend.text = ggplot2::element_text(size=18)) + ggplot2::theme(legend.title = ggplot2::element_blank()) + ggplot2::xlab('Parameter from 0.025 to 1') + ggplot2::ylab('Scores')
+  diagnostic.plot <- diagnostic.plot + ggplot2::geom_line(ggplot2::aes(x=Height, y=value,  colour=variable)) + ggplot2::theme_bw() + ggplot2::theme(axis.text = ggplot2::element_text(size=11), axis.title = ggplot2::element_text(size=11))+ ggplot2::theme(legend.text = ggplot2::element_text(size=11)) + ggplot2::theme(legend.title = ggplot2::element_blank()) + ggplot2::xlab('Parameter from 0.025 to 1') + ggplot2::ylab('Scores')
 
   return(diagnostic.plot)
 }
@@ -809,7 +809,7 @@ PlotGeneralQC <- function(object){
   output.list[["AverageGeneCount"]] <- average.gene.count
 
   # No controls breaks this section  - therefore requires check
-  if (is.null(object@Log$Filtering["RemoveControls"])){
+  if (is.null(object@Log$RemoveControls)){
     # 2. Proportion of Controls
     print("Plotting Proportion of Control Histograms...")
     percentage.total.plots <- list()
