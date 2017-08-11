@@ -3,20 +3,20 @@
 GetConsecutiveSequence <- function(x){
   consecutive <- c()
   for (i in 1:length(x)){
-    if (i != length(x)){
-      current.idx <- i
-      next.idx <- i + 1
-      current.val <- x[current.idx]
-      next.val <- x[next.idx]
-      step.val <- next.val - current.val
-    } else{
+    if (i != 1){
       current.idx <- i
       previous.idx <- i - 1
       previous.val <- x[previous.idx]
       current.val <- x[current.idx]
       step.val <- current.val - previous.val
+    } else{
+      current.idx <- i
+      next.idx <- i + 1
+      current.val <- x[current.idx]
+      next.val <- x[next.idx]
+      step.val <- next.val - current.val
     }
-    
+
     if (step.val == 1){
       if (length(consecutive) > 0){
         if (current.val - consecutive[length(consecutive)] == 1){
@@ -38,21 +38,28 @@ FindOptimalResult <- function(key.stats){
   max.min.idx <- c(1,40)
   stability <- key.stats$Stability
   endpoint.stability.idx <- max.min.idx[which(stability[max.min.idx] == max(stability[max.min.idx]))]
+  if (length(endpoint.stability.idx) > 1){
+    endpoint.stability.idx <- 1
+  }
   endpoint.stability.value <- stability[endpoint.stability.idx]
-  
-  # If one end of the stability graph are stable in at least 50% of clusters, then it is stable
+
   if (endpoint.stability.value >= 0.5){
     optimal.idx <- endpoint.stability.idx
   } else{
-    # Find plateaus
-    left.plateau <- GetConsecutiveSequence(which(stability == stability[1]))
-    right.plateau <- GetConsecutiveSequence(which(stability == stability[40]))
-    
+    # If two ends are equal
+    if (stability[1] != stability[40]){
+      left.plateau <- GetConsecutiveSequence(which(stability == stability[1]))
+      right.plateau <- GetConsecutiveSequence(which(stability == stability[40]))
+    } else{
+      left.plateau <- GetConsecutiveSequence(which(stability == stability[1]))
+      right.plateau <- GetConsecutiveSequence(which(stability == stability[40])[-left.plateau])
+    }
+
     # Get rand indexes
     rand.idx.values <- key.stats$RandIndex[max(left.plateau)+1:min(right.plateau)-1]
     unique.rand.idx <- unique(rand.idx.values)
     consecutive.vals <- list()
-    
+
     # Search for stability between the plateau
     for (idx in unique.rand.idx){
       indexes <- which(key.stats$RandIndex[max(left.plateau)+1:min(right.plateau-1)] == idx)
@@ -61,13 +68,8 @@ FindOptimalResult <- function(key.stats){
         consecutive.vals[[as.character(idx)]] <- consecutive.indexes
       }
     }
-    
-    # Find the stablist flatline
-    optimal.rand.idx <- names(consecutive.vals)[which.max(sapply(consecutive.vals, length))]
-    optimal.rows <- consecutive.vals[[optimal.rand.idx]]
-    optimal.idx <- min(optimal.rows)
   }
-  return(optimal.idx) 
+  return(optimal.idx)
 }
 
 # Generates a bunch of values based on other calculates.
@@ -284,14 +286,14 @@ FindOptimalClusters <- function(object){
   print("Generating clusters by running dynamicTreeCut at different heights...")
   cluster.list <- lapply(seq(0.025:1, by=0.025), RetrieveCluster, hclust.obj = original.tree, distance.matrix = distance.matrix)
   height.list <- lapply(seq(0.025:1, by=0.025), function(x) x)
-  
+
   cluster.matrix <- GenerateClusteringMatrix(original.clusters, cluster.list)
 
   print("Calculating rand indices...")
   # Generate RAND index
   rand.idx.matrix <- GenerateRandIndexMatrix(cluster.matrix, original.clusters, cluster.list)
 
-  print("Calculating stbaility values...")
+  print("Calculating stability values...")
   # Generate Stability Values
   rand.idx.matrix <- GenerateStabilityValues(rand.idx.matrix)
 
