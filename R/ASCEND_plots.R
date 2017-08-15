@@ -312,7 +312,7 @@ PlotStabilityDendro <- function(object){
 #'  @param dim1 Which dimension to plot on the x-axis
 #'  @param dim2 Which dimension to plot on the y-axis
 #'
-PlotMDS <- function(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = list()){
+PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition.list = list()){
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet object.")
   }
