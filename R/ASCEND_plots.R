@@ -144,7 +144,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
 
   # Create a colour ramp
   gradient_palette <- grDevices::colorRampPalette(c("#cc0000", "#000000"))
-  palette(gradient_palette(8))
+  palette(c('#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf'))
   if (is.null(rowLabels) & (length(dimnames(colors)[[2]]) ==
                             dimC[2]))
     rowLabels = colnames(colors)
@@ -341,8 +341,16 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition.list = li
   } else{
     print("Calculating distance matrix from expression data...")
     expression.matrix <- GetExpressionMatrix(object, "matrix")
-    transposed.matrix <- Matrix::t(expression.matrix)
-    distance.matrix <- stats::dist(transposed.matrix)
+    gene.variance <- CalcRowVariance(expression.matrix)
+    names(gene.variance) <- rownames(expression.matrix)
+    sorted.gene.variance <- gene.variance[order(unlist(gene.variance), decreasing = TRUE)]
+    top.genes <- sorted.gene.variance[1:1000]
+
+    # Subsetting matrix
+    subset.matrix <- expression.matrix[names(top.genes), ]
+    subset.matrix <- t(subset.matrix)
+    # Create distance matrix
+    distance.matrix <- stats::dist(subset.matrix)
   }
 
   # Scale matrix

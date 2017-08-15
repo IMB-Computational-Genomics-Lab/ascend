@@ -68,6 +68,18 @@ FindOptimalResult <- function(key.stats){
         consecutive.vals[[as.character(idx)]] <- consecutive.indexes
       }
     }
+    
+    # List of consecutive indexes for each unique rand index
+    unique.rand.length <- lapply(consecutive.vals, length)
+    max.length <- max(unlist(unique.rand.length))
+    max.idx <- names(unique.rand.length)[which(unique.rand.length == max.length)]
+    if (length(max.length) > 1){
+      optimal.idx <- min(consecutive.vals[[max.idx]])
+    } else{
+      # Get Minimun
+      min.idx <- lapply(max.idx, function(x) return(min(consecutive.vals[[x]])))
+      optimal.idx <- min(unlist(min.idx))
+    }
   }
   return(optimal.idx)
 }
