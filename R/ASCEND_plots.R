@@ -799,7 +799,7 @@ PlotGeneralQC <- function(object){
   output.list <- list()
   # 1. Plot library sizes and expressed gene histograms
   print("Plotting Total Count and Library Size...")
-  libsize.plot <- ggplot2::qplot(aem.set@Metrics$TotalCounts, geom="histogram", main="Distribution of library sizes across dataset", xlab="Library size", ylab="Number of cells", binwidth=1000) + ggplot2::theme_bw()
+  libsize.plot <- ggplot2::qplot(object@Metrics$TotalCounts, geom="histogram", main="Distribution of library sizes across dataset", xlab="Library size", ylab="Number of cells", binwidth=1000) + ggplot2::theme_bw()
   feature.counts.per.cell <- ggplot2::qplot(object@Metrics$TotalFeatureCountsPerCell, geom="histogram", xlab="Number of expressed genes", main="Number of expressed genes across cells", ylab="Number of cells", binwidth = 250) + ggplot2::theme_bw()
   output.list[["LibSize"]] <- libsize.plot
   output.list[["FeatureCountsPerCell"]] <- feature.counts.per.cell
