@@ -479,3 +479,4 @@ Zheng, G. X. Y. et al. Massively parallel digital transcriptional profiling of s
 McCarthy DJ, Campbell KR, Lun ATL and Wills QF (2017). “Scater: pre-processing, quality control, normalisation and visualisation of single-cell RNA-seq data in R.” Bioinformatics, 14 Jan. doi: 10.1093/bioinformatics/btw777, http://dx.doi.org/10.1093/bioinformatics/btw777.
 
 [4]: https://bioconductor.org/packages/release/bioc/vignettes/scran/inst/doc/scran.html
+Lun ATL, McCarthy DJ and Marioni JC (2016). “A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor.” F1000Res., 5, pp. 2122.
