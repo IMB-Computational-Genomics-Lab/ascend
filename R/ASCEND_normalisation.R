@@ -37,7 +37,7 @@ scranNormalise <- function(object){
       # Get expression matrix and transpose
       expression.matrix <- GetExpressionMatrix(object, "matrix")
       expression.matrix <- expression.matrix[-remove.idx,]
-      expression.matrix <- stats::t(expression.matrix)
+      expression.matrix <- t(expression.matrix)
       cluster <- stats::kmeans(expression.matrix, centers = 20)
       quick.cluster <- cluster$cluster
       remove(expression.matrix)
