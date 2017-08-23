@@ -16,23 +16,36 @@ scranNormalise <- function(object){
   # Remove controls from SCESet object
   mt.idx <- match(object@Controls$Mt, rownames(sce.obj))
   rb.idx <- match(object@Controls$Rb, rownames(sce.obj))
+  remove.idx <- c(mt.idx, rb.idx)
 
   # Remove ERCC sequences if in dataset
-  ercc.idx <- grep("^ercc", ignore.case=TRUE, rownames(object@ExpressionMatrix))
-  if (length(ercc.idx) == 0){
-    ercc.idx <- c()
+  ercc.idx <- grep("^ercc-", ignore.case=TRUE, rownames(object@ExpressionMatrix))
+  if (length(ercc.idx) > 0){
+    remove.idx <- c(remove.idx, ercc.idx)
   }
 
   # Remove these items
-  remove.idx <- c(mt.idx, rb.idx, ercc.idx)
   sce.obj_rmMtRb <- sce.obj[-remove.idx,]
 
   # Run computeSumFactors based on number of samples
   # If we have more than 10,000 samples, we will run quickCluster
   # Otherwise we supply a set list of sizes
   if (ncol(sce.obj) > 10000){
-    print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.obj)))
-    quick.cluster <- scran::quickCluster(sce.obj_rmMtRb)
+    if(ncol(sce.obj) > 40000){
+      print(sprintf("%i cells detected. Running kmeans to feed into computeSumFactors...", ncol(sce.obj)))
+
+      # Get expression matrix and transpose
+      expression.matrix <- GetExpressionMatrix(object, "matrix")
+      expression.matrix <- expression.matrix[-remove.idx,]
+      expression.matrix <- stats::t(expression.matrix)
+      cluster <- stats::kmeans(expression.matrix, centers = 20)
+      quick.cluster <- cluster$cluster
+      remove(expression.matrix)
+    } else{
+      print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.obj)))
+      quick.cluster <- scran::quickCluster(sce.obj_rmMtRb, method = "hclust")
+
+    }
     factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, clusters = quick.cluster, positive = T)
   } else {
     print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.obj)))
