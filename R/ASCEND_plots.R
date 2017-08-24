@@ -817,7 +817,7 @@ PlotGeneralQC <- function(object){
   output.list[["AverageGeneCount"]] <- average.gene.count
 
   # No controls breaks this section  - therefore requires check
-  if (is.null(object@Log$RemoveControls)){
+  if (!any(unlist(object@Log$ExcludeControls))){
     # 2. Proportion of Controls
     print("Plotting Proportion of Control Histograms...")
     percentage.total.plots <- list()
