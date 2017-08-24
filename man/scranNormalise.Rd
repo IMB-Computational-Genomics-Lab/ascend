@@ -4,11 +4,22 @@
 \alias{scranNormalise}
 \title{scranNormalise}
 \usage{
-scranNormalise(object)
+scranNormalise(object, quickCluster = FALSE)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet} that has not undergone normalisation.}
+
+\item{quickCluster}{TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups}
 }
 \description{
 Normalise an \linkS4class{AEMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
+}
+\details{
+Pooling method of cells is influenced by the size of the cell population.
+For datasets containing less than 20000 cells, this function will run \code{\link[scran]{computeSumFactors}}
+with preset sizes of 40, 60, 80 and 100.
+For datasets containing over 20000 cells, you have the option to use \code{\link[scran]{quickCluster}} to
+form pools of cells to feed into \code{\link[scran]{computeSumFactors}}. This method is slower and may fail
+with very large datasets containing over 40000 cells. If \code{\link[scran]{quickCluster}} is not selected,
+cells will be randomly assigned to a group.
 }

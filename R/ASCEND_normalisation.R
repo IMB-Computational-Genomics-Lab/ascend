@@ -2,9 +2,18 @@
 #'
 #' Normalise an \linkS4class{AEMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
 #'
-#' @param object An \linkS4class{AEMSet} that has not undergone normalisation.
+#' @details Pooling method of cells is influenced by the size of the cell population.
+#' For datasets containing less than 20000 cells, this function will run \code{\link[scran]{computeSumFactors}}
+#' with preset sizes of 40, 60, 80 and 100.
+#' For datasets containing over 20000 cells, you have the option to use \code{\link[scran]{quickCluster}} to
+#' form pools of cells to feed into \code{\link[scran]{computeSumFactors}}. This method is slower and may fail
+#' with very large datasets containing over 40000 cells. If \code{\link[scran]{quickCluster}} is not selected,
+#' cells will be randomly assigned to a group.
 #'
-scranNormalise <- function(object){
+#' @param object An \linkS4class{AEMSet} that has not undergone normalisation.
+#' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups
+#'
+scranNormalise <- function(object, quickCluster = FALSE){
   if(!is.null(object@Log$NormalisationMethod)){
     stop("This data is already normalised.")
   }
@@ -30,22 +39,25 @@ scranNormalise <- function(object){
   # Run computeSumFactors based on number of samples
   # If we have more than 10,000 samples, we will run quickCluster
   # Otherwise we supply a set list of sizes
-  if (ncol(sce.obj) > 10000){
-    if(ncol(sce.obj) > 40000){
-      print(sprintf("%i cells detected. Running kmeans to feed into computeSumFactors...", ncol(sce.obj)))
-
-      # Get expression matrix and transpose
-      expression.matrix <- GetExpressionMatrix(object, "matrix")
-      expression.matrix <- expression.matrix[-remove.idx,]
-      expression.matrix <- t(expression.matrix)
-      cluster <- stats::kmeans(expression.matrix, centers = 20)
-      quick.cluster <- cluster$cluster
-      remove(expression.matrix)
-    } else{
+  if (ncol(sce.obj_rmMtRb) > 10000){
+    if (quickCluster){
       print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.obj)))
       quick.cluster <- scran::quickCluster(sce.obj_rmMtRb, method = "hclust")
+    } else{
+      print(sprintf("%i cells detected. Randomly grouping cells to feed into computeSumFactors...", ncol(sce.obj)))
+      cell.identifiers <- colnames(sce.obj_rmMtRb)
 
+      # Assign pseudocluster
+      chunked.idx <- split(sample(1:length(cell.identifiers)), 1:10)
+      quick.cluster <- cell.identifiers
+
+      for (cluster.id in names(chunked.idx)){
+        cell.idx <- chunked.idx[[cluster.id]]
+        quick.cluster[cell.idx] <- cluster.id
+      }
     }
+
+    # Feed rough clusters into computeSumFactors
     factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, clusters = quick.cluster, positive = T)
   } else {
     print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.obj)))

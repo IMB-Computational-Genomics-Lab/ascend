@@ -4,7 +4,8 @@
 \alias{PlotMDS}
 \title{PlotMDS}
 \usage{
-PlotMDS(object, PCA = TRUE, dim1 = 1, dim2 = 2, condition.list = list())
+PlotMDS(object, PCA = FALSE, dim1 = 1, dim2 = 2,
+  condition.list = list())
 }
 \description{
 Generates a Multi-Dimensional Scaling (MDS) plot.

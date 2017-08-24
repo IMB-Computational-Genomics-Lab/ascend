@@ -7,7 +7,7 @@
 FilterByExpressedGenesPerCell(object, pct.value)
 }
 \arguments{
-\item{object}{AEMSet (scryeR) object that has been filtered by \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.}
+\item{object}{AEMSet (ASCEND) object that has been filtered by \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.}
 
 \item{pct.value}{Percentage threshold as a decimal.}
 }

@@ -7,8 +7,11 @@
 PlotGeneralQC(object)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object}
+\item{object}{An \linkS4class{AEMSet} object}
 }
 \description{
 This function generates the following plots:
+\itemize{
+\item{\strong{Library Size}: A histogram depicting library sizes across the dataset.}
+}
 }
