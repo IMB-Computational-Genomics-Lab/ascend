@@ -62,13 +62,20 @@ FindOptimalResult <- function(key.stats){
 
     # Search for stability between the plateau
     for (idx in unique.rand.idx){
-      indexes <- which(key.stats$RandIndex[max(left.plateau)+1:min(right.plateau-1)] == idx)
+      # Get the indices where the index is present
+      indexes <- which(key.stats$RandIndex == idx)
+
+      # Remove indices that cross over into the plateau
+      indexes <- setdiff(indexes, left.plateau)
+      indexes <- setdiff(indexes, right.plateau)
+
+      # If the indices plateau, get the consecutive values
       if (length(indexes) > 1){
         consecutive.indexes <- GetConsecutiveSequence(indexes)
         consecutive.vals[[as.character(idx)]] <- consecutive.indexes
       }
     }
-    
+
     # List of consecutive indexes for each unique rand index
     unique.rand.length <- lapply(consecutive.vals, length)
     max.length <- max(unlist(unique.rand.length))
