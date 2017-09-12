@@ -1,31 +1,68 @@
 # Function used to determine consecutive sequences on boundaries
 # Called by FindOptimalResult
-GetConsecutiveSequence <- function(x){
+GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
   consecutive <- c()
-  for (i in 1:length(x)){
-    if (i != 1){
-      current.idx <- i
-      previous.idx <- i - 1
-      previous.val <- x[previous.idx]
-      current.val <- x[current.idx]
-      step.val <- current.val - previous.val
-    } else{
-      current.idx <- i
-      next.idx <- i + 1
-      current.val <- x[current.idx]
-      next.val <- x[next.idx]
-      step.val <- next.val - current.val
-    }
+  if (direction == "forward"){
+    for (i in 1:length(x)){
+      if (i != 1){
+        current.idx <- i
+        previous.idx <- i - 1
+        previous.val <- x[previous.idx]
+        current.val <- x[current.idx]
+        step.val <- current.val - previous.val
+      } else{
+        current.idx <- i
+        next.idx <- i + 1
+        current.val <- x[current.idx]
+        next.val <- x[next.idx]
+        step.val <- next.val - current.val
+      }
 
-    if (step.val == 1){
-      if (length(consecutive) > 0){
-        if (current.val - consecutive[length(consecutive)] == 1){
+      if (step.val == 1){
+        if (length(consecutive) > 0){
+          if (current.val - consecutive[length(consecutive)] == 1){
+            consecutive <- c(consecutive, current.val)
+          }
+        } else{
           consecutive <- c(consecutive, current.val)
         }
-      } else{
-        consecutive <- c(consecutive, current.val)
       }
     }
+  }
+
+  if (direction == "reverse"){
+    # Do it backwards
+    start.point <- length(x)
+    end.point <- 1
+
+    for(i in start.point:end.point){
+      if (i != start.point){
+        current.idx <- i
+        previous.idx <- i + 1
+        previous.val <- x[previous.idx]
+        current.val <- x[current.idx]
+        step.val <- previous.val - current.val
+      } else{
+        current.idx <- i
+        next.idx <- i - 1
+        current.val <- x[current.idx]
+        next.val <- x[next.idx]
+        step.val <- current.val - next.val
+      }
+
+      # If this number is consecutive with its neighbour, see if it is consecutive with the current list...
+      if (step.val == 1){
+        if (length(consecutive) > 0){
+          if (consecutive[length(consecutive)] - current.val == 1){
+            consecutive <- c(consecutive, current.val)
+          }
+        } else{
+          # If it's the first consecutive value, then just add it to the list
+          consecutive <- c(consecutive, current.val)
+        }
+      }
+    }
+  consecutive <- rev(consecutive)
   }
   return(consecutive)
 }
@@ -46,17 +83,16 @@ FindOptimalResult <- function(key.stats){
   if (endpoint.stability.value >= 0.5){
     optimal.idx <- endpoint.stability.idx
   } else{
-    # If two ends are equal
     if (stability[1] != stability[40]){
-      left.plateau <- GetConsecutiveSequence(which(stability == stability[1]))
-      right.plateau <- GetConsecutiveSequence(which(stability == stability[40]))
+      left.plateau <- GetConsecutiveSequence(which(stability == stability[1]), direction = "forward")
+      right.plateau <- GetConsecutiveSequence(which(stability == stability[40]), direction = "reverse")
     } else{
-      left.plateau <- GetConsecutiveSequence(which(stability == stability[1]))
-      right.plateau <- GetConsecutiveSequence(which(stability == stability[40])[-left.plateau])
+      left.plateau <- GetConsecutiveSequence(which(stability == stability[1]), direction = "forward")
+      right.plateau <- GetConsecutiveSequence(which(stability == stability[40], direction = "reverse")[-left.plateau])
     }
 
     # Get rand indexes
-    rand.idx.values <- key.stats$RandIndex[max(left.plateau)+1:min(right.plateau)-1]
+    rand.idx.values <- key.stats$RandIndex[-c(left.plateau, right.plateau)]
     unique.rand.idx <- unique(rand.idx.values)
     consecutive.vals <- list()
 
@@ -71,7 +107,7 @@ FindOptimalResult <- function(key.stats){
 
       # If the indices plateau, get the consecutive values
       if (length(indexes) > 1){
-        consecutive.indexes <- GetConsecutiveSequence(indexes)
+        consecutive.indexes <- GetConsecutiveSequence(indexes, direction = "forward")
         consecutive.vals[[as.character(idx)]] <- consecutive.indexes
       }
     }
@@ -342,6 +378,7 @@ FindOptimalClusters <- function(object){
     Clusters = setNames(optimal.cluster.list, cell.labels),
     NumberOfClusters = optimal.cluster.number,
     OptimalTreeHeight = optimal.tree.height,
+    KeyStats = key.stats,
     RandMatrix = rand.idx.matrix
   )
 
