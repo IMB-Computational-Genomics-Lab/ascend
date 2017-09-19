@@ -2,6 +2,7 @@
 # Called by FindOptimalResult
 GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
   consecutive <- c()
+  # This is for when we are looking for consecutive numbers in the FORWARD direction
   if (direction == "forward"){
     for (i in 1:length(x)){
       if (i != 1){
@@ -30,6 +31,7 @@ GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
     }
   }
 
+  # For when we are looking for consecutive numbers in the reverse direction
   if (direction == "reverse"){
     # Do it backwards
     start.point <- length(x)
@@ -87,13 +89,16 @@ FindOptimalResult <- function(key.stats){
       left.plateau <- GetConsecutiveSequence(which(stability == stability[1]), direction = "forward")
       right.plateau <- GetConsecutiveSequence(which(stability == stability[40]), direction = "reverse")
     } else{
+      # Remove indices in right plateau that are in left plateau
       left.plateau <- GetConsecutiveSequence(which(stability == stability[1]), direction = "forward")
-      right.plateau <- GetConsecutiveSequence(which(stability == stability[40], direction = "reverse")[-left.plateau])
+      right.plateau <- GetConsecutiveSequence(which(stability == stability[40]), direction = "reverse")
+      right.plateau <- right.plateau[-(which(right.plateau %in% left.plateau))]
     }
 
     # Get rand indexes
     rand.idx.values <- key.stats$RandIndex[-c(left.plateau, right.plateau)]
     unique.rand.idx <- unique(rand.idx.values)
+
     consecutive.vals <- list()
 
     # Search for stability between the plateau
