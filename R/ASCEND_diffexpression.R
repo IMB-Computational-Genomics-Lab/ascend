@@ -84,7 +84,7 @@ VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.li
   print("Input is acceptable. Verification complete!")
 }
 
-#' RunDiffExpression
+#' RunPairedDE
 #'
 #' Runs differential expression on a pre-defined set of conditions. This function can only handle two conditions at a time, where Condition A describes a subset of cells and Condition B describes the remainder.
 #'
@@ -93,7 +93,7 @@ VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.li
 #' @param condition.b A one-word string describing cells that do not fulfil condition A
 #' @param condition.list A named list featuring individual cell identifiers and their associated condition.
 #'
-RunDiffExpression <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL){
+RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL){
   # Run Verification
   VerifyArguments(condition.a = condition.a, condition.b = condition.b, condition.list = condition.list)
 
@@ -124,48 +124,74 @@ RunDiffExpression <- function(x, condition.a = NULL, condition.b = "Other", cond
   return(de.result.df)
 }
 
-#' RunClusterDiffExpression
+#' RunDiffExpression
 #'
 #' Compare the differential expression of genes in each cluster versus other clusters.
 #'
 #' @param object A \linkS4class{AEMSet} object that has undergone clustering with the \code{\link{FindOptimalClusters}} function.
+#' @param column Name of the column in the CellInformations lot where you have defined the conditions you would like to test. eg cluster to compare clusters identified by FindOptimalClusters.
+#' @param conditions List of conditions you want to test, in the order you would like to run them in. This list of terms should match those used in your selected column.
 #'
-RunClusterDiffExpression <- function(object){
+RunDiffExpression <- function(object, column = NULL, conditions = NULL){
   # Object check
   if ( class(object) != "AEMSet" ){
     stop("Please supply a AEMSet object.")
   }
-  # Clustering check
-  if ( is.null(object@Clusters$Clusters)){
+  if ( is.null(object@CellInformation[ , column])){
     stop("Please run the FindOptimalClusters function on this object before using this function.")
   }
+  if(missing(column)){
+    stop("Please specify a column in CellInformation to use as conditions.")
+  }
 
+  if (missing(conditions)){
+    stop("Please specify your conditions in order of analysis.")
+  } else{
+    if (!is.character(conditions)){
+      stop("Please specify conditions as characters.")
+    }
+  }
   # Prepare Clusters
-  cluster.list <- as.factor(object@Clusters$Clusters)
-  clusters <- sort(unique(cluster.list))
+  query.list <- as.factor(object@CellInformation[ , column])
+  queries <- sort(unique(query.list))
+
+  # Ensure conditions match queries
+  if (!all(conditions %in% queries)){
+    stop("Please ensure all specified conditions are present in your selected column.")
+  }
+
   output <- list()
-  if (length(clusters) > 1){
+
+  if (length(conditions) > 1){
     condition.lists <- list()
-    if (length(clusters) > 2){
-      condition.lists <- lapply(clusters, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = cluster.list))
-      names(condition.lists) <- clusters
+    if (length(queries) > 2){
+      condition.lists <- lapply(conditions, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = query.list))
+      names(condition.lists) <- conditions
     } else{
-      condition.lists[[as.character(clusters[1])]] <- cluster.list
+      condition.lists[[as.character(conditions[1])]] <- query.list
     }
     # Loop over condition lists and run DE
-    for (x in names(condition.lists)){
-      condition.a <- x
-      condition.b <- clusters[-which(clusters == x)]
-      if (length(condition.b) > 1){
-        condition.b <- "Others"
-      } else{
-        condition.b <- condition.b[1]
+    if (length(condition.lists) > 2){
+      for (x in names(condition.lists)){
+        condition.a <- x
+        condition.b <- conditions[-which(conditions == x)]
+        if (length(condition.b) > 1){
+          condition.b <- "Others"
+        } else{
+          condition.b <- condition.b[1]
+        }
+        diff.exp <- RunPairedDE(object, condition.a = x, condition.b = condition.b, condition.list = condition.lists[[x]])
+        output[[paste0(as.character(x), "vs", condition.b)]] <- diff.exp
       }
-      diff.exp <- RunDiffExpression(object, condition.a = x, condition.b = condition.b, condition.list = condition.lists[[x]])
-      output[[paste0(as.character(x), "vs", condition.b)]] <- diff.exp
+    } else{
+      condition.a <- names(condition.lists)[1]
+      condition.b <- conditions[-which(conditions == condition.a)]
+      diff.exp <- RunPairedDE(object, condition.a = condition.a, condition.b = condition.b, condition.list = condition.lists[[condition.a]])
+      output <- diff.exp
     }
+
   } else{
-    stop("You must have more than one cluster in order to run pairwise comparisons of clusters.")
+    stop("You must have more than one cluster in order to run pairwise comparisons of queries.")
   }
   return(output)
 }

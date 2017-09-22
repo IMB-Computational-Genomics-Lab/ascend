@@ -45,6 +45,9 @@ ConvertScaterToASCEND <- function(SCESet, AEMSet){
   # Convert to sparse, re-run metrics and add to slot
   AEMSet <- ReplaceExpressionMatrix(AEMSet, expression.matrix)
 
+  # Sync up the object
+  AEMSet <- SyncSlots(AEMSet)
+
   # Return updated object
   return(AEMSet)
 }

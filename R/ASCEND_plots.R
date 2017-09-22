@@ -353,10 +353,21 @@ PlotStabilityDendro <- function(object){
 #'  @param PCA If true, use PCA-reduced matrix to generate MDS plot
 #'  @param dim1 Which dimension to plot on the x-axis
 #'  @param dim2 Which dimension to plot on the y-axis
+#'  @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 #'
-PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition.list = list()){
+PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL){
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet object.")
+  }
+
+  # Check the column has been defined
+  if (!is.null(column)){
+    if (is.null(object@CellInformation[ ,column])){
+      stop("Please ensure your specified column exists.")
+    } else{
+      condition.list <- object@CellInformation[, column]
+      names(condition.list) <- object@CellInformation[,1]
+    }
   }
 
   # Retrieve distance matrix
@@ -418,15 +429,25 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition.list = li
 #'
 #' @param object An \linkS4class{AEMSet}.
 #' @param PCA Set to FALSE to not use PCA-reduced values
-#' @param condition.list (Optional) A list of cell identifiers and their associated condition
+#' @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
 #' @param perplexity (Optional) Numeric; perplexity parameter
-#' @param theta (Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)
+#' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)
 #'
-PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perplexity = 30, theta = 0.5){
+PlotTSNE <- function(object, PCA = TRUE, column = NULL, seed = 0, perplexity = 30, theta = 0.5){
   # Input checks
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet to this function.")
+  }
+
+  # Check the column has been defined
+  if (!is.null(column)){
+    if (is.null(object@CellInformation[ ,column])){
+      stop("Please ensure your specified column exists.")
+    } else{
+      condition.list <- object@CellInformation[, column]
+      names(condition.list) <- object@CellInformation[,1]
+    }
   }
 
   if(PCA){
@@ -466,12 +487,22 @@ PlotTSNE <- function(object, PCA = TRUE, condition.list = list(), seed = 0, perp
 #' @param object An \linkS4class{AEMSet} object that has undergone PCA
 #' @param dim1 Principal component to plot on the x-axis
 #' @param dim2 Principal component to plot on the y-axis
-#' @param condition.list (Optional) A list of barcodes and associated conditions to colour points by
+#' @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 #'
-PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition.list = list()){
+PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL){
   # Check if PCA has been run
   if(length(object@PCA) == 0){
     stop("Please supply an object that has undergone PCA reduction.")
+  }
+
+  # Check the column has been defined
+  if (!is.null(column)){
+    if (is.null(object@CellInformation[ ,column])){
+      stop("Please ensure your specified column exists.")
+    } else{
+      condition.list <- object@CellInformation[, column]
+      names(condition.list) <- object@CellInformation[,1]
+    }
   }
 
   # Extract dimensions to plot
@@ -679,15 +710,13 @@ z_theme <- function() {
 #'
 PlotTopGenesPerSample <- function(object){
   # Generate tidy data
-  sparse.matrix <- object@ExpressionMatrix
-  expression.matrix <- LoadDataFrame(sparse.matrix)
-  remove(sparse.matrix)
-
+  expression.matrix <- GetExpressionMatrix(object, "data.frame")
+  cell.information <- object@CellInformation
   present.barcodes <- colnames(expression.matrix)
   top.gene.list <- object@Metrics$TopGeneList
   metrics <- object@Metrics
 
-  present.batches <- unlist(object@BatchInformation[present.barcodes])
+  present.batches <- unlist(cell.information[,2][cell.information[,1] %in% present.barcodes])
   batch.names <- unique(present.batches)
 
   # Prepare Top 500
@@ -722,15 +751,13 @@ PlotTopGenesPerSample <- function(object){
 #'
 PlotLibrarySizesPerSample <- function(object){
   # Tidy data to feed into ggplot
-  sparse.matrix <- object@ExpressionMatrix
-  expression.matrix <- LoadDataFrame(sparse.matrix)
-  remove(sparse.matrix)
-
+  expression.matrix <- GetExpressionMatrix(object, "data.frame")
+  cell.information <- object@CellInformation
   present.barcodes <- colnames(expression.matrix)
   metrics <- object@Metrics
 
   ## Subset the data
-  present.batches <- unlist(object@BatchInformation[present.barcodes])
+  present.batches <- unlist(cell.information[,2][cell.information[,1] %in% present.barcodes])
   total.counts <- metrics$TotalCounts[present.barcodes]
   total.features <- metrics$TotalFeatureCountsPerCell[present.barcodes]
   batch.names <- unique(present.batches)
@@ -758,15 +785,13 @@ PlotLibrarySizesPerSample <- function(object){
 PlotControlPercentagesPerSample <- function(object, control.name){
   # Tidy data to feed into ggplot
   ## Load data from the object
-  sparse.matrix <- object@ExpressionMatrix
-  expression.matrix <- LoadDataFrame(sparse.matrix)
-  remove(sparse.matrix)
-
+  expression.matrix <- GetExpressionMatrix(object, "data.frame")
+  cell.information <- object@CellInformation
   present.barcodes <- colnames(expression.matrix)
   metrics <- object@Metrics
 
   ## Subset the data
-  present.batches <- unlist(object@BatchInformation[present.barcodes])
+  present.batches <- unlist(cell.information[,2][cell.information[,1] %in% present.barcodes])
   subset.control.percentages <- metrics$PercentageTotalCounts[[control.name]][present.barcodes]
   subset.counts <- metrics$ControlTranscriptCounts[[control.name]][present.barcodes]
   batch.names <- unique(present.batches)
@@ -807,9 +832,7 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
   }
 
   plot.title <- sprintf("Top %i Expressed Genes", n)
-  sparse.matrix <- object@ExpressionMatrix
-  expression.matrix <- LoadDataFrame(sparse.matrix)
-  remove(sparse.matrix)
+  expression.matrix <- GetExpressionMatrix(object, "data.frame")
   counts.per.gene <- object@Metrics$CountsPerGene
   total.expression <- object@Metrics$TotalExpression
   top.gene.list <- object@Metrics$TopGeneList[1:n]
@@ -839,14 +862,12 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #'
 PlotGeneralQC <- function(object){
   output.list <- list()
+  # General Plots
   # 1. Plot library sizes and expressed gene histograms
   print("Plotting Total Count and Library Size...")
   libsize.plot <- ggplot2::qplot(object@Metrics$TotalCounts, geom="histogram", main="Distribution of library sizes across dataset", xlab="Library size", ylab="Number of cells", binwidth=1000) + ggplot2::theme_bw()
-  feature.counts.per.cell <- ggplot2::qplot(object@Metrics$TotalFeatureCountsPerCell, geom="histogram", xlab="Number of expressed genes", main="Number of expressed genes across cells", ylab="Number of cells", binwidth = 250) + ggplot2::theme_bw()
   output.list[["LibSize"]] <- libsize.plot
-  output.list[["FeatureCountsPerCell"]] <- feature.counts.per.cell
 
-  # 2. Average Counts
   print("Plotting Average Counts...")
   smooth.scatter <- graphics::smoothScatter(log10(object@Metrics$AverageCounts), object@Metrics$CellsPerGene, xlab=expression(Log[10]~"Average Count"),ylab="Number of expressing cells", main = "Average gene expression across cells")
   average.gene.count <- ggplot2::qplot(object@Metrics$AverageCounts, xlab="Average Transcript Count", ylab="Number of genes", main="Average Transcript Count of Genes", binwidth = 10) + ggplot2::theme_bw()
@@ -858,8 +879,13 @@ PlotGeneralQC <- function(object){
   output.list[["Log2AverageGeneCount"]] <- log2.average.count
   output.list[["AverageGeneCount"]] <- average.gene.count
 
-  # No controls breaks this section  - therefore requires check
-  if (!any(unlist(object@Log$ExcludeControls))){
+  # 2. Average Counts
+  if (object@Log$Controls){
+    # Plots that need controls
+    # 1. Plot library sizes and expressed gene histograms
+    feature.counts.per.cell <- ggplot2::qplot(object@Metrics$TotalFeatureCountsPerCell, geom="histogram", xlab="Number of expressed genes", main="Number of expressed genes across cells", ylab="Number of cells", binwidth = 250) + ggplot2::theme_bw()
+    output.list[["FeatureCountsPerCell"]] <- feature.counts.per.cell
+
     # 2. Proportion of Controls
     print("Plotting Proportion of Control Histograms...")
     percentage.total.plots <- list()
@@ -883,11 +909,14 @@ PlotGeneralQC <- function(object){
 
     output.list[["ControlPercentageTotalCounts"]] <- percentage.total.plots
     output.list[["ControlPercentageSampleCounts"]] <- percentage.sample.list
+
+    # 4. Plot Library Sizes per Sample
+    print("Using ggplot2 to plot Library Sizes Per Sample...")
+    library.size.plot <- PlotLibrarySizesPerSample(object)
+    output.list[["LibSizePerSample"]] <- library.size.plot
+
   }
-  # 4. Plot Library Sizes per Sample
-  print("Using ggplot2 to plot Library Sizes Per Sample...")
-  library.size.plot <- PlotLibrarySizesPerSample(object)
-  output.list[["LibSizePerSample"]] <- library.size.plot
+
 
   # 5. Plot Genes per Sample
   print("Using ggplot2 to plot Top Genes Per Sample...")
@@ -898,6 +927,5 @@ PlotGeneralQC <- function(object){
   print("Using ggplot2 to plot Top Gene Expression...")
   top.genes.plot <- PlotTopGeneExpression(object)
   output.list[["TopGenes"]] <- top.genes.plot
-
   return(output.list)
 }

@@ -12,13 +12,11 @@ An S4 class to contain data in a format ASCEND can work with for analysis.
 \describe{
 \item{\code{ExpressionMatrix}}{Transcript counts stored as a sparse matrix, where rows are transcript/gene identifiers and columns are invididual cells.}
 
-\item{\code{GeneAnnotation}}{A data frame containing information on genes and their corresponding identifiers, such as gene names and ENSEMBL transcript identifiers.}
+\item{\code{GeneInformation}}{A data frame containing information a set of gene identifiers, such as gene symbols or ENSEMBL transcript identifiers. This data frame also holds information on controls and any information provided by the user.}
 
-\item{\code{BatchInformation}}{A named list containing each cell identifier and its associated batch/sample.}
+\item{\code{CellInformation}}{A data frame containing each cell identifier, its associated batch/sample and additional information such as conditions.}
 
 \item{\code{Controls}}{A named list featuring gene identifiers to use as controls. These gene identifiers must match the identifiers used in the expression matrix.}
-
-\item{\code{Conditions}}{A named list containing a list of conditions and what category each cell identifier falls into.}
 
 \item{\code{PCA}}{Objects related to dimension reduction, such as a PCA matrixand a list of percentage variance values per principle component (PC). Populated by \code{\link{RunPCA}}.}
 

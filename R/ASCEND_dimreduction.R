@@ -6,7 +6,7 @@
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
 #' @param perplexity (Optional) Numeric; perplexity parameter
 #' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)
-#' 
+#'
 RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5){
   if (class(object) == "AEMSet"){
     if (PCA){
@@ -19,14 +19,14 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30
       }
     }
   } else{
-    if (!(is.matrix(expression.matrix) || is.data.frame(expression.matrix) || class(expression.matrix) == "dgCMatrix")){
-      stop("Please supply an AEMSet, matrix or dataframe.") 
+    if (!(is.matrix(expression.matrix) || is.data.frame(expression.matrix) || is(expression.matrix,"sparseMatrix"))){
+      stop("Please supply an AEMSet, matrix or dataframe.")
     } else{
       object <- x
       PCA = FALSE
     }
   }
-  
+
   # Will load a matrix to work with, regardless
   if (PCA){
     transposed.matrix <- as.matrix(x)
@@ -57,7 +57,7 @@ ReduceDimensions <- function(object, n = 10){
   if (length(object@PCA) == 0){
     stop("Please run RunPCA on this object before using this function.")
   }
-  
+
   pca.matrix <- object@PCA$PCA
   reduced.pca <- as.data.frame(pca.matrix[, 1:n])
   object@PCA$PCA <- reduced.pca
@@ -83,7 +83,7 @@ CalcRowVariance <- function(x){
 #'
 RunPCA <- function(object, ngenes = 1500, scaling = TRUE){
   print("Retrieving data...")
-  expression.matrix <- LoadMatrix(object)
+  expression.matrix <- GetExpressionMatrix(object, format = "matrix")
 
   # Selecting top ngenes by variance
   print("Calculating variance...")

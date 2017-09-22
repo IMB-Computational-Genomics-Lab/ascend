@@ -6,8 +6,8 @@
 #'
 #'
 GenerateDefaultControls <- function(gene.obj){
-  mitochondrial.genes <- gene.obj$gene_name[grep("^mt-", ignore.case=TRUE, gene.obj$gene_name)]
-  ribosomal.genes <- gene.obj$gene_name[grep("^rps|^rpl", ignore.case=TRUE, gene.obj$gene_name)]
+  mitochondrial.genes <- gene.obj$gene_symbol[grep("^mt-", ignore.case=TRUE, gene.obj$gene_symbol)]
+  ribosomal.genes <- gene.obj$gene_symbol[grep("^rps|^rpl", ignore.case=TRUE, gene.obj$gene_symbol)]
   controls <- list(Mt = mitochondrial.genes, Rb = ribosomal.genes)
   return(controls)
 }
@@ -26,8 +26,8 @@ GenerateDefaultControls <- function(gene.obj){
 BuildExpressionMatrix <- function(sparse.matrix, barcode.obj, gene.obj){
   # Put it all together into an object!
   loaded.matrix <- as(sparse.matrix, "dgCMatrix")
-  colnames(loaded.matrix) <- names(barcode.obj)
-  rownames(loaded.matrix) <- gene.obj$gene_name
+  colnames(loaded.matrix) <- barcode.obj[,1]
+  rownames(loaded.matrix) <- gene.obj[,1]
 
   # Return the object
   return(loaded.matrix)
@@ -39,14 +39,14 @@ BuildExpressionMatrix <- function(sparse.matrix, barcode.obj, gene.obj){
 #' Called by \code{\link{BuildCellRangerDataset}} to parse genes.tsv into a data frame.
 #'
 ProcessGeneReference <- function(gene.obj){
-  # Convert to data frame
-  gene.df <- as.data.frame(gene.obj)
-  names(gene.df) <- c("ensembl_id", "gene_name")
+  # Convert to data frame, set gene symbol as column 1
+  colnames(gene.obj) <- c("ensembl_id", "gene_symbol")
+  gene.obj <- gene.obj[,c("gene_symbol", "ensembl_id")]
 
   # Make gene symbols unique
-  gene.identifiers <- (make.unique(as.character(gene.df$gene_name)))
-  gene.df$gene_name <- gene.identifiers
-  return(gene.df)
+  gene_symbol <- make.unique(as.character(gene.obj$gene_symbol))
+  gene.obj$gene_symbol <- gene_symbol
+  return(gene.obj)
 }
 
 # Retrieve Batch Names from Expression Matrix
@@ -55,9 +55,10 @@ ProcessGeneReference <- function(gene.obj){
 #' Called by \code{\link{BuildCellRangerDataset}} to parse batch labels from barcodes.tsv file. The result is a named list featuring cell barcodes as the key and batch ID as the value.
 #'
 IdentifyBatches <- function(barcode.obj){
-  batch.ids <- lapply(strsplit(as.character(barcode.obj$V1), "-"), `[`, 2)
-  names(batch.ids) <- barcode.obj$V1
-  return(batch.ids)
+  colnames(barcode.obj) <- c("cell_barcode")
+  batch.information <- lapply(strsplit(as.character(barcode.obj$cell_barcode), "-"), `[`, 2)
+  barcode.obj$batch <- batch.information
+  return(barcode.obj)
 }
 
 #' BuildCellRangerDataset
@@ -78,11 +79,11 @@ BuildCellRangerDataset <- function(data.dir){
   # Load the data
   ## Barcode file
   if (!(FileCheck(barcode.path))){
-    barcodes.src <- data.table::fread(barcode.path, header=FALSE)
+    barcodes.src <- as.data.frame(data.table::fread(barcode.path, header=FALSE))
   }
   ## Gene File
   if (!(FileCheck(gene.path))){
-    genes.src <- data.table::fread(gene.path, header=FALSE)
+    genes.src <- as.data.frame(data.table::fread(gene.path, header=FALSE))
   }
   ## Expression Matrix
   if (!(FileCheck(matrix.path))){
@@ -103,7 +104,7 @@ BuildCellRangerDataset <- function(data.dir){
   control.list <- GenerateDefaultControls(gene.df)
 
   ### Return objects as a named list
-  processed.list <- list(BatchInformation=batch.list, GeneAnnotation=gene.df, ExpressionMatrix=expression.matrix, Controls=control.list)
+  processed.list <- list(CellInformation=batch.list, GeneInformation=gene.df, ExpressionMatrix=expression.matrix, Controls=control.list)
   return(processed.list)
 }
 
@@ -166,9 +167,9 @@ LoadCellRangerData <- function(working.dir, genome.name){
 CellRangerToASCEND <- function(cellranger.path, genome.name){
   loaded.data <- LoadCellRangerData(cellranger.path, genome.name)
   exprs.mtx <- loaded.data$ExpressionMatrix
-  genes <- loaded.data$GeneAnnotation
-  batch <- loaded.data$BatchInformation
+  genes <- loaded.data$GeneInformation
+  batch <- loaded.data$CellInformation
   controls <- loaded.data$Controls
-  scry.obj <- NewAEMSet(ExpressionMatrix = exprs.mtx, GeneAnnotation = genes, BatchInformation = batch, Controls = controls)
-  return(scry.obj)
+  object <- NewAEMSet(ExpressionMatrix = exprs.mtx, GeneInformation = genes, CellInformation = batch, Controls = controls)
+  return(object)
 }

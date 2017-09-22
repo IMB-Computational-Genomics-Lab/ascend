@@ -22,10 +22,10 @@ FilterByExpressedGenesPerCell <- function(object, pct.value){
   removed.gene.list <- which(remove.genes)
   output.list <- list(FilterByExpressedGenesPerCell = length(removed.gene.list))
   updated.log <- list(FilterByExpressedGenesPerCell = removed.gene.list, FilteringList = output.list)
-  object@Log$Filtering <- updated.log
+  object@Log$FilterByExpressedGenesPerCell <- updated.log
 
   # Updating the metrics
-  object <- UpdateBatchInfo(object)
+  object <- SyncSlots(object)
   object <- GenerateMetrics(object)
   remove(expression.matrix)
   return(object)
@@ -41,6 +41,11 @@ FilterByExpressedGenesPerCell <- function(object, pct.value){
 #' @param object A \linkS4class{AEMSet} object.
 #'
 FilterByCustomControl <- function(control.name, percentage.threshold, object){
+  # Check in case user hasn't defined any controls.
+  if(!object@Log$Controls){
+    stop("Please define controls before attempting to filter this dataset.")
+  }
+
   # Retrieve values required to run this function
   percentage.counts <- unlist(object@Metrics$PercentageTotalCounts[control.name])
   replace.names <- gsub(paste0(control.name, "."), "", names(percentage.counts))
@@ -69,12 +74,17 @@ FilterByCustomControl <- function(control.name, percentage.threshold, object){
   temp.log <- updated.log
   temp.log[[log.entry.name]] <- length(remove.barcodes)
   output.df <- data.frame(temp.log)
-  updated.log <- c(updated.log, FilteringLog = output.df)
 
   # Update the object and return
-  object@Log$Filtering <- updated.log
+  if (is.null(object@Log$FilterByCustomControl)){
+    update <- list()
+  } else{
+    update <- object@Log$FilterByCustomControl
+  }
+  update[[control.name]] <- list(Filtering = updated.log, FilteringLog = output.df)
+  object@Log$FilterByCustomControl <- update
   object@ExpressionMatrix <- custom.filtered.matrix
-  object <- UpdateBatchInfo(object)
+  object <- SyncSlots(object)
   object <- GenerateMetrics(object)
   return(object)
 }
@@ -138,17 +148,21 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   if(!is.numeric(ControlThreshold)){
     stop("Please set your Control Threshold (NMAD value) to a valid integer.")
   }
+  # Stop if the user hasn't set any controls
+  if(!object@Log$Controls){
+    stop("Please define controls before filtering this dataset.")
+  }
 
   # Retrieve required objects from AEMSet
-  expression.matrix <- object@ExpressionMatrix
-  control.list <- object@Controls
+  expression.matrix <- filtered.object@ExpressionMatrix
+  control.list <- filtered.object@Controls
 
   # Retrieve values from the object
-  total.counts <- object@Metrics$TotalCounts
+  total.counts <- filtered.object@Metrics$TotalCounts
   log10.total.counts <- log10(total.counts)
-  total.features.counts.per.cell <- object@Metrics$TotalFeatureCountsPerCell
+  total.features.counts.per.cell <- filtered.object@Metrics$TotalFeatureCountsPerCell
   log10.total.features.counts.per.cell <- log10(total.features.counts.per.cell)
-  percentage.lists.counts <- object@Metrics$PercentageTotalCounts
+  percentage.lists.counts <- filtered.object@Metrics$PercentageTotalCounts
 
   ## Start identifying cells by barcodes
   cells.libsize <- FindOutliers(log10.total.counts, nmads=CellThreshold, type="lower") ## Remove cells with low expression
@@ -175,10 +189,10 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   print("Updating object information...")
   drop.barcodes.controls.names <- BiocParallel::bplapply(drop.barcodes.controls, names)
 
-    ### Barcode master list of cells to remove
+  ### Barcode master list of cells to remove
   remove.cell.barcodes <- c(drop.barcodes.libsize, drop.barcodes.feature, drop.barcodes.controls)
   remove.cells.bool <- colnames(expression.matrix) %in% unique(names(remove.cell.barcodes))
-  filtered.expression.matrix <- expression.matrix[,!remove.cells.bool]
+  filtered.expression.matrix <- expression.matrix[, !remove.cells.bool]
   filtered.object@ExpressionMatrix <- filtered.expression.matrix
 
   ### Loading filtering log
@@ -199,10 +213,10 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   }
   writing.log.output <- c(writing.log, writing.log.control)
   writing.log.df <- as.data.frame(writing.log.output)
-  filtered.object@Log <- list(Filtering=filtering.log, FilteringLog = writing.log.df)
+  filtered.object@Log$FilterByOutliers <- list(Filtering=filtering.log, FilteringLog = writing.log.df)
 
   ### Rerun metrics
-  filtered.object <- UpdateBatchInfo(filtered.object)
+  filtered.object <- SyncSlots(filtered.object)
   filtered.object <- GenerateMetrics(filtered.object)
   return(filtered.object)
 }

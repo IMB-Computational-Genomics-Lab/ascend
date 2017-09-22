@@ -4,17 +4,17 @@
 \alias{NewAEMSet}
 \title{NewAEMSet}
 \usage{
-NewAEMSet(ExpressionMatrix = NULL, GeneAnnotation = NULL,
-  BatchInformation = NULL, Controls = list(Mt = list(), Rb = list()))
+NewAEMSet(ExpressionMatrix = NULL, GeneInformation = NULL,
+  CellInformation = NULL, Controls = list())
 }
 \arguments{
 \item{ExpressionMatrix}{An expression matrix in data.frame, dgCMatrix (sparse) or matrix format. Rows should represent a transcript and its counts, while columns should represent individual cells. This is usually the end point for Single Cell RNA-Seq pipelines such as Cell Ranger and DropSeq.}
 
-\item{GeneAnnotation}{A data frame containing gene identifiers used in the expression matrix. Other columns can be used to represent corresponding identifiers in other formats (such as ENSEMBL transcript IDs). This is an optional field, and is best used if you need to convert between identifiers.}
+\item{GeneInformation}{A data frame containing gene identifiers used in the expression matrix. The first column should hold the cell identifiers you are using in the expression matrix. Other columns contain information about the genes, such as their corresponding ENSEMBL transcript identifiers, whether or not they are a control and any additional information supplied by the user. This is an optional field.}
 
-\item{BatchInformation}{A named list of cell identifiers (usually barcodes) and an integer representing which batch they belong to. This is an optional field, and it best used for experiments that contain data from multiple samples.}
+\item{CellInformation}{A data frame containing cell identifiers (usually barcodes) and an integer representing which batch they belong to. This is an optional field, and it best used for experiments that contain data from multiple samples. This data frame can also hold additional information supplied by the user.}
 
-\item{Controls}{A named list of controls, eg. mitochondrial genes, ribosomal genes and ERCC spike-ins. These genes must be specified using the identifier used in the expression matrix. This is required.}
+\item{Controls}{A named list of controls, eg. mitochondrial genes, ribosomal genes and ERCC spike-ins. These genes must be specified using the identifier used in the expression matrix. This information is required for some functions.}
 }
 \value{
 This function generates an object belonging to the \linkS4class{AEMSet}.

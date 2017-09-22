@@ -4,7 +4,7 @@
 \alias{PlotPCA}
 \title{PlotPCA}
 \usage{
-PlotPCA(object, dim1 = 1, dim2 = 2, condition.list = list())
+PlotPCA(object, dim1 = 1, dim2 = 2, column = NULL)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet} object that has undergone PCA}
@@ -13,7 +13,7 @@ PlotPCA(object, dim1 = 1, dim2 = 2, condition.list = list())
 
 \item{dim2}{Principal component to plot on the y-axis}
 
-\item{condition.list}{(Optional) A list of barcodes and associated conditions to colour points by}
+\item{column}{(Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by}
 }
 \description{
 Plot two principal components (PCs) on a scatter plot.

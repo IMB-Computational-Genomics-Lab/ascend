@@ -4,8 +4,7 @@
 \alias{PlotMDS}
 \title{PlotMDS}
 \usage{
-PlotMDS(object, PCA = FALSE, dim1 = 1, dim2 = 2,
-  condition.list = list())
+PlotMDS(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL)
 }
 \description{
 Generates a Multi-Dimensional Scaling (MDS) plot.
@@ -15,4 +14,5 @@ Generates a Multi-Dimensional Scaling (MDS) plot.
  @param PCA If true, use PCA-reduced matrix to generate MDS plot
  @param dim1 Which dimension to plot on the x-axis
  @param dim2 Which dimension to plot on the y-axis
+ @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 }

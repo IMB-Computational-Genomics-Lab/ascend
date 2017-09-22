@@ -59,63 +59,56 @@ setMethod("GenerateMetrics", signature("AEMSet"), function(object) {
   # Retrieve required objects from AEMSet
   expression.matrix <- object@ExpressionMatrix
   control.list <- object@Controls
+  metrics.list <- list()
 
   ### Calculate library size per cell
   total.counts <- Matrix::colSums(expression.matrix)
 
-  # Prepare outputs
-  control.transcript.counts.list <- list()
-  percentage.lists.counts.list <- list()
+  # User may have not supplied controls
+  if (length(control.list) > 0){
+    # Prepare outputs
+    control.transcript.counts.list <- list()
+    percentage.lists.counts.list <- list()
 
-  # Generate Metrics
-  print("Calculating control metrics...")
-  control.counts <-
-    BiocParallel::bplapply(
-      names(control.list),
-      GenerateControlMetrics,
-      expression.matrix = expression.matrix,
-      control.list = control.list,
-      total.counts = total.counts
-    )
+    # Generate Metrics
+    print("Calculating control metrics...")
+    control.counts <-
+      BiocParallel::bplapply(
+        names(control.list),
+        GenerateControlMetrics,
+        expression.matrix = expression.matrix,
+        control.list = control.list,
+        total.counts = total.counts
+      )
 
-  # Unpackage stats
-  unpacked.control.counts <-
-    unlist(control.counts, recursive = FALSE)
-  percentage.lists.counts.list <-
-    lapply(names(unpacked.control.counts),
-           function(x)
-             unpacked.control.counts[[x]][["PercentageTotalCounts"]])
-  names(percentage.lists.counts.list) <-
-    names(unpacked.control.counts)
-  control.transcript.counts.list <-
-    lapply(names(unpacked.control.counts),
-           function(x)
-             unpacked.control.counts[[x]][["ControlTranscriptCounts"]])
-  names(control.transcript.counts.list) <-
-    names(unpacked.control.counts)
+    # Unpackage stats
+    unpacked.control.counts <- unlist(control.counts, recursive = FALSE)
+    percentage.lists.counts.list <- lapply(names(unpacked.control.counts), function(x) unpacked.control.counts[[x]][["PercentageTotalCounts"]])
+    names(percentage.lists.counts.list) <- names(unpacked.control.counts)
+    control.transcript.counts.list <- lapply(names(unpacked.control.counts), function(x) unpacked.control.counts[[x]][["ControlTranscriptCounts"]])
+    names(control.transcript.counts.list) <- names(unpacked.control.counts)
 
-  # Calculate feature counts (Exclude controls)
-  control.bool <-
-    rownames(expression.matrix) %in% (unlist(object@Controls,
-                                             use.names = FALSE))
+    # Calculate feature counts (Exclude controls)
+    control.bool <- rownames(expression.matrix) %in% (unlist(control.list, use.names = FALSE))
 
-  if (any(control.bool)) {
-    endogenous.exprs.mtx <- expression.matrix[!control.bool,]
-  } else {
-    endogenous.exprs.mtx <- expression.matrix
-    percentage.lists.counts.list <-
-      lapply(percentage.lists.counts.list,
-             function(x)
-               ifelse(is.na(x), 0, x))
-    control.transcript.counts.list <-
-      lapply(control.transcript.counts.list,
-             function(x)
-               ifelse(is.na(x), 0, x))
+    if (any(control.bool)) {
+      endogenous.exprs.mtx <- expression.matrix[!control.bool,]
+    } else {
+      endogenous.exprs.mtx <- expression.matrix
+      percentage.lists.counts.list <- lapply(percentage.lists.counts.list, function(x) ifelse(is.na(x), 0, x))
+      control.transcript.counts.list <- lapply(control.transcript.counts.list, function(x) ifelse(is.na(x), 0, x))
+    }
+
+    total.features.counts.per.cell <- Matrix::colSums(endogenous.exprs.mtx != 0)
+    metrics.list <- c(metrics.list, list(
+      TotalFeatureCountsPerCell = total.features.counts.per.cell,
+      ControlTranscriptCounts = control.transcript.counts.list,
+      PercentageTotalCounts = percentage.lists.counts.list
+    ))
+  } else{
+    object@Log$Controls <- FALSE
   }
 
-  total.features.counts.per.cell <-
-    Matrix::colSums(endogenous.exprs.mtx !=
-                      0)
   counts.per.gene <- Matrix::rowSums(expression.matrix)
   average.counts <- Matrix::rowMeans(expression.matrix)
   genes.per.cell <- Matrix::colSums(expression.matrix != 0)
@@ -128,187 +121,33 @@ setMethod("GenerateMetrics", signature("AEMSet"), function(object) {
   top.gene.list <- names(sorted.counts.per.gene)
   top.gene.bool <- rownames(expression.matrix) %in% top.gene.list
   sorted.exprs.mtx <- expression.matrix[top.gene.bool,]
-  top.genes.percentage <-
-    100 * sum(sorted.counts.per.gene) / total.expression
+  top.genes.percentage <- 100 * sum(sorted.counts.per.gene) / total.expression
 
   # Load generated values into the Metrics slot
-  metrics.list <-
+  metrics.list <- c(metrics.list,
     list(
       TotalCounts = total.counts,
-      TotalFeatureCountsPerCell = total.features.counts.per.cell,
       TotalExpression = total.expression,
       TopGeneList = top.gene.list,
       TopGenesPercentage = top.genes.percentage,
-      ControlTranscriptCounts = control.transcript.counts.list,
-      PercentageTotalCounts = percentage.lists.counts.list,
       AverageCounts = average.counts,
       GenesPerCell = genes.per.cell,
       CellsPerGene = cells.per.gene,
       CountsPerGene = counts.per.gene,
       MeanGeneExpression = mean.gene.expression
-    )
+    ))
   remove(expression.matrix)
   object@Metrics <- metrics.list
   return(object)
 })
 
-#' GetExpressionMatrix
-#'
-#' Returns a data frame containing the expression matrix from a \linkS4class{AEMSet} object.
-#'
-#' @param object A \linkS4class{AEMSet} to retrieve the expression matrix from
-#' @param format Format of the returned matrix - "data.frame" or "matrix"
-#' @return Returns the expression matrix in the chosen format (data.frame or matrix).
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "GetExpressionMatrix",
-  def = function(object, format) {
-    standardGeneric("GetExpressionMatrix")
-  }
-)
-
-setMethod("GetExpressionMatrix", signature("AEMSet"), function(object, format) {
-  if (missing(format)){
-    stop("Please specify one of the following formats: data.frame or matrix")
-  }
-  if (format == "data.frame") {
-    sparse.expression.matrix <- object@ExpressionMatrix
-    output <- LoadDataFrame(sparse.expression.matrix)
-  } else if (format == "matrix") {
-    sparse.expression.matrix <- object@ExpressionMatrix
-    output <- as.matrix(sparse.expression.matrix)
-  } else{
-    stop("Please choose one of the following: data.frame, matrix")
-  }
-  return(output)
-})
-
-# Define GeneAnnotation Information - in case user changes their mind.
-
-#' GetControls
-#'
-#' Retrieve list of controls from \linkS4class{AEMSet}.
-#'
-#' @param object An \linkS4class{AEMSet} object.
-#' @return This function returns a list of controls defined by the user.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "GetControls",
-  def = function(object) {
-    standardGeneric("GetControls")
-  }
-)
-
-setMethod("GetControls", signature("AEMSet"), function(object) {
-  control.list <- object@Controls
-  return(control.list)
-})
-
-#' UpdateControls
-#'
-#' Replaces the control list in a \linkS4class{AEMSet} object with a new control list. This also recalculates the metrics associated with the \linkS4class{AEMSet} object.
-#' For best results, define your controls before you attempt any filtering.
-#'
-#' @param object An \linkS4class{AEMSet} object.
-#' @param gene.list A named list containing the gene identifiers. These identifiers must match the identifiers used in the expression matrix.
-#' @return This function returns an AEMSet object with the upated controls.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "UpdateControls",
-  def = function(object, gene.list) {
-    standardGeneric("UpdateControls")
-  }
-)
-
-setMethod("UpdateControls", signature("AEMSet"), function(object, gene.list) {
-  errors <- character()
-  if (length(gene.list) > 0) {
-    check.controls <-
-      unlist(gene.list) %in% rownames(object@ExpressionMatrix)
-    if (!TRUE %in% check.controls) {
-      msg <-
-        "Please make sure the gene identifiers you have listed in your control list matches those used in the expression matrix."
-      errors <- c(errors, msg)
-    }
-  } else {
-    msg <- "Please make sure that you have defined a control."
-    errors <- c(errors, msg)
-  }
-
-  if (length(errors) > 0) {
-    errors
-  } else {
-    object@Controls <- gene.list
-    updated.object <- GenerateMetrics(object)
-    return(updated.object)
-  }
-})
-
-#' GetBatchInformation
-#'
-#' Retrieve batch information from an \linkS4class{AEMSet}.
-#' @return A list of cell identifiers and their associated batch identifier.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "GetBatchInfo",
-  def = function(object) {
-    standardGeneric("GetBatchInfo")
-  }
-)
-
-setMethod("GetBatchInfo", signature("AEMSet"), function(object) {
-  return(object@BatchInformation)
-})
-
-#' UpdateBatchInfo
-#'
-#' Can be called by the user or by a filtering function. Updates Batch Information in a \linkS4class{AEMSet} object, removing cells that have been filtered out.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "UpdateBatchInfo",
-  def = function(object) {
-    standardGeneric("UpdateBatchInfo")
-  }
-)
-
-setMethod("UpdateBatchInfo", signature("AEMSet"), function(object) {
-  # Get present list of barcodes
-  present.barcodes <- colnames(object@ExpressionMatrix)
-
-  # Get present barcode list
-  current.barcode.list <- object@BatchInformation
-  updated.barcode.list <-
-    current.barcode.list[names(current.barcode.list) %in%
-                           present.barcodes]
-
-  # Update the object
-  object@BatchInformation <- updated.barcode.list
-  return(object)
-})
-
-#' GetGeneAnnotation
-#'
-#' Retrieve gene annotation information from an \linkS4class{AEMSet} object.
-#' @param object A \linkS4class{AEMSet} object.
-#' @return This function returns a data frame.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "GetGeneAnnotation",
-  def = function(object) {
-    standardGeneric("GetGeneAnnotation")
-  }
-)
-
-setMethod("GetGeneAnnotation", signature("AEMSet"), function(object) {
-  gene.annotation <- object@GeneAnnotation
-  return(gene.annotation)
-})
+# Called by ASCEND object creation. Adds the control information to the data frame.
+AddControlInfo <- function(gene.information, controls){
+  # Verify controls are in the cell information data frame
+  gene.information$control <- rep(FALSE, nrow(gene.information))
+  gene.information[gene.information[,1] %in% unlist(controls),]$control <- TRUE
+  return(gene.information)
+}
 
 #' ConvertGeneAnnotation
 #'
@@ -329,7 +168,7 @@ setGeneric(
 
 setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object) {
   # Get currently-used gene identifiers Load Gene Annotation
-  gene.annotation <- object@GeneAnnotation
+  gene.annotation <- object@GeneInformation
 
   ## From expression matrix
   present.rownames <- rownames(object@ExpressionMatrix)
@@ -338,8 +177,7 @@ setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object) {
   control.list <- object@Controls
 
   # Retrieve new values
-  new.identifiers <-
-    gene.annotation[gene.annotation[old.annotation] == present.rownames,][, new.annotation]
+  new.identifiers <- gene.annotation[gene.annotation[old.annotation] == present.rownames,][, new.annotation]
 
   ## Rename expression matrix
   rownames(object@ExpressionMatrix) <- new.identifiers
@@ -352,185 +190,6 @@ setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object) {
   return(object)
 })
 
-#' ReplaceExpressionMatrix
-#'
-#' Replace the expression matrix in a \linkS4class{AEMSet} with a new expression matrix and re-calculate its metrics.
-#'
-#' @param x Expression matrix in matrix or data.frame.
-#' @param object The \linkS4class{AEMSet} you would like to update.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "ReplaceExpressionMatrix",
-  def = function(x, object) {
-    standardGeneric("ReplaceExpressionMatrix")
-  }
-)
-
-setMethod("ReplaceExpressionMatrix", signature("matrix", "AEMSet"), function(x, object) {
-  # Replace the matrix
-  object@ExpressionMatrix <- LoadSparseMatrix(x)
-  updated.sea.set <- GenerateMetrics(object)
-  return(updated.sea.set)
-})
-
-#' GetClusters
-#'
-#' @param object An \linkS4class{AEMSet} that has undergone clustering.
-#' @return A list of cell identifiers and their assigned cluster.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "GetClusters",
-  def = function(object) {
-    standardGeneric("GetClusters")
-  }
-)
-
-setMethod("GetClusters", signature("AEMSet"), function(object) {
-  if (length(object@Clusters) == 0) {
-    stop("Please run FindOptimalClusters before using this function.")
-  }
-  return(object@Clusters$Clusters)
-})
-
-#' SubsetBatch
-#'
-#' Subset a specific batch from a \linkS4class{AEMSet} object.
-#'
-#' @param object A \linkS4class{AEMSet} object
-#' @param x Name or number of the batch you would like to subset.
-#' @return An \linkS4class{AEMSet} containing only this batch.
-#' @include ASCEND_objects.R
-#' @export
-setGeneric(
-  name = "SubsetBatch",
-  def = function(object, x) {
-    standardGeneric("SubsetBatch")
-  }
-)
-
-setMethod("SubsetBatch", signature("AEMSet", "numeric"), function(object, x) {
-  # Stop the function if batch id is not present in the dataset.
-  if (!any(object@BatchInformation == as.character(x))) {
-    stop("Please ensure the batch ID you have selected is present in your dataset.")
-  }
-
-  # Create a new object to output, ensures original object does not get
-  # overwritten.
-  subset.obj <- object
-
-  # Retrieve cells that belong to this batch from the AEMSet obejct
-  batch.list <- object@BatchInformation[which(object@BatchInformation == as.character(x))]
-  barcode.list <- names(batch.list)
-
-  # Other information will be extracted if they exist
-  if (!is.null(object@PCA$PCA)) {
-    subset.obj@PCA$PCA <- object@PCA$PCA[barcode.list,]
-  }
-
-  if (!is.null(object@Clusters$DistanceMatrix)) {
-    distance.matrix <- as.matrix(object@Clusters$DistanceMatrix)[barcode.list, barcode.list]
-    subset.obj@Clusters$DistanceMatrix <- as.dist(distance.matrix)
-  }
-
-  if (!is.null(object@Clusters$PutativeClusters)) {
-    subset.obj@Clusters$PutativeClusters <- object@Clusters$PutativeClusters[barcode.list]
-  }
-
-  if (!is.null(object@Clusters$Clusters)) {
-    subset.obj@Clusters$Clusters <- object@Clusters$Clusters[barcode.list]
-    subset.obj@Clusters$NumberOfClusters <-length(unique(subset.obj@Clusters$Clusters))
-  }
-
-  subset.obj@ExpressionMatrix <- object@ExpressionMatrix[, barcode.list]
-  subset.obj@BatchInformation <- batch.list
-  subset.obj <- GenerateMetrics(subset.obj)
-  subset.obj@Log <- c(subset.obj@Log, list(SubsetByCluster = TRUE))
-  return(subset.obj)
-})
-
-#' SubsetCluster
-#'
-#' Subset a \linkS4class{AEMSet} object by cluster. Please make sure you have clustered with \code{\link{FindOptimalClusters}} before using this function.
-#'
-#' @param object A \linkS4class{AEMSet} object
-#' @param x Number of the cluster you would like to subset.
-#' @return Returns an \linkS4class{AEMSet} containing only this cluster.
-#' @include ASCEND_objects.R
-#' @export
-#'
-setGeneric(
-  name = "SubsetCluster",
-  def = function(object, x) {
-    standardGeneric("SubsetCluster")
-  }
-)
-
-setMethod("SubsetCluster", signature("AEMSet", "numeric"), function(object, x) {
-  # Stop the function if cluster id is not present in the dataset.
-  if (!any(object@Clusters$Clusters == as.character(x))) {
-    stop("Please ensure the cluster ID you have selected is present in your dataset.")
-  }
-
-  # Create a new object to output, ensures original object does not get
-  # overwritten.
-  subset.obj <- object
-
-  # Retrieve cells that belong to this batch from the AEMSet obejct
-  cluster.list <- object@Clusters$Clusters[which(object@Clusters$Clusters == as.character(x))]
-  barcode.list <- names(cluster.list)
-
-  # Other information will be extracted if they exist
-  subset.obj@PCA$PCA <- object@PCA$PCA[barcode.list,]
-  distance.matrix <- as.matrix(object@Clusters$DistanceMatrix)[barcode.list, barcode.list]
-  subset.obj@Clusters$DistanceMatrix <- as.dist(distance.matrix)
-  subset.obj@Clusters$PutativeClusters <- object@Clusters$PutativeClusters[barcode.list]
-  subset.obj@Clusters$Clusters <- cluster.list
-  subset.obj@Clusters$NumberOfClusters <- 1
-
-  subset.obj@ExpressionMatrix <- object@ExpressionMatrix[, barcode.list]
-  subset.obj <- GenerateMetrics(subset.obj)
-  subset.obj@Log <- c(subset.obj@Log, list(SubsetByCluster = TRUE))
-  return(subset.obj)
-})
-
-#' SubsetCells
-#'
-#' Subset cells in the supplied list from an \linkS4class{AEMSet}.
-#'
-#' @param object An \linkS4class{AEMSet}
-#' @param list A list of cell identifiers to subset from the \linkS4class{AEMSet}
-#' @return An \linkS4class{AEMSet}
-#' @include ASCEND_objects.R
-#'
-setGeneric(
-  name = "SubsetCells",
-  def = function(object, list) {
-    standardGeneric("SubsetCells")
-  }
-)
-
-setMethod("SubsetCells", signature("AEMSet"), function(object, list){
-  # Check cells are in the expression matrix.
-  expression.matrix <- GetExpressionMatrix(object, "data.frame")
-  batch.information <- GetBatchInfo(object)
-  gene.annotation <- GetGeneAnnotation(object)
-  control.list <- GetControls(object)
-  present.cells <- list[list %in% colnames(expression.matrix)]
-
-  # Missing cell catch
-  if (length(present.cells) == 0){
-    stop("All listed cells were not present in the AEMSet.")
-  } else{
-    # Subset out information
-    subset.matrix <- expression.matrix[,present.cells]
-    subset.batch.info <- batch.information[list]
-    subset.object <- NewAEMSet(ExpressionMatrix = subset.matrix, BatchInformation = subset.batch.info, GeneAnnotation = gene.annotation, Controls = control.list)
-    return(subset.object)
-  }
-})
-
 #' ExcludeControl
 #'
 #' Removes the specified control from the expression matrix.
@@ -541,28 +200,35 @@ setGeneric(
   name = "ExcludeControl",
   def = function(object, control.name) {
     standardGeneric("ExcludeControl")
-    }
+  }
 )
 
 setMethod("ExcludeControl", signature("AEMSet"), function(object, control.name){
   # Identify indices of control genes in the current expression matrix
   # Keep this matrix sparse for faster processing power
   expression.matrix <- object@ExpressionMatrix
+  control.list <- object@Controls
 
+  # We can sync up the slots once we update the expression matrix
   # Convert the control list into a boolean so we can remove rows from the sparse matrix
   control.list <- object@Controls[[ control.name ]]
-  control.in.mtx <- rownames(object@ExpressionMatrix) %in% control.list
+  control.in.mtx <- rownames(expression.matrix) %in% control.list
 
   # Remove control genes from the matrix by identified matrices
   endogenous.exprs.mtx <- expression.matrix[ !control.in.mtx, ]
 
   # Reload the expression matrix with the updated matrix
   object@ExpressionMatrix <- endogenous.exprs.mtx
+  object <- SyncSlots(object)
 
   # Update the log
   updated.log <- list()
   updated.log[[control.name]] <- TRUE
 
+  # Update the controls
+  object@Controls[[control.name]] <- NULL
+
+  # Update ExcludeControls
   if (is.null(object@Log$ExcludeControls)){
     remove.log <- updated.log
     object@Log$ExcludeControls <- remove.log
@@ -570,9 +236,20 @@ setMethod("ExcludeControl", signature("AEMSet"), function(object, control.name){
     object@Log$ExcludeControls <- c(object@Log$ExcludeControls, updated.log)
   }
 
+  # Update Controls
+  if (length(object@Controls) == 0){
+    object@Log$Controls <- FALSE
+  }
+
+  # Add removed genes to a list of removed genes
+  if (is.null(object@Log$RemovedGenes)){
+    object@Log$RemovedGenes <- control.list
+  } else{
+    object@Log$RemovedGenes <- c(object@Log$RemovedGenes, control.list)
+  }
   # Regenerate metrics and return the updated object
-  return.object <- GenerateMetrics(object)
-  return(return.object)
+  object <- GenerateMetrics(object)
+  return(object)
 })
 
 #' DisplayLog

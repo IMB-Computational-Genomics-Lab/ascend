@@ -389,5 +389,7 @@ FindOptimalClusters <- function(object){
 
   # Append all of this information to the AEMSet object
   object@Clusters <- output.list
+  object@CellInformation$cluster <- unlist(optimal.cluster.list)
+
   return(object)
 }

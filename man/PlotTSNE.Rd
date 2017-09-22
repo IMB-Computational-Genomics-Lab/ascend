@@ -4,21 +4,21 @@
 \alias{PlotTSNE}
 \title{PlotTSNE}
 \usage{
-PlotTSNE(object, PCA = TRUE, condition.list = list(), seed = 0,
-  perplexity = 30, theta = 0.5)
+PlotTSNE(object, PCA = TRUE, column = NULL, seed = 0, perplexity = 30,
+  theta = 0.5)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet}.}
 
 \item{PCA}{Set to FALSE to not use PCA-reduced values}
 
-\item{condition.list}{(Optional) A list of cell identifiers and their associated condition}
+\item{column}{(Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by}
 
 \item{seed}{(Optional) Set to a specific value for reproducible TSNE plots}
 
 \item{perplexity}{(Optional) Numeric; perplexity parameter}
 
-\item{theta}{(Optional) Nimeroc; Speed/accuracy trade-off (increase for less accuracy)}
+\item{theta}{(Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)}
 }
 \description{
 Generates a 2D TSNE plot.

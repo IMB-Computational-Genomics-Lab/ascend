@@ -79,8 +79,12 @@ scranNormalise <- function(object, quickCluster = FALSE){
   print("Normalisation complete. Converting SCESet back to AEMSet...")
   dcvl.matrix <- as.matrix(scater::norm_exprs(dcvl.sce.obj))
   unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
-  normalised.obj <- ReplaceExpressionMatrix(unlog.dcvl.matrix, object)
-  normalised.obj@Log <- c(normalised.obj@Log, list(NormalisationMethod = "scranNormalise"))
+
+  # Replace the object
+  normalised.obj <- ReplaceExpressionMatrix(object, unlog.dcvl.matrix)
+  normalised.obj <- SyncSlots(normalised.obj)
+  normalised.obj@Log$NormalisationMethod <- "scranNormalise"
+  normalised.obj@Log$Controls <- FALSE
   normalised.obj@Log$ExcludeControls <- list(Mt = TRUE, Rb = TRUE)
 
   remove(sce.obj)
@@ -115,13 +119,13 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, batch.list = NUL
 #' @param object An \linkS4class{AEMSet} object.
 #'
 NormaliseBatches <- function(object){
-  if(!is.null(object@Log$NormalisationMethod)){
+  if(!is.null(object@Log$NormaliseBatches)){
     stop("This data is already normalised.")
   }
 
   # Retrieve variables from AEMSet object
-  exprs.mtx <- as.matrix(object@ExpressionMatrix)
-  batch.list <- object@BatchInformation
+  exprs.mtx <- GetExpressionMatrix(object, "matrix")
+  batch.list <- unlist(object@CellInformation[,2])
   unique.batch.identifiers <- unique(batch.list)
 
   # Loop to get batch-specific data
@@ -140,8 +144,8 @@ NormaliseBatches <- function(object){
   # Load back into AEMSet and write metrics
   print("Returning object...")
   colnames(scaled.matrix) <- names(batch.list)
-  object@ExpressionMatrix <- LoadSparseMatrix(scaled.matrix)
-  object@Log <- c(object@Log, list(NormaliseBatches=TRUE))
+  object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparse.matrix")
+  object@Log$NormaliseBatches <- TRUE
   updated.object <- GenerateMetrics(object)
   return(updated.object)
 }
@@ -159,7 +163,7 @@ NormaliseLibSize <- function(object){
   unscaled.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
   normalised.exprs.mtx <- unscaled.matrix * median.size
   object@Log <- c(object@Log, list(NormaliseLibSize=TRUE))
-  object@ExpressionMatrix <- LoadSparseMatrix(normalised.exprs.mtx)
+  object@ExpressionMatrix <- ConvertMatrix(normalised.exprs.mtx, format = "sparse.matrix")
   new.object <- GenerateMetrics(object)
   new.object@Log <- c(object@Log, list(NormalisationMethod="NormaliseLibSize"))
   return(new.object)
@@ -190,7 +194,7 @@ NormaliseByRLE <- function(object){
   if(!is.null(object@Log$NormalisationMethod)){
     stop("This data is already normalised.")
   }
-  expression.matrix <- as.matrix(object@ExpressionMatrix)
+  expression.matrix <- GetExpressionMatrix(object, format = "matrix")
 
   print("Calculating geometric means...")
   geo.means <- apply(expression.matrix, 1, CalcGeoMeans)
@@ -200,8 +204,7 @@ NormaliseByRLE <- function(object){
 
   print("Normalising data...")
   normalised.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
-  object@ExpressionMatrix <- LoadSparseMatrix(normalised.matrix)
+  object@ExpressionMatrix <- ConvertMatrix(normalised.matrix, "sparse.matrix")
   object@Log <- c(object@Log, list(NormalisationMethod="NormaliseByRLE"))
-
   return(object)
 }
