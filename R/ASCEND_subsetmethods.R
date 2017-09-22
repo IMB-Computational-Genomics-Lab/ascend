@@ -1,4 +1,60 @@
 # Functions for subsetting AEMSets
+#' SubsetCondition
+#'
+#' Subset specific conditions from a \linkS4class{AEMSet} object.
+#'
+#' @param object A \linkS4class{AEMSet} object
+#' @param conditions Name of the columns which contain boolean information on whether to keep or discard a cell.
+#'
+#' @return An \linkS4class{AEMSet} containing only this batch.
+#' @include ASCEND_objects.R
+#' @export
+setGeneric(
+  name = "SubsetCondition",
+  def = function(object, conditions) {
+    standardGeneric("SubsetCondition")
+  }
+)
+
+setMethod("SubsetCondition", signature("AEMSet"), function(object, conditions = c()) {
+  # Check if selected batches are present in the batches column
+  if (!any(conditions %in% colnames(object@CellInformation))){
+    stop("None of your selected batches are present in the dataset.")
+  }
+
+  # Create a new object to output, ensures original object does not get overwritten.
+  subset.obj <- object
+
+  # Retrieve data from relevant slots
+  expression.matrix <- GetExpressionMatrix(subset.obj, format = "data.frame")
+  cell.info <- subset.obj@CellInformation
+
+  # Select out the specified columns
+  subset.cell.info <- cell.info[ , which(colnames(cell.info) %in% conditions)]
+
+  # Select out rows that are true in at least one column
+  keep.list <- c()
+
+  for (condition in conditions){
+    keep.list <- c(keep.list, which(subset.cell.info[, condition]))
+  }
+
+  subset.cell.info <- subset.cell.info[which(subset.cell.info[,1] %in% keep.list),]
+
+  # Subset the expression matrix.
+  subset.matrix <- expression.matrix[,keep.list]
+  subset.obj <- ReplaceExpressionMatrix(subset.obj, subset.matrix)
+  subset.obj <- ReplaceCellInfo(subset.cell.info)
+  subset.obj <- SyncSlots(subset.obj)
+
+  # Clean up the object
+  subset.obj@PCA <- list()
+  subset.obj@Clusters <- list()
+  subset.obj@Log <- c(subset.obj@Log, list(SubsetByBatches = TRUE, SubsettedBatches = batches))
+  return(subset.obj)
+})
+
+
 #' SubsetBatch
 #'
 #' Subset a specific batch from a \linkS4class{AEMSet} object. This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
