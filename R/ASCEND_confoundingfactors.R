@@ -29,6 +29,7 @@ RegressGene <- function(gene, covariate.matrix, expression.matrix){
 #' This function generates a scaled regression matrix based on candidate genes supplied by the user. This function is best used after normalisation.
 #' @param expression.matrix Expression matrix in data frame format. You may load it from a AEMSet object with the GetExpressionMatrix function.
 #' @param candidate.genes A list of genes you wish to regress from the dataset. Refer to the vignette on how to choose genes for regression.
+#' @export
 #'
 RemoveConfoundingFactors <- function(expression.matrix, candidate.genes = list()){
   # INPUT VERIFICATION STEPS

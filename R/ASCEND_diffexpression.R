@@ -84,15 +84,6 @@ VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.li
   print("Input is acceptable. Verification complete!")
 }
 
-#' RunPairedDE
-#'
-#' Runs differential expression on a pre-defined set of conditions. This function can only handle two conditions at a time, where Condition A describes a subset of cells and Condition B describes the remainder.
-#'
-#' @param x An expression matrix stored in either an \linkS4class{AEMSet} or a data.frame
-#' @param condition.a A one-word string describing the main condition
-#' @param condition.b A one-word string describing cells that do not fulfil condition A
-#' @param condition.list A named list featuring individual cell identifiers and their associated condition.
-#'
 RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL){
   # Run Verification
   VerifyArguments(condition.a = condition.a, condition.b = condition.b, condition.list = condition.list)
@@ -131,6 +122,7 @@ RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.
 #' @param object A \linkS4class{AEMSet} object that has undergone clustering with the \code{\link{FindOptimalClusters}} function.
 #' @param column Name of the column in the CellInformations lot where you have defined the conditions you would like to test. eg cluster to compare clusters identified by FindOptimalClusters.
 #' @param conditions List of conditions you want to test, in the order you would like to run them in. This list of terms should match those used in your selected column.
+#' @export
 #'
 RunDiffExpression <- function(object, column = NULL, conditions = NULL){
   # Object check

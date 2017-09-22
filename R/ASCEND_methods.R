@@ -47,7 +47,7 @@ GenerateControlMetrics <-
 #' This function is called by \code{\link{NewAEMSet}} and generates metrics for the new expression matrix.
 #' This function can also be called independantly, to update the metrics for a \linkS4class{AEMSet} object.
 #' @include ASCEND_objects.R
-#'
+#' @export
 setGeneric(
   name = "GenerateMetrics",
   def = function(object) {
@@ -195,6 +195,7 @@ setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object) {
 #' Removes the specified control from the expression matrix.
 #' @param object A \linkS4class{AEMSet} object. It is recommended that you run this step after this object has undergone filtering.
 #' @param control.name Name of the control set you want to remove from the dataset.
+#' @export
 #'
 setGeneric(
   name = "ExcludeControl",
@@ -256,7 +257,7 @@ setMethod("ExcludeControl", signature("AEMSet"), function(object, control.name){
 #'
 #' Print out the log of an \linkS4class{AEMSet}.
 #' @include ASCEND_objects.R
-#'
+#' @export
 setGeneric(
   name = "DisplayLog",
   def = function(object) {

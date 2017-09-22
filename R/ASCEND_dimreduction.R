@@ -6,6 +6,7 @@
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
 #' @param perplexity (Optional) Numeric; perplexity parameter
 #' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)
+#' @export
 #'
 RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5){
   if (class(object) == "AEMSet"){
@@ -52,6 +53,7 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30
 #'
 #' @param object An \linkS4class{AEMSet} object that has undergone PCA reduction.
 #' @param n The number of PC dimensions you would like to select. Refer to vignette on how to select this value.
+#' @export
 #'
 ReduceDimensions <- function(object, n = 10){
   if (length(object@PCA) == 0){
@@ -80,6 +82,7 @@ CalcRowVariance <- function(x){
 #' @param object A \linkS4class{AEMSet} object that has undergone filtering and normalisation.
 #' @param ngenes The top number of genes you would like to perform the reduction by.
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values
+#' @export
 #'
 RunPCA <- function(object, ngenes = 1500, scaling = TRUE){
   print("Retrieving data...")

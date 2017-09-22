@@ -5,6 +5,7 @@
 #' @param filename Name of the file you would like to output to
 #' @param width Width of the PDF
 #' @param height Height of the PDF
+#' @export
 #'
 PlotPDF <- function(plot.list, filename = NULL, width = 11, height = 8.5){
   if (missing(filename)){
@@ -48,6 +49,7 @@ UnLog2Matrix <- function(expression.matrix){
 #' @param expression.matrix An expression matrix to chunk
 #' @param axis Specify either 0 (rows) or 1 (columns)
 #' @param chunks Number of chunks you would like to break the matrix into
+#' @export
 #'
 ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
   if(missing(axis)){
@@ -115,8 +117,8 @@ ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
 #'
 #' Merge a list of expression matrices in data frame format into one large data frame.
 #' @param x A list of data frames containing expression matrices.
+#' @export
 #'
-
 MergeExprsMtx <- function(x){
   # Character vector to add all matrix gene identifiers to
   master.gene.ids <- c()
@@ -161,6 +163,7 @@ MergeExprsMtx <- function(x){
 #'
 #' @param matrix A data frame, dense matrix or sparse matrix.
 #' @param format Format to change the matrix to.
+#' @export
 #'
 ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparse.matrix")){
   # Make sure format is specified correctly

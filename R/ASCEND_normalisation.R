@@ -12,6 +12,7 @@
 #'
 #' @param object An \linkS4class{AEMSet} that has not undergone normalisation.
 #' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups
+#' @export
 #'
 scranNormalise <- function(object, quickCluster = FALSE){
   if(!is.null(object@Log$NormalisationMethod)){
@@ -117,6 +118,7 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, batch.list = NUL
 #' This step must be done prior to any filtering and normalisation between cells.
 #'
 #' @param object An \linkS4class{AEMSet} object.
+#' @export
 #'
 NormaliseBatches <- function(object){
   if(!is.null(object@Log$NormaliseBatches)){
@@ -154,6 +156,7 @@ NormaliseBatches <- function(object){
 #'
 #' Normalise library sizes by scaling.
 #' @param object A \linkS4class{AEMSet} object. Please remove spike-ins from the expression matrix before normalising.
+#' @export
 #'
 NormaliseLibSize <- function(object){
   expression.matrix <- as.matrix(object@ExpressionMatrix)
@@ -189,6 +192,7 @@ CalcGeoMeans <- function(x){
 #' Normalisation of expression between cells, by scaling to relative log expression.
 #' This method assumes all genes express a pseudo value higher than 0, and also assumes most genes are not differentially expressed. Only counts that are greater than zero are considered in this normalisation method.
 #' @param object A \linkS4class{AEMSet} object that has undergone filtering. Please ensure spike-ins have been removed before using this function.
+#' @export
 #'
 NormaliseByRLE <- function(object){
   if(!is.null(object@Log$NormalisationMethod)){

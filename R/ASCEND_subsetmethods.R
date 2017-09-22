@@ -103,6 +103,7 @@ setMethod("SubsetCluster", signature("AEMSet"), function(object, clusters = c())
 #' @param cell_barcodes A list of cell identifiers to subset from the \linkS4class{AEMSet}
 #' @return An \linkS4class{AEMSet}
 #' @include ASCEND_objects.R
+#' @export
 #'
 setGeneric(
   name = "SubsetCells",

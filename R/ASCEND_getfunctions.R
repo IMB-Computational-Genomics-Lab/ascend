@@ -86,6 +86,7 @@ setMethod("GetGeneInfo", signature("AEMSet"), function(object) {
 #' Retrieve a portion of the matrix by batch label
 #' @param object \linkS4class{AEMSet} object
 #' @param batch.id Batch identifier that you would like to retrieve
+#' @export
 #'
 GetBatchMatrix <- function(object, batch.id){
   expression.matrix <- GetExpressionMatrix(object, "matrix")

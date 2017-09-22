@@ -314,6 +314,7 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
 #'     \item{RandMatrix}{Rand matrix used to determine optimal number of clusters}
 #' }
 #' @param object An AEMSet object that has undergone PCA reduction.
+#' @export
 #'
 FindOptimalClusters <- function(object){
   # User inputs a AEMSet
