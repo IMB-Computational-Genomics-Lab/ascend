@@ -15,20 +15,27 @@ ConvertToScater <- function(object, control.list = list()){
     control.list <- object@Controls
   }
 
-  # Verify Mt and Rb are names in supplied list
-  if ( !all(control.names %in% names(control.list)) ){
-    stop("Please make sure you have supplied mitochondrial and ribosomal gene identifiers in a named list.")
+  if (length(control.list) == 0){
+    # Verify Mt and Rb are names in supplied list
+    if ( !all(control.names %in% names(control.list)) ){
+      stop("Please make sure you have supplied mitochondrial and ribosomal gene identifiers in a named list.")
+    }
+
+    # Verify genes are present in the list
+    if ( !all(sapply(control.list, function(x) length(x) > 0)) ){
+      stop("Please make sure you have supplied genes to the mitochondrial and ribosomal gene lists.")
+    }
+
+    expression.matrix <- GetExpressionMatrix(object, "data.frame")
+    sce.obj <- scater::newSCESet(countData = expression.matrix)
+    sce.obj <- scater::calculateQCMetrics(sce.obj, feature_controls = control.list)
+  } else{
+    expression.matrix <- GetExpressionMatrix(object, "data.frame")
+    sce.obj <- scater::newSCESet(countData = expression.matrix)
   }
 
-  # Verify genes are present in the list
-  if ( !all(sapply(control.list, function(x) length(x) > 0)) ){
-    stop("Please make sure you have supplied genes to the mitochondrial and ribosomal gene lists.")
-  }
 
   # Convert AEMSet to SCESet
-  expression.matrix <- GetExpressionMatrix(object, "data.frame")
-  sce.obj <- scater::newSCESet(countData = expression.matrix)
-  sce.obj <- scater::calculateQCMetrics(sce.obj, feature_controls = control.list)
   return(sce.obj)
 }
 

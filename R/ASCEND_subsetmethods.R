@@ -140,7 +140,7 @@ setMethod("SubsetCluster", signature("AEMSet"), function(object, clusters = c())
   subset.cell.info <- cell.info[which(cell.info$cluster %in% clusters),]
 
   # Subset the expression matrix.
-  subset.matrix <- expression.matrix[,unlist(subset.cell.info[,1])]
+  subset.matrix <- expression.matrix[unlist(subset.cell.info[,1]),]
   subset.obj <- ReplaceExpressionMatrix(subset.obj, subset.matrix)
   subset.obj <- SyncSlots(subset.obj)
 

@@ -1,7 +1,9 @@
 # Code for differential expression
 # Requires DESeq to run, and parallel
 
-# Called by RunDiffExpression
+#' RunDESeq
+#'
+# Called by RunDiffExpression in parallel. This performs the differential expression part.
 RunDESeq <- function(data, condition.list = list(), condition.a = NULL, condition.b = NULL){
   library(DESeq)
   count.dataset <- DESeq::newCountDataSet(data, condition.list)
@@ -11,7 +13,10 @@ RunDESeq <- function(data, condition.list = list(), condition.a = NULL, conditio
   return(de.seq.results)
 }
 
-# Called by RunClusterDiffExpression
+#' GenerateConditionList
+#'
+#' Automates the generation of a condition 1 vs other clist for feeding into DESeq.
+#'
 GenerateConditionList <- function(condition.a = NULL, condition.b = NULL, barcode.list = NULL){
   condition.a.idx <- which(barcode.list == as.character(condition.a))
   condition.b.idx <- which(barcode.list != as.character(condition.a))
@@ -21,7 +26,11 @@ GenerateConditionList <- function(condition.a = NULL, condition.b = NULL, barcod
   return(condition.list)
 }
 
-# Called by RunDiffExpression
+#' ProcessDEREsults
+#'
+#' Called by RunDiffExpression. Compiles the resultant data into data frames and converts
+#' the results to absolute fold change.
+#'
 ProcessDEResults <- function(output.list){
   de.result.df <- dplyr::bind_rows(output.list)
 
@@ -35,7 +44,10 @@ ProcessDEResults <- function(output.list){
   return(de.result.df)
 }
 
-# Called by RunDiffExpression
+#' PrepareCountData
+#'
+#' Called by RunDiffExpression. This chunks up the expression matrix to feed into DESeq.
+#'
 PrepareCountData <- function(x){
   # Set up expression matrix
   if (class(x) == "AEMSet"){
@@ -60,7 +72,10 @@ PrepareCountData <- function(x){
   return(chunked.matrix)
 }
 
-# Called by RunDiffExpression
+#' VerifyArguments
+#'
+#' Called by RunDiffExpression. Makes sure conditions are okay.
+#'
 VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.list = list()){
   # CHECK DATA FIRST
   print("Verifying input...")
@@ -84,6 +99,10 @@ VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.li
   print("Input is acceptable. Verification complete!")
 }
 
+#' RunPairedDE
+#'
+#' Called by the main function. Runs DESeq on one condition vs others at a time.
+#'
 RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL){
   # Run Verification
   VerifyArguments(condition.a = condition.a, condition.b = condition.b, condition.list = condition.list)

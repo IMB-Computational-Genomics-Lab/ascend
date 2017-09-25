@@ -45,7 +45,7 @@ library(Rmpi)
 Please use `devtools` to load the development version of `ASCEND`.
 
 ```{r LoadASCEND}
-devtools::load_all("/Users/a.senabouth/Code Repositories/ASCEND")
+devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
 ```
 
 You can also use devtools' install_github function to install the package, and then load it as normal.
@@ -57,100 +57,103 @@ library(ASCEND)
 
 ## Loading Data for use in ASCEND
 ### Preparing data manually
-This vignette uses the public dataset ["Aggregate of t_3k and t_4k"](https://support.10xgenomics.com/single-cell-gene-expression/datasets/2.0.1/t_3k_4k_aggregate) by 10x Genomics. The dataset consists of 8093 pan T cells that were isolated from a healthy donor, and are divided into two batches. 
+This vignette uses the iPSC Retinal Ganglion Cells dataset, that can be loaded into R with the following function:
 
-You can download the dataset from [here](http://cf.10xgenomics.com/samples/cell-exp/1.3.0/t_3k_4k_aggregate/t_3k_4k_aggregate_filtered_gene_bc_matrices_mex.tar.gz).
+```{R LoadData}
+data("RGC_scRNASeq")
+```
 
-
-This download - **Gene / cell matrix (filtered)**, contains the following files:
-
-- barcodes.tsv
-- genes.tsv
-- matrix.mtx
-
-These files contain all the information we need to create an `AEMSet` - the main data object of the ASCEND package. 
+These objects contain all the information we need to create an `AEMSet` - the main data object of the ASCEND package. 
 
 #### Expression matrix
-The main source of input is an expression matrix, or a gene/cell matrix where each row represents a transcript and each column represents a cell. Cell Ranger - the processing pipeline for the Chromium platform, has stored the expression matrix in a Market Exchange Format (MEX) file called `matrix.mtx`. We need to use the `readMM` function from the `Matrix` package to load the data into R.
+The main source of input is an expression matrix, or a gene-cell matrix where each row represents a transcript and each column represents a cell. Cell Ranger - the processing pipeline for the Chromium platform, has stored the expression matrix in a Market Exchange Format (MEX) file called `matrix.mtx`. This was read into R with the `readMM` function from the `Matrix` package.
+
+Let's have a look at a small part of the matrix.
 
 ```{r ReadExpressionMatrix}
-library(Matrix)
-matrix.mtx <- "t_3k_and_t_4k/outs/filtered_gene_bc_matrices_mex/GRCh38/matrix.mtx"
-expression.matrix <- readMM(matrix.mtx)
-expression.matrix <- as.data.frame(as.matrix(expression.matrix))
-expression.matrix[1:5,1:5]
+matrix[1:5,1:5]
 ```
 
 `readMM` reads the data in as a sparse matrix, using less memory than data frames and matrices. The expression matrix can be kept in this format, but as we want to view the contents of the matrix for this tutorial – we have converted it into a data frame.  This data frame lacks row and column labels as Cell Ranger has stored them in the two other files - `barcodes.tsv` and `genes.tsv`.
 
-#### Cell Identifiers and Batch Information
+#### Preparing Cell Information
 `barcodes.tsv` is a CSV file containing cell identifier and batch information. Chromium uses actual cell barcodes as cell identifiers and has attached a number to each barcode. This number represents the batch the cell originated from.
 
 ```{r ReadBarcodes}
-barcodes.tsv <- "t_3k_and_t_4k/outs/filtered_gene_bc_matrices_mex/GRCh38/barcodes.tsv"
-barcodes <- read.csv(barcodes.tsv, sep="\t", header = FALSE)
 barcodes[1:5,]
 ```
 
-Extract the batch numbers from the cell identifiers by splitting each string at the '-' symbol and retrieve the second part of the string. Next, link each cell barcode to its associated batch by transforming the vector into a named list.
+Extract the batch numbers from the cell identifiers by splitting each string at the '-' symbol and retrieve the second part of the string.
 
 ```{r ProcessBatchID}
 batch.information <- lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)
-names(batch.information) <- barcodes$V1
 batch.information[1:5]
+```
+
+Add this batch information to the barcodes data frame, which will become our Cell Information dataframe.
+
+```{r BuildCellInfo}
+colnames(barcodes) <- c("cell_barcode")
+barcodes$batch <- as.numeric(batch.information)
+barcodes[1:5,]
 ```
 
 Finally, add the cell identifiers to the expression matrix as column names.
 
 ```{r NameColumns}
-colnames(expression.matrix) <- barcodes$V1
-expression.matrix[1:5, 1:5]
+colnames(matrix) <- barcodes[,1]
+matrix[1:5, 1:5]
 ```
 
-#### Gene Annotation
+We can also add other information to this data frame. The cells in this dataset were sorted for expression of the THY1 protein. This corresponds to the batch identifiers that we have just pulled out from the barcodes.
+
+```{r LabelTHY1Cells}
+thy1.expression <- barcodes$batch
+thy1.expression <- thy1.expression == 1
+barcodes$THY1 <- thy1.expression
+barcodes[1:5,]
+```
+
+#### Gene Information
 `genes.tsv` contains the names of transcripts identified by Cell Ranger. This csv file contains ENSEMBL transcript IDs in one column and their corresponding gene name in the other column. Either of these identifiers can be used as row names in the expression matrix. 
 
 ```{r ReadGenes}
-genes.tsv <- "t_3k_and_t_4k/outs/filtered_gene_bc_matrices_mex/GRCh38/genes.tsv"
-gene.annotations <- read.csv(genes.tsv, sep="\t", header = FALSE)
-colnames(gene.annotations) <- c("ensembl_id", "gene_name")
-gene.annotations[1:5,]
+colnames(genes) <- c("ensembl_id", "gene_name")
+genes[1:5,]
 ```
 
-For this tutorial, we will use gene names. As genes can be associated with more than one transcript, we need to make the names unique with `make.unique` before adding them to the expression matrix.
+For this tutorial, we will use gene names. As genes can be associated with more than one transcript, we need to make the names unique with `make.unique` before adding them to the expression matrix. We also need to swap the order of the identifiers, as ASCEND requires our chosen names to be in the first column of the Gene Information dataframe.
 
 ```{r SetRownames}
-gene.names <- make.unique(as.vector(gene.annotations$gene_name))
-rownames(expression.matrix) <- gene.names
-expression.matrix[1:5, 1:5]
+genes <- genes[,c("gene_name", "ensembl_id")]
+gene.names <- make.unique(as.vector(genes$gene_name))
+rownames(matrix) <- gene.names
+matrix[1:5, 1:5]
 ```
 
-Now that the gene names have been modified, the gene_names column in the `gene.annotations` data frame needs to be updated. This will link the information in this data frame with the rows of the expression matrix.
+Now that the gene names have been modified, the gene_names column in the `genes` data frame needs to be updated. This will link the information in this data frame with the rows of the expression matrix.
 
 ```{r ReplaceGeneNames}
-gene.annotations$gene_name <- gene.names
-gene.annotations[1:15,]
+genes$gene_name <- gene.names
+genes[1:15,]
 ```
 
 #### Defining Controls
 Finally, we need to identify controls for this experiment. Ribosomal and mitochondrial genes are typically used as controls for single-cell experiments, so will use these genes for the tutorial. Spike-ins should be used as controls if they are included in the experiment.
 
+We are using a quick method of identifying mitochondrial and ribosomal genes, by using the `grep` function to identify these genes by their prefix. 
 ```{r DefineControls}
-# Mitochondrial gene list from
-mito.genes <- c("MT-ND1", "MT-ND2", "MT-ND3", "MT-ND4L", "MT-ND4", "MT-ND5", "MT-ND6", "MT-CYB", "MT-CO1", "MT-CO2", "MT-CO3", "MT-ATP6", "MT-ATP8", "MT-CYB")
-
-# Ribosomal gene list from http://ribosome.med.miyazaki-u.ac.jp/
-ribo.genes <- c("RPSA", "RPS2", "RPS3", "RPS3A", "RPS4X", "RPS5", "RPS6", "RPS7", "RPS8", "RPS9", "RPS10", "RPS11", "RPS12", "RPS13", "RPS14", "RPS15", "RPS15A", "RPS16", "RPS17", "RPS18", "RPS19", "RPS20", "RPS21", "RPS23", "RPS24", "RPS25", "RPS26", "RPS27", "RPS27A", "RPS28", "RPS29", "RPL3", "RPL4", "RPL5", "RPL6", "RPL7", "RPL7A", "RPL8", "RPL9", "RPL10", "RPL10A", "RPL11", "RPL12", "RPL13", "RPL13A", "RPL14", "RPL15", "RPL17", "RPL18", "RPL18A", "RPL19", "RPL21", "RPL22", "RPL23", "RPL23A", "RPL24", "RPL26", "RPL27", "RPL27A", "RPL28", "RPL29", "RPL30", "RPL31", "RPL32", "RPL34", "RPL35", "RPL35A", "RPL36", "RPL36A", "RPL37", "RPL37A", "RPL38", "RPL39", "RPL41", "RPLP0", "RPLP1", "RPLP2")
-
+mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), ignore.case = TRUE)]
+ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", rownames(matrix), ignore.case = TRUE)]
 controls <- list(Mt = mito.genes, Rb = ribo.genes)
-
+controls
 ```
 
 #### Building an AEMSet
 We can now load all of this information into an `AEMSet`, using the `NewAEMSet` function.
 
 ```{r BuildAEMSet}
-aem.set <- NewAEMSet(ExpressionMatrix = expression.matrix, GeneAnnotation = gene.annotations, BatchInformation = batch.information, Controls = controls)
+aem.set <- NewAEMSet(ExpressionMatrix = matrix, GeneInformation = genes, CellInformation = barcodes, Controls = controls)
 aem.set
 ```
 
@@ -158,7 +161,7 @@ aem.set
 If you are using Chromium data, you can also load the data into R with this function.
 
 ```{r AutoLoading, eval = FALSE}
-aem.set <- CellRangerToASCEND("t_3k_and_t_4k/", "GRCh38")
+aem.set <- CellRangerToASCEND("RGC_scRNASeq", "GRCh38")
 ```
 
 This function loads the data into an AEMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
@@ -280,7 +283,7 @@ In this method, each cell is considered as one library and assumes that most gen
 
 This method is relatively quick and can be run on a desktop.
 
-```{r NormaliseByRLE}
+```{r NormaliseByRLE, eval = FALSE}
 norm.set <- NormaliseByRLE(aem.set)
 ```
 
@@ -299,30 +302,31 @@ print(GetControls(aem.set))
 
 Run `scranNormalise` as follows:
 
-```{r scranNormalise, eval = FALSE}
+```{r scranNormalise}
 norm.set <- scranNormalise(aem.set)
 ```
 
 #### Reviewing the normalisation process
-`PlotNormQC` will generate a series of plots for the review of the normalisation process. This function can only be used if you have retained the un-normalised `AEMSet`.
+`PlotNormQC` will generate a series of plots for the review of the normalisation process. This function can only be used if you have retained the un-normalised `AEMSet`. You can also review the expression of genes you are interested in; in this case, we will look at the expression of GAPDH and MALAT1 as they are considered 'housekeeping' genes.
 
 ```{r PlotNormalisationQC}
-norm.qc <- PlotNormalisationQC(original = aem.set, normalised = norm.set, gene.list = c("GAPDH", "ACTB"))
+norm.qc <- PlotNormalisationQC(original = aem.set, normalised = norm.set, gene.list = c("GAPDH", "MALAT1"))
 ```
 
-The first set of graphs are library size histograms. The `NormaliseByRLE` method does not affect library size as drastically as the `scranNormalise` method. Instead, the changes are more apparent on a gene level.
+The first set of graphs are library size histograms. The `scranNormalise` affects library size to a greater extent than the `NormaliseByRLE`.
 
 ```{r NormLibsizePlot, fig.show = "hold", fig.align="center"}
 print(norm.qc$Libsize$Original)
 print(norm.qc$Libsize$Normalised)
 ```
 
-The gene scatter plots show how expression has changed on a gene level. As GAPDH is highly expressed in this dataset, the effect of normalisation is not as apparent as it is for ACTB.
+The gene scatter plots show how expression has changed on a gene level. Both genes are strongly expressed in this dataset, and normalisation has enabled us to make a clearer distinction between the expression level of these genes between each cell.
+
 ```{r NormScatter, fig.show="hold", fig.align="center", fig.width = 5}
 print(norm.qc$GeneScatterPlots$GAPDH$Original)
 print(norm.qc$GeneScatterPlots$GAPDH$Normalised)
-print(norm.qc$GeneScatterPlots$ACTB$Original)
-print(norm.qc$GeneScatterPlots$ACTB$Normalised)
+print(norm.qc$GeneScatterPlots$MALAT1$Original)
+print(norm.qc$GeneScatterPlots$MALAT1$Normalised)
 ```
 
 The changes to overall gene expression can also be reviewed on gene expression boxplots.
@@ -333,52 +337,54 @@ print(norm.qc$GeneExpressionBoxplot$Normalised)
 ```
 
 ### Control Removal
-The plot generated by `PlotTopExpression` show ribosomal genes dominate the list of the most-expressed genes.
+We can review the genes that dominate expression with the `PlotTopExpression` function. This function gets called by the `PlotGeneralQC` function as well.
+
+Let's review the plot generated by the `PlotGeneralQC` function after filtering.
+```{r ControlRemovalPlot1}
+print(filtered.qc.plots$TopGenes)
+```
+
+As you can see, ribosomal genes dominate gene expression, even after filtering. What does the dataset look like without these control genes? 
 
 ```{r ControlRemovalPlot1, fig.width = 5, fig.height = 4, fig.align="center"}
-top.20.plot <- PlotTopGeneExpression(aem.set, n = 20, controls = TRUE)
+top.20.plot <- PlotTopGeneExpression(norm.set, n = 20, controls = FALSE)
 print(top.20.plot)
 ```
 
 As we are interested in the expression of non-control genes, we will need to remove the controls from the dataset. This can be done with the `ExcludeControl` function.
 
-```{r ExcludeControls}
-aem.set <- ExcludeControl(aem.set, "Mt")
-aem.set <- ExcludeControl(aem.set, "Rb")
+```{r ExcludeControls, eval = FALSE}
+norm.set <- ExcludeControl(norm.set, "Mt")
+norm.set <- ExcludeControl(norm.set, "Rb")
 ```
 
-Now that the control genes have been removed, the plot reveals many other genes of interest.
-
-```{r ControlRemovalPlot2, fig.width = 5, fig.height = 4, fig.align="center"}
-top.20.plot <- PlotTopGeneExpression(aem.set, n = 20, controls = TRUE)
-print(top.20.plot)
-```
+Please note that this has already been done as a part of the `scranNormalisation` process.
 
 ### Dimension Reduction
-We have filtered our dataset down to 6100 cells and 33604 genes. We can reduce this dataset further by using *Principal Component Analysis (PCA)* to identify genes that are major contributors to variation.
+We have filtered our dataset down to 1235 cells and 32904 genes. We can reduce this dataset further by using *Principal Component Analysis (PCA)* to identify genes that are major contributors to variation.
 
 ```{r DimReduction1}
-aem.set <- RunPCA(aem.set)
+pca.set <- RunPCA(norm.set)
 ```
 
 PlotPCAVariance` generates what is known as a *scree plot*, which depicts what percentage each PC contributes to the total variance of the data. This will help determine how many PCs the dataset should be reduced to.
 
 ```{r PlotPCAVariance, fig.show="hold", fig.align="center", fig.width = 5}
-pca.variance <- PlotPCAVariance(aem.set, 50)
+pca.variance <- PlotPCAVariance(pca.set, 50)
 print(pca.variance)
 ```
 
 The scree plot shows most of the variance is due to the top 20 PCs. Reduce the dataset to 20 PCs with the `ReduceDimensions` function.
 
 ```{r ReduceDimensions}
-aem.set <- ReduceDimensions(aem.set, 20)
+pca.set <- ReduceDimensions(pca.set, 20)
 ```
 
 ### Clustering
 Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `FindOptimalClusters` to identify clusters.
 
 ```{r FindOptimalClusters}
-aem.set <- FindOptimalClusters(aem.set)
+clustered.set <- FindOptimalClusters(pca.set)
 ```
 
 The `FindOptimalClusters` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to 40 values ranging from 0.025 (the bottom of the tree) to 1 (the top of the tree). 
@@ -386,7 +392,7 @@ The `FindOptimalClusters` function generates a distance matrix based on the inpu
 The `PlotStabilityDendro` generates a plot that represents this part of the process. In addition to the dendrogram, it generates the distribution of clusters across the 40 cut heights.
 
 ```{r PlotStabilityDendro, fig.width=4, fig.height=5, fig.show="hold", fig.align="center"}
-PlotStabilityDendro(aem.set)
+PlotStabilityDendro(clustered.set)
 ```
 
 The clustering results are then compared quantitatively using rand indices, which calculates every pair of cells being in the same cluster or not. It is used as an indicator of the stability of a clustering result. If a rand index is stable across multiple tree-height values, this indicates the tree-height produces the most stable clustering result.  
@@ -394,48 +400,51 @@ The clustering results are then compared quantitatively using rand indices, whic
 This information is shown on a plot generated by the `PlotStability` function.
 
 ```{r PlotStability, fig.width=5, fig.height=4, fig.show="hold", fig.align="center"}
-PlotStability(aem.set)
+PlotStability(clustered.set)
 ```
 
-The rand index is stable in 50% of tree-cut heights that correspond to the lowest number of clusters. Therefore, the optimal number of clusters is 2.
+The rand index is stable in more than 50% of tree-cut heights that correspond to the lowest number of clusters. Therefore, the optimal number of clusters is 2.
 
 The `PlotDendrogram` function generates a dendrogram that depicts each cluster and its members.
 
 ```{r PlotDendrogram, fig.width=5, fig.height=4, fig.show="hold", fig.align="center"}
-PlotDendrogram(aem.set)
+PlotDendrogram(clustered.set)
+```
+
+The cluster information has been added as a new column in the Cell Information slot, which can be retrieved with the `GetCellInfo` function.
+
+```{r GetCellInfo}
+cell.info <- GetCellInfo(clustered.set)
+cell.info[1:5,]
 ```
 
 ### Differential Expression
 This package uses `DESeq` to perform differential expression, and can be done with or without clustering. Each cell needs to be assigned one of two conditions; for this tutorial, we will use batch information and clustering information. This step is computationally intensive for larger datasets.
 
-#### Differential expression by condition
-The `RunDiffExpression` function requires an `AEMSet`, two conditions and a list of cells and their associated condition.
+The `RunDiffExpression` calls `DESeq` to perform differential expression between two conditions. This function can be run with or without clustering, after PCA reduction.
 
-We already have this condition list – batch information, which we can retrieve from the `AEMSet`. The conditions are therefore “1” and “2”.
+First, let's compare the expression of THY1-positive cells to THY1-negative cells.
 
-```{r RunDiffExpression}
-batch.info <- GetBatchInfo(aem.set)
-batch.de.result <- RunDiffExpression(aem.set, condition.a = "1", condition.b = "2", condition.list = batch.info)
+```{r THY1DE}
+thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions = c("TRUE", "FALSE"))
+thy1.de.result[1:10,]
 ```
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
 
-```{r DEResult1}
-batch.de.result[1:10,]
+As we had just clustered the data, let's examine what genes are differentially expressed between clusters 1 and 2.
+
+```{r RunDiffExpression}
+cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"))
+cluster.de.result[1:10,]
 ```
 
+These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
 
-#### Differential expression by cluster comparison
-`RunClusterDiffExpression` compares each cluster against other clusters. This function returns a list of differential expression results.
-
-```{r RunClusterDiffExpression}
-cluster.de.result <- RunClusterDiffExpression(aem.set)
-```
-
-As there are only two clusters, only one comparison was made.
-
-```{r DEResult2}
-cluster.de.result$`1vs2`[1:10,]
+```{r RemoveCluster}
+clean.set <- SubsetCluster(clustered.set, 1)
+clean.pca <- RunPCA(clean.set)
+clean.cluster <- FindOptimalClusters(clean.pca)
 ```
 
 ## Visualising data with ASCEND

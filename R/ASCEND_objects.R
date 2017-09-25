@@ -1,5 +1,10 @@
 # Validation checks
 # Expression matrix check - COMPULSORY
+
+#' CheckExpressionMatrix
+#'
+#' Check the expression matrix for issues.
+#'
 CheckExpressionMatrix <- function(object, errors){
   # Check expression matrix using plyr's empty function.
   if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
@@ -29,7 +34,9 @@ CheckExpressionMatrix <- function(object, errors){
   return(errors)
 }
 
-# Control check - if present
+#' CheckControls
+#' Check controls if they are present, for issues such as mismatches.
+#'
 CheckControls <- function(object, errors){
   # Control checks - verify presence of controls in the matrix.
   if (length(object@Controls) > 0) {
@@ -43,7 +50,10 @@ CheckControls <- function(object, errors){
   return(errors)
 }
 
-# Check Cell Information - OPTIONAL
+#' CheckCellInformation
+#'
+#' Checks cell information supplied by the user.
+#'
 CheckCellInformation <- function(object, errors){
   ## Check if number of batch identifiers match the number of columns in the expression matrix
   if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
@@ -57,7 +67,10 @@ CheckCellInformation <- function(object, errors){
   return(errors)
 }
 
-# Check Gene Annotation - OPTIONAL
+#' CheckGeneInformation
+#'
+#' Check Gene Annotation if supplied by the user.
+#'
 CheckGeneInformation <- function(object, errors){
   if( !all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[,1]) ){
     msg <- "Please make sure gene identifiers in column 1 of the Gene Information data frame matches the gene identifiers used in the expression matrix."
@@ -160,6 +173,20 @@ setMethod("show", signature("AEMSet"), function(object) {
   n.genes <- nrow(object@ExpressionMatrix)
   n.cells <- ncol(object@ExpressionMatrix)
   print(sprintf("Expression Matrix: %i genes and %i cells", n.genes, n.cells))
+
+  # If defined, show controls
+  if (length(object@Controls) > 0){
+    print("Controls:")
+    print(object@Controls)
+  }
+
+  # If defined, show filtering log.
+  if (!is.null(object@Log$FilteringLog)){
+    print("Filtering Log:")
+    print(object@Log$FilteringLog)
+  }
+
+  # If defined, show clustering information
 })
 
 # Constructor function for AEMSet

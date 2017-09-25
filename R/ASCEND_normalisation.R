@@ -11,7 +11,7 @@
 #' cells will be randomly assigned to a group.
 #'
 #' @param object An \linkS4class{AEMSet} that has not undergone normalisation.
-#' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups
+#' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups. Default: FALSE
 #' @export
 #'
 scranNormalise <- function(object, quickCluster = FALSE){
@@ -92,6 +92,10 @@ scranNormalise <- function(object, quickCluster = FALSE){
   return(normalised.obj)
 }
 
+#' NormWithinBatch
+#'
+#' Called by NormaliseBatches. Performs normalisation within a batch.
+#'
 NormWithinBatch <- function(batch.id, expression.matrix = NULL, batch.list = NULL){
   # Function called by NormaliseBatches
   barcodes <- names(batch.list[batch.list == batch.id])
@@ -174,6 +178,10 @@ NormaliseLibSize <- function(object){
 
 
 ## SUBFUNCTIONS FOR NormaliseByRLE
+#' CalculateNormFactor
+#'
+#' Calculate the normalisation factor between all cells.
+#'
 CalcNormFactor <- function(x, geo.means){
   x.geo.means <- cbind(x, geo.means);
   x.geo.means <-x.geo.means[(x.geo.means[,1] >0),]
@@ -181,6 +189,10 @@ CalcNormFactor <- function(x, geo.means){
   return(non.zero.median)
 }
 
+#' CalcGeoMeans
+#'
+#' Calculate the geometric mean around a point.
+#'
 CalcGeoMeans <- function(x){
   x <- x [ x > 0]
   x <- exp(mean(log(x)))
@@ -190,7 +202,8 @@ CalcGeoMeans <- function(x){
 #' NormaliseByRLE
 #'
 #' Normalisation of expression between cells, by scaling to relative log expression.
-#' This method assumes all genes express a pseudo value higher than 0, and also assumes most genes are not differentially expressed. Only counts that are greater than zero are considered in this normalisation method.
+#' This method assumes all genes express a pseudo value higher than 0, and also assumes most genes
+#'are not differentially expressed. Only counts that are greater than zero are considered in this normalisation method.
 #' @param object A \linkS4class{AEMSet} object that has undergone filtering. Please ensure spike-ins have been removed before using this function.
 #' @export
 #'

@@ -1,11 +1,11 @@
 #' RunTSNE
 #'
 #' @param object An expression matrix or a PCA-reduced matrix.
-#' @param PCA Set this PCA flag to true if the object is a PCA-reduced matrix.
-#' @param dimensions Number of dimensions you would like to reduce to
-#' @param seed (Optional) Set to a specific value for reproducible TSNE plots
-#' @param perplexity (Optional) Numeric; perplexity parameter
-#' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)
+#' @param PCA Set this PCA flag to true if the object is a PCA-reduced matrix. Default: FALSE
+#' @param dimensions Number of dimensions you would like to reduce to. Default: 2
+#' @param seed (Optional) Set to a specific value for reproducible TSNE plots. Default: 0
+#' @param perplexity (Optional) Numeric; perplexity parameter. Default: 30
+#' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy). Default: 0.5
 #' @export
 #'
 RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5){
@@ -52,7 +52,7 @@ RunTSNE <- function(object, PCA=FALSE, dimensions = 2, seed = 0, perplexity = 30
 #' GetReducedDimensions
 #'
 #' @param object An \linkS4class{AEMSet} object that has undergone PCA reduction.
-#' @param n The number of PC dimensions you would like to select. Refer to vignette on how to select this value.
+#' @param n The number of PC dimensions you would like to select. Refer to vignette on how to select this value. Default: 10
 #' @export
 #'
 ReduceDimensions <- function(object, n = 10){
@@ -80,8 +80,8 @@ CalcRowVariance <- function(x){
 #' RunPCA
 #'
 #' @param object A \linkS4class{AEMSet} object that has undergone filtering and normalisation.
-#' @param ngenes The top number of genes you would like to perform the reduction by.
-#' @param scaling Boolean - set to FALSE if you do not want to scale your values
+#' @param ngenes The top number of genes you would like to perform the reduction by. Default: 1500
+#' @param scaling Boolean - set to FALSE if you do not want to scale your values. Default: TRUE
 #' @export
 #'
 RunPCA <- function(object, ngenes = 1500, scaling = TRUE){

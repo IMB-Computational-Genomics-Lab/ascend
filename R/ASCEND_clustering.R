@@ -1,5 +1,8 @@
-# Function used to determine consecutive sequences on boundaries
-# Called by FindOptimalResult
+#' GetConsecutiveSequence
+#'
+#' Function used to determine consecutive sequences on boundaries.
+#' This is called by FindOptimalResult to determine which clustering results are consecutive.
+#'
 GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
   consecutive <- c()
   # This is for when we are looking for consecutive numbers in the FORWARD direction
@@ -69,8 +72,10 @@ GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
   return(consecutive)
 }
 
-# Finds the optimal result from trends in stability
-# Called by FindOptimalClusters
+#' FindOptimalResult
+#'
+#' Finds the optimal result from trends in stability. Called by FindOptimalClusters.
+#'
 FindOptimalResult <- function(key.stats){
   # Get stability values for most clusters and least clusters
   # Which one is greater than the other one?
@@ -132,8 +137,9 @@ FindOptimalResult <- function(key.stats){
   return(optimal.idx)
 }
 
-# Generates a bunch of values based on other calculates.
-# Called by FindOptimalClusters
+#' BuildKeyStat
+#' Generates a bunch of values based on other calculates. Called by FindOptimalClusters.
+#'
 BuildKeyStat <- function(rand.matrix){
   # Set up a key stat dataframe
   rand.matrix <- as.data.frame(rand.matrix)
@@ -144,7 +150,10 @@ BuildKeyStat <- function(rand.matrix){
   return(key.stats.df)
 }
 
-# Generates a series of stability values
+#' GenerateStabilityValues
+#'
+#' Generates a series of stability values.
+#'
 GenerateStabilityValues <- function(rand.idx.matrix){
   stability.values <- rand.idx.matrix$cluster.index.consec
 
@@ -211,7 +220,9 @@ GenerateStabilityValues <- function(rand.idx.matrix){
   return(rand.idx.matrix)
 }
 
-# Iterator for rand index
+#' ChooseNew
+#'
+#' Iterator for rand index calculation.
 ChooseNew <- function(n,k) {
   n <- c(n); out1 <- rep(0,length(n));
   for (i in c(1:length(n)) ){
@@ -221,7 +232,9 @@ ChooseNew <- function(n,k) {
   return(out1)
 }
 
-# Calculates RAND index
+#' CalculateRandIndex
+#'
+#' Calculates Rand index
 CalculateRandIndex <- function (x, adjust = TRUE)
 {
   # Setting up variables for calculations
@@ -259,6 +272,10 @@ CalculateRandIndex <- function (x, adjust = TRUE)
   }
 }
 
+#' GenerateRandIndexMatrix
+#'
+#' Generates columns in KeyStats data frame related to rand index calculations.
+#'
 GenerateRandIndexMatrix <- function(cluster.matrix, original.clusters, cluster.list){
   # Values to output to
   cluster.index.consec <-list()
@@ -283,6 +300,10 @@ GenerateRandIndexMatrix <- function(cluster.matrix, original.clusters, cluster.l
   return(rand.idx.matrix)
 }
 
+#' GenerateClusteringMatrix
+#'
+#' Performs a series of cuts over 40 heights using dynamicTreeCut with a set height..
+#'
 GenerateClusteringMatrix <- function(original.clusters, cluster.list){
   # Transform clustering results into a data frame, with each cut as a column, each cell as a row and their cluster as the value of the matrix
   cluster.matrix <- matrix(unlist(cluster.list), ncol = 40)
@@ -293,6 +314,10 @@ GenerateClusteringMatrix <- function(original.clusters, cluster.list){
   return(cluster.matrix)
 }
 
+#' RetrieveCluster
+#'
+#' Generates clusters using dynamicTreeCut's unsupervised cut setting.
+#'
 RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
   clusters <- unname(dynamicTreeCut::cutreeDynamic(hclust.obj, distM=as.matrix(distance.matrix), minSplitHeight=height, verbose=0))
   return(clusters)
@@ -311,6 +336,7 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
 #'     \item{Clusters}{Optimum cluster identities for each cell}
 #'     \item{NumberOfClusters}{Number of clusters}
 #'     \item{OptimalTreeHeight}{Optimal tree height used to generate cluster identities}
+#'     \item{KeyStats}{A dataframe containing information on each generated clustering result, that is used to determine the optimal cluster number.}
 #'     \item{RandMatrix}{Rand matrix used to determine optimal number of clusters}
 #' }
 #' @param object An AEMSet object that has undergone PCA reduction.
