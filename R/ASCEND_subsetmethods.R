@@ -129,6 +129,10 @@ setMethod("SubsetCluster", signature("AEMSet"), function(object, clusters = c())
     stop("None of your selected clusters are present in the dataset.")
   }
 
+  if (missing(clusters)){
+    stop("Please specify which cluster(s) you would like to extract from this object.")
+  }
+
   # Create a new object to output, ensures original object does not get overwritten.
   subset.obj <- object
 
@@ -140,7 +144,7 @@ setMethod("SubsetCluster", signature("AEMSet"), function(object, clusters = c())
   subset.cell.info <- cell.info[which(cell.info$cluster %in% clusters),]
 
   # Subset the expression matrix.
-  subset.matrix <- expression.matrix[unlist(subset.cell.info[,1]),]
+  subset.matrix <- expression.matrix[, as.character(subset.cell.info[,1])]
   subset.obj <- ReplaceExpressionMatrix(subset.obj, subset.matrix)
   subset.obj <- SyncSlots(subset.obj)
 

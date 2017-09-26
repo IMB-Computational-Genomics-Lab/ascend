@@ -186,7 +186,20 @@ setMethod("show", signature("AEMSet"), function(object) {
     print(object@Log$FilteringLog)
   }
 
+  # If normalised, show normalisation
+  if (!is.null(object@Log$NormalisationMethod)){
+    print(sprintf("Normalisation method: %s", object@Log$NormalisationMethod))
+  }
+
+  # If clustered, show PCA
+  if (!is.null(object@Log$PCA)){
+    print(sprintf("PCA: %i dimensions", ncol(object@PCA$PCA)))
+  }
+
   # If defined, show clustering information
+  if (!is.null(object@Clusters$NumberOfClusters)){
+    print(sprintf("Number of Clusters: %i", object@Clusters$NumberOfClusters))
+  }
 })
 
 # Constructor function for AEMSet

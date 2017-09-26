@@ -96,3 +96,39 @@ GetBatchMatrix <- function(object, batch.id){
   batch.matrix <- expression.matrix[,barcodes]
   return(batch.matrix)
 }
+
+# Functions for subsetting an AEMSet
+#' GetBatchMatrix
+#'
+#' Retrieve a portion of the matrix by batch label
+#' @param object \linkS4class{AEMSet} object
+#' @param batch.id Batch identifier that you would like to retrieve
+#' @export
+#'
+GetBatchMatrix <- function(object, batch.id){
+  expression.matrix <- GetExpressionMatrix(object, "matrix")
+  cell.info <- GetCellInfo(object)
+  batch.list <- cell.info[,2]
+  barcodes <- names(batch.list[batch.list == batch.id])
+  batch.matrix <- expression.matrix[,barcodes]
+  return(batch.matrix)
+}
+
+#' GetRandMatrix
+#'
+#' Retrieve the rand matrix used to determine clusters from an \linkS4class{AEMSet} object.
+#' @param object A \linkS4class{AEMSet} object that has undergone clustering.
+#' @return This function returns a data frame.
+#' @include ASCEND_objects.R
+#' @export
+setGeneric(
+  name = "GetRandMatrix",
+  def = function(object) {
+    standardGeneric("GetRandMatrix")
+  }
+)
+
+setMethod("GetRandMatrix", signature("AEMSet"), function(object) {
+  rand.matrix <- object@Clusters$KeyStats
+  return(rand.matrix)
+})

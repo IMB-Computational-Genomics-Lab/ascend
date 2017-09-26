@@ -34,13 +34,6 @@ workers <- 3 # Number of cores on your machine - 1
 register(SnowParam(workers = workers, type = "SOCK", progressbar = TRUE), default = TRUE)
 ```
 
-#### Cluster (PBSPro)
-```{r SetupCluster, eval = FALSE}
-library(BiocParallel)
-library(Rmpi)
-# Rmpi code here
-```
-
 #### Loading ASCEND
 Please use `devtools` to load the development version of `ASCEND`.
 
@@ -48,7 +41,7 @@ Please use `devtools` to load the development version of `ASCEND`.
 devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
 ```
 
-You can also use devtools' install_github function to install the package, and then load it as normal.
+You can also use devtools' `install_github` function to install the package, and then load it as normal.
 
 ```{r LoadASCENDGit, eval = FALSE}
 devtools::install_github("IMB-Computational-Genomics-Lab/ASCEND")
@@ -60,7 +53,11 @@ library(ASCEND)
 This vignette uses the iPSC Retinal Ganglion Cells dataset, that can be loaded into R with the following function:
 
 ```{R LoadData}
+# For those running the markdown file
 data("RGC_scRNASeq")
+
+# For those running the script elsewhere
+# data("RGC_scRNASeq")
 ```
 
 These objects contain all the information we need to create an `AEMSet` - the main data object of the ASCEND package. 
@@ -71,6 +68,7 @@ The main source of input is an expression matrix, or a gene-cell matrix where ea
 Let's have a look at a small part of the matrix.
 
 ```{r ReadExpressionMatrix}
+matrix <- as.data.frame(as.matrix(matrix))
 matrix[1:5,1:5]
 ```
 
@@ -150,7 +148,7 @@ controls
 ```
 
 #### Building an AEMSet
-We can now load all of this information into an `AEMSet`, using the `NewAEMSet` function.
+We can now load all of this information into an `AEMSet`, using the `NewAEMSet` function. To view information about this object, enter the name of the object into the console.
 
 ```{r BuildAEMSet}
 aem.set <- NewAEMSet(ExpressionMatrix = matrix, GeneInformation = genes, CellInformation = barcodes, Controls = controls)
@@ -186,7 +184,7 @@ PlotPDF(raw.qc.plots, "RawQC.pdf")
 First, we will filter cells based on outliers in term of library size, number of non-control genes expressed and control genes expressed. 
 
 We can use the following plots to examine the distributions of these values.
-```{r, fig.align="center", fig.width = 5, fig.show = "hold"}
+```{r, fig.align="center", fig.width = 4, fig.show = "hold"}
 print(raw.qc.plots$LibSize)
 print(raw.qc.plots$FeatureCountsPerCell)
 print(raw.qc.plots$ControlPercentageTotalCounts$Mt)
@@ -204,7 +202,7 @@ We removed a significant number of cells in the previous step that were expressi
 
 The beehive plots below show the percentage of control genes in the transcriptomes of each cell, per sample.
 
-```{r ControlPercentagePlots, fig.width=5, fig.height=4, fig.align="center", fig.show = "hold"}
+```{r ControlPercentagePlots, fig.width=4, fig.height=5.25, fig.align="center", fig.show = "hold"}
 print(raw.qc.plots$ControlPercentageSampleCounts$Mt)
 print(raw.qc.plots$ControlPercentageSampleCounts$Rb)
 ```
@@ -229,13 +227,13 @@ Some analyses will require the removal of these controls. This should not be don
 #### Filtering by expression
 The final step of filtering is to remove low-abundance genes. The average expression of genes can be reviewed on the average transcript count plots.
 
-```{r AverageGeneCountPlots, fig.width=5, fig.height=4, fig.align="center"}
+```{r AverageGeneCountPlots, fig.width=4, fig.align="center"}
 print(raw.qc.plots$AverageGeneCount)
 ```
 
 Due to the nature of single-cell RNASeq, many genes will have zero or near-zero expression. Have a closer look at the distribution with the Log2 and Log10 average transcript count plots. 
 
-```{r AverageGeneCountLogPlots, fig.align="center", fig.show = "hold", fig.width = 5}
+```{r AverageGeneCountLogPlots, fig.align="center", fig.show = "hold", fig.width = 4}
 print(raw.qc.plots$Log2AverageGeneCount)
 print(raw.qc.plots$Log10AverageGeneCount)
 ```
@@ -243,21 +241,22 @@ print(raw.qc.plots$Log10AverageGeneCount)
 Use `FilterByExpressedGenesPerCell` to remove genes that have zero or near-zero expression in at least a certain percentage of the cell population. We will use the value of 1% for this tutorial.
 
 ```{r FilterByExpressedGenesPerCell}
-aem.set <- FilterByExpressedGenesPerCell(aem.set, 0.01)
+aem.set <- FilterByExpressedGenesPerCell(aem.set, 1)
 ```
 
 #### Filtering Review
-Review the impact of filtering on the dataset by running `PlotGeneralQC` again. `ASCEND` has also kept track of the filtering process and has recorded which cells and genes were filtered from the dataset.
+The filtering functions record which barcodes were removed by the function and stores them in the `AEMSet`. You can review the number of cells filtered by the functions by using the `DisplayLog` function.
 
-```{r CheckFiltering, echo = FALSE, fig.show = "hold", fig.width = 5}
+```{r DisplayLog}
+DisplayLog(aem.set)
+```
+
+You can also run `PlotGeneralQC` again to see how the filtering has altered the dataset.
+
+```{r CheckFiltering, echo = FALSE, fig.show = "hold", fig.width = 4}
 filtered.qc.plots <- PlotGeneralQC(aem.set)
 print(filtered.qc.plots$LibSize)
 print(filtered.qc.plots$FeatureCountsPerCell)
-```
-
-You can view the log with `DisplayLog`.
-```{r CheckLogFiltering}
-DisplayLog(aem.set)
 ```
 
 ### Normalisation
@@ -315,14 +314,14 @@ norm.qc <- PlotNormalisationQC(original = aem.set, normalised = norm.set, gene.l
 
 The first set of graphs are library size histograms. The `scranNormalise` affects library size to a greater extent than the `NormaliseByRLE`.
 
-```{r NormLibsizePlot, fig.show = "hold", fig.align="center"}
+```{r NormLibsizePlot, fig.show = "hold", fig.align="center", fig.width = 4}
 print(norm.qc$Libsize$Original)
 print(norm.qc$Libsize$Normalised)
 ```
 
 The gene scatter plots show how expression has changed on a gene level. Both genes are strongly expressed in this dataset, and normalisation has enabled us to make a clearer distinction between the expression level of these genes between each cell.
 
-```{r NormScatter, fig.show="hold", fig.align="center", fig.width = 5}
+```{r NormScatter, fig.show="hold", fig.align="center", fig.width = 4.5, warning = FALSE}
 print(norm.qc$GeneScatterPlots$GAPDH$Original)
 print(norm.qc$GeneScatterPlots$GAPDH$Normalised)
 print(norm.qc$GeneScatterPlots$MALAT1$Original)
@@ -331,7 +330,7 @@ print(norm.qc$GeneScatterPlots$MALAT1$Normalised)
 
 The changes to overall gene expression can also be reviewed on gene expression boxplots.
 
-```{r NormGenes, fig.width = 5, fig.show="hold", fig.align = "center"}
+```{r NormGenes, fig.show="hold", fig.align = "center", fig.width = 4.5, warning = FALSE}
 print(norm.qc$GeneExpressionBoxplot$Original)
 print(norm.qc$GeneExpressionBoxplot$Normalised)
 ```
@@ -340,13 +339,13 @@ print(norm.qc$GeneExpressionBoxplot$Normalised)
 We can review the genes that dominate expression with the `PlotTopExpression` function. This function gets called by the `PlotGeneralQC` function as well.
 
 Let's review the plot generated by the `PlotGeneralQC` function after filtering.
-```{r ControlRemovalPlot1}
+```{r ControlRemovalPlot1, fig.width = 5, fig.height = 8.5, warning = FALSE}
 print(filtered.qc.plots$TopGenes)
 ```
 
-As you can see, ribosomal genes dominate gene expression, even after filtering. What does the dataset look like without these control genes? 
+As you can see, ribosomal genes dominate gene expression, even after filtering. What does the dataset look like without these control genes? We will just plot the top 20 most expressed genes.
 
-```{r ControlRemovalPlot1, fig.width = 5, fig.height = 4, fig.align="center"}
+```{r ControlRemovalPlot1, fig.width = 5, fig.height = 4, fig.align="center", warning = FALSE}
 top.20.plot <- PlotTopGeneExpression(norm.set, n = 20, controls = FALSE)
 print(top.20.plot)
 ```
@@ -361,7 +360,7 @@ norm.set <- ExcludeControl(norm.set, "Rb")
 Please note that this has already been done as a part of the `scranNormalisation` process.
 
 ### Dimension Reduction
-We have filtered our dataset down to 1235 cells and 32904 genes. We can reduce this dataset further by using *Principal Component Analysis (PCA)* to identify genes that are major contributors to variation.
+We have filtered our dataset down to 1235 cells and 32904 genes and normalised the transcript counts with `scranNormalise`. We can reduce this dataset further by using *Principal Component Analysis (PCA)* to identify genes that are major contributors to variation.
 
 ```{r DimReduction1}
 pca.set <- RunPCA(norm.set)
@@ -403,7 +402,14 @@ This information is shown on a plot generated by the `PlotStability` function.
 PlotStability(clustered.set)
 ```
 
-The rand index is stable in more than 50% of tree-cut heights that correspond to the lowest number of clusters. Therefore, the optimal number of clusters is 2.
+The rand index is stable in more than 50% of tree-cut heights that correspond to the lowest number of clusters. This indicates that 2 clusters is the most stable cluster assignment.
+
+You can review this information in tabular form by using `GetRandMatrix`.
+
+```{r GetRandMatrix}
+rand.matrix <- GetRandMatrix(clustered.set)
+rand.matrix
+```
 
 The `PlotDendrogram` function generates a dendrogram that depicts each cluster and its members.
 
@@ -432,7 +438,14 @@ thy1.de.result[1:10,]
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
 
-As we had just clustered the data, let's examine what genes are differentially expressed between clusters 1 and 2.
+We can view these results as a volcano plot with the `RunDEVolcano` function. Usually, we run this function with labels set to FALSE as there are too many points close together, resulting in overlapping labels. We have set labels to TRUE so we can see which genes are of interest.
+
+```{r THY1DE}
+thy1.volcano.plot <- PlotDEVolcano(thy1.de.result, labels = TRUE)
+print(thy1.volcano.plot)
+```
+
+Let's examine what genes are differentially expressed between clusters 1 and 2.
 
 ```{r RunDiffExpression}
 cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"))
@@ -442,39 +455,22 @@ cluster.de.result[1:10,]
 These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
 
 ```{r RemoveCluster}
-clean.set <- SubsetCluster(clustered.set, 1)
+clean.set <- SubsetCluster(clustered.set, clusters = "1")
 clean.pca <- RunPCA(clean.set)
 clean.cluster <- FindOptimalClusters(clean.pca)
+PlotDendrogram(clean.cluster)
 ```
 
-## Visualising data with ASCEND
-`ASCEND` provides functions for generating PCA, TSNE and MDS plots that can be supplied with a condition list. The conditions can be of clustering results, batch information or the expression of specific genes.
+Reclustering and differential expression revealed the remaining 1174 cells comprised of three subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
-#### Generating a condition list
-The function `MakeGeneCondition` generates a condition list, labelling if a cell is expressing the selected gene, or not. This can be used to highlight cells that are expressing genes on plots generated by the `ASCEND` package.
-
-We will label cells that are expressing the IGLC2 transcript.
-
-```{r ConditionList}
-condition.list <- MakeGeneCondition(aem.set, "IGLC2")
-```
-
-#### PlotPCA
-```{r PlotPCA, fig.show="hold", fig.align="center", fig.width = 5}
-pca.plot <- PlotPCA(aem.set, condition.list = condition.list)
-print(pca.plot)
-```
-
-#### PlotTSNE
-```{r PlotTSNE, fig.show="hold", fig.align="center", fig.width = 5}
-tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition.list = condition.list)
-print(tsne.plot)
-```
-
-#### PlotMDS
-```{r PlotMDS, fig.show="hold", fig.align="center", fig.width = 5}
-mds.plot <- PlotMDS(aem.set, PCA = FALSE, condition.list = condition.list)
-print(mds.plot)
+```{r CleanDE, fig.width = 4, fig.height = 5}
+clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3"))
+cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = TRUE)
+cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = TRUE)
+cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = TRUE)
+print(cluster.de.1)
+print(cluster.de.2)
+print(cluster.de.3)
 ```
 
 ## References

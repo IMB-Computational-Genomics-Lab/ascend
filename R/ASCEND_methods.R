@@ -266,14 +266,6 @@ setGeneric(
 )
 
 setMethod("DisplayLog", signature("AEMSet"), function(object){
-  if(is.null(object@Log$FilteringLog)){
-    log <- object@Log
-
-  } else{
-    log <- object@Log[object@Log != "FilteringLog"]
-    log.df <- object@Log$FilteringLog
-  }
+  log <- object@Log
   print(log)
-  print("Filtering Log:")
-  print(log.df)
 })

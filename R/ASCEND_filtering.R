@@ -5,12 +5,12 @@
 #' @param pct.value Percentage threshold as a whole number. Default: 1
 #'
 FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
-  expression.matrix <- object@ExpressionMatrix
-  pct.value <- pct.value/100
+  filtered.object <- object
+  expression.matrix <- filtered.object@ExpressionMatrix
 
   # Generate list of genes and cells to keep
   genes.per.cell <- Matrix::colSums(expression.matrix != 0)
-  remove.genes <- genes.per.cell < ncol(expression.matrix) * pct.value
+  remove.genes <- genes.per.cell < ncol(expression.matrix) * (pct.value/100)
 
   if (any(remove.genes)){
     remove.gene.list <- names(which(remove.genes))
@@ -23,7 +23,7 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
   }
 
   # Updating the matrix
-  filtered.object <- ReplaceExpressionMatrix(object, filtered.matrix)
+  filtered.object <- ReplaceExpressionMatrix(filtered.object, filtered.matrix)
   filtered.object <- SyncSlots(filtered.object)
 
   # Updating the log
@@ -49,10 +49,10 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
 #' This function should be used AFTER the cells have undergone general filtering with the \code{\link{FilterByOutliers}} function.
 #'
 #' @param control.name Name of the control group, as used in the named list supplied to the AEMSet object
-#' @param percentage.threshold Percentage threshold to filter cells by, as a whole number. Default: 20
+#' @param pct.threshold Percentage threshold to filter cells by, as a whole number. Default: 20
 #' @param object A \linkS4class{AEMSet} object.
 #'
-FilterByCustomControl <- function(control.name = NULL, percentage.threshold = 20, object){
+FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, object){
   # Check in case user hasn't defined any controls.
   if(!object@Log$Controls){
     stop("Please define controls before attempting to filter this dataset.")
@@ -63,13 +63,13 @@ FilterByCustomControl <- function(control.name = NULL, percentage.threshold = 20
   }
 
   # Get values related to this
-  percentage.counts <- unlist(object@Metrics$PercentageTotalCounts[[control.name]])
+  filtered.object <- object
+  percentage.counts <- unlist(filtered.object@Metrics$PercentageTotalCounts[[control.name]])
+  expression.matrix <- filtered.object@ExpressionMatrix
 
   # Perform test
   # Remove barcodes from the matrix
-  expression.matrix <- object@ExpressionMatrix
-
-  discard.barcodes.test <- percentage.counts > percentage.threshold
+  discard.barcodes.test <- percentage.counts > pct.threshold
 
   if (any(discard.barcodes.test)){
     discard.barcodes <- names(which(discard.barcodes.test))
@@ -81,7 +81,7 @@ FilterByCustomControl <- function(control.name = NULL, percentage.threshold = 20
     custom.filtered.matrix <- expression.matrix
   }
 
-  filtered.object <- ReplaceExpressionMatrix(object, custom.filtered.matrix)
+  filtered.object <- ReplaceExpressionMatrix(filtered.object, custom.filtered.matrix)
   filtered.object <- SyncSlots(filtered.object)
 
   # Update the log
@@ -207,39 +207,26 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
     drop.barcodes.feature <- list()
   }
 
-  # Indexes of cells to drop
-  drop.idx <- union(as.vector(drop.barcodes.feature), as.vector(drop.barcodes.feature))
-
   ## Identify cells to remove based on proportion of expression
   print("Identifying outliers...")
   controls.counts <- BiocParallel::bplapply(percentage.lists.counts, FindOutliers, nmads=ControlThreshold, type="higher") ## Use nmad to identify outliers
   print("Removing cells by library size...")
-  drop.barcodes.controls <- lapply(controls.counts, which) ## Identify cell barcodes to remove
-  # print("Updating object information...")
-  # drop.barcodes.controls.names <- BiocParallel::bplapply(drop.barcodes.controls, names)
+  drop.barcodes.controls <- BiocParallel::bplapply(controls.counts, which) ## Identify cell barcodes to remove
+  print("Updating object information...")
+  drop.barcodes.controls.names <- BiocParallel::bplapply(drop.barcodes.controls, names)
 
   ### Barcode master list of cells to remove
-  remove.cell.idx <- union(drop.idx, as.vector(unlist(drop.barcodes.controls)))
-  remove.cell.barcodes <- union(names(drop.barcodes.libsize), names(drop.barcodes.feature))
-  remove.cell.barcodes.log <- list()
-  # Collect barcodes from each cell control
-  for (control.set in names(drop.barcodes.controls)){
-    remove.cell.barcodes <- union(remove.cell.barcodes, names(drop.barcodes.controls[[control.set]]))
-    remove.cell.barcodes.log[[control.set]] <- names(drop.barcodes.controls[[control.set]])
-  }
+  remove.cell.barcodes <- c(drop.barcodes.libsize, drop.barcodes.feature, drop.barcodes.controls)
+  remove.cells.bool <- colnames(expression.matrix) %in% unique(names(remove.cell.barcodes))
+  filtered.expression.matrix <- expression.matrix[, !remove.cells.bool]
+  filtered.object@ExpressionMatrix <- filtered.expression.matrix
 
-  # Remove the cells from the matrix
-  filtered.expression.matrix <- expression.matrix[,-remove.cell.idx]
-  filtered.object <- ReplaceExpressionMatrix(filtered.object, filtered.expression.matrix)
-  filtered.object <- SyncSlots(filtered.object)
-
-  # Prepare the log
-  # To go under FilterByOutliers category
-  filtering.log <- list(BarcodesFilteredByLibSize = names(drop.barcodes.libsize), BarcodesFilteredByLowExpression = names(drop.barcodes.feature), BarcodesFilteredByControls = remove.cell.barcodes.log)
+  ### Loading filtering log
+  filtering.log <- list(CellsFilteredByLibSize = names(drop.barcodes.libsize), CellsFilteredByLowExpression = names(drop.barcodes.feature), CellsFilteredByControls = drop.barcodes.controls.names)
 
   # To go into the dataframe
   if (is.null(filtered.object@Log$FilteringLog)){
-    filtering.df <- data.frame(CellsFilteredByLibSize = length(filtering.log$BarcodesFilteredByLibsize), CellsFilteredByExpression = length(filtering.log$BarcodesFilteredByLowExpression), CellsFilteredByControls = length(unlist(filtering.log$BarcodesFilteredByControls)))
+    filtering.df <- data.frame(CellsFilteredByLibSize = length(filtering.log$CellsFilteredByLibSize), CellsFilteredByExpression = length(filtering.log$CellsFilteredByLowExpression), CellsFilteredByControls = length(unlist(filtering.log$CellsFilteredByControls)))
   } else{
     filtering.df <- filtered.object@Log$FilteringLog
     libsize <- filtering.df$CellsFilteredByLibSize + length(filtering.log$BarcodesFilteredByLibsize)
