@@ -1,0 +1,47 @@
+---
+title: "ASCEND to the MAX - how to get the most out of the ASCEND package"
+author: "Anne Senabouth"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ASCEND to the MAX - how to get the most out of the ASCEND package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Before you begin
+### System Requirements
+Datasets produced by scRNASeq experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. ASCEND can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
+
+### Configuring BiocParallel
+This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling ASCEND to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
+
+#### Unix/Linux/MacOS (Single Machine)
+```{r SetupNix, eval = TRUE}
+library(BiocParallel)
+ncores <- parallel::detectCores() - 1
+register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
+
+```
+
+#### Windows (Single Machine - Quad-core system)
+```{r SetupWin, eval = FALSE}
+library(BiocParallel)
+workers <- 3 # Number of cores on your machine - 1
+register(SnowParam(workers = workers, type = "SOCK", progressbar = TRUE), default = TRUE)
+```
+
+#### Loading ASCEND
+Please use `devtools` to load the development version of `ASCEND`.
+
+```{r LoadASCEND}
+devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
+```
+
+You can also use devtools' `install_github` function to install the package, and then load it as normal.
+
+```{r LoadASCENDGit, eval = FALSE}
+devtools::install_github("IMB-Computational-Genomics-Lab/ASCEND")
+library(ASCEND)
+```
+

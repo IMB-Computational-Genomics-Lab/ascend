@@ -361,7 +361,7 @@ PlotStabilityDendro <- function(object){
 #'  @param colour (Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.
 #'  @export
 #'
-PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL){
+PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL, colour = NULL){
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet object.")
   }
@@ -422,10 +422,16 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL){
   print("Generating MDS plot...")
   if (length(condition.list) > 0){
     mds.matrix$condition <- unlist(condition.list)
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(alpha = 0.5) + ggplot2::labs(colour = "Condition")
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(alpha = 0.5) + ggplot2::labs(colour = column)
   } else{
     mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
   }
+
+  if (!is.null(colour)){
+    colours <- object@CellInformation[, colour]
+    mds.plot <- mds.plot + ggplot2::scale_color_manual(values = unique(colours))
+  }
+
   return(mds.plot)
 }
 
@@ -533,7 +539,7 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL, colour = NULL){
 
   if (!is.null(colour)){
     colour_palette <- object@CellInformation[ ,colour]
-    pca.plot <- pca.plot + ggplot2::scale_color_manual(values = unique(colours))
+    pca.plot <- pca.plot + ggplot2::scale_color_manual(values = unique(colour_palette))
   }
 
   return(pca.plot)

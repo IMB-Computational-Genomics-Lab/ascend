@@ -55,3 +55,4 @@ object <- ReplaceCellInfo(object, cell.df)
 
 pca.plot <- PlotPCA(object, column = "cluster", colour = "cluster_colours")
 tsne.plot <- PlotTSNE(object, column = "cluster", colour = "cluster_colours")
+mds.plot <- PlotMDS(object, column = "cluster", colour = "cluster_colours")
