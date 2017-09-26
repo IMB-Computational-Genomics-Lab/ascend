@@ -10,9 +10,9 @@ FindOutliers(values, nmads = 3, type = c("both", "lower", "upper"),
 \arguments{
 \item{values}{List of values}
 
-\item{nmads}{Mean Absolute Deviation value threshold}
+\item{nmads}{Mean Absolute Deviation value threshold. Default: 3}
 
-\item{type}{Direction to find outliers in - both, lower, upper}
+\item{type}{Direction to find outliers in - both, lower, upper. Default: both}
 }
 \description{
 Adapted from \code{\link[scater]{isOutlier}}. Determines outliers based on MAD value.

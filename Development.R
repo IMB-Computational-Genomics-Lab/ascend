@@ -30,25 +30,28 @@ pca.obj <- RunPCA(clean.obj)
 pca.obj <- ReduceDimensions(pca.obj)
 clean.clusters <- FindOptimalClusters(pca.obj)
 
-# Run Differential Expression
-cluster.de.results <- RunDiffExpression(clean.clusters, column = "cluster", conditions = c("1", "2", "3"))
+# Troubleshooting Plots
+cell.df <- GetCellInfo(clean.clusters)
 
-# # Run Differential Expression
-# ### Cluster differential expression function
-#cell.information <- clustered.obj@CellInformation
-#batch.info <- unlist(cell.information$batch)
-#batch.info[which(batch.info == 1)] <- "Positive"
-#batch.info[which(batch.info == 2)] <- "Negative"
-# cell.information$THY1 <- batch.info
-# clustered.obj@CellInformation <- cell.information
-#
-# clean.obj <- SubsetCluster(clustered.obj, c("1"))
-# clean.pca <- RunPCA(clean.obj)
-# clean.pca <- ReduceDimensions(clean.pca, 20)
-# clean.cluster <- FindOptimalClusters(clean.pca)
-#
-# clean.de.expression <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3"))
-#
-# clean.pca <- PlotPCA(clean.cluster, column = "cluster")
-# clean.tsne <- PlotTSNE(clean.cluster, PCA = TRUE, column = "cluster")
-# clean.mds <- PlotMDS(clean.cluster, PCA = TRUE, column = "cluster")
+# Label THY1 status
+THY1 <- cell.df$batch
+THY1[which(THY1 == "1")] <- TRUE
+THY1[which(THY1 == "2")] <- FALSE
+cell.df$THY1 <- THY1
+
+# Label cells based on BRN3B/POU4F2 expression - gene involved in differentiation of RGCs
+expression.matrix <- GetExpressionMatrix(clean.clusters, format = "data.frame")
+POU4F2 <- rep(FALSE, ncol(expression.matrix))
+POU4F2[which(expression.matrix["POU4F2", ] > 0)] <- TRUE
+cell.df$POU4F2 <- POU4F2
+cluster_colours <- cell.df$cluster
+cluster_colours[which(cluster_colours == 1)] <- "#6c45cb"
+cluster_colours[which(cluster_colours == 2)] <- "#d66d00"
+cluster_colours[which(cluster_colours == 3)] <- "#007047"
+cell.df$cluster_colours <- cluster_colours
+
+object <- clean.clusters
+object <- ReplaceCellInfo(object, cell.df)
+
+pca.plot <- PlotPCA(object, column = "cluster", colour = "cluster_colours")
+tsne.plot <- PlotTSNE(object, column = "cluster", colour = "cluster_colours")

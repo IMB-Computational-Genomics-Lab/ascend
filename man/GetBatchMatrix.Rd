@@ -2,15 +2,24 @@
 % Please edit documentation in R/ASCEND_getfunctions.R
 \name{GetBatchMatrix}
 \alias{GetBatchMatrix}
+\alias{GetBatchMatrix}
 \title{GetBatchMatrix}
 \usage{
+GetBatchMatrix(object, batch.id)
+
 GetBatchMatrix(object, batch.id)
 }
 \arguments{
 \item{object}{\linkS4class{AEMSet} object}
 
 \item{batch.id}{Batch identifier that you would like to retrieve}
+
+\item{object}{\linkS4class{AEMSet} object}
+
+\item{batch.id}{Batch identifier that you would like to retrieve}
 }
 \description{
+Retrieve a portion of the matrix by batch label
+
 Retrieve a portion of the matrix by batch label
 }

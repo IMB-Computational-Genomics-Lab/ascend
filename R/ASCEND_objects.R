@@ -380,12 +380,16 @@ setGeneric(
 
 setMethod("ReplaceCellInfo", signature("AEMSet"), function(object, cell.info) {
   # Check replacement is valid.
-  errors <- CheckCellInformation(cell.info)
+  replacement <- object
+  replacement@CellInformation <- cell.info
+
+  errors <- c()
+  errors <- CheckCellInformation(replacement, errors)
+
   if (length(errors) > 0){
     stop("New Cell Information is invalid. Please check your data frame and try again.")
   } else{
-    object@CellInformation <- cell.info
-    return(object)
+    return(replacement)
   }
 })
 
@@ -406,12 +410,14 @@ setGeneric(
 
 setMethod("ReplaceGeneInfo", signature("AEMSet"), function(object, gene.info) {
   # Check replacement is valid.
-  errors <- CheckGeneInformation(gene.info)
+  replacement <- object
+  replacement@GeneInformation <- gene.info
+  errors <- c()
+  errors <- CheckGeneInformation(replacement, errors)
   if (length(errors) > 0){
     stop("New Gene Information is invalid. Please check your data frame and try again.")
   } else{
-    object@GeneInformation <- gene.info
-    return(object)
+    return(replacement)
   }
 })
 

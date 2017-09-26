@@ -4,7 +4,7 @@
 \alias{PlotPCA}
 \title{PlotPCA}
 \usage{
-PlotPCA(object, dim1 = 1, dim2 = 2, column = NULL)
+PlotPCA(object, dim1 = 1, dim2 = 2, column = NULL, colour = NULL)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet} object that has undergone PCA}
@@ -14,6 +14,8 @@ PlotPCA(object, dim1 = 1, dim2 = 2, column = NULL)
 \item{dim2}{Principal component to plot on the y-axis}
 
 \item{column}{(Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by}
+
+\item{colour}{(Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.}
 }
 \description{
 Plot two principal components (PCs) on a scatter plot.

@@ -9,9 +9,9 @@ RunPCA(object, ngenes = 1500, scaling = TRUE)
 \arguments{
 \item{object}{A \linkS4class{AEMSet} object that has undergone filtering and normalisation.}
 
-\item{ngenes}{The top number of genes you would like to perform the reduction by.}
+\item{ngenes}{The top number of genes you would like to perform the reduction by. Default: 1500}
 
-\item{scaling}{Boolean - set to FALSE if you do not want to scale your values}
+\item{scaling}{Boolean - set to FALSE if you do not want to scale your values. Default: TRUE}
 }
 \description{
 RunPCA

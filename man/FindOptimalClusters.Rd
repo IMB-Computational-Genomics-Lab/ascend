@@ -21,6 +21,7 @@ This will return an AEMSet with the following objects:
     \item{Clusters}{Optimum cluster identities for each cell}
     \item{NumberOfClusters}{Number of clusters}
     \item{OptimalTreeHeight}{Optimal tree height used to generate cluster identities}
+    \item{KeyStats}{A dataframe containing information on each generated clustering result, that is used to determine the optimal cluster number.}
     \item{RandMatrix}{Rand matrix used to determine optimal number of clusters}
 }
 }

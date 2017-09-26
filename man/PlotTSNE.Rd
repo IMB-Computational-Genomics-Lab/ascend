@@ -4,8 +4,8 @@
 \alias{PlotTSNE}
 \title{PlotTSNE}
 \usage{
-PlotTSNE(object, PCA = TRUE, column = NULL, seed = 0, perplexity = 30,
-  theta = 0.5)
+PlotTSNE(object, PCA = TRUE, column = NULL, colour = NULL, seed = 0,
+  perplexity = 30, theta = 0.5)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet}.}
@@ -13,6 +13,8 @@ PlotTSNE(object, PCA = TRUE, column = NULL, seed = 0, perplexity = 30,
 \item{PCA}{Set to FALSE to not use PCA-reduced values}
 
 \item{column}{(Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by}
+
+\item{colour}{(Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.}
 
 \item{seed}{(Optional) Set to a specific value for reproducible TSNE plots}
 

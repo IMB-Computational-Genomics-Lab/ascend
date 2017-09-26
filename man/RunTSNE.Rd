@@ -10,15 +10,15 @@ RunTSNE(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 30,
 \arguments{
 \item{object}{An expression matrix or a PCA-reduced matrix.}
 
-\item{PCA}{Set this PCA flag to true if the object is a PCA-reduced matrix.}
+\item{PCA}{Set this PCA flag to true if the object is a PCA-reduced matrix. Default: FALSE}
 
-\item{dimensions}{Number of dimensions you would like to reduce to}
+\item{dimensions}{Number of dimensions you would like to reduce to. Default: 2}
 
-\item{seed}{(Optional) Set to a specific value for reproducible TSNE plots}
+\item{seed}{(Optional) Set to a specific value for reproducible TSNE plots. Default: 0}
 
-\item{perplexity}{(Optional) Numeric; perplexity parameter}
+\item{perplexity}{(Optional) Numeric; perplexity parameter. Default: 30}
 
-\item{theta}{(Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)}
+\item{theta}{(Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy). Default: 0.5}
 }
 \description{
 RunTSNE

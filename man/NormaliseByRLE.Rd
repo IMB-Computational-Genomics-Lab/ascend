@@ -11,5 +11,6 @@ NormaliseByRLE(object)
 }
 \description{
 Normalisation of expression between cells, by scaling to relative log expression.
-This method assumes all genes express a pseudo value higher than 0, and also assumes most genes are not differentially expressed. Only counts that are greater than zero are considered in this normalisation method.
+This method assumes all genes express a pseudo value higher than 0, and also assumes most genes
+are not differentially expressed. Only counts that are greater than zero are considered in this normalisation method.
 }

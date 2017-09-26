@@ -8,11 +8,11 @@ Automatically filter cells based on expression levels}
 FilterByOutliers(object, CellThreshold = 3, ControlThreshold = 3)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} scryeR object}
+\item{object}{An \linkS4class{AEMSet} object}
 
-\item{CellThreshold}{Mean Absolute Deviation (MAD) value to filter cells by library size (Default Value: 3)}
+\item{CellThreshold}{Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3}
 
-\item{ControlThreshold}{Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes (Default Value: 3)}
+\item{ControlThreshold}{Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3}
 }
 \description{
 These values are then used to filter out cells based on the following criteria:

@@ -358,6 +358,7 @@ PlotStabilityDendro <- function(object){
 #'  @param dim1 Which dimension to plot on the x-axis
 #'  @param dim2 Which dimension to plot on the y-axis
 #'  @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
+#'  @param colour (Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.
 #'  @export
 #'
 PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL){
@@ -435,12 +436,13 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL){
 #' @param object An \linkS4class{AEMSet}.
 #' @param PCA Set to FALSE to not use PCA-reduced values
 #' @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
+#' @param colour (Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
 #' @param perplexity (Optional) Numeric; perplexity parameter
 #' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)
 #' @export
 #'
-PlotTSNE <- function(object, PCA = TRUE, column = NULL, seed = 0, perplexity = 30, theta = 0.5){
+PlotTSNE <- function(object, PCA = TRUE, column = NULL, colour = NULL, seed = 0, perplexity = 30, theta = 0.5){
   # Input checks
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet to this function.")
@@ -473,14 +475,19 @@ PlotTSNE <- function(object, PCA = TRUE, column = NULL, seed = 0, perplexity = 3
   }
 
   # Run TSNE in 2D
-  tsne.df<- RunTSNE(object, PCA = PCA, dimensions = 2, seed = seed, perplexity = perplexity, theta = theta)
+  tsne.df <- RunTSNE(object, PCA = PCA, dimensions = 2, seed = seed, perplexity = perplexity, theta = theta)
 
   # Generate Plots
   if (length(condition.list) > 0){
     tsne.df$conditions <- as.factor(unlist(condition.list))
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = "Condition")
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = column)
   } else{
     tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
+  }
+
+  if (!is.null(colour)){
+    colours <- object@CellInformation[, colour]
+    tsne.plot <- tsne.plot + ggplot2::scale_color_manual(values = unique(colours))
   }
 
   return(tsne.plot)
@@ -494,10 +501,10 @@ PlotTSNE <- function(object, PCA = TRUE, column = NULL, seed = 0, perplexity = 3
 #' @param dim1 Principal component to plot on the x-axis
 #' @param dim2 Principal component to plot on the y-axis
 #' @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
+#' @param colour (Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.
 #' @export
 #'
-PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL){
-  # Check if PCA has been run
+PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL, colour = NULL){
   if(length(object@PCA) == 0){
     stop("Please supply an object that has undergone PCA reduction.")
   }
@@ -514,14 +521,19 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL){
 
   # Extract dimensions to plot
   pca.matrix <- object@PCA$PCA
-  plot.matrix <- pca.matrix[,c(dim1, dim2)]
+  plot.matrix <- pca.matrix[, c(dim1, dim2)]
   colnames(plot.matrix) <- c("x", "y")
 
   if (length(condition.list) > 0){
     plot.matrix$conditions <- as.factor(unlist(condition.list))
-    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = "Condition")
+    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = column)
   } else{
     pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
+  }
+
+  if (!is.null(colour)){
+    colour_palette <- object@CellInformation[ ,colour]
+    pca.plot <- pca.plot + ggplot2::scale_color_manual(values = unique(colours))
   }
 
   return(pca.plot)

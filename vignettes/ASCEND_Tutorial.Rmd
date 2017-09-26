@@ -56,8 +56,6 @@ This vignette uses the iPSC Retinal Ganglion Cells dataset, that can be loaded i
 # For those running the markdown file
 data("RGC_scRNASeq")
 
-# For those running the script elsewhere
-# data("RGC_scRNASeq")
 ```
 
 These objects contain all the information we need to create an `AEMSet` - the main data object of the ASCEND package. 
@@ -306,7 +304,7 @@ norm.set <- scranNormalise(aem.set)
 ```
 
 #### Reviewing the normalisation process
-`PlotNormQC` will generate a series of plots for the review of the normalisation process. This function can only be used if you have retained the un-normalised `AEMSet`. You can also review the expression of genes you are interested in; in this case, we will look at the expression of GAPDH and MALAT1 as they are considered 'housekeeping' genes.
+`PlotNormalisationQC` will generate a series of plots for the review of the normalisation process. This function can only be used if you have retained the un-normalised `AEMSet`. You can also review the expression of genes you are interested in; in this case, we will look at the expression of GAPDH and MALAT1 as they are considered 'housekeeping' genes.
 
 ```{r PlotNormalisationQC}
 norm.qc <- PlotNormalisationQC(original = aem.set, normalised = norm.set, gene.list = c("GAPDH", "MALAT1"))
@@ -345,7 +343,7 @@ print(filtered.qc.plots$TopGenes)
 
 As you can see, ribosomal genes dominate gene expression, even after filtering. What does the dataset look like without these control genes? We will just plot the top 20 most expressed genes.
 
-```{r ControlRemovalPlot1, fig.width = 5, fig.height = 4, fig.align="center", warning = FALSE}
+```{r ControlRemovalPlot2, fig.width = 5, fig.height = 4, fig.align="center", warning = FALSE}
 top.20.plot <- PlotTopGeneExpression(norm.set, n = 20, controls = FALSE)
 print(top.20.plot)
 ```
@@ -357,7 +355,7 @@ norm.set <- ExcludeControl(norm.set, "Mt")
 norm.set <- ExcludeControl(norm.set, "Rb")
 ```
 
-Please note that this has already been done as a part of the `scranNormalisation` process.
+Please note that this has already been done as a part of the `scranNormalise` process.
 
 ### Dimension Reduction
 We have filtered our dataset down to 1235 cells and 32904 genes and normalised the transcript counts with `scranNormalise`. We can reduce this dataset further by using *Principal Component Analysis (PCA)* to identify genes that are major contributors to variation.
@@ -369,14 +367,14 @@ pca.set <- RunPCA(norm.set)
 PlotPCAVariance` generates what is known as a *scree plot*, which depicts what percentage each PC contributes to the total variance of the data. This will help determine how many PCs the dataset should be reduced to.
 
 ```{r PlotPCAVariance, fig.show="hold", fig.align="center", fig.width = 5}
-pca.variance <- PlotPCAVariance(pca.set, 50)
+pca.variance <- PlotPCAVariance(pca.set, n = 50)
 print(pca.variance)
 ```
 
 The scree plot shows most of the variance is due to the top 20 PCs. Reduce the dataset to 20 PCs with the `ReduceDimensions` function.
 
 ```{r ReduceDimensions}
-pca.set <- ReduceDimensions(pca.set, 20)
+pca.set <- ReduceDimensions(pca.set, n = 20)
 ```
 
 ### Clustering
@@ -438,9 +436,9 @@ thy1.de.result[1:10,]
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
 
-We can view these results as a volcano plot with the `RunDEVolcano` function. Usually, we run this function with labels set to FALSE as there are too many points close together, resulting in overlapping labels. We have set labels to TRUE so we can see which genes are of interest.
+We can view these results as a volcano plot with the `PlotDEVolcano` function. Usually, we run this function with labels set to FALSE as there are too many points close together, resulting in overlapping labels. We have set labels to TRUE so we can see which genes are of interest.
 
-```{r THY1DE}
+```{r THY1DEplot}
 thy1.volcano.plot <- PlotDEVolcano(thy1.de.result, labels = TRUE)
 print(thy1.volcano.plot)
 ```
@@ -454,7 +452,7 @@ cluster.de.result[1:10,]
 
 These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
 
-```{r RemoveCluster}
+```{r RemoveCluster, fig.width = 5, fig.height = 4}
 clean.set <- SubsetCluster(clustered.set, clusters = "1")
 clean.pca <- RunPCA(clean.set)
 clean.cluster <- FindOptimalClusters(clean.pca)
