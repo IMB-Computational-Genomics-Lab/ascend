@@ -13,6 +13,8 @@ vignette: >
 ### System Requirements
 Datasets produced by scRNASeq experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. ASCEND can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
 
+We have tested this package with datasets ranging from 100 to 20,000 cells. Generally, increasing the number of cpus will decrease the processing time of functions, while larger datasets require more RAM. 
+
 ### Configuring BiocParallel
 This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling ASCEND to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
 
@@ -31,7 +33,6 @@ workers <- 3 # Number of cores on your machine - 1
 register(SnowParam(workers = workers, type = "SOCK", progressbar = TRUE), default = TRUE)
 ```
 
-
 #### Loading ASCEND
 Please use `devtools` to load the development version of `ASCEND`.
 
@@ -46,3 +47,24 @@ devtools::install_github("IMB-Computational-Genomics-Lab/ASCEND")
 library(ASCEND)
 ```
 
+#### Required packages
+ASCEND requires the following packages:
+##### CRAN
+* [Matrix](https://cran.r-project.org/web/packages/Matrix)
+* [ggplot2](https://cran.r-project.org/web/packages/ggplot2)
+* [data.table](https://cran.r-project.org/web/packages/data.table)
+* [dplyr](https://cran.r-project.org/web/packages/dplyr)
+* [reshape2](https://cran.r-project.org/web/packages/reshape2)
+* [Rtsne](https://cran.r-project.org/web/packages/Rtsne)
+* [limSolve](https://cran.r-project.org/web/packages/limSolve)
+* [ggbeeswarm](https://cran.r-project.org/web/packages/ggbeeswarm)
+* [dynamicTreeCut](https://cran.r-project.org/package=dynamicTreeCut)
+* [dendextend](https://cran.r-project.org/web/packages/dendextend)
+* RColorBrewer(https://cran.r-project.org/web/packages/RColorBrewer)
+
+##### Bioconductor
+* [Biobase](http://bioconductor.org/packages/release/bioc/html/Biobase.html)
+* [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html)
+* [scater](http://bioconductor.org/packages/release/bioc/html/scater.html)
+* [scran](http://bioconductor.org/packages/release/bioc/html/scran.html)
+* [DESeq](http://bioconductor.org/packages/release/bioc/html/DESeq.html)

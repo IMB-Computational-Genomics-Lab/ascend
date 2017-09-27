@@ -3,6 +3,7 @@
 #' Filtered cells by the proportion of expressed genes in the cell. This step is usually done after the other filtering steps and prior to normalisation.
 #' @param object AEMSet (ASCEND) object that has been filtered by \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.
 #' @param pct.value Percentage threshold as a whole number. Default: 1
+#' @export
 #'
 FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
   filtered.object <- object
@@ -51,6 +52,7 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
 #' @param control.name Name of the control group, as used in the named list supplied to the AEMSet object
 #' @param pct.threshold Percentage threshold to filter cells by, as a whole number. Default: 20
 #' @param object A \linkS4class{AEMSet} object.
+#' @export
 #'
 FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, object){
   # Check in case user hasn't defined any controls.
@@ -118,6 +120,7 @@ FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, objec
 #' FilterByControl
 #'
 #' Called by \code{\link{FilterByOutliers}}. This function identifies cells to remove based on expression levels of control genes.
+#' @export
 #'
 FilterByControl <- function(control.group, total.counts, expression.matrix ){
   # Get transcript counts for the controls
@@ -134,6 +137,7 @@ FilterByControl <- function(control.group, total.counts, expression.matrix ){
 #' @param values List of values
 #' @param nmads Mean Absolute Deviation value threshold. Default: 3
 #' @param type Direction to find outliers in - both, lower, upper. Default: both
+#' @export
 #'
 FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), na.rm = FALSE) {
   med.val <- median(values, na.rm = na.rm)
@@ -163,6 +167,7 @@ FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), 
 #' @param object An \linkS4class{AEMSet} object
 #' @param CellThreshold  Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3
 #' @param ControlThreshold  Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3
+#' @export
 #'
 FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   filtered.object <- object

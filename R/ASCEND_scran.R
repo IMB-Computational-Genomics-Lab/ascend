@@ -5,6 +5,7 @@
 #'
 #' @param object An \linkS4class{AEMSet} object
 #' @param control.list Optional - a named list containing mitochondrial and ribosomal genes
+#' @export
 #'
 ConvertToScater <- function(object, control.list = list()){
   # Prepare control list
@@ -44,6 +45,7 @@ ConvertToScater <- function(object, control.list = list()){
 #' Loads data from a SCATER object to a pre-existing ASCEND object.
 #' @param SCESet A \linkS4class{SCESet} from \pkg{scater}
 #' @param AEMSet An \linkS4class{AEMSet}
+#' @export
 #'
 ConvertScaterToASCEND <- function(SCESet, AEMSet){
   # Retrieve counts from SCESet
