@@ -80,7 +80,6 @@ setMethod("GetGeneInfo", signature("AEMSet"), function(object) {
   return(gene.annotation)
 })
 
-# Functions for subsetting an AEMSet
 #' GetBatchMatrix
 #'
 #' Retrieve a portion of the matrix by batch label
@@ -88,36 +87,26 @@ setMethod("GetGeneInfo", signature("AEMSet"), function(object) {
 #' @param batch.id Batch identifier that you would like to retrieve
 #' @export
 #'
-GetBatchMatrix <- function(object, batch.id){
-  expression.matrix <- GetExpressionMatrix(object, "matrix")
-  cell.info <- GetCellInfo(object)
-  batch.list <- cell.info[,2]
-  barcodes <- names(batch.list[batch.list == batch.id])
-  batch.matrix <- expression.matrix[,barcodes]
-  return(batch.matrix)
-}
+setGeneric(
+  name = "GetBatchMatrix",
+  def = function(object, batch.id){
+    standardGeneric("GetBatchMatrix")
+  }
+)
 
-# Functions for subsetting an AEMSet
-#' GetBatchMatrix
-#'
-#' Retrieve a portion of the matrix by batch label
-#' @param object \linkS4class{AEMSet} object
-#' @param batch.id Batch identifier that you would like to retrieve
-#' @export
-#'
-GetBatchMatrix <- function(object, batch.id){
+setMethod("GetBatchMatrix", signature("AEMSet"), function(object, batch.id){
   expression.matrix <- GetExpressionMatrix(object, "matrix")
   cell.info <- GetCellInfo(object)
   batch.list <- cell.info[,2]
   barcodes <- names(batch.list[batch.list == batch.id])
   batch.matrix <- expression.matrix[,barcodes]
   return(batch.matrix)
-}
+})
 
 #' GetRandMatrix
 #'
 #' Retrieve the rand matrix used to determine clusters from an \linkS4class{AEMSet} object.
-#' @param object A \linkS4class{AEMSet} object that has undergone clustering.
+#' @param object An \linkS4class{AEMSet} object that has undergone clustering.
 #' @return This function returns a data frame.
 #' @include ASCEND_objects.R
 #' @export
@@ -132,3 +121,74 @@ setMethod("GetRandMatrix", signature("AEMSet"), function(object) {
   rand.matrix <- object@Clusters$KeyStats
   return(rand.matrix)
 })
+
+#' GetPCA
+#'
+#' Retrieve the PCA matrix from an \linkS4class{AEMSet} object that has undergone PCA reduction.
+#' @param object An \linkS4class{AEMSet} object.
+#' @return This function returns a data frame.
+#' @include ASCEND_objects.R
+#' @export
+setGeneric(
+  name = "GetPCA",
+  def = function(object) {
+    standardGeneric("GetPCA")
+  }
+)
+
+setMethod("GetPCA", signature = "AEMSet", function(object){
+  if (is.null(object@PCA$PCA)){
+    stop("Please use the RunPCA function on this object before using this function.")
+  } else{
+    pca.matrix <- object@PCA$PCA
+    return(pca.matrix)
+  }
+})
+
+#' GetDistanceMatrix
+#'
+#' Retrieve the distance matrix from an \linkS4class{AEMSet} object that has undergone clustering.
+#' @param object An \linkS4class{AEMSet} object.
+#' @return This function returns a distance matrix.
+#' @include ASCEND_objects.R
+#' @export
+setGeneric(
+  name = "GetDistanceMatrix",
+  def = function(object) {
+    standardGeneric("GetDistanceMatrix")
+  }
+)
+
+setMethod("GetDistanceMatrix", signature = "AEMSet", function(object){
+  if (is.null(object@Clusters$DistanceMatrix)){
+    stop("Please use the FindOptimalClusters function on this object before using this function.")
+  } else{
+    distance.matrix <- object@Clusters$DistanceMatrix
+    return(distance.matrix)
+  }
+})
+
+#' GetHclust
+#'
+#' Retrieve the Hclust object from an \linkS4class{AEMSet} object that has undergone clustering.
+#' @param object An \linkS4class{AEMSet} object.
+#' @return This function returns a hclust object.
+#' @include ASCEND_objects.R
+#' @export
+setGeneric(
+  name = "GetHclust",
+  def = function(object) {
+    standardGeneric("GetHclust")
+  }
+)
+
+setMethod("GetHclust", signature = "AEMSet", function(object){
+  if (is.null(object@Clusters$Hclust)){
+    stop("Please use the FindOptimalClusters function on this object before using this function.")
+  } else{
+    hclust.obj <- object@Clusters$Hclust
+    return(hclust.obj)
+  }
+})
+
+

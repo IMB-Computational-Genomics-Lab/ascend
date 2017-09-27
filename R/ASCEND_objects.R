@@ -198,8 +198,10 @@ setMethod("show", signature("AEMSet"), function(object) {
 
   # If defined, show clustering information
   if (!is.null(object@Clusters$NumberOfClusters)){
+    print(sprintf("Optimal tree-cut height: %f", object@Clusters$OptimalTreeHeight))
     print(sprintf("Number of Clusters: %i", object@Clusters$NumberOfClusters))
   }
+
 })
 
 # Constructor function for AEMSet
@@ -315,7 +317,6 @@ setMethod("SyncSlots", signature("AEMSet"), function(object){
 
   return(object)
 })
-
 
 #' UpdateControls
 #'

@@ -193,6 +193,6 @@ setMethod("SubsetCells", signature("AEMSet"), function(object, cell_barcodes = c
     subset.obj@Clusters <- list()
     subset.obj@PCA <- list()
 
-    return(subset.object)
+    return(subset.obj)
   }
 })
