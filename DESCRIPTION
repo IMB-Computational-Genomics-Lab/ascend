@@ -28,7 +28,6 @@ Depends: BiocParallel,
     data.table,
     Matrix,
     dplyr,
-    plyr,
     reshape2,
     Biobase
 Collate: 

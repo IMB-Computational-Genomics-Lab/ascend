@@ -12,42 +12,6 @@ vignette: |
 
 The `ASCEND` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
-## Before you begin
-### System Requirements
-Datasets produced by scRNASeq experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. ASCEND can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
-
-### Configuring BiocParallel
-This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling ASCEND to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
-
-#### Unix/Linux/MacOS (Single Machine)
-```{r SetupNix, eval = TRUE}
-library(BiocParallel)
-ncores <- parallel::detectCores() - 1
-register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
-
-```
-
-#### Windows (Single Machine - Quad-core system)
-```{r SetupWin, eval = FALSE}
-library(BiocParallel)
-workers <- 3 # Number of cores on your machine - 1
-register(SnowParam(workers = workers, type = "SOCK", progressbar = TRUE), default = TRUE)
-```
-
-#### Loading ASCEND
-Please use `devtools` to load the development version of `ASCEND`.
-
-```{r LoadASCEND}
-devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
-```
-
-You can also use devtools' `install_github` function to install the package, and then load it as normal.
-
-```{r LoadASCENDGit, eval = FALSE}
-devtools::install_github("IMB-Computational-Genomics-Lab/ASCEND")
-library(ASCEND)
-```
-
 ## Loading Data for use in ASCEND
 ### Preparing data manually
 This vignette uses the iPSC Retinal Ganglion Cells dataset, that can be loaded into R with the following function:
