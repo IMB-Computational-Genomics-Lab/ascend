@@ -8,7 +8,6 @@ register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
 
 aem.set <- CellRangerToASCEND("/Users/a.senabouth/Data/IPSCRetina_scRNA_Aggr_V2", "GRCh38p7")
 
-normalise.batches <- NormaliseBatches(aem.set)
 filtered.set <- FilterByOutliers(aem.set, CellThreshold = 3, ControlThreshold = 3)
 filtered.set <- FilterByCustomControl("Mt", 20, filtered.set)
 filtered.set <- FilterByCustomControl("Rb", 50, filtered.set)
@@ -51,6 +50,4 @@ cluster_colours[which(cluster_colours == 2)] <- "#d66d00"
 cluster_colours[which(cluster_colours == 3)] <- "#007047"
 cell.df$cluster_colours <- cluster_colours
 
-object <- clean.clusters
-object <- ReplaceCellInfo(object, cell.df)
-
+cluster.de.results <- RunDiffExpression(clean.clusters, column = "cluster", conditions = c("1", "2", "3"))
