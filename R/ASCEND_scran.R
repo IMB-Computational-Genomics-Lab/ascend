@@ -1,10 +1,21 @@
+#' scranCellCycle
+#'
+#' Wrapper for \pkg{scran}'s cell cycle functions.
+#'
+#' @param object An \linkS4class{AEMSet} object.
+#' @export
+#'
+scranCellCycle <- function(object){
+
+}
+
 #' ConvertToScater
 #'
 #' Convert a \linkS4class{AEMSet} object into a \linkS4class{SCESet} for use with \pkg{scater} and \pkg{scran}.
 #' In order to use this function, you must have mitochondrial and ribosomal genes in your expression data.
 #'
-#' @param object An \linkS4class{AEMSet} object
-#' @param control.list Optional - a named list containing mitochondrial and ribosomal genes
+#' @param object An \linkS4class{AEMSet} object.
+#' @param control.list Optional - a named list containing mitochondrial and ribosomal genes.
 #' @export
 #'
 ConvertToScater <- function(object, control.list = list()){

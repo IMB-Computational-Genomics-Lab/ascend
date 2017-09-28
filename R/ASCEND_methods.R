@@ -166,7 +166,7 @@ setGeneric(
   }
 )
 
-setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object) {
+setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object, old.annotation, new.annotation) {
   # Get currently-used gene identifiers Load Gene Annotation
   gene.annotation <- object@GeneInformation
 
@@ -177,16 +177,22 @@ setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object) {
   control.list <- object@Controls
 
   # Retrieve new values
-  new.identifiers <- gene.annotation[gene.annotation[old.annotation] == present.rownames,][, new.annotation]
+  new.identifiers <- gene.annotation[,new.annotation]
 
   ## Rename expression matrix
   rownames(object@ExpressionMatrix) <- new.identifiers
 
   # Convert control list
-  updated.control.list <-
-    gene.annotation[, new.annotation][which(gene.annotation[, old.annotation] %in% control.list$Mt)]
-  object@Controls <- updated.control.list
+  if (length(control.list) > 0){
+    updated.control.list <- lapply(names(control.list), function(control.name){
+      gene.info[, new.annotation][which(gene.info[ ,old.annotation] %in% control.list[[control.name]])]
+    })
+    object@Controls <- updated.control.list
+  }
 
+  # Move new annotation to column 1
+  updated.gene.info <- gene.annotation %>% dplyr::select(new.annotation, dplyr::everything())
+  object@GeneInformation <- updated.gene.info
   return(object)
 })
 

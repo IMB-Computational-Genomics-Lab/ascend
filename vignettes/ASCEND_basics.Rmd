@@ -274,4 +274,5 @@ hundred.cell.set <- SubsetCells(aem.set, cell_barcodes = cell.barcodes)
 
 Be mindful of what has been done to the dataset before continuing on your analysis on the subsetted AEMSet. For example, if you subset part of a dataset that has undergone clustering and wish to perform clustering on the isolated cells - you will need to repeat the PCA reduction before clustering the dataset.
 
-#### Combining AEMSets
+## Examples
+
