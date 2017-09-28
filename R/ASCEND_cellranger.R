@@ -57,7 +57,7 @@ ProcessGeneReference <- function(gene.obj){
 IdentifyBatches <- function(barcode.obj){
   colnames(barcode.obj) <- c("cell_barcode")
   batch.information <- lapply(strsplit(as.character(barcode.obj$cell_barcode), "-"), `[`, 2)
-  barcode.obj$batch <- batch.information
+  barcode.obj$batch <- unlist(as.numeric(batch.information))
   return(barcode.obj)
 }
 

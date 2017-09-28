@@ -96,9 +96,9 @@ scranNormalise <- function(object, quickCluster = FALSE){
 #'
 #' Called by NormaliseBatches. Performs normalisation within a batch.
 #'
-NormWithinBatch <- function(batch.id, expression.matrix = NULL, batch.list = NULL){
+NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL){
   # Function called by NormaliseBatches
-  barcodes <- names(batch.list[batch.list == batch.id])
+  barcodes <- cell.info[,1][which(cell.info[,2] == batch.id)]
   sub.mtx <- expression.matrix[,barcodes]
 
   # Collapse all cells into one cell
@@ -131,13 +131,13 @@ NormaliseBatches <- function(object){
 
   # Retrieve variables from AEMSet object
   exprs.mtx <- GetExpressionMatrix(object, "matrix")
-  batch.list <- unlist(object@CellInformation[,2])
-  unique.batch.identifiers <- unique(batch.list)
+  cell.info <-GetCellInfo(object)
+  unique.batch.identifiers <- unique(cell.info[,2])
 
   # Loop to get batch-specific data
   # PARALLEL
   print("Retrieving batch-specific data...")
-  batch.data <- BiocParallel::bplapply(unique.batch.identifiers, NormWithinBatch, expression.matrix = exprs.mtx, batch.list = batch.list)
+  batch.data <- BiocParallel::bplapply(unique.batch.identifiers, NormWithinBatch, expression.matrix = exprs.mtx, cell.info = cell.info)
 
   # Unpacking results
   print("Scaling data...")
@@ -149,7 +149,7 @@ NormaliseBatches <- function(object){
 
   # Load back into AEMSet and write metrics
   print("Returning object...")
-  colnames(scaled.matrix) <- names(batch.list)
+  colnames(scaled.matrix) <- cell.info[,1]
   object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparse.matrix")
   object@Log$NormaliseBatches <- TRUE
   updated.object <- GenerateMetrics(object)

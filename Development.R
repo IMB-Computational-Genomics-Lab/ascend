@@ -8,6 +8,7 @@ register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
 
 aem.set <- CellRangerToASCEND("/Users/a.senabouth/Data/IPSCRetina_scRNA_Aggr_V2", "GRCh38p7")
 
+normalise.batches <- NormaliseBatches(aem.set)
 filtered.set <- FilterByOutliers(aem.set, CellThreshold = 3, ControlThreshold = 3)
 filtered.set <- FilterByCustomControl("Mt", 20, filtered.set)
 filtered.set <- FilterByCustomControl("Rb", 50, filtered.set)
@@ -53,6 +54,3 @@ cell.df$cluster_colours <- cluster_colours
 object <- clean.clusters
 object <- ReplaceCellInfo(object, cell.df)
 
-pca.plot <- PlotPCA(object, column = "cluster", colour = "cluster_colours")
-tsne.plot <- PlotTSNE(object, column = "cluster", colour = "cluster_colours")
-mds.plot <- PlotMDS(object, column = "cluster", colour = "cluster_colours")

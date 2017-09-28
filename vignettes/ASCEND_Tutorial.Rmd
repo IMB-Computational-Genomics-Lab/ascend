@@ -50,7 +50,7 @@ barcodes[1:5,]
 Extract the batch numbers from the cell identifiers by splitting each string at the '-' symbol and retrieve the second part of the string.
 
 ```{r ProcessBatchID}
-batch.information <- lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)
+batch.information <- unlist(as.numeric(lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)))
 batch.information[1:5]
 ```
 
