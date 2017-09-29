@@ -4,7 +4,7 @@
 \alias{NormWithinBatch}
 \title{NormWithinBatch}
 \usage{
-NormWithinBatch(batch.id, expression.matrix = NULL, batch.list = NULL)
+NormWithinBatch(batch.id, expression.matrix = NULL, cell.info = NULL)
 }
 \description{
 Called by NormaliseBatches. Performs normalisation within a batch.

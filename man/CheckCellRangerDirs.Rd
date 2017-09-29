@@ -7,5 +7,6 @@
 CheckCellRangerDirs(target.dir, cellranger.dir)
 }
 \description{
-Called by \code{\link{LoadCellRangerData}}. This function is involved in checks to make sure the Cell Ranger output folder is structured correctly.
+Called by \code{\link{LoadCellRangerData}}. This function is involved in
+checks to make sure the Cell Ranger output folder is structured correctly.
 }

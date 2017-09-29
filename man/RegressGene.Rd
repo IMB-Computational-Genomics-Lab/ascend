@@ -4,7 +4,8 @@
 \alias{RegressGene}
 \title{RegressGene}
 \usage{
-RegressGene(gene, covariate.matrix, expression.matrix)
+RegressGene(gene = NULL, covariate.matrix = NULL,
+  expression.matrix = NULL)
 }
 \arguments{
 \item{gene}{Gene to regress residuals from.}

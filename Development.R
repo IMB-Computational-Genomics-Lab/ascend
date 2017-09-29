@@ -4,9 +4,16 @@ devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
 
 library(BiocParallel)
 ncores <- parallel::detectCores() - 1
-register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
+register(MulticoreParam(workers = ncores, progressbar = TRUE), default = TRUE)
 
 aem.set <- CellRangerToASCEND("/Users/a.senabouth/Data/IPSCRetina_scRNA_Aggr_V2", "GRCh38p7")
+aem.set <- ConvertGeneAnnotation(aem.set, "gene_symbol", "ensembl_id")
+
+# Load reference cell cycle genes from scran
+hs.pairs <- readRDS(system.file("exdata", "human_cycle_markers.rds", package = "scran"))
+
+aem.set <- scranCellCycle(aem.set, hs.pairs)
+aem.set <- ConvertGeneAnnotation(aem.set, "ensembl_id", "gene_symbol")
 
 filtered.set <- FilterByOutliers(aem.set, CellThreshold = 3, ControlThreshold = 3)
 filtered.set <- FilterByCustomControl("Mt", 20, filtered.set)
@@ -18,7 +25,7 @@ scran.obj <- scranNormalise(filtered.set, quickCluster = FALSE)
 
 # PCA
 pca.obj <- RunPCA(scran.obj)
-#PlotPCAVariance(pca.obj, n = 100)
+# PlotPCAVariance(pca.obj, n = 100)
 pca.obj <- ReduceDimensions(pca.obj, n = 20)
 
 # Cluster

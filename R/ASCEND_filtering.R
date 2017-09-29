@@ -1,7 +1,9 @@
 #' FilterByExpressedGenesPerCell
 #'
-#' Filtered cells by the proportion of expressed genes in the cell. This step is usually done after the other filtering steps and prior to normalisation.
-#' @param object AEMSet (ASCEND) object that has been filtered by \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.
+#' Filtered cells by the proportion of expressed genes in the cell. This step is
+#' usually done after the other filtering steps and prior to normalisation.
+#' @param object AEMSet (ASCEND) object that has been filtered by
+#' \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.
 #' @param pct.value Percentage threshold as a whole number. Default: 1
 #' @export
 #'
@@ -46,14 +48,17 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
 
 #' FilterByCustomControl
 #'
-#' Filter cells in an expression matrix based on the expression levels of a specific control.
-#' This function should be used AFTER the cells have undergone general filtering with the \code{\link{FilterByOutliers}} function.
+#' Filter cells in an expression matrix based on the expression levels of a
+#' specific control.
+#' This function should be used AFTER the cells have undergone general filtering
+#' with the \code{\link{FilterByOutliers}} function.
 #'
 #' @param control.name Name of the control group, as used in the named list supplied to the AEMSet object
 #' @param pct.threshold Percentage threshold to filter cells by, as a whole number. Default: 20
 #' @param object A \linkS4class{AEMSet} object.
 #' @export
 #'
+
 FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, object){
   # Check in case user hasn't defined any controls.
   if(!object@Log$Controls){
@@ -119,7 +124,8 @@ FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, objec
 
 #' FilterByControl
 #'
-#' Called by \code{\link{FilterByOutliers}}. This function identifies cells to remove based on expression levels of control genes.
+#' Called by \code{\link{FilterByOutliers}}. This function identifies cells to
+#' remove based on expression levels of control genes.
 #' @export
 #'
 FilterByControl <- function(control.group, total.counts, expression.matrix ){
@@ -227,11 +233,16 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   filtered.object@ExpressionMatrix <- filtered.expression.matrix
 
   ### Loading filtering log
-  filtering.log <- list(CellsFilteredByLibSize = names(drop.barcodes.libsize), CellsFilteredByLowExpression = names(drop.barcodes.feature), CellsFilteredByControls = drop.barcodes.controls.names)
+  filtering.log <- list(CellsFilteredByLibSize = names(drop.barcodes.libsize),
+                        CellsFilteredByLowExpression = names(drop.barcodes.feature),
+                        CellsFilteredByControls = drop.barcodes.controls.names)
 
   # To go into the dataframe
   if (is.null(filtered.object@Log$FilteringLog)){
-    filtering.df <- data.frame(CellsFilteredByLibSize = length(filtering.log$CellsFilteredByLibSize), CellsFilteredByExpression = length(filtering.log$CellsFilteredByLowExpression), CellsFilteredByControls = length(unlist(filtering.log$CellsFilteredByControls)))
+    filtering.df <- data.frame(
+                              CellsFilteredByLibSize = length(filtering.log$CellsFilteredByLibSize),
+                              CellsFilteredByExpression = length(filtering.log$CellsFilteredByLowExpression),
+                              CellsFilteredByControls = length(unlist(filtering.log$CellsFilteredByControls)))
   } else{
     filtering.df <- filtered.object@Log$FilteringLog
     libsize <- filtering.df$CellsFilteredByLibSize + length(filtering.log$BarcodesFilteredByLibsize)

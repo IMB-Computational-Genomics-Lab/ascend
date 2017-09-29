@@ -4,24 +4,21 @@
 #' Returns a data frame containing the expression matrix from a \linkS4class{AEMSet} object.
 #'
 #' @param object A \linkS4class{AEMSet} to retrieve the expression matrix from
-#' @param format Format of the returned matrix - "data.frame" or "matrix"
+#' @param format Format of the returned matrix - 'data.frame' or 'matrix'
 #' @return Returns the expression matrix in the chosen format (data.frame or matrix).
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetExpressionMatrix",
-  def = function(object, format) {
+setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
     standardGeneric("GetExpressionMatrix")
-  }
-)
+})
 
 setMethod("GetExpressionMatrix", signature("AEMSet"), function(object, format = c("data.frame", "matrix", "sparse.matrix")) {
-  if (missing(format)){
-    format <- "data.frame"
-  }
-  sparse.expression.matrix <- object@ExpressionMatrix
-  output <- ConvertMatrix(sparse.expression.matrix, format = format)
-  return(output)
+    if (missing(format)) {
+        format <- "data.frame"
+    }
+    sparse.expression.matrix <- object@ExpressionMatrix
+    output <- ConvertMatrix(sparse.expression.matrix, format = format)
+    return(output)
 })
 
 #' GetControls
@@ -32,16 +29,13 @@ setMethod("GetExpressionMatrix", signature("AEMSet"), function(object, format = 
 #' @return This function returns a list of controls defined by the user.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetControls",
-  def = function(object) {
+setGeneric(name = "GetControls", def = function(object) {
     standardGeneric("GetControls")
-  }
-)
+})
 
 setMethod("GetControls", signature("AEMSet"), function(object) {
-  control.list <- object@Controls
-  return(control.list)
+    control.list <- object@Controls
+    return(control.list)
 })
 
 #' GetCellInfo
@@ -50,15 +44,12 @@ setMethod("GetControls", signature("AEMSet"), function(object) {
 #' @return A data frame with cell identifiers and associated information.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetCellInfo",
-  def = function(object) {
+setGeneric(name = "GetCellInfo", def = function(object) {
     standardGeneric("GetCellInfo")
-  }
-)
+})
 
 setMethod("GetCellInfo", signature("AEMSet"), function(object) {
-  return(object@CellInformation)
+    return(object@CellInformation)
 })
 
 #' GetGeneInfo
@@ -68,16 +59,13 @@ setMethod("GetCellInfo", signature("AEMSet"), function(object) {
 #' @return This function returns a data frame.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetGeneInfo",
-  def = function(object) {
+setGeneric(name = "GetGeneInfo", def = function(object) {
     standardGeneric("GetGeneInfo")
-  }
-)
+})
 
 setMethod("GetGeneInfo", signature("AEMSet"), function(object) {
-  gene.annotation <- object@GeneInformation
-  return(gene.annotation)
+    gene.annotation <- object@GeneInformation
+    return(gene.annotation)
 })
 
 #' GetBatchMatrix
@@ -87,20 +75,17 @@ setMethod("GetGeneInfo", signature("AEMSet"), function(object) {
 #' @param batch.id Batch identifier that you would like to retrieve
 #' @export
 #'
-setGeneric(
-  name = "GetBatchMatrix",
-  def = function(object, batch.id){
+setGeneric(name = "GetBatchMatrix", def = function(object, batch.id) {
     standardGeneric("GetBatchMatrix")
-  }
-)
+})
 
-setMethod("GetBatchMatrix", signature("AEMSet"), function(object, batch.id){
-  expression.matrix <- GetExpressionMatrix(object, "matrix")
-  cell.info <- GetCellInfo(object)
-  batch.list <- cell.info[,2]
-  barcodes <- names(batch.list[batch.list == batch.id])
-  batch.matrix <- expression.matrix[,barcodes]
-  return(batch.matrix)
+setMethod("GetBatchMatrix", signature("AEMSet"), function(object, batch.id) {
+    expression.matrix <- GetExpressionMatrix(object, "matrix")
+    cell.info <- GetCellInfo(object)
+    batch.list <- cell.info[, 2]
+    barcodes <- names(batch.list[batch.list == batch.id])
+    batch.matrix <- expression.matrix[, barcodes]
+    return(batch.matrix)
 })
 
 #' GetRandMatrix
@@ -110,16 +95,13 @@ setMethod("GetBatchMatrix", signature("AEMSet"), function(object, batch.id){
 #' @return This function returns a data frame.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetRandMatrix",
-  def = function(object) {
+setGeneric(name = "GetRandMatrix", def = function(object) {
     standardGeneric("GetRandMatrix")
-  }
-)
+})
 
 setMethod("GetRandMatrix", signature("AEMSet"), function(object) {
-  rand.matrix <- object@Clusters$KeyStats
-  return(rand.matrix)
+    rand.matrix <- object@Clusters$KeyStats
+    return(rand.matrix)
 })
 
 #' GetPCA
@@ -129,20 +111,17 @@ setMethod("GetRandMatrix", signature("AEMSet"), function(object) {
 #' @return This function returns a data frame.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetPCA",
-  def = function(object) {
+setGeneric(name = "GetPCA", def = function(object) {
     standardGeneric("GetPCA")
-  }
-)
+})
 
-setMethod("GetPCA", signature = "AEMSet", function(object){
-  if (is.null(object@PCA$PCA)){
-    stop("Please use the RunPCA function on this object before using this function.")
-  } else{
-    pca.matrix <- object@PCA$PCA
-    return(pca.matrix)
-  }
+setMethod("GetPCA", signature = "AEMSet", function(object) {
+    if (is.null(object@PCA$PCA)) {
+        stop("Please use the RunPCA function on this object before using this function.")
+    } else {
+        pca.matrix <- object@PCA$PCA
+        return(pca.matrix)
+    }
 })
 
 #' GetDistanceMatrix
@@ -152,20 +131,17 @@ setMethod("GetPCA", signature = "AEMSet", function(object){
 #' @return This function returns a distance matrix.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetDistanceMatrix",
-  def = function(object) {
+setGeneric(name = "GetDistanceMatrix", def = function(object) {
     standardGeneric("GetDistanceMatrix")
-  }
-)
+})
 
-setMethod("GetDistanceMatrix", signature = "AEMSet", function(object){
-  if (is.null(object@Clusters$DistanceMatrix)){
-    stop("Please use the FindOptimalClusters function on this object before using this function.")
-  } else{
-    distance.matrix <- object@Clusters$DistanceMatrix
-    return(distance.matrix)
-  }
+setMethod("GetDistanceMatrix", signature = "AEMSet", function(object) {
+    if (is.null(object@Clusters$DistanceMatrix)) {
+        stop("Please use the FindOptimalClusters function on this object before using this function.")
+    } else {
+        distance.matrix <- object@Clusters$DistanceMatrix
+        return(distance.matrix)
+    }
 })
 
 #' GetHclust
@@ -175,20 +151,17 @@ setMethod("GetDistanceMatrix", signature = "AEMSet", function(object){
 #' @return This function returns a hclust object.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "GetHclust",
-  def = function(object) {
+setGeneric(name = "GetHclust", def = function(object) {
     standardGeneric("GetHclust")
-  }
-)
+})
 
-setMethod("GetHclust", signature = "AEMSet", function(object){
-  if (is.null(object@Clusters$Hclust)){
-    stop("Please use the FindOptimalClusters function on this object before using this function.")
-  } else{
-    hclust.obj <- object@Clusters$Hclust
-    return(hclust.obj)
-  }
+setMethod("GetHclust", signature = "AEMSet", function(object) {
+    if (is.null(object@Clusters$Hclust)) {
+        stop("Please use the FindOptimalClusters function on this object before using this function.")
+    } else {
+        hclust.obj <- object@Clusters$Hclust
+        return(hclust.obj)
+    }
 })
 
 

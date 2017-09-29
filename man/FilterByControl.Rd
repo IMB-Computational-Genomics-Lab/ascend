@@ -7,5 +7,6 @@
 FilterByControl(control.group, total.counts, expression.matrix)
 }
 \description{
-Called by \code{\link{FilterByOutliers}}. This function identifies cells to remove based on expression levels of control genes.
+Called by \code{\link{FilterByOutliers}}. This function identifies cells to
+remove based on expression levels of control genes.
 }

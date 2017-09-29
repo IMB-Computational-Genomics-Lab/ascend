@@ -9,7 +9,7 @@ GetExpressionMatrix(object, format)
 \arguments{
 \item{object}{A \linkS4class{AEMSet} to retrieve the expression matrix from}
 
-\item{format}{Format of the returned matrix - "data.frame" or "matrix"}
+\item{format}{Format of the returned matrix - 'data.frame' or 'matrix'}
 }
 \value{
 Returns the expression matrix in the chosen format (data.frame or matrix).

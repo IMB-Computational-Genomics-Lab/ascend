@@ -14,6 +14,8 @@ FilterByCustomControl(control.name = NULL, pct.threshold = 20, object)
 \item{object}{A \linkS4class{AEMSet} object.}
 }
 \description{
-Filter cells in an expression matrix based on the expression levels of a specific control.
-This function should be used AFTER the cells have undergone general filtering with the \code{\link{FilterByOutliers}} function.
+Filter cells in an expression matrix based on the expression levels of a
+specific control.
+This function should be used AFTER the cells have undergone general filtering
+with the \code{\link{FilterByOutliers}} function.
 }

@@ -190,7 +190,8 @@ ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparse.mat
     }
     else if (format == "sparse.matrix"){
       output <- Matrix::Matrix(as.matrix(matrix), sparse = TRUE)
-    } else{
+    }
+    else{
       output <- matrix
     }
   }
@@ -202,7 +203,8 @@ ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparse.mat
     }
     else if (format == "data.frame"){
       output <- as.data.frame(as.matrix(matrix))
-    } else{
+    }
+    else{
       output <- matrix
     }
   }

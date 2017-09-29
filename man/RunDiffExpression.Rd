@@ -7,11 +7,15 @@
 RunDiffExpression(object, column = NULL, conditions = NULL)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object that has undergone clustering with the \code{\link{FindOptimalClusters}} function.}
+\item{object}{A \linkS4class{AEMSet} object that has undergone clustering
+with the \code{\link{FindOptimalClusters}} function.}
 
-\item{column}{Name of the column in the CellInformations lot where you have defined the conditions you would like to test. eg cluster to compare clusters identified by FindOptimalClusters.}
+\item{column}{Name of the column in the CellInformations lot where you have
+defined the conditions you would like to test. eg cluster to compare clusters
+identified by FindOptimalClusters.}
 
-\item{conditions}{List of conditions you want to test, in the order you would like to run them in. This list of terms should match those used in your selected column.}
+\item{conditions}{List of conditions you want to test, in the order you would
+like to run them in. This list of terms should match those used in your selected column.}
 }
 \description{
 Compare the differential expression of genes in each cluster versus other clusters.

@@ -7,5 +7,7 @@
 IdentifyBatches(barcode.obj)
 }
 \description{
-Called by \code{\link{BuildCellRangerDataset}} to parse batch labels from barcodes.tsv file. The result is a named list featuring cell barcodes as the key and batch ID as the value.
+Called by \code{\link{BuildCellRangerDataset}} to parse batch labels from
+barcodes.tsv file. The result is a named list featuring cell barcodes as the
+key and batch ID as the value.
 }

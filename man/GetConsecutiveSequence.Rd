@@ -8,5 +8,6 @@ GetConsecutiveSequence(x, direction = c("forward", "reverse"))
 }
 \description{
 Function used to determine consecutive sequences on boundaries.
-This is called by FindOptimalResult to determine which clustering results are consecutive.
+This is called by FindOptimalResult to determine which clustering results are
+consecutive.
 }

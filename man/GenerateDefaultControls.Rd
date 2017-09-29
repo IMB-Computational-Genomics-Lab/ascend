@@ -7,5 +7,6 @@
 GenerateDefaultControls(gene.obj)
 }
 \description{
-Called by \code{\link{BuildCellRangerDataset}} to retrieve mitochondrial and ribosomal gene names and list them as controls.
+Called by \code{\link{BuildCellRangerDataset}} to retrieve mitochondrial and
+ribosomal gene names and list them as controls.
 }

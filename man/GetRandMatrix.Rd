@@ -7,7 +7,7 @@
 GetRandMatrix(object)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object that has undergone clustering.}
+\item{object}{An \linkS4class{AEMSet} object that has undergone clustering.}
 }
 \value{
 This function returns a data frame.

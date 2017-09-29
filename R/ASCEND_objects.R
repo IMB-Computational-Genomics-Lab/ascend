@@ -1,81 +1,83 @@
-# Validation checks
-# Expression matrix check - COMPULSORY
+# Validation checks Expression matrix check - COMPULSORY
 
 #' CheckExpressionMatrix
 #'
 #' Check the expression matrix for issues.
 #'
-CheckExpressionMatrix <- function(object, errors){
-  # Check expression matrix using plyr's empty function.
-  if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
-    msg <- "The expression matrix is empty. Please load an expression matrix."
-    errors <- c(errors, msg)
-  }
+CheckExpressionMatrix <- function(object, errors) {
+    # Check expression matrix using plyr's empty function.
+    if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
+        msg <- "The expression matrix is empty. Please load an expression matrix."
+        errors <- c(errors, msg)
+    }
 
-  # Check if there are any NA values in the expression matrix
-  if (any(is.na(object@ExpressionMatrix))) {
-    msg <- "There are NA values in the expression matrix. Please remove these values from the matrix."
-    errors <- c(errors, msg)
-  }
+    # Check if there are any NA values in the expression matrix
+    if (any(is.na(object@ExpressionMatrix))) {
+        msg <- "There are NA values in the expression matrix. Please remove these values from the matrix."
+        errors <- c(errors, msg)
+    }
 
-  # Check there are no duplicates in the colnames and rownames of the expression matrix
-  if (any(duplicated(colnames(object@ExpressionMatrix)))) {
-    msg <-
-      "Duplicate column names are present. Please check the expression matrix."
-    errors <- c(errors, msg)
-  }
+    # Check there are no duplicates in the colnames and rownames of the expression matrix
+    if (any(duplicated(colnames(object@ExpressionMatrix)))) {
+        msg <- "Duplicate column names are present. Please check the expression matrix."
+        errors <- c(errors, msg)
+    }
 
-  if (any(duplicated(rownames(object@ExpressionMatrix)))) {
-    msg <-
-      "Duplicate row names are present. Please check the expression matrix."
-    errors <- c(errors, msg)
-  }
+    if (any(duplicated(rownames(object@ExpressionMatrix)))) {
+        msg <- "Duplicate row names are present. Please check the expression matrix."
+        errors <- c(errors, msg)
+    }
 
-  return(errors)
+    return(errors)
 }
 
 #' CheckControls
 #' Check controls if they are present, for issues such as mismatches.
 #'
-CheckControls <- function(object, errors){
-  # Control checks - verify presence of controls in the matrix.
-  if (length(object@Controls) > 0) {
-    ## Verify listed controls are present in the expression matrix
-    check.controls <- unlist(object@Controls) %in% rownames(object@ExpressionMatrix)
-    if (!any(check.controls)) {
-      msg <- "Please make sure the gene identifiers you have listed in your control list matches those used in the expression matrix."
-      errors <- c(errors, msg)
+CheckControls <- function(object, errors) {
+    # Control checks - verify presence of controls in the matrix.
+    if (length(object@Controls) > 0) {
+        ## Verify listed controls are present in the expression matrix
+        check.controls <- unlist(object@Controls) %in% rownames(object@ExpressionMatrix)
+        if (!any(check.controls)) {
+            msg <- "Please make sure the gene identifiers you have listed in your
+      control list matches those used in the expression matrix."
+            errors <- c(errors, msg)
+        }
     }
-  }
-  return(errors)
+    return(errors)
 }
 
 #' CheckCellInformation
 #'
 #' Checks cell information supplied by the user.
 #'
-CheckCellInformation <- function(object, errors){
-  ## Check if number of batch identifiers match the number of columns in the expression matrix
-  if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
-    msg <- "Please check your batch information. Number of batch labels does not match the number of cells listed in the expression matrix."
-  } else {
-    ## Check if the cell identifiers are linked to cell barcodes in the expression matrix
-    if (!all(colnames(object@ExpressionMatrix) %in% object@CellInformation[,1])) {
-      msg <- "Please make sure cell identifiers in column 1 of the Cell Information data frame matches the cell identifiers used in the expression matrix."
+CheckCellInformation <- function(object, errors) {
+    ## Check if number of batch identifiers match the number of columns in the expression matrix
+    if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
+        msg <- "Please check your batch information. Number of batch labels does
+    not match the number of cells listed in the expression matrix."
+    } else {
+        ## Check if the cell identifiers are linked to cell barcodes in the expression matrix
+        if (!all(colnames(object@ExpressionMatrix) %in% object@CellInformation[, 1])) {
+            msg <- "Please make sure cell identifiers in column 1 of the Cell
+      Information data frame matches the cell identifiers used in the expression
+      matrix."
+        }
     }
-  }
-  return(errors)
+    return(errors)
 }
 
 #' CheckGeneInformation
 #'
 #' Check Gene Annotation if supplied by the user.
 #'
-CheckGeneInformation <- function(object, errors){
-  if( !all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[,1]) ){
-    msg <- "Please make sure gene identifiers in column 1 of the Gene Information data frame matches the gene identifiers used in the expression matrix."
-  }
-  return(errors)
+CheckGeneInformation <- function(object, errors) {
+    if (!all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[, 1])) {
+        msg <- "Please make sure gene identifiers in column 1 of the Gene Information
+    data frame matches the gene identifiers used in the expression matrix."
+    }
+    return(errors)
 }
 
 #' CheckAEMSet
@@ -95,31 +97,29 @@ CheckGeneInformation <- function(object, errors){
 #' @export
 #'
 CheckAEMSet <- function(object) {
-  # Error message container
-  # This variable is only populated if an error is encountered.
-  errors <- character()
+    # Error message container This variable is only populated if an error is encountered.
+    errors <- character()
 
-  # Compulsory checks
-  errors <- CheckExpressionMatrix(object, errors)
-  errors <- CheckControls(object, errors)
+    # Compulsory checks
+    errors <- CheckExpressionMatrix(object, errors)
+    errors <- CheckControls(object, errors)
 
-  # Optional checks
-  # Batch label check This step is optional
-  if (nrow(object@CellInformation) > 0) {
-    errors <- CheckCellInformation(object, errors)
-  }
+    # Optional checks Batch label check This step is optional
+    if (nrow(object@CellInformation) > 0) {
+        errors <- CheckCellInformation(object, errors)
+    }
 
-  # Check if the annotation data matches rownames in the expression matrix
-  if (nrow(object@GeneInformation) > 0) {
-    errors <- CheckGeneInformation(object, errors)
-  }
+    # Check if the annotation data matches rownames in the expression matrix
+    if (nrow(object@GeneInformation) > 0) {
+        errors <- CheckGeneInformation(object, errors)
+    }
 
-  # If all is well, object is valid. If not, it's invalid.
-  if (length(errors) == 0) {
-    TRUE
-  } else{
-    errors
-  }
+    # If all is well, object is valid. If not, it's invalid.
+    if (length(errors) == 0) {
+        TRUE
+    } else {
+        errors
+    }
 }
 
 # ASCEND Expression and Metadata Set Class Definition
@@ -135,72 +135,45 @@ CheckAEMSet <- function(object) {
 #' @slot Metrics A list of values generated by the \code{\link{GenerateMetrics}} function.
 #' @slot Log A record of functions used on an \linkS4class{AEMSet}.
 #' @export
-setClass(
-  "AEMSet",
-  representation(
-    ExpressionMatrix = "Matrix",
-    GeneInformation = "data.frame",
-    CellInformation = "data.frame",
-    Controls = "list",
-    PCA = "list",
-    Clusters = "list",
-    Metrics = "list",
-    Log = "list"
-  ),
-  prototype(
-    ExpressionMatrix = Matrix::Matrix(
-      0,
-      nrow = 0,
-      ncol = 0,
-      sparse = TRUE
-    ),
-    GeneInformation = data.frame(matrix(nr = 0, nc = 0)),
-    CellInformation = data.frame(matrix(nr = 0, nc = 0)),
-    Controls = list(),
-    PCA = list(),
-    Clusters = list(),
-    Metrics = list(),
-    Log = list()
-  ),
-  validity = CheckAEMSet
-)
+setClass("AEMSet", representation(ExpressionMatrix = "Matrix", GeneInformation = "data.frame", CellInformation = "data.frame", Controls = "list", PCA = "list",
+    Clusters = "list", Metrics = "list", Log = "list"), prototype(ExpressionMatrix = Matrix::Matrix(0, nrow = 0, ncol = 0, sparse = TRUE), GeneInformation = data.frame(matrix(nr = 0,
+    nc = 0)), CellInformation = data.frame(matrix(nr = 0, nc = 0)), Controls = list(), PCA = list(), Clusters = list(), Metrics = list(), Log = list()), validity = CheckAEMSet)
 
 # More methods for this class
 setMethod("show", signature("AEMSet"), function(object) {
-  # Rethink this slot
-  # Get number of genes and cells from the expression matrix dimensions
-  print("ASCEND Object - AEMSet")
-  n.genes <- nrow(object@ExpressionMatrix)
-  n.cells <- ncol(object@ExpressionMatrix)
-  print(sprintf("Expression Matrix: %i genes and %i cells", n.genes, n.cells))
+    # Rethink this slot Get number of genes and cells from the expression matrix dimensions
+    print("ASCEND Object - AEMSet")
+    n.genes <- nrow(object@ExpressionMatrix)
+    n.cells <- ncol(object@ExpressionMatrix)
+    print(sprintf("Expression Matrix: %i genes and %i cells", n.genes, n.cells))
 
-  # If defined, show controls
-  if (length(object@Controls) > 0){
-    print("Controls:")
-    print(object@Controls)
-  }
+    # If defined, show controls
+    if (length(object@Controls) > 0) {
+        print("Controls:")
+        print(object@Controls)
+    }
 
-  # If defined, show filtering log.
-  if (!is.null(object@Log$FilteringLog)){
-    print("Filtering Log:")
-    print(object@Log$FilteringLog)
-  }
+    # If defined, show filtering log.
+    if (!is.null(object@Log$FilteringLog)) {
+        print("Filtering Log:")
+        print(object@Log$FilteringLog)
+    }
 
-  # If normalised, show normalisation
-  if (!is.null(object@Log$NormalisationMethod)){
-    print(sprintf("Normalisation method: %s", object@Log$NormalisationMethod))
-  }
+    # If normalised, show normalisation
+    if (!is.null(object@Log$NormalisationMethod)) {
+        print(sprintf("Normalisation method: %s", object@Log$NormalisationMethod))
+    }
 
-  # If clustered, show PCA
-  if (!is.null(object@Log$PCA)){
-    print(sprintf("PCA: %i dimensions", ncol(object@PCA$PCA)))
-  }
+    # If clustered, show PCA
+    if (!is.null(object@Log$PCA)) {
+        print(sprintf("PCA: %i dimensions", ncol(object@PCA$PCA)))
+    }
 
-  # If defined, show clustering information
-  if (!is.null(object@Clusters$NumberOfClusters)){
-    print(sprintf("Optimal tree-cut height: %f", object@Clusters$OptimalTreeHeight))
-    print(sprintf("Number of Clusters: %i", object@Clusters$NumberOfClusters))
-  }
+    # If defined, show clustering information
+    if (!is.null(object@Clusters$NumberOfClusters)) {
+        print(sprintf("Optimal tree-cut height: %f", object@Clusters$OptimalTreeHeight))
+        print(sprintf("Number of Clusters: %i", object@Clusters$NumberOfClusters))
+    }
 
 })
 
@@ -215,59 +188,41 @@ setMethod("show", signature("AEMSet"), function(object) {
 #' @return This function generates an object belonging to the \linkS4class{AEMSet}.
 #' @seealso \linkS4class{AEMSet}
 #' @export
-NewAEMSet <-
-  function(ExpressionMatrix = NULL,
-           GeneInformation = NULL,
-           CellInformation = NULL,
-           Controls = list() ){
+NewAEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInformation = NULL, Controls = list()) {
     # Check that we have the essential arguments - an expression matrix
     arg.check <- list(ExpressionMatrix = missing(ExpressionMatrix))
     if (any(arg.check == TRUE)) {
-      missing.args <- names(which(arg.check == TRUE))
-      msg <-
-        sprintf(
-          "Please check that you have supplied the following arguments: %s\n",
-          as.character(unlist(missing.args))
-        )
-      stop(msg)
+        missing.args <- names(which(arg.check == TRUE))
+        msg <- sprintf("Please check that you have supplied the following arguments: %s\n", as.character(unlist(missing.args)))
+        stop(msg)
     }
 
     # Automatically generate batch labels if it's not defined.
-    if ( is.null(CellInformation) ){
-      CellInformation <- data.frame(cell_barcode = colnames(ExpressionMatrix), batch = rep(1, ncol(ExpressionMatrix)))
+    if (is.null(CellInformation)) {
+        CellInformation <- data.frame(cell_barcode = colnames(ExpressionMatrix), batch = rep(1, ncol(ExpressionMatrix)))
     }
 
-    # Automatically generate a gene annotation data frame if one hasn't
-    # been supplied.
-    if ( is.null(GeneInformation) ) {
-      GeneInformation <- data.frame(gene_symbol = rownames(ExpressionMatrix))
+    # Automatically generate a gene annotation data frame if one hasn't been supplied.
+    if (is.null(GeneInformation)) {
+        GeneInformation <- data.frame(gene_symbol = rownames(ExpressionMatrix))
     }
 
     # Convert the data.frame input into a sparse matrix
     if (is.data.frame(ExpressionMatrix) | is.matrix(ExpressionMatrix)) {
-      sparse.matrix <- ConvertMatrix(ExpressionMatrix, format = "sparse.matrix")
+        sparse.matrix <- ConvertMatrix(ExpressionMatrix, format = "sparse.matrix")
     } else if (is(ExpressionMatrix, "sparseMatrix")) {
-      sparse.matrix <- ExpressionMatrix
+        sparse.matrix <- ExpressionMatrix
     } else {
-      stop(
-        "Please supply an expression matrix in one of the following formats: data.frame, dgCmatrix or matrix"
-      )
+        stop("Please supply an expression matrix in one of the following formats: data.frame, dgCmatrix or matrix")
     }
 
     # If the user has defined controls, add this information to the GeneInformation data frame.
-    if( length(Controls) > 0){
-      GeneInformation <- AddControlInfo(GeneInformation, Controls)
+    if (length(Controls) > 0) {
+        GeneInformation <- AddControlInfo(GeneInformation, Controls)
     }
 
     # Create a new AEMSet object.
-    aem.set <-
-      new(
-        "AEMSet",
-        ExpressionMatrix = sparse.matrix,
-        GeneInformation = GeneInformation,
-        CellInformation = CellInformation,
-        Controls = Controls
-      )
+    aem.set <- new("AEMSet", ExpressionMatrix = sparse.matrix, GeneInformation = GeneInformation, CellInformation = CellInformation, Controls = Controls)
 
     # Generate metrics
     aem.set <- GenerateMetrics(aem.set)
@@ -276,46 +231,43 @@ NewAEMSet <-
     aem.set <- SyncSlots(aem.set)
 
     # If controls
-    if (length(Controls) > 0){
-      aem.set@Log$Controls <- TRUE
-    } else{
-      aem.set@Log$Controls <- FALSE
+    if (length(Controls) > 0) {
+        aem.set@Log$Controls <- TRUE
+    } else {
+        aem.set@Log$Controls <- FALSE
     }
 
     # All clear, return the object
     return(aem.set)
-  }
+}
 
-setGeneric(
-  name = "SyncSlots",
-  def = function(object) {
+setGeneric(name = "SyncSlots", def = function(object) {
     standardGeneric("SyncSlots")
-  }
-)
+})
 
 #' SyncSlots
 #'
 #' Synchronises the data frames ExpressionMatrix, GeneInformation and CellInformation, to ensure everything is up to date.
 #' This is important as the object will undergo a series of changes during the filtering and normalisation process.
 #'
-setMethod("SyncSlots", signature("AEMSet"), function(object){
-  # Get data frames
-  expression.matrix <- object@ExpressionMatrix
-  gene.information <- object@GeneInformation
-  cell.information <- object@CellInformation
+setMethod("SyncSlots", signature("AEMSet"), function(object) {
+    # Get data frames
+    expression.matrix <- object@ExpressionMatrix
+    gene.information <- object@GeneInformation
+    cell.information <- object@CellInformation
 
-  # Expression matrix serves as the basis for updating all the other information
-  present.cells <- colnames(expression.matrix)
-  present.genes <- rownames(expression.matrix)
+    # Expression matrix serves as the basis for updating all the other information
+    present.cells <- colnames(expression.matrix)
+    present.genes <- rownames(expression.matrix)
 
-  # Get data frames based on this info
-  gene.information <- gene.information[gene.information[,1] %in% present.genes,]
-  cell.information <- cell.information[cell.information[,1] %in% present.cells,]
+    # Get data frames based on this info
+    gene.information <- gene.information[gene.information[, 1] %in% present.genes, ]
+    cell.information <- cell.information[cell.information[, 1] %in% present.cells, ]
 
-  object@GeneInformation <- gene.information
-  object@CellInformation <- cell.information
+    object@GeneInformation <- gene.information
+    object@CellInformation <- cell.information
 
-  return(object)
+    return(object)
 })
 
 #' UpdateControls
@@ -327,41 +279,37 @@ setMethod("SyncSlots", signature("AEMSet"), function(object){
 #' @param controls A named list containing the gene identifiers. These identifiers must match the identifiers used in the expression matrix. This list will replace any pre-existing controls.
 #' @return This function returns an AEMSet object with the upated controls.
 #' @export
-setGeneric(
-  name = "UpdateControls",
-  def = function(object, controls) {
+setGeneric(name = "UpdateControls", def = function(object, controls) {
     standardGeneric("UpdateControls")
-  }
-)
+})
 
 setMethod("UpdateControls", signature("AEMSet"), function(object, controls) {
-  errors <- character()
+    errors <- character()
 
-  # If user has supplied a list of controls
-  if (length(controls) > 0) {
-    check.controls <- unlist(controls) %in% rownames(object@ExpressionMatrix)
-    if (!TRUE %in% check.controls) {
-      msg <-
-        "Please make sure the gene identifiers you have listed in your control list matches those used in the expression matrix."
-      errors <- c(errors, msg)
+    # If user has supplied a list of controls
+    if (length(controls) > 0) {
+        check.controls <- unlist(controls) %in% rownames(object@ExpressionMatrix)
+        if (!TRUE %in% check.controls) {
+            msg <- "Please make sure the gene identifiers you have listed in your control list matches those used in the expression matrix."
+            errors <- c(errors, msg)
+        }
     }
-  }
 
-  if (length(errors) > 0) {
-    errors
-  } else {
-    object@Controls <- controls
-    if (length(controls) > 0){
-      GeneInformation <- object@GeneInformation
-      GeneInformation <- AddControlInfo(GeneInformation, controls)
-      object@GeneInformation <- GeneInformation
-      object@Log$Controls <- TRUE
-    } else{
-      object@Log$Controls <- FALSE
+    if (length(errors) > 0) {
+        errors
+    } else {
+        object@Controls <- controls
+        if (length(controls) > 0) {
+            GeneInformation <- object@GeneInformation
+            GeneInformation <- AddControlInfo(GeneInformation, controls)
+            object@GeneInformation <- GeneInformation
+            object@Log$Controls <- TRUE
+        } else {
+            object@Log$Controls <- FALSE
+        }
+        object <- GenerateMetrics(object)
+        return(object)
     }
-    object <- GenerateMetrics(object)
-    return(object)
-  }
 })
 
 #' ReplaceCellInfo
@@ -372,26 +320,23 @@ setMethod("UpdateControls", signature("AEMSet"), function(object, controls) {
 #' @param cell.info A data frame containing cell information. The first column must comprise of cell identifiers that match the cell identifiers used in the expression matrix. The second column, while optional - should contain batch information.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "ReplaceCellInfo",
-  def = function(object, cell.info) {
+setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
     standardGeneric("ReplaceCellInfo")
-  }
-)
+})
 
 setMethod("ReplaceCellInfo", signature("AEMSet"), function(object, cell.info) {
-  # Check replacement is valid.
-  replacement <- object
-  replacement@CellInformation <- cell.info
+    # Check replacement is valid.
+    replacement <- object
+    replacement@CellInformation <- cell.info
 
-  errors <- c()
-  errors <- CheckCellInformation(replacement, errors)
+    errors <- c()
+    errors <- CheckCellInformation(replacement, errors)
 
-  if (length(errors) > 0){
-    stop("New Cell Information is invalid. Please check your data frame and try again.")
-  } else{
-    return(replacement)
-  }
+    if (length(errors) > 0) {
+        stop("New Cell Information is invalid. Please check your data frame and try again.")
+    } else {
+        return(replacement)
+    }
 })
 
 #' ReplaceGeneInfo
@@ -402,24 +347,21 @@ setMethod("ReplaceCellInfo", signature("AEMSet"), function(object, cell.info) {
 #' @param gene.info A data frame containing cell information. The first column must comprise of gene identifiers that match the gene identifiers used in the expression matrix. The second column, while optional - should contain batch information.
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "ReplaceGeneInfo",
-  def = function(object, gene.info) {
+setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
     standardGeneric("ReplaceGeneInfo")
-  }
-)
+})
 
 setMethod("ReplaceGeneInfo", signature("AEMSet"), function(object, gene.info) {
-  # Check replacement is valid.
-  replacement <- object
-  replacement@GeneInformation <- gene.info
-  errors <- c()
-  errors <- CheckGeneInformation(replacement, errors)
-  if (length(errors) > 0){
-    stop("New Gene Information is invalid. Please check your data frame and try again.")
-  } else{
-    return(replacement)
-  }
+    # Check replacement is valid.
+    replacement <- object
+    replacement@GeneInformation <- gene.info
+    errors <- c()
+    errors <- CheckGeneInformation(replacement, errors)
+    if (length(errors) > 0) {
+        stop("New Gene Information is invalid. Please check your data frame and try again.")
+    } else {
+        return(replacement)
+    }
 })
 
 #' ReplaceExpressionMatrix
@@ -430,24 +372,21 @@ setMethod("ReplaceGeneInfo", signature("AEMSet"), function(object, gene.info) {
 #' @param expression.matrix Expression matrix in matrix form
 #' @include ASCEND_objects.R
 #' @export
-setGeneric(
-  name = "ReplaceExpressionMatrix",
-  def = function(object, expression.matrix) {
+setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
     standardGeneric("ReplaceExpressionMatrix")
-  }
-)
+})
 
 setMethod("ReplaceExpressionMatrix", signature("AEMSet"), function(object, expression.matrix) {
-  # Replace the matrix
-  object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format="sparse.matrix")
+    # Replace the matrix
+    object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format = "sparse.matrix")
 
-  # Check that it's okay before replacing.
-  errors <- c()
-  errors <- CheckExpressionMatrix(object, errors)
-  if (length(errors) > 0){
-    stop("Please check your expression matrix.")
-  }else{
-    object <- GenerateMetrics(object)
-    return(object)
-  }
+    # Check that it's okay before replacing.
+    errors <- c()
+    errors <- CheckExpressionMatrix(object, errors)
+    if (length(errors) > 0) {
+        stop("Please check your expression matrix.")
+    } else {
+        object <- GenerateMetrics(object)
+        return(object)
+    }
 })

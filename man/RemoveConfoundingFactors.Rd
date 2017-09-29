@@ -7,10 +7,13 @@
 RemoveConfoundingFactors(expression.matrix, candidate.genes = list())
 }
 \arguments{
-\item{expression.matrix}{Expression matrix in data frame format. You may load it from a AEMSet object with the GetExpressionMatrix function.}
+\item{expression.matrix}{Expression matrix in data frame format. You may load
+it from a AEMSet object with the GetExpressionMatrix function.}
 
-\item{candidate.genes}{A list of genes you wish to regress from the dataset. Refer to the vignette on how to choose genes for regression.}
+\item{candidate.genes}{A list of genes you wish to regress from the dataset.
+Refer to the vignette on how to choose genes for regression.}
 }
 \description{
-This function generates a scaled regression matrix based on candidate genes supplied by the user. This function is best used after normalisation.
+This function generates a scaled regression matrix based on candidate genes
+supplied by the user. This function is best used after normalisation.
 }

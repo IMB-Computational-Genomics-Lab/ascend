@@ -2,14 +2,15 @@
 
 #' GenerateDefaultControls
 #'
-#' Called by \code{\link{BuildCellRangerDataset}} to retrieve mitochondrial and ribosomal gene names and list them as controls.
+#' Called by \code{\link{BuildCellRangerDataset}} to retrieve mitochondrial and
+#' ribosomal gene names and list them as controls.
 #'
 #'
-GenerateDefaultControls <- function(gene.obj){
-  mitochondrial.genes <- gene.obj$gene_symbol[grep("^mt-", ignore.case=TRUE, gene.obj$gene_symbol)]
-  ribosomal.genes <- gene.obj$gene_symbol[grep("^rps|^rpl", ignore.case=TRUE, gene.obj$gene_symbol)]
-  controls <- list(Mt = mitochondrial.genes, Rb = ribosomal.genes)
-  return(controls)
+GenerateDefaultControls <- function(gene.obj) {
+    mitochondrial.genes <- gene.obj$gene_symbol[grep("^mt-", ignore.case = TRUE, gene.obj$gene_symbol)]
+    ribosomal.genes <- gene.obj$gene_symbol[grep("^rps|^rpl", ignore.case = TRUE, gene.obj$gene_symbol)]
+    controls <- list(Mt = mitochondrial.genes, Rb = ribosomal.genes)
+    return(controls)
 }
 
 #' BuildExpressionMatrix
@@ -23,153 +24,158 @@ GenerateDefaultControls <- function(gene.obj){
 #'
 #' \linkS4class{dgCMatrix} objects are preferred due to their smaller size.
 #'
-BuildExpressionMatrix <- function(sparse.matrix, barcode.obj, gene.obj){
-  # Put it all together into an object!
-  loaded.matrix <- as(sparse.matrix, "dgCMatrix")
-  colnames(loaded.matrix) <- barcode.obj[,1]
-  rownames(loaded.matrix) <- gene.obj[,1]
-
-  # Return the object
-  return(loaded.matrix)
+BuildExpressionMatrix <- function(sparse.matrix, barcode.obj, gene.obj) {
+    # Put it all together into an object!
+    loaded.matrix <- as(sparse.matrix, "dgCMatrix")
+    colnames(loaded.matrix) <- barcode.obj[, 1]
+    rownames(loaded.matrix) <- gene.obj[, 1]
+    
+    # Return the object
+    return(loaded.matrix)
 }
 
 # Process Gene Identifiers
 #' ProcessGeneReference
 #'
-#' Called by \code{\link{BuildCellRangerDataset}} to parse genes.tsv into a data frame.
+#' Called by \code{\link{BuildCellRangerDataset}} to parse genes.tsv into a data
+#' frame.
 #'
-ProcessGeneReference <- function(gene.obj){
-  # Convert to data frame, set gene symbol as column 1
-  colnames(gene.obj) <- c("ensembl_id", "gene_symbol")
-  gene.obj <- gene.obj[,c("gene_symbol", "ensembl_id")]
-
-  # Make gene symbols unique
-  gene_symbol <- make.unique(as.character(gene.obj$gene_symbol))
-  gene.obj$gene_symbol <- gene_symbol
-  return(gene.obj)
+ProcessGeneReference <- function(gene.obj) {
+    # Convert to data frame, set gene symbol as column 1
+    colnames(gene.obj) <- c("ensembl_id", "gene_symbol")
+    gene.obj <- gene.obj[, c("gene_symbol", "ensembl_id")]
+    
+    # Make gene symbols unique
+    gene_symbol <- make.unique(as.character(gene.obj$gene_symbol))
+    gene.obj$gene_symbol <- gene_symbol
+    return(gene.obj)
 }
 
 # Retrieve Batch Names from Expression Matrix
 #' IdentifyBatches
 #'
-#' Called by \code{\link{BuildCellRangerDataset}} to parse batch labels from barcodes.tsv file. The result is a named list featuring cell barcodes as the key and batch ID as the value.
+#' Called by \code{\link{BuildCellRangerDataset}} to parse batch labels from
+#' barcodes.tsv file. The result is a named list featuring cell barcodes as the
+#' key and batch ID as the value.
 #'
-IdentifyBatches <- function(barcode.obj){
-  colnames(barcode.obj) <- c("cell_barcode")
-  batch.information <- lapply(strsplit(as.character(barcode.obj$cell_barcode), "-"), `[`, 2)
-  barcode.obj$batch <- unlist(as.numeric(batch.information))
-  return(barcode.obj)
+IdentifyBatches <- function(barcode.obj) {
+    colnames(barcode.obj) <- c("cell_barcode")
+    batch.information <- lapply(strsplit(as.character(barcode.obj$cell_barcode), "-"), `[`, 2)
+    barcode.obj$batch <- unlist(as.numeric(batch.information))
+    return(barcode.obj)
 }
 
 #' BuildCellRangerDataset
 #'
-#' Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{CellRangerToASCEND}}. This function reads in the following files:
+#' Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{CellRangerToASCEND}}.
+#' This function reads in the following files:
 #' \itemize{
 #' \item{\strong{barcodes.tsv} - Filtered cellular barcodes recognised by Cell Ranger}
 #' \item{\strong{genes.tsv} - ENSEMBL transcript IDs and their associated gene symbols}
 #' \item{\strong{matrix.mtx} - The expression matrix in Market Matrix format}
 #' }
 #'
-BuildCellRangerDataset <- function(data.dir){
-  # Default filepaths for Cell Ranger
-  barcode.path <- paste0(data.dir, '/', "barcodes.tsv")
-  gene.path <- paste0(data.dir, '/', "genes.tsv")
-  matrix.path <- paste0(data.dir, '/', "matrix.mtx")
-
-  # Load the data
-  ## Barcode file
-  if (!(FileCheck(barcode.path))){
-    barcodes.src <- as.data.frame(data.table::fread(barcode.path, header=FALSE))
-  }
-  ## Gene File
-  if (!(FileCheck(gene.path))){
-    genes.src <- as.data.frame(data.table::fread(gene.path, header=FALSE))
-  }
-  ## Expression Matrix
-  if (!(FileCheck(matrix.path))){
-    matrix.sparse.src <- Matrix::readMM(matrix.path)
-  }
-
-  ## Transform the data into what's required for AEMSet object
-  ### Extract batch labels from barcodes
-  batch.list <- IdentifyBatches(barcodes.src)
-
-  ### Format gene list into a data frame
-  gene.df <- ProcessGeneReference(genes.src)
-
-  ### Convert loaded data into expression matrix
-  expression.matrix <- BuildExpressionMatrix(matrix.sparse.src, batch.list, gene.df)
-
-  ### Automatically generate controls - Mitochondrial and ribosomal genes
-  control.list <- GenerateDefaultControls(gene.df)
-
-  ### Return objects as a named list
-  processed.list <- list(CellInformation=batch.list, GeneInformation=gene.df, ExpressionMatrix=expression.matrix, Controls=control.list)
-  return(processed.list)
+BuildCellRangerDataset <- function(data.dir) {
+    # Default filepaths for Cell Ranger
+    barcode.path <- paste0(data.dir, "/", "barcodes.tsv")
+    gene.path <- paste0(data.dir, "/", "genes.tsv")
+    matrix.path <- paste0(data.dir, "/", "matrix.mtx")
+    
+    # Load the data Barcode file
+    if (!(FileCheck(barcode.path))) {
+        barcodes.src <- as.data.frame(data.table::fread(barcode.path, header = FALSE))
+    }
+    ## Gene File
+    if (!(FileCheck(gene.path))) {
+        genes.src <- as.data.frame(data.table::fread(gene.path, header = FALSE))
+    }
+    ## Expression Matrix
+    if (!(FileCheck(matrix.path))) {
+        matrix.sparse.src <- Matrix::readMM(matrix.path)
+    }
+    
+    ## Transform the data into what's required for AEMSet object Extract batch labels from barcodes
+    batch.list <- IdentifyBatches(barcodes.src)
+    
+    ### Format gene list into a data frame
+    gene.df <- ProcessGeneReference(genes.src)
+    
+    ### Convert loaded data into expression matrix
+    expression.matrix <- BuildExpressionMatrix(matrix.sparse.src, batch.list, gene.df)
+    
+    ### Automatically generate controls - Mitochondrial and ribosomal genes
+    control.list <- GenerateDefaultControls(gene.df)
+    
+    ### Return objects as a named list
+    processed.list <- list(CellInformation = batch.list, GeneInformation = gene.df, ExpressionMatrix = expression.matrix, Controls = control.list)
+    return(processed.list)
 }
 
 # Function for determining if the folders are valid
 #' CheckCellRangerDirs
 #'
-#' Called by \code{\link{LoadCellRangerData}}. This function is involved in checks to make sure the Cell Ranger output folder is structured correctly.
+#' Called by \code{\link{LoadCellRangerData}}. This function is involved in
+#' checks to make sure the Cell Ranger output folder is structured correctly.
 #'
-CheckCellRangerDirs <- function (target.dir, cellranger.dir){
-  result.dir <- lapply(cellranger.dir, function(x) dir.exists(paste0(target.dir,'/',x)))
-  if(any(result.dir == TRUE)){
-    data.idx <- which(unlist(result.dir))
-    data.dir <- paste(target.dir, sep="/", cellranger.dir[data.idx])
-    return(data.dir)
-  }
-  else{
-    stop("Please make sure you have entered the path to a Cell ranger results directory.")
-  }
+CheckCellRangerDirs <- function(target.dir, cellranger.dir) {
+    result.dir <- lapply(cellranger.dir, function(x) dir.exists(paste0(target.dir, "/", x)))
+    if (any(result.dir == TRUE)) {
+        data.idx <- which(unlist(result.dir))
+        data.dir <- paste(target.dir, sep = "/", cellranger.dir[data.idx])
+        return(data.dir)
+    } else {
+        stop("Please make sure you have entered the path to a Cell ranger results directory.")
+    }
 }
 
-# Main function to load Cell Ranger data
-# Possible Cell Ranger data directories - suitable for Cell Ranger 1.1.0, 1.2.0 and 1.3.1
-# Unfiltered matrices are incredibly large, not practical to work with them.
+# Main function to load Cell Ranger data Possible Cell Ranger data directories - suitable for Cell Ranger 1.1.0, 1.2.0 and 1.3.1 Unfiltered matrices are
+# incredibly large, not practical to work with them.
+
 #' LoadCellRangerData
 #'
-#' Called by \code{\link{CellRangerToASCEND}}. This function detects which folder to use in the "outs" directory of the Cell Ranger output folder.
+#' Called by \code{\link{CellRangerToASCEND}}. This function detects which folder
+#' to use in the 'outs' directory of the Cell Ranger output folder.
 #'
-LoadCellRangerData <- function(working.dir, genome.name){
-  cellranger.dir <- c("filtered_gene_bc_matrices", "filtered_gene_bc_matrices_mex")
-
-  # Set the working directory to Cell Ranger's data directory.
-  # This doesn't actually affect the user environment, so it is clear :)
-  if (endsWith(working.dir, "/")){
-    result.dir <- paste0(working.dir, "outs")
-    data.dir <- CheckCellRangerDirs(result.dir, cellranger.dir)
-  } else {
-    result.dir <- paste(working.dir, sep="/", "outs")
-    data.dir <- CheckCellRangerDirs(result.dir, cellranger.dir)
-  }
-
-  # We have figured out where the data is. Now to see if the results for the genome exists
-  current.result.dir <- paste0(data.dir, "/", genome.name)
-  if (dir.exists(current.result.dir)) {
-    BuildCellRangerDataset(current.result.dir)
-  } else {
-    stop("Please make sure your genome name is correct and is the same used by Cell Ranger.")
-  }
+LoadCellRangerData <- function(working.dir, genome.name) {
+    cellranger.dir <- c("filtered_gene_bc_matrices", "filtered_gene_bc_matrices_mex")
+    
+    # Set the working directory to Cell Ranger's data directory.  This doesn't actually affect the user environment, so it is clear :)
+    if (endsWith(working.dir, "/")) {
+        result.dir <- paste0(working.dir, "outs")
+        data.dir <- CheckCellRangerDirs(result.dir, cellranger.dir)
+    } else {
+        result.dir <- paste(working.dir, sep = "/", "outs")
+        data.dir <- CheckCellRangerDirs(result.dir, cellranger.dir)
+    }
+    
+    # We have figured out where the data is. Now to see if the results for the genome exists
+    current.result.dir <- paste0(data.dir, "/", genome.name)
+    if (dir.exists(current.result.dir)) {
+        BuildCellRangerDataset(current.result.dir)
+    } else {
+        stop("Please make sure your genome name is correct and is the same used by Cell Ranger.")
+    }
 }
 
-# Shortcut to create scryer object
+# Shortcut to create ASCEND object
 #' CellRangerToASCEND
 #'
-#' \code{\link{CellRangerToASCEND}} processes data generated by Cell Ranger's count pipeline into a \linkS4class{AEMSet} object, for use with \pkg{ASCEND}.
-#' This function assumes the user is using ribosomal and mitochondrial genes as a control for the experiment.
+#' \code{\link{CellRangerToASCEND}} processes data generated by Cell Ranger's
+#' count pipeline into a \linkS4class{AEMSet} object, for use with \pkg{ASCEND}.
+#' This function assumes the user is using ribosomal and mitochondrial genes as
+#' a control for the experiment.
 #'
-#' @param cellranger.path This is the path to the folder of data generated by Cell Ranger's count pipeline.
+#' @param cellranger.path This is the path to the folder of data generated by
+#' Cell Ranger's count pipeline.
 #' @param genome This is the name of the reference genome used by Cell Ranger.
 #' @return \linkS4class{AEMSet}
 #' @export
-CellRangerToASCEND <- function(cellranger.path, genome.name){
-  loaded.data <- LoadCellRangerData(cellranger.path, genome.name)
-  exprs.mtx <- loaded.data$ExpressionMatrix
-  genes <- loaded.data$GeneInformation
-  batch <- loaded.data$CellInformation
-  controls <- loaded.data$Controls
-  object <- NewAEMSet(ExpressionMatrix = exprs.mtx, GeneInformation = genes, CellInformation = batch, Controls = controls)
-  return(object)
+CellRangerToASCEND <- function(cellranger.path, genome.name) {
+    loaded.data <- LoadCellRangerData(cellranger.path, genome.name)
+    exprs.mtx <- loaded.data$ExpressionMatrix
+    genes <- loaded.data$GeneInformation
+    batch <- loaded.data$CellInformation
+    controls <- loaded.data$Controls
+    object <- NewAEMSet(ExpressionMatrix = exprs.mtx, GeneInformation = genes, CellInformation = batch, Controls = controls)
+    return(object)
 }

@@ -1,7 +1,8 @@
 #' GetConsecutiveSequence
 #'
 #' Function used to determine consecutive sequences on boundaries.
-#' This is called by FindOptimalResult to determine which clustering results are consecutive.
+#' This is called by FindOptimalResult to determine which clustering results are
+#' consecutive.
 #'
 GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
   consecutive <- c()
@@ -55,7 +56,8 @@ GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
         step.val <- current.val - next.val
       }
 
-      # If this number is consecutive with its neighbour, see if it is consecutive with the current list...
+      # If this number is consecutive with its neighbour, see if it is
+      # consecutive with the current list...
       if (step.val == 1){
         if (length(consecutive) > 0){
           if (consecutive[length(consecutive)] - current.val == 1){
@@ -81,7 +83,8 @@ FindOptimalResult <- function(key.stats){
   # Which one is greater than the other one?
   max.min.idx <- c(1,40)
   stability <- key.stats$Stability
-  endpoint.stability.idx <- max.min.idx[which(stability[max.min.idx] == max(stability[max.min.idx]))]
+  endpoint.stability.idx <- max.min.idx[which(stability[max.min.idx] ==
+                                        max(stability[max.min.idx]))]
   if (length(endpoint.stability.idx) > 1){
     endpoint.stability.idx <- 1
   }
@@ -143,8 +146,16 @@ FindOptimalResult <- function(key.stats){
 BuildKeyStat <- function(rand.matrix){
   # Set up a key stat dataframe
   rand.matrix <- as.data.frame(rand.matrix)
-  key.stats.df <- cbind(as.numeric(rand.matrix$order)*0.025, rand.matrix$stability_count, rand.matrix$cluster.index.ref, rand.matrix$cluster.index.consec, rand.matrix$cluster_count)
-  colnames(key.stats.df) <-c('Height', 'Stability', 'RandIndex', 'ConsecutiveRI', "ClusterCount")
+  key.stats.df <- cbind(as.numeric(rand.matrix$order)*0.025,
+                        rand.matrix$stability_count,
+                        rand.matrix$cluster.index.ref,
+                        rand.matrix$cluster.index.consec,
+                        rand.matrix$cluster_count)
+  colnames(key.stats.df) <- c('Height',
+                            'Stability',
+                            'RandIndex',
+                            'ConsecutiveRI',
+                            "ClusterCount")
   key.stats.df <- as.data.frame(key.stats.df)
   key.stats.df$Height <-as.character(key.stats.df$Height)
   return(key.stats.df)
@@ -283,7 +294,7 @@ GenerateRandIndexMatrix <- function(cluster.matrix, original.clusters, cluster.l
 
   # Grab column one to seed values for the new table
   input.table <- table(cluster.matrix[[1]], original.clusters)
-  cluster.index.consec[[1]] <-1
+  cluster.index.consec[[1]] <- 1
   cluster.index.ref[[1]] <- CalculateRandIndex(input.table)
 
   # Populate the rest of the matrix
@@ -305,7 +316,8 @@ GenerateRandIndexMatrix <- function(cluster.matrix, original.clusters, cluster.l
 #' Performs a series of cuts over 40 heights using dynamicTreeCut with a set height..
 #'
 GenerateClusteringMatrix <- function(original.clusters, cluster.list){
-  # Transform clustering results into a data frame, with each cut as a column, each cell as a row and their cluster as the value of the matrix
+  # Transform clustering results into a data frame, with each cut as a column,
+  # each cell as a row and their cluster as the value of the matrix
   cluster.matrix <- matrix(unlist(cluster.list), ncol = 40)
   cluster.matrix <-as.data.frame(cluster.matrix)
   cluster.matrix$ref <- original.clusters
@@ -319,7 +331,8 @@ GenerateClusteringMatrix <- function(original.clusters, cluster.list){
 #' Generates clusters using dynamicTreeCut's unsupervised cut setting.
 #'
 RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
-  clusters <- unname(dynamicTreeCut::cutreeDynamic(hclust.obj, distM=as.matrix(distance.matrix), minSplitHeight=height, verbose=0))
+  clusters <- unname(dynamicTreeCut::cutreeDynamic(hclust.obj,
+      distM=as.matrix(distance.matrix), minSplitHeight=height, verbose=0))
   return(clusters)
 }
 
@@ -365,13 +378,16 @@ FindOptimalClusters <- function(object){
   }
   distance.matrix <- stats::dist(pca.matrix)
   original.tree <- stats::hclust(distance.matrix, method="ward.D2")
-  original.clusters <- unname(dynamicTreeCut::cutreeDynamic(original.tree, distM=as.matrix(distance.matrix), verbose=0))
+  original.clusters <- unname(dynamicTreeCut::cutreeDynamic(original.tree,
+                        distM=as.matrix(distance.matrix), verbose=0))
 
   # Generate clustering matrix
   # Features number of clusters produced at varying dendrogram cut heights
   # Perform 40 dynamic tree cuts at varying heights
   print("Generating clusters by running dynamicTreeCut at different heights...")
-  cluster.list <- lapply(seq(0.025:1, by=0.025), RetrieveCluster, hclust.obj = original.tree, distance.matrix = distance.matrix)
+  cluster.list <- lapply(seq(0.025:1, by=0.025), RetrieveCluster,
+                                                hclust.obj = original.tree,
+                                                distance.matrix = distance.matrix)
   height.list <- lapply(seq(0.025:1, by=0.025), function(x) x)
 
   cluster.matrix <- GenerateClusteringMatrix(original.clusters, cluster.list)

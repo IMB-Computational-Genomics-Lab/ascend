@@ -7,5 +7,6 @@
 ProcessGeneReference(gene.obj)
 }
 \description{
-Called by \code{\link{BuildCellRangerDataset}} to parse genes.tsv into a data frame.
+Called by \code{\link{BuildCellRangerDataset}} to parse genes.tsv into a data
+frame.
 }
