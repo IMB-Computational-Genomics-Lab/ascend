@@ -13,7 +13,7 @@ scranCellCycle <- function(object, hs.pairs) {
   expression.matrix <- GetExpressionMatrix(object, format = "matrix")
 
   # Run cyclone with cell cycle assignments as a vector
-  cc.assignments <- scran::cyclone(expression.matrix, pairs = hs.pairs, rownames(expression.matrix), BPPARAM = bpparam())
+  cc.assignments <- scran::cyclone(expression.matrix, pairs = hs.pairs, rownames(expression.matrix), BPPARAM = BiocParallel::bpparam())
 
   cell.info <- GetCellInfo(object)
   cell.info$phase <- cc.assignments$phases

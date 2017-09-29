@@ -69,28 +69,19 @@ colnames(matrix) <- barcodes[,1]
 matrix[1:5, 1:5]
 ```
 
-We can also add other information to this data frame. The cells in this dataset were sorted for expression of the THY1 protein. This corresponds to the batch identifiers that we have just pulled out from the barcodes.
-
-```{r LabelTHY1Cells}
-thy1.expression <- barcodes$batch
-thy1.expression <- thy1.expression == 1
-barcodes$THY1 <- thy1.expression
-barcodes[1:5,]
-```
-
 #### Gene Information
 `genes.tsv` contains the names of transcripts identified by Cell Ranger. This csv file contains ENSEMBL transcript IDs in one column and their corresponding gene name in the other column. Either of these identifiers can be used as row names in the expression matrix. 
 
 ```{r ReadGenes}
-colnames(genes) <- c("ensembl_id", "gene_name")
+colnames(genes) <- c("ensembl_id", "gene_symbol")
 genes[1:5,]
 ```
 
 For this tutorial, we will use gene names. As genes can be associated with more than one transcript, we need to make the names unique with `make.unique` before adding them to the expression matrix. We also need to swap the order of the identifiers, as ASCEND requires our chosen names to be in the first column of the Gene Information dataframe.
 
 ```{r SetRownames}
-genes <- genes[,c("gene_name", "ensembl_id")]
-gene.names <- make.unique(as.vector(genes$gene_name))
+genes <- genes[,c("gene_symbol", "ensembl_id")]
+gene.names <- make.unique(as.vector(genes$gene_symbol))
 rownames(matrix) <- gene.names
 matrix[1:5, 1:5]
 ```
@@ -98,7 +89,7 @@ matrix[1:5, 1:5]
 Now that the gene names have been modified, the gene_names column in the `genes` data frame needs to be updated. This will link the information in this data frame with the rows of the expression matrix.
 
 ```{r ReplaceGeneNames}
-genes$gene_name <- gene.names
+genes$gene_symbol <- gene.names
 genes[1:15,]
 ```
 
@@ -130,6 +121,34 @@ aem.set <- CellRangerToASCEND("RGC_scRNASeq", "GRCh38")
 
 This function loads the data into an AEMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
 
+#### Adding additional metadata to the AEMSet
+We can add other information to the AEMSet after it is created. 
+
+For example, the cells in this dataset were sorted for expression of the THY1 protein. This corresponds to the batch identifiers that we have just pulled out from the barcodes.
+
+```{r LabelTHY1Cells}
+cell.info <- GetCellInfo(aem.set)
+thy1.expression <- cell.info$batch
+thy1.expression <- thy1.expression == 1
+cell.info$THY1 <- thy1.expression
+cell.info[1:5, ]
+```
+
+We are also interested in the expression of *BRN3B*/*POU4F2*. We can identify cells that are expressing this gene by looking at the row that contains counts for this gene.
+
+```{r LabelPOU4F2}
+expression.matrix <- GetExpressionMatrix(aem.set, format = "data.frame")
+pou4f2.expression <- as.vector(expression.matrix["POU4F2", ] > 0)
+cell.info$POU4F2 <- pou4f2.expression
+cell.info[1:5, ]
+```
+
+To load the modified cell information dataframe back into the AEMSet, use the `ReplaceCellInfo` function.
+
+```{r ReplaceCellInfo}
+aem.set <- ReplaceCellInfo(aem.set, cell.info)
+```
+
 ## Single-cell post-processing and normalisation workflow
 The filtering workflow is based off [A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor][2] by Lun, McCarthy & Marioni 2016.
 
@@ -144,6 +163,26 @@ raw.qc.plots <- PlotGeneralQC(aem.set)
 PlotPDF(raw.qc.plots, "RawQC.pdf")
 ```
 
+### Classifying cells by cell cycle
+To identify the stage of the cell cycle each cell is in, use `scranCellCycle`. This function is a wrapper for `scran`'s `cyclone` function. For more information on how this function works, refer to the `scran` [documentation][2]. The `scranCellCycle` and subsequently and `cyclone` function require a training dataset. In this case, we loaded the human dataset that comes packaged with `scran`. We also had to briefly convert the gene annotation used in the AEMSet to ENSEMBL IDs, to match the training dataset. 
+
+```{r CellCycle}
+# Convert the AEMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id column of the GeneInformation dataframe
+aem.set <- ConvertGeneAnnotation(aem.set, "gene_symbol", "ensembl_id")
+
+# Load scran's training dataset
+training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", package = "scran"))
+
+# Run scranCellCycle
+aem.set <- scranCellCycle(aem.set, training.data)
+
+# View cell information
+cell.info <- GetCellInfo(aem.set)
+cell.info[1:5, ]
+
+# Convert annotation back to gene_symbol
+aem.set <- ConvertGeneAnnotation(aem.set, "gene_symbol", "ensembl_id")
+```
 
 ### Cell filtering 
 #### Filter cells by library size and gene expression
@@ -324,6 +363,15 @@ norm.set <- ExcludeControl(norm.set, "Rb")
 ```
 
 Please note that this has already been done as a part of the `scranNormalise` process.
+
+
+### Regression of Counfounding Factors
+
+```{r ConfoundingFactors}
+cell.cycle.genes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2")
+
+```
+
 
 ### Dimension Reduction
 We have filtered our dataset down to 1235 cells and 32904 genes and normalised the transcript counts with `scranNormalise`. We can reduce this dataset further by using *Principal Component Analysis (PCA)* to identify genes that are major contributors to variation.

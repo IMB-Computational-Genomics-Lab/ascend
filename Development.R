@@ -23,38 +23,10 @@ filtered.set <- FilterByExpressedGenesPerCell(filtered.set, 1)
 # Run Scran Normalisation
 scran.obj <- scranNormalise(filtered.set, quickCluster = FALSE)
 
-# PCA
-pca.obj <- RunPCA(scran.obj)
-# PlotPCAVariance(pca.obj, n = 100)
-pca.obj <- ReduceDimensions(pca.obj, n = 20)
+# Confounding Factors
+# RegressConfoundingFactors function
+candidate.genes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2", "RP5-902P8.12")
+regressed.obj <- RegressConfoundingFactors(scran.obj, candidate.genes)
 
-# Cluster
-clustered.obj <- FindOptimalClusters(pca.obj)
-clean.obj <- SubsetCluster(clustered.obj, "1")
+expression.matrix <- GetExpressionMatrix(regressed.obj, format = "data.frame")
 
-# Run PCA
-pca.obj <- RunPCA(clean.obj)
-pca.obj <- ReduceDimensions(pca.obj)
-clean.clusters <- FindOptimalClusters(pca.obj)
-
-# Troubleshooting Plots
-cell.df <- GetCellInfo(clean.clusters)
-
-# Label THY1 status
-THY1 <- cell.df$batch
-THY1[which(THY1 == "1")] <- TRUE
-THY1[which(THY1 == "2")] <- FALSE
-cell.df$THY1 <- THY1
-
-# Label cells based on BRN3B/POU4F2 expression - gene involved in differentiation of RGCs
-expression.matrix <- GetExpressionMatrix(clean.clusters, format = "data.frame")
-POU4F2 <- rep(FALSE, ncol(expression.matrix))
-POU4F2[which(expression.matrix["POU4F2", ] > 0)] <- TRUE
-cell.df$POU4F2 <- POU4F2
-cluster_colours <- cell.df$cluster
-cluster_colours[which(cluster_colours == 1)] <- "#6c45cb"
-cluster_colours[which(cluster_colours == 2)] <- "#d66d00"
-cluster_colours[which(cluster_colours == 3)] <- "#007047"
-cell.df$cluster_colours <- cluster_colours
-
-cluster.de.results <- RunDiffExpression(clean.clusters, column = "cluster", conditions = c("1", "2", "3"))
