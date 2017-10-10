@@ -14,41 +14,43 @@ setGeneric(name = "SubsetCondition", def = function(object, conditions) {
 })
 
 setMethod("SubsetCondition", signature("AEMSet"), function(object, conditions = c()) {
-    # Check if selected batches are present in the batches column
-    if (!any(conditions %in% colnames(object@CellInformation))) {
-        stop("None of your selected batches are present in the dataset.")
-    }
+  # Check if selected batches are present in the batches column
+  if (!any(conditions %in% colnames(object@CellInformation))) {
+    stop("None of your selected batches are present in the dataset.")
+  }
 
-    # Create a new object to output, ensures original object does not get overwritten.
-    subset.obj <- object
+  # Create a new object to output, ensures original object does not get overwritten.
+  subset.obj <- object
 
-    # Retrieve data from relevant slots
-    expression.matrix <- GetExpressionMatrix(subset.obj, format = "data.frame")
-    cell.info <- subset.obj@CellInformation
+  # Retrieve data from relevant slots
+  expression.matrix <- GetExpressionMatrix(subset.obj, format = "data.frame")
+  cell.info <- subset.obj@CellInformation
 
-    # Select out the specified columns
-    subset.cell.info <- cell.info[, which(colnames(cell.info) %in% conditions)]
+  # Select out the specified columns
+  subset.cell.info <- cell.info[, c(1, which(colnames(cell.info) %in% conditions))]
 
-    # Select out rows that are true in at least one column
-    keep.list <- c()
+  # Select out rows that are true in at least one column
+  keep.list <- c()
 
-    for (condition in conditions) {
-        keep.list <- c(keep.list, which(subset.cell.info[, condition]))
-    }
+  for (condition in conditions) {
+    keep.list <- c(keep.list, which(subset.cell.info[, condition]))
+  }
 
-    subset.cell.info <- subset.cell.info[which(subset.cell.info[, 1] %in% keep.list), ]
+  keep.list <- unique(keep.list)
+  subset.cell.info <- cell.info[keep.list, c(1, 2, which(colnames(cell.info) %in% conditions))]
+  keep.barcodes <- subset.cell.info[,1]
 
-    # Subset the expression matrix.
-    subset.matrix <- expression.matrix[, keep.list]
-    subset.obj <- ReplaceExpressionMatrix(subset.obj, subset.matrix)
-    subset.obj <- ReplaceCellInfo(subset.obj, subset.cell.info)
-    subset.obj <- SyncSlots(subset.obj)
+  # Subset the expression matrix.
+  subset.matrix <- expression.matrix[, keep.barcodes]
+  subset.obj <- ReplaceExpressionMatrix(subset.obj, subset.matrix)
+  subset.obj <- ReplaceCellInfo(subset.obj, subset.cell.info)
+  subset.obj <- SyncSlots(subset.obj)
 
-    # Clean up the object
-    subset.obj@PCA <- list()
-    subset.obj@Clusters <- list()
-    subset.obj@Log <- c(subset.obj@Log, list(SubsetByBatches = TRUE, SubsettedBatches = batches))
-    return(subset.obj)
+  # Clean up the object
+  subset.obj@PCA <- list()
+  subset.obj@Clusters <- list()
+  subset.obj@Log <- c(subset.obj@Log, list(SubsetByCondition = TRUE, SubsettedConditions = conditions))
+  return(subset.obj)
 })
 
 

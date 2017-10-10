@@ -110,7 +110,7 @@ The Gene Information data frame should be structured as follows:
 
 ```{r echo = FALSE, results = "asis"}
 library(knitr)
-kable(data.table(gene_identifier1 = c("GENE1", "GENE2", "...", "...", "GENEX")))
+kable(data.table(gene_identifier1 = c("GENE1", "GENE2", "...", "...", "GENEX"), gene_identifier2 = c("IDENTIFIER1", "IDENTIFIER2", "...", "...", "IDENTIFIERX")))
 ```
 
 ### Controls
@@ -146,7 +146,7 @@ An ASCEND Expression and Metadata Set (AEMSet) is a S4 object that stores inform
 Generally, an AEMSet can be created by using the `NewAEMSet` function. You can view a quick summary of this object by entering the name of the created object.
 
 ```{r LoadData, echo = FALSE}
-data("RGC_scRNASeq")
+load(system.file("extdata", "RGC_scRNASeq.RData", package = "ASCEND"))
 
 # Quick prep of data to use as examples. Duplicate of what's done in ASCEND_Tutorial.md
 batch.information <- lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)
@@ -174,11 +174,10 @@ aem.set
 Refer to the vignette [An introduction to ASCEND - Processing and analysis of retinal ganglion cells ](RGC_Tutorial.md) for a walkthrough on how to create an AEMSet.
 
 ### Manipulating an AEMSet
-The `ASCEND` package comes with functions dedicated to the manipulation of `AEMSets`.
+The `ASCEND` package comes with functions dedicated to the retrieval and modification of data stored in `AEMSets`.
 
 #### Retrieving data from an AEMSet
 The following functions can be used to retrieve data from specific slots in an `AEMSet`.
-
 
 | Slot              | Function            |
 |-------------------|---------------------|
@@ -191,7 +190,7 @@ The following functions can be used to retrieve data from specific slots in an `
 | Hclust object     | GetHclust           |
 | Log               | DisplayLog          |
 
-#### Modifying an AEMSet
+#### Modifying contents of an AEMSet
 The following functions can be used to modify the contents of an AEMSet.
 
 | Slot              | Function                |
@@ -222,7 +221,7 @@ updated.aem.set <- ReplaceExpressionMatrix(aem.set, new.matrix)
 ```
 
 #### Subsetting from an AEMSet
-The following functions can be used to subset data from an `AEMSet` based on a critieria.
+The following functions can be used to subset data from an `AEMSet` based on a condition.
 
 To subset cells by batch, use `SubsetBatch`.
 ```{r SubsetBatch, eval = FALSE}
@@ -249,8 +248,6 @@ cell.barcodes <- sample(cell.info$cell_barcode, 100, replace = FALSE)
 hundred.cell.set <- SubsetCells(aem.set, cell_barcodes = cell.barcodes)
 ```
 
-Be mindful of what has been done to the dataset before continuing on your analysis on the subsetted AEMSet. For example, if you subset part of a dataset that has undergone clustering and wish to perform clustering on the isolated cells - you will need to repeat the PCA reduction before clustering the dataset.
-
 ## ASCEND Plotting Functions
 ASCEND has the following plotting functions: 
 
@@ -273,98 +270,17 @@ Plots that use ggplot2 can be treated as normal ggplot2 objects where elements c
 PCA, TSNE and MDS plots depict relative distances between cells based on expression. Additional information can be added to these plots by highlighting cells based on a condition stored in the Cell Information slot of the `AEMSet` object.
 
 Example: Colour cells by batch identifier
+```{r LoadCompleteData, echo = FALSE}
+aem.set <- readRDS(system.file("extdata", "RGC_AEMSet.rds", package = "ASCEND"))
+```
+
 ```{r ColourByBatch}
-pca.plot <- PlotPCA(aem.set, dim1 = 1, dim2 = 2, condition = "batch")
-mds.plot <- PlotMDS(aem.set, PCA = TRUE, dim1 = 1, dim2 = 2, condition = "batch")
-tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition = "batch", seed = 0, perplexity = 30, theta = 0.5)
-```
-
-## Example - Defining conditions in an AEMSet and generating plots
-The following example uses data prepared from the vignette [An introduction to ASCEND - Processing and analysis of retinal ganglion cells](RGC_Tutorial.Rmd). This data has undergone cell cycle assignment, filtering, normalisation, dimension reduction and clustering. 
-
-```{r LoadExample}
-data(rgc.obj)
-rgc.obj
-```
-
-Let's retrieve the expression matrix as a dataframe, and have a look at it.
-```{r ExampleGetMatrix}
-expression.matrix <- GetExpressionMatrix(rgc.obj, "data.frame")
-expression.matrix[1:10, 1:10]
-```
-
-These counts have been normalised using the `scranNormalise` function. We can review the log to see what other methods were used on this object.
-```{r ReviewLog}
-DisplayLog(rgc.obj)
-```
-
-Because the object has been normalised with the `scranNormalise` function, the controls - mitochondrial and ribosomal transcripts, have been removed from the dataset.
-
-This dataset has undergone cell cycle and cluster assignment. We can view this information in the cell information slot.
-
-```{r ExamineCellInfo}
-cell.info <- GetCellInfo(rgc.obj)
-cell.info[1:10,]
-```
-
-We can characterise these cells further by identifying cells that express certain transcripts; in this case, we are interested in transcripts belonging to the BRN-3 family (The Brn-3 family of POU-domain factors: primary structure, binding specificity, and expression in subsets of retinal ganglion cells and somatosensory neurons)[http://www.jneurosci.org/content/15/7/4762].
-
-As we have extracted the expression matrix as a dataframe, we can use general R functions to identify which cells express transcripts from this family.
-
-```{r IdentifyCells}
-# Transcripts from BRN-3 family - 
-brn3.transcripts <- c("POU4F1", "POU4F2", "POU4F3")
-
-# Extract rows from matrix belonging to these transcripts
-brn3.transcript.counts <- expression.matrix[brn3.transcripts, ]
-
-# Identify cells (columns) where transcript counts are greater than one
-brn3.cells <- names(which(colSums(brn3.transcript.counts) > 0))
-brn3.cells
-```
-
-There are 21 cells expressing transcripts from this family. 
-
-Add this information to the Cell Information dataframe and update the object.
-
-```{r UpdateCellInfo}
-# Make a copy of the original cell information
-updated.cell.info <- cell.info
-
-# Create a new column for BRN3 expression, where default expression is false
-updated.cell.info$BRN3 <- rep(FALSE, nrow(updated.cell.info))
-
-# Label cells that do express BRN3 transcripts as TRUE
-updated.cell.info$BRN3[which(updated.cell.info$cell_barcode %in% brn3.cells)] <- TRUE
-
-# Replace the information
-brn3.obj <- ReplaceCellInfo(rgc.obj, updated.cell.info)
-```
-
-Let's see how these cells are positioned on PCA, TSNE and MDS plots. We'll colour BRN3-expressing cells red (#990000) and non-expressing cells a dark grey (#333333).
-
-#### PCA Plot
-```{r PCABRN3}
-# Load ggplot2 so we can modify the plot
 library(ggplot2)
+pca.plot <- PlotPCA(aem.set, dim1 = 1, dim2 = 2, condition = "batch") + scale_color_manual(values=c("#f47461", "#8b0000")) + ggtitle("PCA Plot", subtitle = "Labelled by batch")
+mds.plot <- PlotMDS(aem.set, PCA = TRUE, dim1 = 1, dim2 = 2, condition = "batch") + scale_color_manual(values=c("#f47461", "#8b0000")) + ggtitle("MDS Plot", subtitle = "Labelled by batch")
+tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition = "batch", seed = 0, perplexity = 30, theta = 0.5) + scale_color_manual(values=c("#f47461", "#8b0000")) + ggtitle("TSNE Plot", subtitle = "Labelled by batch")
 
-# PCA Plot
-pca.plot <- PlotPCA(brn3.obj, dim1 = 1, dim2 = 2, condition = "BRN3")
-pca.plot <- pca.plot + scale_color_manual(values=c("#333333", "#990000"))
 print(pca.plot)
-```
-
-#### MDS Plot
-```{r PCABRN3}
-# Plot MDS
-mds.plot <- PlotMDS(brn3.obj, PCA = TRUE, dim1 = 1, dim2 = 2, condition = "BRN3")
-mds.plot <- mds.plot + scale_color_manual(values=c("#333333", "#990000"))
 print(mds.plot)
-```
-
-#### TSNE Plot
-```{r TSNEBRN3}
-tsne.plot <- PlotTSNE(brn3.obj, PCA = TRUE, condition = "BRN3", seed = 1, perplexity = 30, theta = 0.5)
-tsne.plot <- tsne.plot + scale_color_manual(values=c("#333333", "#990000"))
 print(tsne.plot)
 ```

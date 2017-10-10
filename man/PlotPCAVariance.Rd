@@ -4,7 +4,7 @@
 \alias{PlotPCAVariance}
 \title{PlotPCAVariance}
 \usage{
-PlotPCAVariance(object, n)
+PlotPCAVariance(object, n = 100)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet} that has undergone PCA.}

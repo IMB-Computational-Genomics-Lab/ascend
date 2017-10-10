@@ -4,7 +4,7 @@
 \alias{PlotTSNE}
 \title{PlotTSNE}
 \usage{
-PlotTSNE(object, PCA = TRUE, column = NULL, colour = NULL, seed = 0,
+PlotTSNE(object, PCA = TRUE, condition = NULL, seed = 0,
   perplexity = 30, theta = 0.5)
 }
 \arguments{
@@ -12,9 +12,7 @@ PlotTSNE(object, PCA = TRUE, column = NULL, colour = NULL, seed = 0,
 
 \item{PCA}{Set to FALSE to not use PCA-reduced values}
 
-\item{column}{(Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by}
-
-\item{colour}{(Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.}
+\item{condition}{(Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by}
 
 \item{seed}{(Optional) Set to a specific value for reproducible TSNE plots}
 

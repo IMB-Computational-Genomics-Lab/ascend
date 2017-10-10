@@ -12,7 +12,7 @@ PlotNormalisationQC(original = NULL, normalised = NULL,
 
 \item{normalised}{A normalised \linkS4class{AEMSet}}
 
-\item{gene}{Gene to plot expression levels for (optional)}
+\item{gene.list}{OPTIONAL: A list of genes to plot expression levels for. If not defined, ASCEND will choose a gene at random}
 }
 \description{
 Generates a series of plots comparing an un-normalised and a normalised \linkS4class{AEMSet}.
