@@ -379,21 +379,20 @@ PlotStabilityDendro <- function(object){
 #'  @param PCA If true, use PCA-reduced matrix to generate MDS plot
 #'  @param dim1 Which dimension to plot on the x-axis
 #'  @param dim2 Which dimension to plot on the y-axis
-#'  @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
-#'  @param colour (Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.
+#'  @param condition (Optional) Name of the condition in Cell Identifiers that describe a set of conditions you would like to colour cells by
 #'  @export
 #'
-PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL, colour = NULL){
+PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet object.")
   }
 
   # Check the column has been defined
-  if (!is.null(column)){
-    if (is.null(object@CellInformation[ ,column])){
-      stop("Please ensure your specified column exists.")
+  if (!is.null(condition)){
+    if (is.null(object@CellInformation[ ,condition])){
+      stop("Please ensure your specified condition exists.")
     } else{
-      condition.list <- object@CellInformation[, column]
+      condition.list <- object@CellInformation[, condition]
       names(condition.list) <- object@CellInformation[,1]
     }
   }
@@ -444,14 +443,9 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL, colo
   print("Generating MDS plot...")
   if (length(condition.list) > 0){
     mds.matrix$condition <- unlist(condition.list)
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(alpha = 0.5) + ggplot2::labs(colour = column)
+    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(alpha = 0.5) + ggplot2::labs(colour = condition)
   } else{
     mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
-  }
-
-  if (!is.null(colour)){
-    colours <- object@CellInformation[, colour]
-    mds.plot <- mds.plot + ggplot2::scale_color_manual(values = unique(colours))
   }
 
   return(mds.plot)
@@ -463,25 +457,24 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, column = NULL, colo
 #'
 #' @param object An \linkS4class{AEMSet}.
 #' @param PCA Set to FALSE to not use PCA-reduced values
-#' @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
-#' @param colour (Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.
+#' @param condition (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
 #' @param perplexity (Optional) Numeric; perplexity parameter
 #' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)
 #' @export
 #'
-PlotTSNE <- function(object, PCA = TRUE, column = NULL, colour = NULL, seed = 0, perplexity = 30, theta = 0.5){
+PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, perplexity = 30, theta = 0.5){
   # Input checks
   if (class(object) != "AEMSet"){
     stop("Please supply an AEMSet to this function.")
   }
 
   # Check the column has been defined
-  if (!is.null(column)){
-    if (is.null(object@CellInformation[ ,column])){
-      stop("Please ensure your specified column exists.")
+  if (!is.null(condition)){
+    if (is.null(object@CellInformation[ , condition])){
+      stop("Please ensure your specified condition exists.")
     } else{
-      condition.list <- object@CellInformation[, column]
+      condition.list <- object@CellInformation[, condition]
       names(condition.list) <- object@CellInformation[,1]
     }
   }
@@ -508,14 +501,9 @@ PlotTSNE <- function(object, PCA = TRUE, column = NULL, colour = NULL, seed = 0,
   # Generate Plots
   if (length(condition.list) > 0){
     tsne.df$conditions <- as.factor(unlist(condition.list))
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = column)
+    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = condition)
   } else{
     tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
-  }
-
-  if (!is.null(colour)){
-    colours <- object@CellInformation[, colour]
-    tsne.plot <- tsne.plot + ggplot2::scale_color_manual(values = unique(colours))
   }
 
   return(tsne.plot)
@@ -528,21 +516,20 @@ PlotTSNE <- function(object, PCA = TRUE, column = NULL, colour = NULL, seed = 0,
 #' @param object An \linkS4class{AEMSet} object that has undergone PCA
 #' @param dim1 Principal component to plot on the x-axis
 #' @param dim2 Principal component to plot on the y-axis
-#' @param column (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
-#' @param colour (Optional) Name of the column in CellIdentifiers that contains colours you wish each cell and condition to be associated with.
+#' @param condition (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 #' @export
 #'
-PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL, colour = NULL){
+PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
   if(length(object@PCA) == 0){
     stop("Please supply an object that has undergone PCA reduction.")
   }
 
   # Check the column has been defined
-  if (!is.null(column)){
-    if (is.null(object@CellInformation[ ,column])){
+  if (!is.null(condition)){
+    if (is.null(object@CellInformation[ , condition])){
       stop("Please ensure your specified column exists.")
     } else{
-      condition.list <- object@CellInformation[, column]
+      condition.list <- object@CellInformation[, condition]
       names(condition.list) <- object@CellInformation[,1]
     }
   }
@@ -554,14 +541,9 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL, colour = NULL){
 
   if (length(condition.list) > 0){
     plot.matrix$conditions <- as.factor(unlist(condition.list))
-    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = column)
+    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = condition)
   } else{
     pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
-  }
-
-  if (!is.null(colour)){
-    colour_palette <- object@CellInformation[ ,colour]
-    pca.plot <- pca.plot + ggplot2::scale_color_manual(values = unique(colour_palette))
   }
 
   return(pca.plot)
@@ -575,14 +557,13 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, column = NULL, colour = NULL){
 #' @param n Number of PCA values on the plot
 #' @export
 #'
-PlotPCAVariance <- function(object, n){
+PlotPCAVariance <- function(object, n = 100){
   if(is.null(object@PCA$PCAPercentVariance)){
     stop("Please supply an object that has undergone PCA reduction.")
   }
 
   pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="point", xlab="Principal Component (PC)", ylab="% Variance", main="Percent Variance per PC")
   return(pca.obj)
-
 }
 
 #' PlotNormalisationQC
@@ -591,7 +572,7 @@ PlotPCAVariance <- function(object, n){
 #'
 #' @param original An un-normalised \linkS4class{AEMSet}
 #' @param normalised A normalised \linkS4class{AEMSet}
-#' @param gene Gene to plot expression levels for (optional)
+#' @param gene.list OPTIONAL: A list of genes to plot expression levels for. If not defined, ASCEND will choose a gene at random
 #' @export
 #'
 PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = list()) {
