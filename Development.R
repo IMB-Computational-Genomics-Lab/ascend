@@ -30,6 +30,10 @@ pca.obj <- ReduceDimensions(pca.obj, 20)
 # Clusters
 clustered.obj <- FindOptimalClusters(pca.obj)
 
+pca.plot <- PlotPCA(clustered.obj)
+mds.plot.pca <- PlotMDS(clustered.obj, PCA = TRUE)
+mds.plot <- PlotMDS(clustered.obj, PCA = FALSE)
+
 # Remove Cluster 2
 clean.obj <- SubsetCluster(clustered.obj, clusters = c(1))
 

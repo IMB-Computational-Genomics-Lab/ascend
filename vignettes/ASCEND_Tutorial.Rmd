@@ -269,16 +269,16 @@ Plots that use ggplot2 can be treated as normal ggplot2 objects where elements c
 ## Adding information to PCA, TSNE and MDS plots
 PCA, TSNE and MDS plots depict relative distances between cells based on expression. Additional information can be added to these plots by highlighting cells based on a condition stored in the Cell Information slot of the `AEMSet` object.
 
-Example: Colour cells by batch identifier
+Example: Colour cells by cluster
 ```{r LoadCompleteData, echo = FALSE}
 aem.set <- readRDS(system.file("extdata", "RGC_AEMSet.rds", package = "ASCEND"))
 ```
 
 ```{r ColourByBatch}
 library(ggplot2)
-pca.plot <- PlotPCA(aem.set, dim1 = 1, dim2 = 2, condition = "batch") + scale_color_manual(values=c("#f47461", "#8b0000")) + ggtitle("PCA Plot", subtitle = "Labelled by batch")
-mds.plot <- PlotMDS(aem.set, PCA = TRUE, dim1 = 1, dim2 = 2, condition = "batch") + scale_color_manual(values=c("#f47461", "#8b0000")) + ggtitle("MDS Plot", subtitle = "Labelled by batch")
-tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition = "batch", seed = 0, perplexity = 30, theta = 0.5) + scale_color_manual(values=c("#f47461", "#8b0000")) + ggtitle("TSNE Plot", subtitle = "Labelled by batch")
+pca.plot <- PlotPCA(aem.set, dim1 = 1, dim2 = 2, condition = "cluster") + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) + ggtitle("PCA Plot", subtitle = "Labelled by batch")
+mds.plot <- PlotMDS(aem.set, PCA = FALSE, dim1 = 1, dim2 = 2, condition = "cluster") + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) + ggtitle("MDS Plot", subtitle = "Labelled by batch")
+tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition = "cluster", seed = 0, perplexity = 30, theta = 0.5) + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) + ggtitle("TSNE Plot", subtitle = "Labelled by batch")
 
 print(pca.plot)
 print(mds.plot)

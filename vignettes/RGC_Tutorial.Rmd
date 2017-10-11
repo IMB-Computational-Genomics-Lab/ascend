@@ -6,9 +6,12 @@ output:
   html_document: rmarkdown::html_vignette
   pdf_document: default
 vignette: |
-  %\VignetteIndexEntry{ASCEND Tutorial} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{An introduction to ASCEND - Processing and analysis of retinal ganglion cells} 
+  %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
-
+```{r LoadASCEND, message = FALSE}
+devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
+```
 The `ASCEND` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
 ## About the dataset
@@ -21,8 +24,7 @@ You can read more about this dataset in the paper [Single Cell RNA Sequencing of
 The data for this vignette is included with the package. You can load the data by using the following command:
 
 ```{R LoadData}
-# For those running the markdown file
-data("RGC_scRNASeq")
+load(system.file("extdata", "RGC_scRNASeq.RData", package = "ASCEND"))
 ```
 
 These objects contain all the information we need to create an `AEMSet` - the main data object of the ASCEND package. 
@@ -133,13 +135,26 @@ cell.info$THY1 <- thy1.expression
 cell.info[1:5, ]
 ```
 
-We are also interested in the expression of *BRN3B*/*POU4F2*. We can identify cells that are expressing this gene by looking at the row that contains counts for this gene.
+We are also interested in the expression of transcripts from the BRN3 family (POU4F1, POU4F2, POU4F3), that are expressed in retinal ganglion cells. We can identify cells that are expressing these transcripts by looking at the row that contains counts for these genes.
 
 ```{r LabelPOU4F2}
+# Create a list of transcript names
+brn3.transcripts <- c("POU4F1", "POU4F2", "POU4F3")
+
+# Extract expression matrix from the aem.set as a data frame
 expression.matrix <- GetExpressionMatrix(aem.set, format = "data.frame")
-pou4f2.expression <- as.vector(expression.matrix["POU4F2", ] > 0)
-cell.info$POU4F2 <- pou4f2.expression
-cell.info[1:5, ]
+
+# Extract rows from matrix belonging to these transcripts
+brn3.transcript.counts <- expression.matrix[brn3.transcripts, ]
+
+# Identify cells (columns) where transcript counts are greater than one
+brn3.cells <- colSums(brn3.transcript.counts) > 0
+
+# Add new information to cell information
+cell.info$BRN3 <- brn3.cells
+
+# View cell.info
+cell.info[1:5,]
 ```
 
 To load the modified cell information dataframe back into the AEMSet, use the `ReplaceCellInfo` function.
@@ -163,7 +178,7 @@ PlotPDF(raw.qc.plots, "RawQC.pdf")
 ```
 
 ### Classifying cells by cell cycle
-To identify the stage of the cell cycle each cell is in, use `scranCellCycle`. This function is a wrapper for `scran`'s `cyclone` function. For more information on how this function works, refer to the `scran` [documentation][2]. The `scranCellCycle` and subsequently and `cyclone` function require a training dataset. In this case, we loaded the human dataset that comes packaged with `scran`. We also had to briefly convert the gene annotation used in the AEMSet to ENSEMBL IDs, to match the training dataset. 
+To identify the stage of the cell cycle each cell is in, use `scranCellCycle`. This function is a wrapper for `scran`'s `cyclone` function. For more information on how this function works, refer to the `scran` [documentation][2]. The `scranCellCycle` and subsequently and `cyclone` function require a training dataset. In this case, we loaded the human dataset that comes packaged with `scran`. We also had to briefly convert the gene annotation used in the AEMSet to ENSEMBL IDs, to match the training dataset. Fortunately, Cell Ranger has provided both identifiers in the `genes` data frame, so we can easily switch them with the `ConvertGeneAnnotation` function.
 
 ```{r CellCycle}
 # Convert the AEMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id column of the GeneInformation dataframe
@@ -180,7 +195,7 @@ cell.info <- GetCellInfo(aem.set)
 cell.info[1:5, ]
 
 # Convert annotation back to gene_symbol
-aem.set <- ConvertGeneAnnotation(aem.set, "gene_symbol", "ensembl_id")
+aem.set <- ConvertGeneAnnotation(aem.set, "ensembl_id", "gene_symbol")
 ```
 
 ### Cell filtering 
@@ -213,7 +228,7 @@ print(raw.qc.plots$ControlPercentageSampleCounts$Rb)
 
 Review the control list by using `GetControls`. As you can see, we have stored the mitochondrial genes under "Mt" and ribosomal genes under "Rb."
 
-```{r RetrieveControls}
+```{r GetControls}
 print(GetControls(aem.set))
 ```
 
@@ -363,11 +378,12 @@ norm.set <- ExcludeControl(norm.set, "Rb")
 
 Please note that this has already been done as a part of the `scranNormalise` process.
 
-
 ### Regression of Counfounding Factors
+If we suspect there are transcripts that would bias the data and are not relevent to our analysis, we can regress them out with the `RegressConfoundingFactors` function.
 
-```{r ConfoundingFactors}
+```{r ConfoundingFactors, eval = FALSE}
 cell.cycle.genes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2")
+aem.set <- RegressConfoundingFactors(aem.set, candidate.genes = cell.cycle.genes)
 
 ```
 
@@ -451,10 +467,10 @@ thy1.de.result[1:10,]
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
 
-We can view these results as a volcano plot with the `PlotDEVolcano` function. Usually, we run this function with labels set to FALSE as there are too many points close together, resulting in overlapping labels. We have set labels to TRUE so we can see which genes are of interest.
+We can view these results as a volcano plot with the `PlotDEVolcano` function.
 
 ```{r THY1DEplot}
-thy1.volcano.plot <- PlotDEVolcano(thy1.de.result, labels = TRUE)
+thy1.volcano.plot <- PlotDEVolcano(thy1.de.result, labels = FALSE)
 print(thy1.volcano.plot)
 ```
 
@@ -478,9 +494,9 @@ Reclustering and differential expression revealed the remaining 1174 cells compr
 
 ```{r CleanDE, fig.width = 4, fig.height = 5}
 clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3"))
-cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = TRUE)
-cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = TRUE)
-cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = TRUE)
+cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = FALSE)
+cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = FALSE)
+cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = FALSE)
 print(cluster.de.1)
 print(cluster.de.2)
 print(cluster.de.3)

@@ -395,6 +395,8 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
       condition.list <- object@CellInformation[, condition]
       names(condition.list) <- object@CellInformation[,1]
     }
+  } else{
+    condition.list <- NULL
   }
 
   # Retrieve distance matrix
@@ -441,7 +443,7 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
   colnames(mds.matrix) <- c("Dim1", "Dim2")
 
   print("Generating MDS plot...")
-  if (length(condition.list) > 0){
+  if (!is.null(condition.list) && length(condition.list) > 0){
     mds.matrix$condition <- unlist(condition.list)
     mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(alpha = 0.5) + ggplot2::labs(colour = condition)
   } else{
@@ -477,6 +479,8 @@ PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, perplexity 
       condition.list <- object@CellInformation[, condition]
       names(condition.list) <- object@CellInformation[,1]
     }
+  } else{
+    condition.list <- NULL
   }
 
   if(PCA){
@@ -499,7 +503,7 @@ PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, perplexity 
   tsne.df <- RunTSNE(object, PCA = PCA, dimensions = 2, seed = seed, perplexity = perplexity, theta = theta)
 
   # Generate Plots
-  if (length(condition.list) > 0){
+  if (!is.null(condition.list) && length(condition.list) > 0){
     tsne.df$conditions <- as.factor(unlist(condition.list))
     tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = condition)
   } else{
@@ -532,6 +536,8 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
       condition.list <- object@CellInformation[, condition]
       names(condition.list) <- object@CellInformation[,1]
     }
+  } else{
+    condition.list <- NULL
   }
 
   # Extract dimensions to plot
@@ -539,7 +545,7 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
   plot.matrix <- pca.matrix[, c(dim1, dim2)]
   colnames(plot.matrix) <- c("x", "y")
 
-  if (length(condition.list) > 0){
+  if (!is.null(condition.list) && length(condition.list) > 0){
     plot.matrix$conditions <- as.factor(unlist(condition.list))
     pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = condition)
   } else{
