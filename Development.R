@@ -4,22 +4,19 @@ library(BiocParallel)
 ncores <- parallel::detectCores() - 1
 register(MulticoreParam(workers = ncores, progressbar = TRUE), default = TRUE)
 
-# Load 1 FlowSeq sample
-file.dir <- "/Volumes/Anne's External HD/NeuroSpheres_scRNA_V1/NeuroSpheres_scRNA_Aggr_ExpressionMatrix_V1"
-matrix <- read.csv(paste0(file.dir, "/", "NeuroSpheres_scRNA_ExpressionMatrix.csv"), header = TRUE, row.names = 1)
-cell.barcodes <- colnames(matrix)
-batch.info <- unlist(as.numeric(lapply(strsplit(as.character(cell.barcodes), "[.]"), `[`, 2)))
-batch.info[1:5]
+aem.set <- CellRangerToASCEND("/Volumes/Anne's External HD/APC_E7_scRNA/APC_E7_scRNA_Aggr_V1", "mm10")
+mm.pairs <- readRDS(system.file("exdata", "mouse_cycle_markers.rds", package="scran"))
+aem.set <- ConvertGeneAnnotation(aem.set, "gene_symbol", "ensembl_id")
+aem.set <- scranCellCycle(aem.set, mm.pairs)
+aem.set <- ConvertGeneAnnotation(aem.set, "ensembl_id", "gene_symbol")
 
-cell.info <- data.frame(cell_barcode = cell.barcodes, batch = batch.info)
-gene.info <- data.frame(gene_symbol = rownames(matrix))
-mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), ignore.case = TRUE)]
-ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", rownames(matrix), ignore.case = TRUE)]
-controls <- list(Mt = mito.genes, Rb = ribo.genes)
+raw.qc <- PlotGeneralQC(aem.set)
 
-# Create AEMSet
-aem.set <- NewAEMSet(ExpressionMatrix = matrix, CellInformation = cell.info, GeneInformation = gene.info, Controls = controls)
-general.qc <- PlotGeneralQC(aem.set)
+filtered.set <- FilterByOutliers(aem.set)
+filtered.set <- FilterByCustomControl(control.name = "Mt", pct.threshold = 20, filtered.set)
+filtered.set <- FilterByCustomControl(control.name = "Rb", pct.threshold = 50, filtered.set)
+filtered.set <- FilterByExpressedGenesPerCell(filtered.set, 1)
 
-batch.normalised <- NormaliseBatches(aem.set)
-batch.normalised.matrix <- GetExpressionMatrix(batch.normalised)
+# Normalisation
+rle.obj <- NormaliseByRLE(filtered.set)
+scran.obj <- scranNormalise(filtered.set)

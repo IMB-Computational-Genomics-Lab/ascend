@@ -23,7 +23,6 @@ This package makes extensive use of [BiocParallel](http://bioconductor.org/packa
 library(BiocParallel)
 ncores <- parallel::detectCores() - 1
 register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
-
 ```
 
 #### Windows (Single Machine - Quad-core system)
@@ -283,4 +282,13 @@ tsne.plot <- PlotTSNE(aem.set, PCA = TRUE, condition = "cluster", seed = 0, perp
 print(pca.plot)
 print(mds.plot)
 print(tsne.plot)
+```
+
+## Using data from ASCEND with other R packages
+### scran and scater
+As ASCEND uses functions from `scran` and `scater`, an AEMSet can be converted in to a `SCESet` with the function `ConvertToScater`.
+
+```{r ConvertToSCRAN}
+sce.set <- ConvertToScater(aem.set)
+sce.set
 ```

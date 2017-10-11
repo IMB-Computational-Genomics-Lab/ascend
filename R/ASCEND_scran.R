@@ -5,15 +5,15 @@
 #' mitochondrial and ribosomal genes as controls.
 #'
 #' @param object An \linkS4class{AEMSet} object.
-#' @param hs.pairs A training dataset containing pairs of marker genes.
+#' @param training.set A training dataset containing pairs of marker genes.
 #' @export
 #'
-scranCellCycle <- function(object, hs.pairs) {
+scranCellCycle <- function(object, training.set) {
   # Cell Cycle Testing
   expression.matrix <- GetExpressionMatrix(object, format = "matrix")
 
   # Run cyclone with cell cycle assignments as a vector
-  cc.assignments <- scran::cyclone(expression.matrix, pairs = hs.pairs, rownames(expression.matrix), BPPARAM = BiocParallel::bpparam())
+  cc.assignments <- scran::cyclone(expression.matrix, pairs = training.set, rownames(expression.matrix), BPPARAM = BiocParallel::bpparam())
 
   cell.info <- GetCellInfo(object)
   cell.info$phase <- cc.assignments$phases
