@@ -409,13 +409,13 @@ pca.set <- ReduceDimensions(pca.set, n = 20)
 ```
 
 ### Clustering
-Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `FindOptimalClusters` to identify clusters.
+Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `RunCORE` to identify clusters.
 
-```{r FindOptimalClusters}
-clustered.set <- FindOptimalClusters(pca.set)
+```{r RunCORE}
+clustered.set <- RunCORE(pca.set)
 ```
 
-The `FindOptimalClusters` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to 40 values ranging from 0.025 (the bottom of the tree) to 1 (the top of the tree). 
+The `RunCORE` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to 40 values ranging from 0.025 (the bottom of the tree) to 1 (the top of the tree). 
 
 The `PlotStabilityDendro` generates a plot that represents this part of the process. In addition to the dendrogram, it generates the distribution of clusters across the 40 cut heights.
 
@@ -486,7 +486,7 @@ These results underwent further analysis, and revealed cells in cluster 2 were s
 ```{r RemoveCluster, fig.width = 5, fig.height = 4}
 clean.set <- SubsetCluster(clustered.set, clusters = "1")
 clean.pca <- RunPCA(clean.set)
-clean.cluster <- FindOptimalClusters(clean.pca)
+clean.cluster <- RunCORE(clean.pca)
 PlotDendrogram(clean.cluster)
 ```
 

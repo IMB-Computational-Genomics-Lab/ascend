@@ -32,7 +32,7 @@ GenerateConditionList <- function(condition.a = NULL, condition.b = NULL, barcod
 #'
 ProcessDEResults <- function(output.list) {
     de.result.df <- dplyr::bind_rows(output.list)
-    
+
     # Adjust Foldchange
     print("Adjusting fold change values...")
     adjusted.foldchange <- (de.result.df$baseMeanB - 1)/(de.result.df$baseMeanA - 1)
@@ -58,12 +58,12 @@ PrepareCountData <- function(x) {
     } else {
         stop("Please supply an expression matrix in one of the following formats: AEMSet, data.frame, matrix")
     }
-    
+
     # Filter out genes with zero expression, and add one to make it friendly for DESeq
     print("Rounding expression matrix values...")
     expression.matrix <- expression.matrix[which(rowMeans(expression.matrix) > 0), ]
     expression.matrix <- round(expression.matrix + 1)
-    
+
     print("Chunking matrix...")
     # We want chunks with 1K rows
     chunk.size <- nrow(expression.matrix)/1000
@@ -82,19 +82,19 @@ VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.li
     if (missing(condition.a) || missing(condition.list)) {
         stop("Please supply a string for Condition A and Condition B, in addition to a Condition List.")
     }
-    
+
     # Check there are two conditions in the condition.list, and they match what the user has supplied.
     if (length(unique(condition.list)) != 2) {
         stop("Please ensure there are only two conditions in the supplied Condition List.")
     }
-    
+
     unique.conditions <- unique(condition.list)
     condition.bool <- c((!condition.a %in% unique.conditions), (!condition.b %in% unique.conditions))
-    
+
     if (any(condition.bool)) {
         stop("Please ensure both of the specified conditions are present in the Condition List.")
     }
-    
+
     print("Input is acceptable. Verification complete!")
 }
 
@@ -105,28 +105,28 @@ VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.li
 RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL) {
     # Run Verification
     VerifyArguments(condition.a = condition.a, condition.b = condition.b, condition.list = condition.list)
-    
+
     # Set up expression matrix
     print("Processing expression matrix...")
     chunked.matrix <- PrepareCountData(x)
-    
+
     # Convert condition list to factors
     condition.list <- as.factor(unlist(condition.list))
-    
+
     print(sprintf("Running differential expression on %s vs %s", condition.a, condition.b))
-    
+
     # Coerce condition variables into characters, so DESeq won't reject it.
     condition.a <- as.character(condition.a)
     condition.b <- as.character(condition.b)
-    
-    
+
+
     # Add all of this information into an environment to load into parallel
     print("Running DESeq...")
     result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, condition.list = condition.list, condition.a = condition.a, condition.b = condition.b)
-    
+
     print("Differential expression complete!")
     print("Returning values...")
-    
+
     print("Combining DE results...")
     de.result.df <- ProcessDEResults(result.list)
     print(sprintf("Condition: %s vs %s complete!", condition.a, condition.b))
@@ -138,10 +138,10 @@ RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.
 #' Compare the differential expression of genes in each cluster versus other clusters.
 #'
 #' @param object A \linkS4class{AEMSet} object that has undergone clustering
-#' with the \code{\link{FindOptimalClusters}} function.
+#' with the \code{\link{RunCORE}} function.
 #' @param column Name of the column in the CellInformations lot where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
-#' identified by FindOptimalClusters.
+#' identified by RunCORE.
 #' @param conditions List of conditions you want to test, in the order you would
 #' like to run them in. This list of terms should match those used in your selected column.
 #' @export
@@ -152,12 +152,12 @@ RunDiffExpression <- function(object, column = NULL, conditions = NULL) {
         stop("Please supply a AEMSet object.")
     }
     if (is.null(object@CellInformation[, column])) {
-        stop("Please run the FindOptimalClusters function on this object before using this function.")
+        stop("Please run the RunCORE function on this object before using this function.")
     }
     if (missing(column)) {
         stop("Please specify a column in CellInformation to use as conditions.")
     }
-    
+
     if (missing(conditions)) {
         stop("Please specify your conditions in order of analysis.")
     } else {
@@ -168,14 +168,14 @@ RunDiffExpression <- function(object, column = NULL, conditions = NULL) {
     # Prepare Clusters
     query.list <- as.factor(object@CellInformation[, column])
     queries <- sort(unique(query.list))
-    
+
     # Ensure conditions match queries
     if (!all(conditions %in% queries)) {
         stop("Please ensure all specified conditions are present in your selected column.")
     }
-    
+
     output <- list()
-    
+
     if (length(conditions) > 1) {
         condition.lists <- list()
         if (length(queries) > 2) {
@@ -203,7 +203,7 @@ RunDiffExpression <- function(object, column = NULL, conditions = NULL) {
             diff.exp <- RunPairedDE(object, condition.a = condition.a, condition.b = condition.b, condition.list = condition.lists[[condition.a]])
             output <- diff.exp
         }
-        
+
     } else {
         stop("You must have more than one cluster in order to run pairwise comparisons of queries.")
     }

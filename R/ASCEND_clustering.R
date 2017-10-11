@@ -76,7 +76,7 @@ GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
 
 #' FindOptimalResult
 #'
-#' Finds the optimal result from trends in stability. Called by FindOptimalClusters.
+#' Finds the optimal result from trends in stability. Called by RunCORE.
 #'
 FindOptimalResult <- function(key.stats){
   # Get stability values for most clusters and least clusters
@@ -141,7 +141,7 @@ FindOptimalResult <- function(key.stats){
 }
 
 #' BuildKeyStat
-#' Generates a bunch of values based on other calculates. Called by FindOptimalClusters.
+#' Generates a bunch of values based on other calculates. Called by RunCORE.
 #'
 BuildKeyStat <- function(rand.matrix){
   # Set up a key stat dataframe
@@ -336,7 +336,7 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
   return(clusters)
 }
 
-#' FindOptimalClusters
+#' RunCORE
 #'
 #' This function determines the optimal number of clusters for a dataset.
 #' This function first generates a distance matrix and a hclust object, and then cuts the tree at different heights.
@@ -355,7 +355,7 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
 #' @param object An AEMSet object that has undergone PCA reduction.
 #' @export
 #'
-FindOptimalClusters <- function(object){
+RunCORE <- function(object){
   # User inputs a AEMSet
   if (class(object) == "AEMSet"){
     # Making sure user has run PCA and reduced dimensions

@@ -10,7 +10,7 @@ PlotMDS(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL)
 Generates a Multi-Dimensional Scaling (MDS) plot.
 }
 \details{
-@param object An \linkS4class{AEMSet} that has undergone clustering with \code{FindOptimalClusters}.
+@param object An \linkS4class{AEMSet} that has undergone clustering with \code{RunCORE}.
  @param PCA If true, use PCA-reduced matrix to generate MDS plot
  @param dim1 Which dimension to plot on the x-axis
  @param dim2 Which dimension to plot on the y-axis

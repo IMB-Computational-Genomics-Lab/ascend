@@ -7,5 +7,5 @@
 FindOptimalResult(key.stats)
 }
 \description{
-Finds the optimal result from trends in stability. Called by FindOptimalClusters.
+Finds the optimal result from trends in stability. Called by RunCORE.
 }

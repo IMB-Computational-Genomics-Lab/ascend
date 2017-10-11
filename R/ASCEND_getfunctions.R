@@ -137,7 +137,7 @@ setGeneric(name = "GetDistanceMatrix", def = function(object) {
 
 setMethod("GetDistanceMatrix", signature = "AEMSet", function(object) {
     if (is.null(object@Clusters$DistanceMatrix)) {
-        stop("Please use the FindOptimalClusters function on this object before using this function.")
+        stop("Please use the RunCORE function on this object before using this function.")
     } else {
         distance.matrix <- object@Clusters$DistanceMatrix
         return(distance.matrix)
@@ -157,7 +157,7 @@ setGeneric(name = "GetHclust", def = function(object) {
 
 setMethod("GetHclust", signature = "AEMSet", function(object) {
     if (is.null(object@Clusters$Hclust)) {
-        stop("Please use the FindOptimalClusters function on this object before using this function.")
+        stop("Please use the RunCORE function on this object before using this function.")
     } else {
         hclust.obj <- object@Clusters$Hclust
         return(hclust.obj)

@@ -3,11 +3,11 @@
 \name{BuildKeyStat}
 \alias{BuildKeyStat}
 \title{BuildKeyStat
-Generates a bunch of values based on other calculates. Called by FindOptimalClusters.}
+Generates a bunch of values based on other calculates. Called by RunCORE.}
 \usage{
 BuildKeyStat(rand.matrix)
 }
 \description{
 BuildKeyStat
-Generates a bunch of values based on other calculates. Called by FindOptimalClusters.
+Generates a bunch of values based on other calculates. Called by RunCORE.
 }

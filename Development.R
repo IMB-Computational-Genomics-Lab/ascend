@@ -1,54 +1,25 @@
-# Rebuilding AEMSet object
-# file.dir <- "/Users/a.senabouth/Data/IPSCRetina_scRNA_Aggr_V2/outs/filtered_gene_bc_matrices_mex/GRCh38p7"
+# Set up environment
 devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
-
 library(BiocParallel)
 ncores <- parallel::detectCores() - 1
 register(MulticoreParam(workers = ncores, progressbar = TRUE), default = TRUE)
 
-aem.set <- CellRangerToASCEND("/Users/a.senabouth/Data/IPSCRetina_scRNA_Aggr_V2", "GRCh38p7")
-aem.set <- ConvertGeneAnnotation(aem.set, "gene_symbol", "ensembl_id")
+# Load 1 FlowSeq sample
+file.dir <- "/Volumes/Anne's External HD/NeuroSpheres_scRNA_V1/NeuroSpheres_scRNA_Aggr_ExpressionMatrix_V1"
+matrix <- read.csv(paste0(file.dir, "/", "NeuroSpheres_scRNA_ExpressionMatrix.csv"), header = TRUE, row.names = 1)
+cell.barcodes <- colnames(matrix)
+batch.info <- unlist(as.numeric(lapply(strsplit(as.character(cell.barcodes), "[.]"), `[`, 2)))
+batch.info[1:5]
 
-# Load reference cell cycle genes from scran
-hs.pairs <- readRDS(system.file("exdata", "human_cycle_markers.rds", package = "scran"))
+cell.info <- data.frame(cell_barcode = cell.barcodes, batch = batch.info)
+gene.info <- data.frame(gene_symbol = rownames(matrix))
+mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), ignore.case = TRUE)]
+ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", rownames(matrix), ignore.case = TRUE)]
+controls <- list(Mt = mito.genes, Rb = ribo.genes)
 
-aem.set <- scranCellCycle(aem.set, hs.pairs)
-aem.set <- ConvertGeneAnnotation(aem.set, "ensembl_id", "gene_symbol")
+# Create AEMSet
+aem.set <- NewAEMSet(ExpressionMatrix = matrix, CellInformation = cell.info, GeneInformation = gene.info, Controls = controls)
+general.qc <- PlotGeneralQC(aem.set)
 
-filtered.set <- FilterByOutliers(aem.set, CellThreshold = 3, ControlThreshold = 3)
-filtered.set <- FilterByCustomControl("Mt", 20, filtered.set)
-filtered.set <- FilterByCustomControl("Rb", 50, filtered.set)
-filtered.set <- FilterByExpressedGenesPerCell(filtered.set, 1)
-
-# Run Scran Normalisation
-scran.obj <- scranNormalise(filtered.set, quickCluster = FALSE)
-
-# PCA
-pca.obj <- RunPCA(scran.obj)
-pca.obj <- ReduceDimensions(pca.obj, 20)
-
-# Clusters
-clustered.obj <- FindOptimalClusters(pca.obj)
-
-pca.plot <- PlotPCA(clustered.obj)
-mds.plot.pca <- PlotMDS(clustered.obj, PCA = TRUE)
-mds.plot <- PlotMDS(clustered.obj, PCA = FALSE)
-
-# Remove Cluster 2
-clean.obj <- SubsetCluster(clustered.obj, clusters = c(1))
-
-# Perform PCA and clustering again
-rgc.obj <- RunPCA(clean.obj)
-rgc.obj <- ReduceDimensions(rgc.obj, 20)
-rgc.obj <- FindOptimalClusters(rgc.obj)
-
-# rgc.obj <- clustered.obj
-saveRDS(rgc.obj, "RGC_AEMSet.rds")
-
-# Confounding Factors
-# RegressConfoundingFactors function
-#candidate.genes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2", "RP5-902P8.12")
-#regressed.obj <- RegressConfoundingFactors(scran.obj, candidate.genes)
-
-#expression.matrix <- GetExpressionMatrix(regressed.obj, format = "data.frame")
-
+batch.normalised <- NormaliseBatches(aem.set)
+batch.normalised.matrix <- GetExpressionMatrix(batch.normalised)

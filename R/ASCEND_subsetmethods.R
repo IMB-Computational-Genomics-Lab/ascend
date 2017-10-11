@@ -98,7 +98,7 @@ setMethod("SubsetBatch", signature("AEMSet"), function(object, batches = c()) {
 
 #' SubsetCluster
 #'
-#' Subset a \linkS4class{AEMSet} object by cluster. Please make sure you have clustered with \code{\link{FindOptimalClusters}} before using this function.
+#' Subset a \linkS4class{AEMSet} object by cluster. Please make sure you have clustered with \code{\link{RunCORE}} before using this function.
 #' This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
 #'
 #' @param object A \linkS4class{AEMSet} object

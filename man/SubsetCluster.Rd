@@ -15,6 +15,6 @@ SubsetCluster(object, clusters)
 Returns an \linkS4class{AEMSet} containing only this cluster.
 }
 \description{
-Subset a \linkS4class{AEMSet} object by cluster. Please make sure you have clustered with \code{\link{FindOptimalClusters}} before using this function.
+Subset a \linkS4class{AEMSet} object by cluster. Please make sure you have clustered with \code{\link{RunCORE}} before using this function.
 This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
 }
