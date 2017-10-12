@@ -9,7 +9,7 @@ vignette: |
   %\VignetteIndexEntry{An introduction to ASCEND - Processing and analysis of retinal ganglion cells} 
   %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
-```{r LoadASCEND, message = FALSE}
+```{r LoadASCEND, message = FALSE, echo = FALSE}
 devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
 ```
 The `ASCEND` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
