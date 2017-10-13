@@ -4,12 +4,12 @@
 \alias{scranCellCycle}
 \title{scranCellCycle}
 \usage{
-scranCellCycle(object, hs.pairs)
+scranCellCycle(object, training.set)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet} object.}
 
-\item{hs.pairs}{A training dataset containing pairs of marker genes.}
+\item{training.set}{A training dataset containing pairs of marker genes.}
 }
 \description{
 Wrapper for \pkg{scran}'s cell cycle functions. Please ensure you are using

@@ -9,27 +9,28 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Imports: Rtsne,
+Imports: stats,
+    dplyr,
+    reshape2,
+    limSolve,
+    ggplot2,
+    Biobase,
+    BiocParallel,
+    Rtsne,
     ggbeeswarm,
-    stats,
     dynamicTreeCut,
     dendextend,
     RColorBrewer,
-    limSolve,
     scater,
     scran,
     DESeq
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
-Depends: BiocParallel,
+Depends: 
     methods,
-    ggplot2,
     data.table,
-    Matrix,
-    dplyr,
-    reshape2,
-    Biobase
+    Matrix
 Collate: 
     'ASCEND_cellranger.R'
     'ASCEND_clustering.R'
