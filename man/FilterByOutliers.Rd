@@ -5,14 +5,14 @@
 \title{FilterByOutliers
 Automatically filter cells based on expression levels}
 \usage{
-FilterByOutliers(object, CellThreshold = 3, ControlThreshold = 3)
+FilterByOutliers(object, cell.threshold = 3, control.threshold = 3)
 }
 \arguments{
 \item{object}{An \linkS4class{AEMSet} object}
 
-\item{CellThreshold}{Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3}
+\item{cell.threshold}{Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3}
 
-\item{ControlThreshold}{Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3}
+\item{control.threshold}{Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3}
 }
 \description{
 These values are then used to filter out cells based on the following criteria:

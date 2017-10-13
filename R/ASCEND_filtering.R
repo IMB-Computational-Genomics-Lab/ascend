@@ -171,18 +171,18 @@ FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), 
 #' This function then loads the filtered expression matrix into the AEMSet object.
 #'
 #' @param object An \linkS4class{AEMSet} object
-#' @param CellThreshold  Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3
-#' @param ControlThreshold  Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3
+#' @param cell.threshold  Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3
+#' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3
 #' @export
 #'
-FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
+FilterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) {
   filtered.object <- object
 
   # Input check
-  if (!is.numeric(CellThreshold)){
+  if (!is.numeric(cell.threshold)){
     stop("Please set your Cell Threshold (NMAD value) to a valid integer.")
   }
-  if(!is.numeric(ControlThreshold)){
+  if(!is.numeric(control.threshold)){
     stop("Please set your Control Threshold (NMAD value) to a valid integer.")
   }
   # Stop if the user hasn't set any controls
@@ -202,8 +202,8 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
   percentage.lists.counts <- filtered.object@Metrics$PercentageTotalCounts
 
   ## Start identifying cells by barcodes
-  cells.libsize <- FindOutliers(log10.total.counts, nmads=CellThreshold, type="lower") ## Remove cells with low expression
-  cells.feature <- FindOutliers(log10.total.features.counts.per.cell, nmads=CellThreshold, type="lower") ## Remove cells with low number of genes
+  cells.libsize <- FindOutliers(log10.total.counts, nmads=cell.threshold, type="lower") ## Remove cells with low expression
+  cells.feature <- FindOutliers(log10.total.features.counts.per.cell, nmads=cell.threshold, type="lower") ## Remove cells with low number of genes
 
   ## Extract Indexes
   if (any(cells.libsize)){
@@ -220,7 +220,7 @@ FilterByOutliers <- function(object, CellThreshold = 3, ControlThreshold = 3) {
 
   ## Identify cells to remove based on proportion of expression
   print("Identifying outliers...")
-  controls.counts <- BiocParallel::bplapply(percentage.lists.counts, FindOutliers, nmads=ControlThreshold, type="higher") ## Use nmad to identify outliers
+  controls.counts <- BiocParallel::bplapply(percentage.lists.counts, FindOutliers, nmads=control.threshold, type="higher") ## Use nmad to identify outliers
   print("Removing cells by library size...")
   drop.barcodes.controls <- BiocParallel::bplapply(controls.counts, which) ## Identify cell barcodes to remove
   print("Updating object information...")
