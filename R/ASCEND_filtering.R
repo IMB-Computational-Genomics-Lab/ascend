@@ -3,7 +3,7 @@
 #' Filtered cells by the proportion of expressed genes in the cell. This step is
 #' usually done after the other filtering steps and prior to normalisation.
 #' @param object AEMSet (ASCEND) object that has been filtered by
-#' \code{\link{FilterByOutliers}} and \code{\link{FilterByCustomControl}}.
+#' \code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.
 #' @param pct.value Percentage threshold as a whole number. Default: 1
 #' @export
 #'
@@ -46,7 +46,7 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
   return(filtered.object)
 }
 
-#' FilterByCustomControl
+#' FilterByControl
 #'
 #' Filter cells in an expression matrix based on the expression levels of a
 #' specific control.
@@ -59,7 +59,7 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
 #' @export
 #'
 
-FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, object){
+FilterByControl <- function(control.name = NULL, pct.threshold = 20, object){
   # Check in case user hasn't defined any controls.
   if(!object@Log$Controls){
     stop("Please define controls before attempting to filter this dataset.")
@@ -95,14 +95,14 @@ FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, objec
   log.entry <- list()
   log.entry[[control.name]] <- discard.barcodes
 
-  if (is.null(filtered.object@Log$FilterByCustomControl)){
+  if (is.null(filtered.object@Log$FilterByControl)){
     log <- list()
   } else{
-    log <- filtered.object@Log$FilterByCustomControl
+    log <- filtered.object@Log$FilterByControl
   }
 
   log[[control.name]] <- discard.barcodes
-  filtered.object@Log$FilterByCustomControl <- log
+  filtered.object@Log$FilterByControl <- log
 
   # Update the dable
   log.entry.name <- paste0("CellsFilteredBy", control.name)
@@ -122,13 +122,13 @@ FilterByCustomControl <- function(control.name = NULL, pct.threshold = 20, objec
   return(filtered.object)
 }
 
-#' FilterByControl
+#' FilterControl
 #'
 #' Called by \code{\link{FilterByOutliers}}. This function identifies cells to
 #' remove based on expression levels of control genes.
 #' @export
 #'
-FilterByControl <- function(control.group, total.counts, expression.matrix ){
+FilterControl <- function(control.group, total.counts, expression.matrix ){
   # Get transcript counts for the controls
   control.bool <- rownames(expression.matrix) %in% control.group
   control.transcript.counts <- expression.matrix[control.bool, ]
