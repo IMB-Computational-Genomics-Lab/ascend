@@ -78,13 +78,14 @@ GetConsecutiveSequence <- function(x, direction = c("forward", "reverse")){
 #'
 #' Finds the optimal result from trends in stability. Called by RunCORE.
 #'
-FindOptimalResult <- function(key.stats){
+FindOptimalResult <- function(key.stats, conservative = TRUE){
   # Get stability values for most clusters and least clusters
   # Which one is greater than the other one?
+  # # FindOptimalIndex
   max.min.idx <- c(1,40)
   stability <- key.stats$Stability
   endpoint.stability.idx <- max.min.idx[which(stability[max.min.idx] ==
-                                        max(stability[max.min.idx]))]
+                                                max(stability[max.min.idx]))]
   if (length(endpoint.stability.idx) > 1){
     endpoint.stability.idx <- 1
   }
@@ -129,8 +130,15 @@ FindOptimalResult <- function(key.stats){
     unique.rand.length <- lapply(consecutive.vals, length)
     max.length <- max(unlist(unique.rand.length))
     max.idx <- names(unique.rand.length)[which(unique.rand.length == max.length)]
+
     if (length(max.length) > 1){
-      optimal.idx <- min(consecutive.vals[[max.idx]])
+      # Conservative Check
+      if (conservative == FALSE){
+        optimal.idx <- max(consecutive.vals[[max.idx]])
+      } else{
+        optimal.idx <- min(consecutive.vals[[max.idx]])
+      }
+
     } else{
       # Get Minimun
       min.idx <- lapply(max.idx, function(x) return(min(consecutive.vals[[x]])))
@@ -177,19 +185,33 @@ GenerateStabilityValues <- function(rand.idx.matrix){
   general.counter[1] <- 1
 
   # Loop over the rest
-  for (i in 2:length(stability.values)-1){
-    if (stability.values[i] == stability.values[i+1]){
-      general.counter[i+1] <- general.counter[i]+1
+  for (i in 2:length(stability.values)){
+    if (i < 40){
+      if (stability.values[i] == stability.values[i+1]){
+        general.counter[i+1] <- general.counter[i]+1
+      } else{
+        general.counter[i+1] <- 1
+      }
     } else{
-      general.counter[i+1] <- 1
+      if (stability.values[i] == stability.values[i-1]){
+        general.counter[i] <- general.counter[i-1]+1
+      } else{
+        general.counter[i] <- 1
+      }
     }
   }
 
   # Reset the counter to find where there is no change
   flat.counter <- general.counter
   for (i in 1:length(general.counter)){
-    if (flat.counter[i] == 1 & flat.counter[i+1]==1){
-      flat.counter[i] <-0
+    if (i != 40){
+      if (flat.counter[i] == 1 && flat.counter[i+1]==1){
+        flat.counter[i] <-0
+      }
+    } else{
+      if (flat.counter[i] == 1 && flat.counter[i-1]==1){
+        flat.counter[i] <-0
+      }
     }
   }
 
@@ -353,9 +375,10 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
 #'     \item{RandMatrix}{Rand matrix used to determine optimal number of clusters}
 #' }
 #' @param object An AEMSet object that has undergone PCA reduction.
+#' @param conservative Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE
 #' @export
 #'
-RunCORE <- function(object){
+RunCORE <- function(object, conservative = TRUE){
   # User inputs a AEMSet
   if (class(object) == "AEMSet"){
     # Making sure user has run PCA and reduced dimensions
@@ -409,7 +432,7 @@ RunCORE <- function(object){
   print("Finding optimal number of clusters...")
   # Find Optimal Values
   key.stats <- BuildKeyStat(rand.idx.matrix)
-  optimal.idx <- FindOptimalResult(key.stats)
+  optimal.idx <- FindOptimalResult(key.stats, conservative = conservative)
   optimal.cluster.list <- cluster.list[[optimal.idx]]
   optimal.tree.height <- height.list[[optimal.idx]]
   optimal.cluster.number <- cluster.counts[[optimal.idx]]
