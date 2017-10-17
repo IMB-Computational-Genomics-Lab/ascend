@@ -4,7 +4,7 @@
 \alias{FindOptimalResult}
 \title{FindOptimalResult}
 \usage{
-FindOptimalResult(key.stats)
+FindOptimalResult(key.stats, conservative = TRUE)
 }
 \description{
 Finds the optimal result from trends in stability. Called by RunCORE.

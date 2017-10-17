@@ -4,10 +4,12 @@
 \alias{RunCORE}
 \title{RunCORE}
 \usage{
-RunCORE(object)
+RunCORE(object, conservative = TRUE)
 }
 \arguments{
 \item{object}{An AEMSet object that has undergone PCA reduction.}
+
+\item{conservative}{Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE}
 }
 \description{
 This function determines the optimal number of clusters for a dataset.

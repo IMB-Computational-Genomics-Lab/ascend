@@ -4,9 +4,18 @@
 \alias{FilterByControl}
 \title{FilterByControl}
 \usage{
-FilterByControl(control.group, total.counts, expression.matrix)
+FilterByControl(control.name = NULL, pct.threshold = 20, object)
+}
+\arguments{
+\item{control.name}{Name of the control group, as used in the named list supplied to the AEMSet object}
+
+\item{pct.threshold}{Percentage threshold to filter cells by, as a whole number. Default: 20}
+
+\item{object}{A \linkS4class{AEMSet} object.}
 }
 \description{
-Called by \code{\link{FilterByOutliers}}. This function identifies cells to
-remove based on expression levels of control genes.
+Filter cells in an expression matrix based on the expression levels of a
+specific control.
+This function should be used AFTER the cells have undergone general filtering
+with the \code{\link{FilterByOutliers}} function.
 }
