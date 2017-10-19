@@ -174,19 +174,21 @@ BuildKeyStat <- function(rand.matrix){
 #' Generates a series of stability values.
 #'
 GenerateStabilityValues <- function(rand.idx.matrix){
+  # WITHIN GENERATE STABILITY VALUES
   stability.values <- rand.idx.matrix$cluster.index.consec
-
+  
   # RATIONALE BEHIND COUNTER STEPS
   # Basically, we are looking for which value remains constant the longest
   # Set up counter to keep track for each column
   general.counter <- rep(0, length(stability.values))
-
+  
   # For first result...
   general.counter[1] <- 1
-
+  
   # Loop over the rest
-  for (i in 2:length(stability.values)){
+  for (i in 1:length(stability.values)){
     if (i < 40){
+      # Check forward
       if (stability.values[i] == stability.values[i+1]){
         general.counter[i+1] <- general.counter[i]+1
       } else{
@@ -200,7 +202,7 @@ GenerateStabilityValues <- function(rand.idx.matrix){
       }
     }
   }
-
+  
   # Reset the counter to find where there is no change
   flat.counter <- general.counter
   for (i in 1:length(general.counter)){
@@ -214,41 +216,41 @@ GenerateStabilityValues <- function(rand.idx.matrix){
       }
     }
   }
-
+  
   if (0 %in% flat.counter){
-    flat.index <- which(flat.counter == 0)
+    flat.idx <- which(flat.counter == 0)
   } else{
-    flat.index <- c(1)
+    flat.idx <- c(1)
   }
-
+  
   # Reset the counter to the count values
   adjusted.counter <- general.counter
-
+  
   # Setup beginning of the counter from the left-most side of the flat point
-  if (flat.index[1] == 1){
+  if (flat.idx[1] == 1){
     adjusted.counter[1] <- 1
   } else{
-    adjusted.counter[1:flat.index[1] - 1] <- general.counter[flat.index[1] - 1]
+    adjusted.counter[1:flat.idx[1] - 1] <- general.counter[flat.idx[1] - 1]
   }
-
+  
   # Set up the end of the counter from the right-most side of the flat point
   # Situation 1 - Where the flat point goes right to the end of the counter
   # Situation 2 - Where the flat point does not end
-  if (flat.index[length(flat.index)] == length(general.counter)){
-    adjusted.counter[flat.index[length(flat.index)]] <- 1
+  if (flat.idx[length(flat.idx)] == length(general.counter)){
+    adjusted.counter[flat.idx[length(flat.idx)]] <- 1
   } else {
-    adjusted.counter[(flat.index[length(flat.index)]+1):length(general.counter)] <- general.counter[length(general.counter)]
-    adjusted.counter[flat.index[length(flat.index)]] <- 1
+    adjusted.counter[(flat.idx[length(flat.idx)]+1):length(general.counter)] <- general.counter[length(general.counter)]
+    adjusted.counter[flat.idx[length(flat.idx)]] <- 1
   }
-
+  
   # Setup the counter in the middle - if required
-  if (length(flat.index) > 1){
-    for (i in 2:length(flat.index)-1){
-      adjusted.counter[(flat.index[i]+1):(flat.index[i+1]-1)] <- general.counter[flat.index[i+1]-1]
-      adjusted.counter[flat.index[i]] <- 1
+  if (length(flat.idx) > 1){
+    for (i in 2:length(flat.idx)-1){
+      adjusted.counter[(flat.idx[i]+1):(flat.idx[i+1]-1)] <- general.counter[flat.idx[i+1]-1]
+      adjusted.counter[flat.idx[i]] <- 1
     }
   }
-
+  
   rand.idx.matrix$stability_count <- adjusted.counter
   return(rand.idx.matrix)
 }
