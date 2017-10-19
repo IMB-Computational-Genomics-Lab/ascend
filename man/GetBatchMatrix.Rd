@@ -7,7 +7,7 @@
 GetBatchMatrix(object, batch.id)
 }
 \arguments{
-\item{object}{\linkS4class{AEMSet} object}
+\item{object}{\linkS4class{EMSet} object}
 
 \item{batch.id}{Batch identifier that you would like to retrieve}
 }

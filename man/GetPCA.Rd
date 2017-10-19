@@ -7,11 +7,11 @@
 GetPCA(object)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object.}
+\item{object}{An \linkS4class{EMSet} object.}
 }
 \value{
 This function returns a data frame.
 }
 \description{
-Retrieve the PCA matrix from an \linkS4class{AEMSet} object that has undergone PCA reduction.
+Retrieve the PCA matrix from an \linkS4class{EMSet} object that has undergone PCA reduction.
 }

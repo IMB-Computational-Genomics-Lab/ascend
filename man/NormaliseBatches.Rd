@@ -7,7 +7,7 @@
 NormaliseBatches(object)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object.}
+\item{object}{An \linkS4class{EMSet} object.}
 }
 \description{
 Normalise counts to remove batch effects. This normalisation method is for

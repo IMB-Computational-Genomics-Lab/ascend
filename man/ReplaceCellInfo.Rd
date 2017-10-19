@@ -7,10 +7,10 @@
 ReplaceCellInfo(object, cell.info)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object.}
+\item{object}{An \linkS4class{EMSet} object.}
 
 \item{cell.info}{A data frame containing cell information. The first column must comprise of cell identifiers that match the cell identifiers used in the expression matrix. The second column, while optional - should contain batch information.}
 }
 \description{
-Can be called by the user or by a filtering function. Updates Cell Information in a \linkS4class{AEMSet} object, replacing the old data frame with a new one.
+Can be called by the user or by a filtering function. Updates Cell Information in a \linkS4class{EMSet} object, replacing the old data frame with a new one.
 }

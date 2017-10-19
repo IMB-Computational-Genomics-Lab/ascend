@@ -7,7 +7,7 @@
 PlotGeneralQC(object)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object}
+\item{object}{An \linkS4class{EMSet} object}
 }
 \description{
 This function generates the following plots:

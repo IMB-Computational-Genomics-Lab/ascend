@@ -7,14 +7,14 @@
 RunCORE(object, conservative = TRUE)
 }
 \arguments{
-\item{object}{An AEMSet object that has undergone PCA reduction.}
+\item{object}{An EMSet object that has undergone PCA reduction.}
 
 \item{conservative}{Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE}
 }
 \description{
 This function determines the optimal number of clusters for a dataset.
 This function first generates a distance matrix and a hclust object, and then cuts the tree at different heights.
-This will return an AEMSet with the following objects:
+This will return an EMSet with the following objects:
 \describe{
     \item{DistanceMatrix}{A distance matrix}
     \item{Hclust}{A hclust object}

@@ -7,7 +7,7 @@
 RunDiffExpression(object, column = NULL, conditions = NULL)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object that has undergone clustering
+\item{object}{A \linkS4class{EMSet} object that has undergone clustering
 with the \code{\link{RunCORE}} function.}
 
 \item{column}{Name of the column in the CellInformations lot where you have

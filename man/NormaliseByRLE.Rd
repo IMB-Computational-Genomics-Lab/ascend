@@ -7,7 +7,7 @@
 NormaliseByRLE(object)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object that has undergone filtering. Please ensure spike-ins have been removed before using this function.}
+\item{object}{A \linkS4class{EMSet} object that has undergone filtering. Please ensure spike-ins have been removed before using this function.}
 }
 \description{
 Normalisation of expression between cells, by scaling to relative log expression.

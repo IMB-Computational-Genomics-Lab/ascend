@@ -49,14 +49,14 @@ ProcessDEResults <- function(output.list) {
 #'
 PrepareCountData <- function(x) {
     # Set up expression matrix
-    if (class(x) == "AEMSet") {
+    if (class(x) == "EMSet") {
         expression.matrix <- GetExpressionMatrix(x, "matrix")
     } else if (is.data.frame(x)) {
         expression.matrix <- as.matrix(x)
     } else if (is.matrix(x)) {
         expression.matrix <- x
     } else {
-        stop("Please supply an expression matrix in one of the following formats: AEMSet, data.frame, matrix")
+        stop("Please supply an expression matrix in one of the following formats: EMSet, data.frame, matrix")
     }
 
     # Filter out genes with zero expression, and add one to make it friendly for DESeq
@@ -137,7 +137,7 @@ RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.
 #'
 #' Compare the differential expression of genes in each cluster versus other clusters.
 #'
-#' @param object A \linkS4class{AEMSet} object that has undergone clustering
+#' @param object A \linkS4class{EMSet} object that has undergone clustering
 #' with the \code{\link{RunCORE}} function.
 #' @param column Name of the column in the CellInformations lot where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
@@ -148,8 +148,8 @@ RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.
 #'
 RunDiffExpression <- function(object, column = NULL, conditions = NULL) {
     # Object check
-    if (class(object) != "AEMSet") {
-        stop("Please supply a AEMSet object.")
+    if (class(object) != "EMSet") {
+        stop("Please supply a EMSet object.")
     }
     if (is.null(object@CellInformation[, column])) {
         stop("Please run the RunCORE function on this object before using this function.")

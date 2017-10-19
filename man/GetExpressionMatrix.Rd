@@ -7,7 +7,7 @@
 GetExpressionMatrix(object, format)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} to retrieve the expression matrix from}
+\item{object}{A \linkS4class{EMSet} to retrieve the expression matrix from}
 
 \item{format}{Format of the returned matrix - 'data.frame' or 'matrix'}
 }
@@ -15,5 +15,5 @@ GetExpressionMatrix(object, format)
 Returns the expression matrix in the chosen format (data.frame or matrix).
 }
 \description{
-Returns a data frame containing the expression matrix from a \linkS4class{AEMSet} object.
+Returns a data frame containing the expression matrix from a \linkS4class{EMSet} object.
 }

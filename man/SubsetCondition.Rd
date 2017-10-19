@@ -7,13 +7,13 @@
 SubsetCondition(object, conditions)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object}
+\item{object}{A \linkS4class{EMSet} object}
 
 \item{conditions}{Name of the columns which contain boolean information on whether to keep or discard a cell.}
 }
 \value{
-An \linkS4class{AEMSet} containing only this batch.
+An \linkS4class{EMSet} containing only this batch.
 }
 \description{
-Subset specific conditions from a \linkS4class{AEMSet} object.
+Subset specific conditions from a \linkS4class{EMSet} object.
 }

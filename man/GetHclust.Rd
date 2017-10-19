@@ -7,11 +7,11 @@
 GetHclust(object)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object.}
+\item{object}{An \linkS4class{EMSet} object.}
 }
 \value{
 This function returns a hclust object.
 }
 \description{
-Retrieve the Hclust object from an \linkS4class{AEMSet} object that has undergone clustering.
+Retrieve the Hclust object from an \linkS4class{EMSet} object that has undergone clustering.
 }

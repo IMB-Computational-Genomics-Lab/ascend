@@ -10,5 +10,5 @@ GetCellInfo(object)
 A data frame with cell identifiers and associated information.
 }
 \description{
-Retrieve cell information from an \linkS4class{AEMSet}.
+Retrieve cell information from an \linkS4class{EMSet}.
 }

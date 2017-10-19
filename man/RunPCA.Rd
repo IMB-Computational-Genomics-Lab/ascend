@@ -7,7 +7,7 @@
 RunPCA(object, ngenes = 1500, scaling = TRUE)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object that has undergone filtering and normalisation.}
+\item{object}{A \linkS4class{EMSet} object that has undergone filtering and normalisation.}
 
 \item{ngenes}{The top number of genes you would like to perform the reduction by. Default: 1500}
 

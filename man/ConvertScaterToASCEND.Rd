@@ -4,12 +4,12 @@
 \alias{ConvertScaterToASCEND}
 \title{ConvertScaterToASCEND}
 \usage{
-ConvertScaterToASCEND(SCESet, AEMSet)
+ConvertScaterToASCEND(SCESet, EMSet)
 }
 \arguments{
 \item{SCESet}{A \linkS4class{SCESet} from \pkg{scater}}
 
-\item{AEMSet}{An \linkS4class{AEMSet}}
+\item{EMSet}{An \linkS4class{EMSet}}
 }
 \description{
 Loads data from a SCATER object to a pre-existing ASCEND object.

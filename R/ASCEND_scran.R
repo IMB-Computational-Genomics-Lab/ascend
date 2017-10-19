@@ -4,7 +4,7 @@
 #' *ensembl_id* as your rownames in this dataset. Also ensure you are using
 #' mitochondrial and ribosomal genes as controls.
 #'
-#' @param object An \linkS4class{AEMSet} object.
+#' @param object An \linkS4class{EMSet} object.
 #' @param training.set A training dataset containing pairs of marker genes.
 #' @export
 #'
@@ -24,11 +24,11 @@ scranCellCycle <- function(object, training.set) {
 
 #' ConvertToScater
 #'
-#' Convert a \linkS4class{AEMSet} object into a \linkS4class{SCESet} for use with
+#' Convert a \linkS4class{EMSet} object into a \linkS4class{SCESet} for use with
 #' \pkg{scater} and \pkg{scran}. In order to use this function, you must have
 #' mitochondrial and ribosomal genes in your expression data.
 #'
-#' @param object An \linkS4class{AEMSet} object.
+#' @param object An \linkS4class{EMSet} object.
 #' @param control.list Optional - a named list containing mitochondrial and ribosomal genes.
 #' @export
 #'
@@ -36,7 +36,7 @@ ConvertToScater <- function(object, control.list = list()) {
     # Prepare control list
     control.names <- c("Mt", "Rb")
 
-    # Retrieve controls from AEMSet object if user hasn't supplied a list
+    # Retrieve controls from EMSet object if user hasn't supplied a list
     if (length(control.list) == 0) {
         control.list <- object@Controls
     }
@@ -61,7 +61,7 @@ ConvertToScater <- function(object, control.list = list()) {
     }
 
 
-    # Convert AEMSet to SCESet
+    # Convert EMSet to SCESet
     return(sce.obj)
 }
 
@@ -69,19 +69,19 @@ ConvertToScater <- function(object, control.list = list()) {
 #'
 #' Loads data from a SCATER object to a pre-existing ASCEND object.
 #' @param SCESet A \linkS4class{SCESet} from \pkg{scater}
-#' @param AEMSet An \linkS4class{AEMSet}
+#' @param EMSet An \linkS4class{EMSet}
 #' @export
 #'
-ConvertScaterToASCEND <- function(SCESet, AEMSet) {
+ConvertScaterToASCEND <- function(SCESet, EMSet) {
     # Retrieve counts from SCESet
     expression.matrix <- scater::counts(SCESet)
 
     # Convert to sparse, re-run metrics and add to slot
-    AEMSet <- ReplaceExpressionMatrix(AEMSet, expression.matrix)
+    EMSet <- ReplaceExpressionMatrix(EMSet, expression.matrix)
 
     # Sync up the object
-    AEMSet <- SyncSlots(AEMSet)
+    EMSet <- SyncSlots(EMSet)
 
     # Return updated object
-    return(AEMSet)
+    return(EMSet)
 }

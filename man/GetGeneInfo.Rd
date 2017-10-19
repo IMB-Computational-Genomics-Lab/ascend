@@ -7,11 +7,11 @@
 GetGeneInfo(object)
 }
 \arguments{
-\item{object}{A \linkS4class{AEMSet} object.}
+\item{object}{A \linkS4class{EMSet} object.}
 }
 \value{
 This function returns a data frame.
 }
 \description{
-Retrieve gene information from an \linkS4class{AEMSet} object.
+Retrieve gene information from an \linkS4class{EMSet} object.
 }

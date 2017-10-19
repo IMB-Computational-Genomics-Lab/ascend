@@ -7,12 +7,12 @@
 scranNormalise(object, quickCluster = FALSE)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} that has not undergone normalisation.}
+\item{object}{An \linkS4class{EMSet} that has not undergone normalisation.}
 
 \item{quickCluster}{TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups. Default: FALSE}
 }
 \description{
-Normalise an \linkS4class{AEMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
+Normalise an \linkS4class{EMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
 }
 \details{
 Pooling method of cells is influenced by the size of the cell population.

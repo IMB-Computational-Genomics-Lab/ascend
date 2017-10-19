@@ -8,7 +8,7 @@ Automatically filter cells based on expression levels}
 FilterByOutliers(object, cell.threshold = 3, control.threshold = 3)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object}
+\item{object}{An \linkS4class{EMSet} object}
 
 \item{cell.threshold}{Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3}
 
@@ -23,5 +23,5 @@ These values are then used to filter out cells based on the following criteria:
 }
 }
 \details{
-This function then loads the filtered expression matrix into the AEMSet object.
+This function then loads the filtered expression matrix into the EMSet object.
 }

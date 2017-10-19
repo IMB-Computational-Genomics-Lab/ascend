@@ -7,7 +7,7 @@
 ReduceDimensions(object, n = 10)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object that has undergone PCA reduction.}
+\item{object}{An \linkS4class{EMSet} object that has undergone PCA reduction.}
 
 \item{n}{The number of PC dimensions you would like to select. Refer to
 vignette on how to select this value. Default: 10}

@@ -7,11 +7,11 @@
 FilterByControl(control.name = NULL, pct.threshold = 20, object)
 }
 \arguments{
-\item{control.name}{Name of the control group, as used in the named list supplied to the AEMSet object}
+\item{control.name}{Name of the control group, as used in the named list supplied to the EMSet object}
 
 \item{pct.threshold}{Percentage threshold to filter cells by, as a whole number. Default: 20}
 
-\item{object}{A \linkS4class{AEMSet} object.}
+\item{object}{A \linkS4class{EMSet} object.}
 }
 \description{
 Filter cells in an expression matrix based on the expression levels of a

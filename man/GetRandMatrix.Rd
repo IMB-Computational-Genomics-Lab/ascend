@@ -7,11 +7,11 @@
 GetRandMatrix(object)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object that has undergone clustering.}
+\item{object}{An \linkS4class{EMSet} object that has undergone clustering.}
 }
 \value{
 This function returns a data frame.
 }
 \description{
-Retrieve the rand matrix used to determine clusters from an \linkS4class{AEMSet} object.
+Retrieve the rand matrix used to determine clusters from an \linkS4class{EMSet} object.
 }

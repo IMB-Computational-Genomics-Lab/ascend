@@ -65,17 +65,17 @@ PlotDEVolcano <- function(de.results, threshold = 5e-3, l2fc = 2, labels = FALSE
 
 #' PlotDendrogram
 #'
-#' @param object An \linkS4class{AEMSet} that has undergone clustering
+#' @param object An \linkS4class{EMSet} that has undergone clustering
 #' @export
 #'
 PlotDendrogram <- function(object){
   # Input Checks
-  if(class(object) == "AEMSet"){
+  if(class(object) == "EMSet"){
     if(is.null(object@Clusters$Hclust)){
-      stop("Please make sure you have run RunCORE on this AEMSet object before using this function.")
+      stop("Please make sure you have run RunCORE on this EMSet object before using this function.")
     }
   } else{
-    stop("Please supply a AEMSet object to this function.")
+    stop("Please supply a EMSet object to this function.")
   }
 
   # Extract required values from the object
@@ -112,14 +112,14 @@ PlotDendrogram <- function(object){
 #'
 #' Plots Stability, Consecutive RI and Rand Index.
 #'
-#' @param object An \linkS4class{AEMSet} object that has undergone clustering
+#' @param object An \linkS4class{EMSet} object that has undergone clustering
 #' @export
 #'
 PlotStability <- function(object){
-  # User can supply a AEMSet or data frame with rand results to this function
-  if(class(object) == "AEMSet"){
+  # User can supply a EMSet or data frame with rand results to this function
+  if(class(object) == "EMSet"){
     if (is.null(object@Clusters$RandMatrix)){
-      stop("Please make sure you have run RunCORE on this AEMSet object before running this function.")
+      stop("Please make sure you have run RunCORE on this EMSet object before running this function.")
     }
     rand.idx.matrix <- object@Clusters$RandMatrix
   } else {
@@ -353,7 +353,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
 
 #' PlotStabilityDendro
 #'
-#' @param object A \linkS4class{AEMSet} that has undergone clustering.
+#' @param object A \linkS4class{EMSet} that has undergone clustering.
 #' @export
 #'
 PlotStabilityDendro <- function(object){
@@ -375,7 +375,7 @@ PlotStabilityDendro <- function(object){
 #'
 #' Generates a Multi-Dimensional Scaling (MDS) plot.
 #'
-#'  @param object An \linkS4class{AEMSet} that has undergone clustering with \code{RunCORE}.
+#'  @param object An \linkS4class{EMSet} that has undergone clustering with \code{RunCORE}.
 #'  @param PCA If true, use PCA-reduced matrix to generate MDS plot
 #'  @param dim1 Which dimension to plot on the x-axis
 #'  @param dim2 Which dimension to plot on the y-axis
@@ -383,8 +383,8 @@ PlotStabilityDendro <- function(object){
 #'  @export
 #'
 PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
-  if (class(object) != "AEMSet"){
-    stop("Please supply an AEMSet object.")
+  if (class(object) != "EMSet"){
+    stop("Please supply an EMSet object.")
   }
 
   # Check the column has been defined
@@ -457,7 +457,7 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
 #'
 #' Generates a 2D TSNE plot.
 #'
-#' @param object An \linkS4class{AEMSet}.
+#' @param object An \linkS4class{EMSet}.
 #' @param PCA Set to FALSE to not use PCA-reduced values
 #' @param condition (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
@@ -467,8 +467,8 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
 #'
 PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, perplexity = 30, theta = 0.5){
   # Input checks
-  if (class(object) != "AEMSet"){
-    stop("Please supply an AEMSet to this function.")
+  if (class(object) != "EMSet"){
+    stop("Please supply an EMSet to this function.")
   }
 
   # Check the column has been defined
@@ -490,12 +490,12 @@ PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, perplexity 
       pca.barcodes <- rownames(object@PCA$PCA)
       condition.list <- condition.list[pca.barcodes]
       if (!(length(condition.list) > 0)){
-        stop("Please ensure all cell identifiers specified in the condition list are in the AEMSet.")
+        stop("Please ensure all cell identifiers specified in the condition list are in the EMSet.")
       }
     }
   } else{
     if (!all(names(condition.list) %in% object@ExpressionMatrix)){
-      stop("Please ensure all cell identifiers specified in the condition list are in the AEMSet.")
+      stop("Please ensure all cell identifiers specified in the condition list are in the EMSet.")
     }
   }
 
@@ -517,7 +517,7 @@ PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, perplexity 
 #'
 #' Plot two principal components (PCs) on a scatter plot.
 #'
-#' @param object An \linkS4class{AEMSet} object that has undergone PCA
+#' @param object An \linkS4class{EMSet} object that has undergone PCA
 #' @param dim1 Principal component to plot on the x-axis
 #' @param dim2 Principal component to plot on the y-axis
 #' @param condition (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
@@ -559,7 +559,7 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
 #'
 #' Plots PCA Percent Variance.
 #'
-#' @param object An \linkS4class{AEMSet} that has undergone PCA.
+#' @param object An \linkS4class{EMSet} that has undergone PCA.
 #' @param n Number of PCA values on the plot
 #' @export
 #'
@@ -574,28 +574,28 @@ PlotPCAVariance <- function(object, n = 100){
 
 #' PlotNormalisationQC
 #'
-#' Generates a series of plots comparing an un-normalised and a normalised \linkS4class{AEMSet}.
+#' Generates a series of plots comparing an un-normalised and a normalised \linkS4class{EMSet}.
 #'
-#' @param original An un-normalised \linkS4class{AEMSet}
-#' @param normalised A normalised \linkS4class{AEMSet}
+#' @param original An un-normalised \linkS4class{EMSet}
+#' @param normalised A normalised \linkS4class{EMSet}
 #' @param gene.list OPTIONAL: A list of genes to plot expression levels for. If not defined, ASCEND will choose a gene at random
 #' @export
 #'
 PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = list()) {
   # Insert Check For Normalisation
   if(!is.null(original@Log$NormalisationMethod)){
-    stop("Please supply an un-normalised AEMSet object.")
+    stop("Please supply an un-normalised EMSet object.")
   }
 
   if(is.null(normalised@Log$NormalisationMethod)){
-    stop("Please supply a normalised AEMSet object.")
+    stop("Please supply a normalised EMSet object.")
   }
 
   # Set output
   output.list <- list()
 
   # Get metrics we need from old and new object
-  print("Retrieving data from AEMSets...")
+  print("Retrieving data from EMSets...")
   matrix.1 <- GetExpressionMatrix(original, "data.frame")
   matrix.2 <- GetExpressionMatrix(normalised, "data.frame")
 
@@ -742,7 +742,7 @@ z_theme <- function() {
 #'
 #' Generates a violin-beeswarm plot of top genes per sample.
 #'
-#' @param An \linkS4class{AEMSet} object
+#' @param An \linkS4class{EMSet} object
 #' @export
 #'
 PlotTopGenesPerSample <- function(object){
@@ -784,7 +784,7 @@ PlotTopGenesPerSample <- function(object){
 #' PlotLibrarySizesPerSample
 #'
 #' Generates a violin-beeswarm plot of library sizes per sample.
-#' @param object A \linkS4class{AEMSet}
+#' @param object A \linkS4class{EMSet}
 #' @export
 #'
 PlotLibrarySizesPerSample <- function(object){
@@ -817,7 +817,7 @@ PlotLibrarySizesPerSample <- function(object){
 
 #' PlotControlPercentagesPerSample
 #'
-#' @param object A \linkS4class{AEMSet} object
+#' @param object A \linkS4class{EMSet} object
 #' @param control.name Name of the control you would like to plot
 #' @export
 #'
@@ -857,7 +857,7 @@ PlotControlPercentagesPerSample <- function(object, control.name){
 #' PlotTopGeneExpression
 #'
 #' Generates a boxplot using \link[ggplot2]{geom_boxplot} of the most expressed genes in the dataset, in a range defined by the user.
-#' @param object A AEMSet object
+#' @param object A EMSet object
 #' @param n Number of genes to be plotted
 #' @export
 #'
@@ -898,7 +898,7 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #' \itemize{
 #' \item{\strong{Library Size}: A histogram depicting library sizes across the dataset.}
 #' }
-#' @param object An \linkS4class{AEMSet} object
+#' @param object An \linkS4class{EMSet} object
 #' @export
 #'
 PlotGeneralQC <- function(object){

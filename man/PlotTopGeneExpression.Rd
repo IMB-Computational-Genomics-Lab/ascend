@@ -7,7 +7,7 @@
 PlotTopGeneExpression(object, n = 50, controls = TRUE)
 }
 \arguments{
-\item{object}{A AEMSet object}
+\item{object}{A EMSet object}
 
 \item{n}{Number of genes to be plotted}
 }

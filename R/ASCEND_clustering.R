@@ -364,7 +364,7 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
 #'
 #' This function determines the optimal number of clusters for a dataset.
 #' This function first generates a distance matrix and a hclust object, and then cuts the tree at different heights.
-#' This will return an AEMSet with the following objects:
+#' This will return an EMSet with the following objects:
 #' \describe{
 #'     \item{DistanceMatrix}{A distance matrix}
 #'     \item{Hclust}{A hclust object}
@@ -376,13 +376,13 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
 #'     \item{KeyStats}{A dataframe containing information on each generated clustering result, that is used to determine the optimal cluster number.}
 #'     \item{RandMatrix}{Rand matrix used to determine optimal number of clusters}
 #' }
-#' @param object An AEMSet object that has undergone PCA reduction.
+#' @param object An EMSet object that has undergone PCA reduction.
 #' @param conservative Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE
 #' @export
 #'
 RunCORE <- function(object, conservative = TRUE){
-  # User inputs a AEMSet
-  if (class(object) == "AEMSet"){
+  # User inputs a EMSet
+  if (class(object) == "EMSet"){
     # Making sure user has run PCA and reduced dimensions
     if ( !object@Log$PCA ){
       stop("Please run RunPCA followed by ReduceDimensions on this object before running this function.")
@@ -391,7 +391,7 @@ RunCORE <- function(object, conservative = TRUE){
       stop("Please reduce this dataset with RunPCA and ReduceDimensions.")
     }
   } else {
-    stop("Please supply a AEMSet object.")
+    stop("Please supply a EMSet object.")
   }
 
   # Generate distance matrix and hclust objects as normal
@@ -442,7 +442,7 @@ RunCORE <- function(object, conservative = TRUE){
   print("Optimal number of clusters found! Returning output...")
   cell.labels <- original.tree$labels
 
-  # Add information to the AEMSet object
+  # Add information to the EMSet object
   output.list <- list(
     DistanceMatrix = distance.matrix,
     Hclust = original.tree,
@@ -455,7 +455,7 @@ RunCORE <- function(object, conservative = TRUE){
     RandMatrix = rand.idx.matrix
   )
 
-  # Append all of this information to the AEMSet object
+  # Append all of this information to the EMSet object
   object@Clusters <- output.list
   object@CellInformation$cluster <- unlist(optimal.cluster.list)
 

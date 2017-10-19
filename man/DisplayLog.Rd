@@ -7,5 +7,5 @@
 DisplayLog(object)
 }
 \description{
-Print out the log of an \linkS4class{AEMSet}.
+Print out the log of an \linkS4class{EMSet}.
 }

@@ -7,10 +7,10 @@
 ReplaceExpressionMatrix(object, expression.matrix)
 }
 \arguments{
-\item{object}{The \linkS4class{AEMSet} you would like to update.}
+\item{object}{The \linkS4class{EMSet} you would like to update.}
 
 \item{expression.matrix}{Expression matrix in matrix form}
 }
 \description{
-Replace the expression matrix in a \linkS4class{AEMSet} with a new expression matrix and re-calculate its metrics.
+Replace the expression matrix in a \linkS4class{EMSet} with a new expression matrix and re-calculate its metrics.
 }

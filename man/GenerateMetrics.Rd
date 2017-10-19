@@ -23,6 +23,6 @@ This function generates the following set of values per cell:
 }
 }
 \details{
-This function is called by \code{\link{NewAEMSet}} and generates metrics for the new expression matrix.
-This function can also be called independantly, to update the metrics for a \linkS4class{AEMSet} object.
+This function is called by \code{\link{NewEMSet}} and generates metrics for the new expression matrix.
+This function can also be called independantly, to update the metrics for a \linkS4class{EMSet} object.
 }

@@ -1,19 +1,19 @@
-# Functions for subsetting AEMSets
+# Functions for subsetting EMSets
 #' SubsetCondition
 #'
-#' Subset specific conditions from a \linkS4class{AEMSet} object.
+#' Subset specific conditions from a \linkS4class{EMSet} object.
 #'
-#' @param object A \linkS4class{AEMSet} object
+#' @param object A \linkS4class{EMSet} object
 #' @param conditions Name of the columns which contain boolean information on whether to keep or discard a cell.
 #'
-#' @return An \linkS4class{AEMSet} containing only this batch.
+#' @return An \linkS4class{EMSet} containing only this batch.
 #' @include ASCEND_objects.R
 #' @export
 setGeneric(name = "SubsetCondition", def = function(object, conditions) {
     standardGeneric("SubsetCondition")
 })
 
-setMethod("SubsetCondition", signature("AEMSet"), function(object, conditions = c()) {
+setMethod("SubsetCondition", signature("EMSet"), function(object, conditions = c()) {
   # Check if selected batches are present in the batches column
   if (!any(conditions %in% colnames(object@CellInformation))) {
     stop("None of your selected batches are present in the dataset.")
@@ -56,19 +56,19 @@ setMethod("SubsetCondition", signature("AEMSet"), function(object, conditions = 
 
 #' SubsetBatch
 #'
-#' Subset a specific batch from a \linkS4class{AEMSet} object. This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
+#' Subset a specific batch from a \linkS4class{EMSet} object. This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
 #'
-#' @param object A \linkS4class{AEMSet} object
+#' @param object A \linkS4class{EMSet} object
 #' @param batches Name or number of the batch(es) you would like to subset.
 #'
-#' @return An \linkS4class{AEMSet} containing only this batch.
+#' @return An \linkS4class{EMSet} containing only this batch.
 #' @include ASCEND_objects.R
 #' @export
 setGeneric(name = "SubsetBatch", def = function(object, batches) {
     standardGeneric("SubsetBatch")
 })
 
-setMethod("SubsetBatch", signature("AEMSet"), function(object, batches = c()) {
+setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
     # Check if selected batches are present in the batches column
     if (!any(batches %in% object@CellInformation[, 2])) {
         stop("None of your selected batches are present in the dataset.")
@@ -98,12 +98,12 @@ setMethod("SubsetBatch", signature("AEMSet"), function(object, batches = c()) {
 
 #' SubsetCluster
 #'
-#' Subset a \linkS4class{AEMSet} object by cluster. Please make sure you have clustered with \code{\link{RunCORE}} before using this function.
+#' Subset a \linkS4class{EMSet} object by cluster. Please make sure you have clustered with \code{\link{RunCORE}} before using this function.
 #' This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
 #'
-#' @param object A \linkS4class{AEMSet} object
+#' @param object A \linkS4class{EMSet} object
 #' @param clusters Clusters to subset from the dataset.
-#' @return Returns an \linkS4class{AEMSet} containing only this cluster.
+#' @return Returns an \linkS4class{EMSet} containing only this cluster.
 #' @include ASCEND_objects.R
 #' @export
 #'
@@ -111,7 +111,7 @@ setGeneric(name = "SubsetCluster", def = function(object, clusters) {
     standardGeneric("SubsetCluster")
 })
 
-setMethod("SubsetCluster", signature("AEMSet"), function(object, clusters = c()) {
+setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) {
     # Check if data has been clustered
     if (is.null(object@CellInformation[, "cluster"])) {
         stop("Please cluster your data before using this function.")
@@ -150,11 +150,11 @@ setMethod("SubsetCluster", signature("AEMSet"), function(object, clusters = c())
 
 #' SubsetCells
 #'
-#' Subset cells in the supplied list from an \linkS4class{AEMSet}.
+#' Subset cells in the supplied list from an \linkS4class{EMSet}.
 #'
-#' @param object An \linkS4class{AEMSet}
-#' @param cell_barcodes A list of cell identifiers to subset from the \linkS4class{AEMSet}
-#' @return An \linkS4class{AEMSet}
+#' @param object An \linkS4class{EMSet}
+#' @param cell_barcodes A list of cell identifiers to subset from the \linkS4class{EMSet}
+#' @return An \linkS4class{EMSet}
 #' @include ASCEND_objects.R
 #' @export
 #'
@@ -162,7 +162,7 @@ setGeneric(name = "SubsetCells", def = function(object, cell_barcodes) {
     standardGeneric("SubsetCells")
 })
 
-setMethod("SubsetCells", signature("AEMSet"), function(object, cell_barcodes = c()) {
+setMethod("SubsetCells", signature("EMSet"), function(object, cell_barcodes = c()) {
     # Check cells are in the expression matrix.
     expression.matrix <- GetExpressionMatrix(object, "data.frame")
     cell.info <- GetCellInfo(object)
@@ -172,7 +172,7 @@ setMethod("SubsetCells", signature("AEMSet"), function(object, cell_barcodes = c
 
     # Missing cell catch
     if (length(present.cells) == 0) {
-        stop("All listed cells were not present in the AEMSet.")
+        stop("All listed cells were not present in the EMSet.")
     } else {
         # Subset out information
         subset.matrix <- expression.matrix[, present.cells]

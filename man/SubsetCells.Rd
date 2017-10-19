@@ -7,13 +7,13 @@
 SubsetCells(object, cell_barcodes)
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet}}
+\item{object}{An \linkS4class{EMSet}}
 
-\item{cell_barcodes}{A list of cell identifiers to subset from the \linkS4class{AEMSet}}
+\item{cell_barcodes}{A list of cell identifiers to subset from the \linkS4class{EMSet}}
 }
 \value{
-An \linkS4class{AEMSet}
+An \linkS4class{EMSet}
 }
 \description{
-Subset cells in the supplied list from an \linkS4class{AEMSet}.
+Subset cells in the supplied list from an \linkS4class{EMSet}.
 }

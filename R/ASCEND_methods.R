@@ -36,16 +36,16 @@ GenerateControlMetrics <- function(x, expression.matrix = NULL, control.list = N
 #' \item{\strong{Mean Gene Expression}: Mean expression level of a gene across the entire dataset}
 #' }
 #'
-#' This function is called by \code{\link{NewAEMSet}} and generates metrics for the new expression matrix.
-#' This function can also be called independantly, to update the metrics for a \linkS4class{AEMSet} object.
+#' This function is called by \code{\link{NewEMSet}} and generates metrics for the new expression matrix.
+#' This function can also be called independantly, to update the metrics for a \linkS4class{EMSet} object.
 #' @include ASCEND_objects.R
 #' @export
 setGeneric(name = "GenerateMetrics", def = function(object) {
     standardGeneric("GenerateMetrics")
 })
 
-setMethod("GenerateMetrics", signature("AEMSet"), function(object) {
-    # Retrieve required objects from AEMSet
+setMethod("GenerateMetrics", signature("EMSet"), function(object) {
+    # Retrieve required objects from EMSet
     expression.matrix <- object@ExpressionMatrix
     control.list <- object@Controls
     metrics.list <- list()
@@ -121,9 +121,9 @@ AddControlInfo <- function(gene.information, controls) {
 
 #' ConvertGeneAnnotation
 #'
-#' Convert gene identifiers used in this \linkS4class{AEMSet} to identifiers used in another column of a dataframe stored in the GeneAnnotation slot.
+#' Convert gene identifiers used in this \linkS4class{EMSet} to identifiers used in another column of a dataframe stored in the GeneAnnotation slot.
 #'
-#' @param object A \linkS4class{AEMSet} object.
+#' @param object A \linkS4class{EMSet} object.
 #' @param old.annotation Name of the column containing the current gene annotations.
 #' @param new.annotation Name of the column you would like to convert the gene annotations to.
 #' @include ASCEND_objects.R
@@ -132,7 +132,7 @@ setGeneric(name = "ConvertGeneAnnotation", def = function(object, old.annotation
     standardGeneric("ConvertGeneAnnotation")
 })
 
-setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object, old.annotation, new.annotation) {
+setMethod("ConvertGeneAnnotation", signature("EMSet"), function(object, old.annotation, new.annotation) {
     # Get currently-used gene identifiers Load Gene Annotation
     gene.annotation <- object@GeneInformation
 
@@ -163,7 +163,7 @@ setMethod("ConvertGeneAnnotation", signature("AEMSet"), function(object, old.ann
 #' ExcludeControl
 #'
 #' Removes the specified control from the expression matrix.
-#' @param object A \linkS4class{AEMSet} object. It is recommended that you run this step after this object has undergone filtering.
+#' @param object A \linkS4class{EMSet} object. It is recommended that you run this step after this object has undergone filtering.
 #' @param control.name Name of the control set you want to remove from the dataset.
 #' @export
 #'
@@ -171,7 +171,7 @@ setGeneric(name = "ExcludeControl", def = function(object, control.name) {
     standardGeneric("ExcludeControl")
 })
 
-setMethod("ExcludeControl", signature("AEMSet"), function(object, control.name) {
+setMethod("ExcludeControl", signature("EMSet"), function(object, control.name) {
     # Identify indices of control genes in the current expression matrix Keep this matrix sparse for faster processing power
     expression.matrix <- object@ExpressionMatrix
     control.list <- object@Controls
@@ -220,14 +220,14 @@ setMethod("ExcludeControl", signature("AEMSet"), function(object, control.name) 
 
 #' DisplayLog
 #'
-#' Print out the log of an \linkS4class{AEMSet}.
+#' Print out the log of an \linkS4class{EMSet}.
 #' @include ASCEND_objects.R
 #' @export
 setGeneric(name = "DisplayLog", def = function(object) {
     standardGeneric("DisplayLog")
 })
 
-setMethod("DisplayLog", signature("AEMSet"), function(object) {
+setMethod("DisplayLog", signature("EMSet"), function(object) {
     log <- object@Log
     print(log)
 })

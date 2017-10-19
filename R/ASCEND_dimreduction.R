@@ -9,7 +9,7 @@
 #' @export
 #'
 RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5) {
-    if (class(object) == "AEMSet") {
+    if (class(object) == "EMSet") {
         if (PCA) {
             if (is.null(object@PCA$PCA)) {
                 x <- object@PCA$PCA
@@ -21,7 +21,7 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
         }
     } else {
         if (!(is.matrix(expression.matrix) || is.data.frame(expression.matrix) || is(expression.matrix, "sparseMatrix"))) {
-            stop("Please supply an AEMSet, matrix or dataframe.")
+            stop("Please supply an EMSet, matrix or dataframe.")
         } else {
             object <- x
             PCA = FALSE
@@ -51,7 +51,7 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
 
 #' GetReducedDimensions
 #'
-#' @param object An \linkS4class{AEMSet} object that has undergone PCA reduction.
+#' @param object An \linkS4class{EMSet} object that has undergone PCA reduction.
 #' @param n The number of PC dimensions you would like to select. Refer to
 #' vignette on how to select this value. Default: 10
 #' @export
@@ -80,7 +80,7 @@ CalcRowVariance <- function(x) {
 
 #' RunPCA
 #'
-#' @param object A \linkS4class{AEMSet} object that has undergone filtering and normalisation.
+#' @param object A \linkS4class{EMSet} object that has undergone filtering and normalisation.
 #' @param ngenes The top number of genes you would like to perform the reduction by. Default: 1500
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values. Default: TRUE
 #' @export
@@ -108,7 +108,7 @@ RunPCA <- function(object, ngenes = 1500, scaling = TRUE) {
     pca.result <- stats::prcomp(pca.input.matrix)
     pca.percent.var <- pca.result$sdev^2/sum(pca.result$sdev^2)
     
-    # Output back to AEMSet
+    # Output back to EMSet
     print("PCA complete! Returning object...")
     pca.result.matrix <- as.data.frame(pca.result$x)
     object@PCA <- list(PCA = pca.result.matrix, PCAPercentVariance = pca.percent.var)

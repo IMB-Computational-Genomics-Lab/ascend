@@ -11,7 +11,7 @@ RegressConfoundingFactors(object, candidate.genes = list())
 Refer to the vignette on how to choose genes for regression.}
 
 \item{expression.matrix}{Expression matrix in data frame format. You may load
-it from a AEMSet object with the GetExpressionMatrix function.}
+it from a EMSet object with the GetExpressionMatrix function.}
 }
 \description{
 This function generates a scaled regression matrix based on candidate genes

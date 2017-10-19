@@ -7,12 +7,12 @@
 ConvertToScater(object, control.list = list())
 }
 \arguments{
-\item{object}{An \linkS4class{AEMSet} object.}
+\item{object}{An \linkS4class{EMSet} object.}
 
 \item{control.list}{Optional - a named list containing mitochondrial and ribosomal genes.}
 }
 \description{
-Convert a \linkS4class{AEMSet} object into a \linkS4class{SCESet} for use with
+Convert a \linkS4class{EMSet} object into a \linkS4class{SCESet} for use with
 \pkg{scater} and \pkg{scran}. In order to use this function, you must have
 mitochondrial and ribosomal genes in your expression data.
 }

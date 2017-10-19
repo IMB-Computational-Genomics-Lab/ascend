@@ -2,7 +2,7 @@
 #'
 #' Filtered cells by the proportion of expressed genes in the cell. This step is
 #' usually done after the other filtering steps and prior to normalisation.
-#' @param object AEMSet (ASCEND) object that has been filtered by
+#' @param object EMSet (ASCEND) object that has been filtered by
 #' \code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.
 #' @param pct.value Percentage threshold as a whole number. Default: 1
 #' @export
@@ -53,9 +53,9 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
 #' This function should be used AFTER the cells have undergone general filtering
 #' with the \code{\link{FilterByOutliers}} function.
 #'
-#' @param control.name Name of the control group, as used in the named list supplied to the AEMSet object
+#' @param control.name Name of the control group, as used in the named list supplied to the EMSet object
 #' @param pct.threshold Percentage threshold to filter cells by, as a whole number. Default: 20
-#' @param object A \linkS4class{AEMSet} object.
+#' @param object A \linkS4class{EMSet} object.
 #' @export
 #'
 
@@ -168,9 +168,9 @@ FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), 
 #' \item{Expression of control genes beyond set threshold}
 #' }
 #'
-#' This function then loads the filtered expression matrix into the AEMSet object.
+#' This function then loads the filtered expression matrix into the EMSet object.
 #'
-#' @param object An \linkS4class{AEMSet} object
+#' @param object An \linkS4class{EMSet} object
 #' @param cell.threshold  Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3
 #' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3
 #' @export
@@ -190,7 +190,7 @@ FilterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
     stop("Please define controls before filtering this dataset.")
   }
 
-  # Retrieve required objects from AEMSet
+  # Retrieve required objects from EMSet
   expression.matrix <- filtered.object@ExpressionMatrix
   control.list <- filtered.object@Controls
 

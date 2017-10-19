@@ -1,6 +1,6 @@
 #' scranNormalise
 #'
-#' Normalise an \linkS4class{AEMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
+#' Normalise an \linkS4class{EMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
 #'
 #' @details Pooling method of cells is influenced by the size of the cell population.
 #' For datasets containing less than 20000 cells, this function will run \code{\link[scran]{computeSumFactors}}
@@ -10,7 +10,7 @@
 #' with very large datasets containing over 40000 cells. If \code{\link[scran]{quickCluster}} is not selected,
 #' cells will be randomly assigned to a group.
 #'
-#' @param object An \linkS4class{AEMSet} that has not undergone normalisation.
+#' @param object An \linkS4class{EMSet} that has not undergone normalisation.
 #' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups. Default: FALSE
 #' @export
 #'
@@ -20,7 +20,7 @@ scranNormalise <- function(object, quickCluster = FALSE) {
     }
     
     # Convert a scryeR object to a SCRAN object
-    print("Converting AEMSet to SCESet...")
+    print("Converting EMSet to SCESet...")
     sce.obj <- ConvertToScater(object)
     
     # Remove controls from SCESet object
@@ -75,7 +75,7 @@ scranNormalise <- function(object, quickCluster = FALSE) {
     dcvl.sce.obj <- scater::normalize(factored.sce.obj)
     
     # Convert log-transformed results back into counts
-    print("Normalisation complete. Converting SCESet back to AEMSet...")
+    print("Normalisation complete. Converting SCESet back to EMSet...")
     dcvl.matrix <- as.matrix(scater::norm_exprs(dcvl.sce.obj))
     unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
     
@@ -119,7 +119,7 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL
 #'
 #' This step must be done prior to any filtering and normalisation between cells.
 #'
-#' @param object An \linkS4class{AEMSet} object.
+#' @param object An \linkS4class{EMSet} object.
 #' @export
 #'
 NormaliseBatches <- function(object) {
@@ -127,7 +127,7 @@ NormaliseBatches <- function(object) {
         stop("This data is already normalised.")
     }
     
-    # Retrieve variables from AEMSet object
+    # Retrieve variables from EMSet object
     exprs.mtx <- GetExpressionMatrix(object, "matrix")
     cell.info <- GetCellInfo(object)
     unique.batch.identifiers <- unique(cell.info[, 2])
@@ -144,7 +144,7 @@ NormaliseBatches <- function(object) {
     cpm.matrix <- data.frame(sub.matrix.list)
     scaled.matrix <- cpm.matrix * median.size
     
-    # Load back into AEMSet and write metrics
+    # Load back into EMSet and write metrics
     print("Returning object...")
     colnames(scaled.matrix) <- cell.info[, 1]
     object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparse.matrix")
@@ -156,7 +156,7 @@ NormaliseBatches <- function(object) {
 #' NormaliseLibSize
 #'
 #' Normalise library sizes by scaling.
-#' @param object A \linkS4class{AEMSet} object. Please remove spike-ins from the expression matrix before normalising.
+#' @param object A \linkS4class{EMSet} object. Please remove spike-ins from the expression matrix before normalising.
 #' @export
 #'
 NormaliseLibSize <- function(object) {
@@ -204,7 +204,7 @@ CalcGeoMeans <- function(x) {
 #' Normalisation of expression between cells, by scaling to relative log expression.
 #' This method assumes all genes express a pseudo value higher than 0, and also assumes most genes
 #'are not differentially expressed. Only counts that are greater than zero are considered in this normalisation method.
-#' @param object A \linkS4class{AEMSet} object that has undergone filtering. Please ensure spike-ins have been removed before using this function.
+#' @param object A \linkS4class{EMSet} object that has undergone filtering. Please ensure spike-ins have been removed before using this function.
 #' @export
 #'
 NormaliseByRLE <- function(object) {
