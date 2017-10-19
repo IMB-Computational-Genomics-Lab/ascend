@@ -1,4 +1,4 @@
-devtools::load_all("~/CodeRepositories/ASCEND-dev/")
+devtools::load_all("~/CodeRepositories/ascend-dev/")
 
 library(BiocParallel)
 ncores <- parallel::detectCores() - 1
