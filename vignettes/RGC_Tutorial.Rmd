@@ -1,33 +1,33 @@
 ---
-title:  An introduction to ASCEND - Processing and analysis of retinal ganglion cells 
+title:  An introduction to ascend - Processing and analysis of retinal ganglion cells 
 author: "Anne Senabouth"
 date: '`r Sys.Date()`'
 output:
   html_document: rmarkdown::html_vignette
   pdf_document: default
 vignette: |
-  %\VignetteIndexEntry{An introduction to ASCEND - Processing and analysis of retinal ganglion cells} 
+  %\VignetteIndexEntry{An introduction to ascend - Processing and analysis of retinal ganglion cells} 
   %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
-```{r LoadASCEND, message = FALSE, echo = FALSE}
-devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")
+```{r Loadascend, message = FALSE, echo = FALSE}
+devtools::load_all("/Users/a.senabouth/CodeRepositories/ascend")
 ```
-The `ASCEND` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
+The `ascend` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
 ## About the dataset
 This dataset comprises of 1272 human embryonic stem cell-derived retinal ganglion cells (RGCs).  The single cell libraries were prepared with the Chromium Single Cell 3' Solution system by 10x Genomics. Two libraries were prepared - one consisting of THY1-positive cells (Batch 1) and THY1-negative cells (Batch 2). Sequence from these two batches were aggregated and batch normalised using 10x Genomics' Cell Ranger Single Cell Software Suite 1.3.1. 
 
 You can read more about this dataset in the paper [Single Cell RNA Sequencing of stem cell-derived retinal ganglion cells][1] by Daniszewski et al. 2017.
 
-## Loading Data for use in ASCEND
+## Loading Data for use in ascend
 ### Preparing data manually
 The data for this vignette is included with the package. You can load the data by using the following command:
 
 ```{R LoadData}
-load(system.file("extdata", "RGC_scRNASeq.RData", package = "ASCEND"))
+load(system.file("extdata", "RGC_scRNASeq.RData", package = "ascend"))
 ```
 
-These objects contain all the information we need to create an `AEMSet` - the main data object of the ASCEND package. 
+These objects contain all the information we need to create an `AEMSet` - the main data object of the ascend package. 
 
 #### Expression matrix
 The main source of input is an expression matrix, or a gene-cell matrix where each row represents a transcript and each column represents a cell. Cell Ranger - the processing pipeline for the Chromium platform, has stored the expression matrix in a Market Exchange Format (MEX) file called `matrix.mtx`. This was read into R with the `readMM` function from the `Matrix` package.
@@ -78,7 +78,7 @@ colnames(genes) <- c("ensembl_id", "gene_symbol")
 genes[1:5,]
 ```
 
-For this tutorial, we will use gene names. As genes can be associated with more than one transcript, we need to make the names unique with `make.unique` before adding them to the expression matrix. We also need to swap the order of the identifiers, as ASCEND requires our chosen names to be in the first column of the Gene Information dataframe.
+For this tutorial, we will use gene names. As genes can be associated with more than one transcript, we need to make the names unique with `make.unique` before adding them to the expression matrix. We also need to swap the order of the identifiers, as ascend requires our chosen names to be in the first column of the Gene Information dataframe.
 
 ```{r SetRownames}
 genes <- genes[,c("gene_symbol", "ensembl_id")]
@@ -113,11 +113,11 @@ aem.set <- NewAEMSet(ExpressionMatrix = matrix, GeneInformation = genes, CellInf
 aem.set
 ```
 
-### Load data from Cell Ranger into ASCEND automatically
+### Load data from Cell Ranger into ascend automatically
 If you are using Chromium data, you can also load the data into R with this function.
 
 ```{r AutoLoading, eval = FALSE}
-aem.set <- CellRangerToASCEND("RGC_scRNASeq", "GRCh38")
+aem.set <- CellRangerToascend("RGC_scRNASeq", "GRCh38")
 ```
 
 This function loads the data into an AEMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
@@ -281,7 +281,7 @@ print(filtered.qc.plots$FeatureCountsPerCell)
 ### Normalisation
 Normalisation needs to be done at two levels - between batches and between cells.
 
-The ASCEND package contains the following normalisation functions:
+The ascend package contains the following normalisation functions:
 
 * NormaliseBatches: Normalise library sizes between batches.
 * NormaliseByRLE: Normalise library sizes between cells by Relative Log Expression (RLE).

@@ -6,7 +6,7 @@
 #' @param object A \linkS4class{EMSet} to retrieve the expression matrix from
 #' @param format Format of the returned matrix - 'data.frame' or 'matrix'
 #' @return Returns the expression matrix in the chosen format (data.frame or matrix).
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
     standardGeneric("GetExpressionMatrix")
@@ -27,7 +27,7 @@ setMethod("GetExpressionMatrix", signature("EMSet"), function(object, format = c
 #'
 #' @param object An \linkS4class{EMSet} object.
 #' @return This function returns a list of controls defined by the user.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetControls", def = function(object) {
     standardGeneric("GetControls")
@@ -42,7 +42,7 @@ setMethod("GetControls", signature("EMSet"), function(object) {
 #'
 #' Retrieve cell information from an \linkS4class{EMSet}.
 #' @return A data frame with cell identifiers and associated information.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetCellInfo", def = function(object) {
     standardGeneric("GetCellInfo")
@@ -57,7 +57,7 @@ setMethod("GetCellInfo", signature("EMSet"), function(object) {
 #' Retrieve gene information from an \linkS4class{EMSet} object.
 #' @param object A \linkS4class{EMSet} object.
 #' @return This function returns a data frame.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetGeneInfo", def = function(object) {
     standardGeneric("GetGeneInfo")
@@ -93,7 +93,7 @@ setMethod("GetBatchMatrix", signature("EMSet"), function(object, batch.id) {
 #' Retrieve the rand matrix used to determine clusters from an \linkS4class{EMSet} object.
 #' @param object An \linkS4class{EMSet} object that has undergone clustering.
 #' @return This function returns a data frame.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetRandMatrix", def = function(object) {
     standardGeneric("GetRandMatrix")
@@ -109,7 +109,7 @@ setMethod("GetRandMatrix", signature("EMSet"), function(object) {
 #' Retrieve the PCA matrix from an \linkS4class{EMSet} object that has undergone PCA reduction.
 #' @param object An \linkS4class{EMSet} object.
 #' @return This function returns a data frame.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetPCA", def = function(object) {
     standardGeneric("GetPCA")
@@ -129,7 +129,7 @@ setMethod("GetPCA", signature = "EMSet", function(object) {
 #' Retrieve the distance matrix from an \linkS4class{EMSet} object that has undergone clustering.
 #' @param object An \linkS4class{EMSet} object.
 #' @return This function returns a distance matrix.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetDistanceMatrix", def = function(object) {
     standardGeneric("GetDistanceMatrix")
@@ -149,7 +149,7 @@ setMethod("GetDistanceMatrix", signature = "EMSet", function(object) {
 #' Retrieve the Hclust object from an \linkS4class{EMSet} object that has undergone clustering.
 #' @param object An \linkS4class{EMSet} object.
 #' @return This function returns a hclust object.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GetHclust", def = function(object) {
     standardGeneric("GetHclust")

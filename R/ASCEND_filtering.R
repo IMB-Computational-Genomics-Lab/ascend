@@ -2,7 +2,7 @@
 #'
 #' Filtered cells by the proportion of expressed genes in the cell. This step is
 #' usually done after the other filtering steps and prior to normalisation.
-#' @param object EMSet (ASCEND) object that has been filtered by
+#' @param object EMSet (ascend) object that has been filtered by
 #' \code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.
 #' @param pct.value Percentage threshold as a whole number. Default: 1
 #' @export

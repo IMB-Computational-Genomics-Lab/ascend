@@ -125,7 +125,7 @@ CheckEMSet <- function(object) {
 # Expression and Metadata Set Class Definition
 #' Expression and Metadata Set (EMSet)
 #'
-#' An S4 class to contain data in a format ASCEND can work with for analysis.
+#' An S4 class to contain data in a format ascend can work with for analysis.
 #' @slot ExpressionMatrix Transcript counts stored as a sparse matrix, where rows are transcript/gene identifiers and columns are invididual cells.
 #' @slot GeneInformation A data frame containing information a set of gene identifiers, such as gene symbols or ENSEMBL transcript identifiers. This data frame also holds information on controls and any information provided by the user.
 #' @slot CellInformation A data frame containing each cell identifier, its associated batch/sample and additional information such as conditions.
@@ -142,7 +142,7 @@ setClass("EMSet", representation(ExpressionMatrix = "Matrix", GeneInformation = 
 # More methods for this class
 setMethod("show", signature("EMSet"), function(object) {
     # Rethink this slot Get number of genes and cells from the expression matrix dimensions
-    print("ASCEND Object - EMSet")
+    print("ascend Object - EMSet")
     n.genes <- nrow(object@ExpressionMatrix)
     n.cells <- ncol(object@ExpressionMatrix)
     print(sprintf("Expression Matrix: %i genes and %i cells", n.genes, n.cells))
@@ -180,7 +180,7 @@ setMethod("show", signature("EMSet"), function(object) {
 # Constructor function for EMSet
 #' NewEMSet
 #'
-#' \code{\link{NewEMSet}} generates a \linkS4class{EMSet} object for use with the ASCEND package. This object contains an expression matrix, associated metadata, downstream analysis and a log documenting the actions taken to generate this object.
+#' \code{\link{NewEMSet}} generates a \linkS4class{EMSet} object for use with the ascend package. This object contains an expression matrix, associated metadata, downstream analysis and a log documenting the actions taken to generate this object.
 #' @param ExpressionMatrix An expression matrix in data.frame, dgCMatrix (sparse) or matrix format. Rows should represent a transcript and its counts, while columns should represent individual cells. This is usually the end point for Single Cell RNA-Seq pipelines such as Cell Ranger and DropSeq.
 #' @param Controls A named list of controls, eg. mitochondrial genes, ribosomal genes and ERCC spike-ins. These genes must be specified using the identifier used in the expression matrix. This information is required for some functions.
 #' @param GeneInformation A data frame containing gene identifiers used in the expression matrix. The first column should hold the cell identifiers you are using in the expression matrix. Other columns contain information about the genes, such as their corresponding ENSEMBL transcript identifiers, whether or not they are a control and any additional information supplied by the user. This is an optional field.
@@ -318,7 +318,7 @@ setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
 #'
 #' @param object An \linkS4class{EMSet} object.
 #' @param cell.info A data frame containing cell information. The first column must comprise of cell identifiers that match the cell identifiers used in the expression matrix. The second column, while optional - should contain batch information.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
     standardGeneric("ReplaceCellInfo")
@@ -345,7 +345,7 @@ setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
 #'
 #' @param object An \linkS4class{EMSet} object.
 #' @param gene.info A data frame containing cell information. The first column must comprise of gene identifiers that match the gene identifiers used in the expression matrix. The second column, while optional - should contain batch information.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
     standardGeneric("ReplaceGeneInfo")
@@ -370,7 +370,7 @@ setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
 #'
 #' @param object The \linkS4class{EMSet} you would like to update.
 #' @param expression.matrix Expression matrix in matrix form
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
     standardGeneric("ReplaceExpressionMatrix")

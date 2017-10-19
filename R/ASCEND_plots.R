@@ -578,7 +578,7 @@ PlotPCAVariance <- function(object, n = 100){
 #'
 #' @param original An un-normalised \linkS4class{EMSet}
 #' @param normalised A normalised \linkS4class{EMSet}
-#' @param gene.list OPTIONAL: A list of genes to plot expression levels for. If not defined, ASCEND will choose a gene at random
+#' @param gene.list OPTIONAL: A list of genes to plot expression levels for. If not defined, ascend will choose a gene at random
 #' @export
 #'
 PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = list()) {

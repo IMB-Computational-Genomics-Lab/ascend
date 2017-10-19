@@ -7,7 +7,7 @@
 #' @param conditions Name of the columns which contain boolean information on whether to keep or discard a cell.
 #'
 #' @return An \linkS4class{EMSet} containing only this batch.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "SubsetCondition", def = function(object, conditions) {
     standardGeneric("SubsetCondition")
@@ -62,7 +62,7 @@ setMethod("SubsetCondition", signature("EMSet"), function(object, conditions = c
 #' @param batches Name or number of the batch(es) you would like to subset.
 #'
 #' @return An \linkS4class{EMSet} containing only this batch.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "SubsetBatch", def = function(object, batches) {
     standardGeneric("SubsetBatch")
@@ -104,7 +104,7 @@ setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
 #' @param object A \linkS4class{EMSet} object
 #' @param clusters Clusters to subset from the dataset.
 #' @return Returns an \linkS4class{EMSet} containing only this cluster.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 #'
 setGeneric(name = "SubsetCluster", def = function(object, clusters) {
@@ -155,7 +155,7 @@ setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) 
 #' @param object An \linkS4class{EMSet}
 #' @param cell_barcodes A list of cell identifiers to subset from the \linkS4class{EMSet}
 #' @return An \linkS4class{EMSet}
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 #'
 setGeneric(name = "SubsetCells", def = function(object, cell_barcodes) {

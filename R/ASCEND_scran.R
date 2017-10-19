@@ -65,14 +65,14 @@ ConvertToScater <- function(object, control.list = list()) {
     return(sce.obj)
 }
 
-#' ConvertScaterToASCEND
+#' ConvertScaterToascend
 #'
-#' Loads data from a SCATER object to a pre-existing ASCEND object.
+#' Loads data from a SCATER object to a pre-existing ascend object.
 #' @param SCESet A \linkS4class{SCESet} from \pkg{scater}
 #' @param EMSet An \linkS4class{EMSet}
 #' @export
 #'
-ConvertScaterToASCEND <- function(SCESet, EMSet) {
+ConvertScaterToascend <- function(SCESet, EMSet) {
     # Retrieve counts from SCESet
     expression.matrix <- scater::counts(SCESet)
 

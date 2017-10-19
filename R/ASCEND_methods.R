@@ -38,7 +38,7 @@ GenerateControlMetrics <- function(x, expression.matrix = NULL, control.list = N
 #'
 #' This function is called by \code{\link{NewEMSet}} and generates metrics for the new expression matrix.
 #' This function can also be called independantly, to update the metrics for a \linkS4class{EMSet} object.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "GenerateMetrics", def = function(object) {
     standardGeneric("GenerateMetrics")
@@ -111,7 +111,7 @@ setMethod("GenerateMetrics", signature("EMSet"), function(object) {
     return(object)
 })
 
-# Called by ASCEND object creation. Adds the control information to the data frame.
+# Called by ascend object creation. Adds the control information to the data frame.
 AddControlInfo <- function(gene.information, controls) {
     # Verify controls are in the cell information data frame
     gene.information$control <- rep(FALSE, nrow(gene.information))
@@ -126,7 +126,7 @@ AddControlInfo <- function(gene.information, controls) {
 #' @param object A \linkS4class{EMSet} object.
 #' @param old.annotation Name of the column containing the current gene annotations.
 #' @param new.annotation Name of the column you would like to convert the gene annotations to.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "ConvertGeneAnnotation", def = function(object, old.annotation, new.annotation) {
     standardGeneric("ConvertGeneAnnotation")
@@ -221,7 +221,7 @@ setMethod("ExcludeControl", signature("EMSet"), function(object, control.name) {
 #' DisplayLog
 #'
 #' Print out the log of an \linkS4class{EMSet}.
-#' @include ASCEND_objects.R
+#' @include ascend_objects.R
 #' @export
 setGeneric(name = "DisplayLog", def = function(object) {
     standardGeneric("DisplayLog")
