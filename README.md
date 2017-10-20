@@ -1,5 +1,4 @@
-# ascend
-## Analysis of Single Cell Expression, Normalisation and Differential expression
+![alt text](ascend_banner.png "ascend - Analysis of Single Cell Expression, Normalisation and Differential expression")
 ### Workflow Summary
 ![alt text](workflow.png "ascend workflow summary")
 
