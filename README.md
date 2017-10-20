@@ -1,7 +1,7 @@
-# ASCEND
+# ascend
 ## Analysis of Single Cell Expression, Normalisation and Differential expression
 ### Workflow Summary
-<img src="ASCEND_workflow.png" width = "400", height = "500">
+![alt text](workflow.png "ascend workflow summary")
 
 ### Installation
 #### Required Packages
