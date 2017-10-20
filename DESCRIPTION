@@ -27,11 +27,11 @@ Imports: stats,
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
-Depends: 
+Depends:
     methods,
     data.table,
     Matrix
-Collate: 
+Collate:
     'ascend_cellranger.R'
     'ascend_clustering.R'
     'ascend_confoundingfactors.R'
