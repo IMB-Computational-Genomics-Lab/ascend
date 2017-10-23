@@ -76,7 +76,7 @@ ASCEND is able to use any row and column names in the expression matrix, provide
 3. Cells from different batches, samples or sequencing runs should be given a numeric identifier at the end. eg. BARCODE-1, BARCODE-2, BARCODE-3.
 
 ##### Combining expression matrices from different batches
-You can concatenate multiple expression matrices with the function *MergeExprsMtx*. Expression matrices generated with this method should then be normalised with the *NormaliseBatches* function. For pipelines such as Chromium's Cell Ranger, the native aggregation function should be used as it takes into account additional information such as individual reads.
+You can concatenate multiple expression matrices with the function *JoinMatrices*. Expression matrices generated with this method should then be normalised with the *NormaliseBatches* function. For pipelines such as Chromium's Cell Ranger, the native aggregation function should be used as it takes into account additional information such as individual reads.
 
 #### Cell Information
 Cell Information is a data frame containing cell identifiers, their associated batch identifier and additional information. ASCEND will automatically generate batch information for an expression matrix if none are provided. However, it will make the assumption that there is only one batch of cells in the expression matrix.
