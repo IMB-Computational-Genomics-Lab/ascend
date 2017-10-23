@@ -153,29 +153,30 @@ setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) 
 #' Subset cells in the supplied list from an \linkS4class{EMSet}.
 #'
 #' @param object An \linkS4class{EMSet}
-#' @param cell_barcodes A list of cell identifiers to subset from the \linkS4class{EMSet}
+#' @param cell.barcodes A list of cell identifiers to subset from the \linkS4class{EMSet}
 #' @return An \linkS4class{EMSet}
 #' @include ascend_objects.R
 #' @export
 #'
-setGeneric(name = "SubsetCells", def = function(object, cell_barcodes) {
+setGeneric(name = "SubsetCells", def = function(object, cell.barcodes) {
     standardGeneric("SubsetCells")
 })
 
-setMethod("SubsetCells", signature("EMSet"), function(object, cell_barcodes = c()) {
+setMethod("SubsetCells", signature("EMSet"), function(object, cell.barcodes = c()) {
     # Check cells are in the expression matrix.
     expression.matrix <- GetExpressionMatrix(object, "data.frame")
     cell.info <- GetCellInfo(object)
     gene.info <- GetGeneInfo(object)
     control.list <- GetControls(object)
-    present.cells <- cell_barcodes[cell_barcodes %in% colnames(expression.matrix)]
-
+    present.cells <- cell.barcodes[cell.barcodes %in% colnames(expression.matrix)]
+    
     # Missing cell catch
     if (length(present.cells) == 0) {
         stop("All listed cells were not present in the EMSet.")
     } else {
         # Subset out information
         subset.matrix <- expression.matrix[, present.cells]
+        colnames(subset.matrix) <- present.cells
         subset.obj <- ReplaceExpressionMatrix(object, subset.matrix)
         subset.obj <- SyncSlots(subset.obj)
 

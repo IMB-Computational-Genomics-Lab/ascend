@@ -113,13 +113,13 @@ ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
 }
 
 # Combine different matrix dataframes into one large matrix
-#' MergeExprsMtx
+#' JoinMatrices
 #'
 #' Merge a list of expression matrices in data frame format into one large data frame.
 #' @param x A list of data frames containing expression matrices.
 #' @export
 #'
-MergeExprsMtx <- function(x){
+JoinMatrices <- function(x = list()){
   # Character vector to add all matrix gene identifiers to
   master.gene.ids <- c()
   exprs.mtx.list <- list()

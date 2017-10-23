@@ -28,13 +28,13 @@
 As this package is still under development, please use devtools to load the package.
 
 ```{r}
-devtools::load_all("/Path/To/ASCEND")
+devtools::load_all("ASCEND/")
 ```
 
 You can also use devtools' install_github function to install the package. You can then load the package as normal.
 
 ```{r}
-devtools::install_github("MB-Computational-Genomics-Lab/ASCEND")
+devtools::install_github("IMB-Computational-Genomics-Lab/ASCEND")
 library(ASCEND)
 ```
 
