@@ -222,23 +222,23 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
     }
 
     # Create a new EMSet object.
-    aem.set <- new("EMSet", ExpressionMatrix = sparse.matrix, GeneInformation = GeneInformation, CellInformation = CellInformation, Controls = Controls)
+    em.set <- new("EMSet", ExpressionMatrix = sparse.matrix, GeneInformation = GeneInformation, CellInformation = CellInformation, Controls = Controls)
 
     # Generate metrics
-    aem.set <- GenerateMetrics(aem.set)
+    em.set <- GenerateMetrics(em.set)
 
     # Sync all the information
-    aem.set <- SyncSlots(aem.set)
+    em.set <- SyncSlots(em.set)
 
     # If controls
     if (length(Controls) > 0) {
-        aem.set@Log$Controls <- TRUE
+        em.set@Log$Controls <- TRUE
     } else {
-        aem.set@Log$Controls <- FALSE
+        em.set@Log$Controls <- FALSE
     }
 
     # All clear, return the object
-    return(aem.set)
+    return(em.set)
 }
 
 setGeneric(name = "SyncSlots", def = function(object) {
@@ -255,7 +255,10 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
     expression.matrix <- object@ExpressionMatrix
     gene.information <- object@GeneInformation
     cell.information <- object@CellInformation
-
+    
+    gene.cols <- colnames(gene.information)
+    cell.cols <- colnames(cell.information)
+    
     # Expression matrix serves as the basis for updating all the other information
     present.cells <- colnames(expression.matrix)
     present.genes <- rownames(expression.matrix)
@@ -263,7 +266,19 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
     # Get data frames based on this info
     gene.information <- gene.information[gene.information[, 1] %in% present.genes, ]
     cell.information <- cell.information[cell.information[, 1] %in% present.cells, ]
-
+    
+    # Check in case it's not a dataframe
+    if (!is.data.frame(gene.information)){
+      gene.information <- data.frame(gene.information)
+      colnames(gene.information) <- gene.cols
+    }
+    
+    if (!is.data.frame(cell.information)){
+      cell.information <- data.frame(cell.information)
+      colnames(cell.information) <- cell.cols
+    }
+    
+    # Put back into the slots
     object@GeneInformation <- gene.information
     object@CellInformation <- cell.information
 
