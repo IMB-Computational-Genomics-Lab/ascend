@@ -12,7 +12,7 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 ```{r Loadascend, message = FALSE, echo = FALSE}
-devtools::load_all("/Users/a.senabouth/CodeRepositories/ascend")
+devtools::load_all("/Users/a.senabouth/CodeRepositories/ascend-dev")
 ```
 The `ascend` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
@@ -259,11 +259,21 @@ print(raw.qc.plots$Log2AverageGeneCount)
 print(raw.qc.plots$Log10AverageGeneCount)
 ```
 
-Use `FilterByExpressedGenesPerCell` to remove genes that have zero or near-zero expression in at least a certain percentage of the cell population. We will use the value of 1% for this tutorial.
+If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
 
-```{r FilterByExpressedGenesPerCell}
-em.set <- FilterByExpressedGenesPerCell(em.set, 1)
+```{r FilterByExpressedGenesPerCell, FALSE}
+expression.matrix <- FilterByExpressedGenesPerCell(em.set, 1)
 ```
+
+However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
+
+```{r CheckGenesOfInterest}
+expression.matrix <- GetExpressionMatrix(em.set, "data.frame")
+brn3.transcripts <- c("POU4F1", "POU4F2", "POU4F3")
+expression.matrix[brn3.transcripts, which(colSums(expression.matrix[brn3.transcripts,]) > 0)]
+```
+
+Other genes that are involved in the differentiation of the stem cells into retinal ganglion cells may also be lowly expressed, so we will omit this filtering step.
 
 #### Filtering Review
 The filtering functions record which barcodes were removed by the function and stores them in the `EMSet`. You can review the number of cells filtered by the functions by using the `DisplayLog` function.
