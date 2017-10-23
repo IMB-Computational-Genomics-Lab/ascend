@@ -10,39 +10,41 @@
 FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
   filtered.object <- object
   expression.matrix <- filtered.object@ExpressionMatrix
-
+  
   # Generate list of genes and cells to keep
-  genes.per.cell <- Matrix::colSums(expression.matrix != 0)
-  remove.genes <- genes.per.cell < ncol(expression.matrix) * (pct.value/100)
-
+  cells.per.gene <- Matrix::rowSums(expression.matrix)
+  remove.genes <- cells.per.gene < (ncol(expression.matrix) * (pct.value/100))
+  
   if (any(remove.genes)){
-    remove.gene.list <- names(which(remove.genes))
-    remove.idx <- as.vector(unlist(which(remove.genes)))
-    filtered.matrix <- expression.matrix[-c(remove.idx),]
+    removed.genes <- names(which(remove.genes))
+    remove.idx <- which(rownames(expression.matrix) %in% removed.genes)
+    filtered.matrix <- expression.matrix[-remove.idx,]
   } else{
-    remove.barcodes <- list()
-    remove.idx <- list()
+    removed.genes <- list()
     filtered.matrix <- expression.matrix
   }
-
+  
   # Updating the matrix
   filtered.object <- ReplaceExpressionMatrix(filtered.object, filtered.matrix)
-  filtered.object <- SyncSlots(filtered.object)
-
+  
   # Updating the log
-  filtered.object@Log$FilterByExpressedGenesPerCell <- remove.barcodes
-
+  filtered.object@Log$FilterByExpressedGenesPerCell <- removed.genes
+  
   # Update the data frame
   if (is.null(filtered.object@Log$FilteringLog)){
     filtered.df <- data.frame()
   } else{
     filtered.df <- filtered.object@Log$FilteringLog
   }
-
-  output.list <- list(FilterByExpressedGenesPerCell = length(remove.barcodes))
+  
+  output.list <- list(FilterByExpressedGenesPerCell = length(removed.genes))
   filtered.df <- cbind(filtered.df, output.list)
   filtered.object@Log$FilteringLog <- filtered.df
-
+  filtered.object@Log$FilterByExpressedGenesPerCell <- list(RemovedGenes = removed.genes)
+  
+  # Sync Object
+  filtered.object <- SyncSlots(filtered.object)
+  
   return(filtered.object)
 }
 

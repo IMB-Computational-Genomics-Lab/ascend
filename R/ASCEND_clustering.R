@@ -130,17 +130,17 @@ FindOptimalResult <- function(key.stats, conservative = TRUE){
     unique.rand.length <- lapply(consecutive.vals, length)
     max.length <- max(unlist(unique.rand.length))
     max.idx <- names(unique.rand.length)[which(unique.rand.length == max.length)]
-
-    if (length(max.length) > 1){
+    
+    if (length(max.idx) > 1){
       # Conservative Check
       if (conservative == FALSE){
-        optimal.idx <- max(consecutive.vals[[max.idx]])
+        max.idx <- max.idx[1]
       } else{
-        optimal.idx <- min(consecutive.vals[[max.idx]])
+        max.idx <- max.idx[length(max.idx)]
       }
-
+      optimal.idx <- min(which(key.stats$RandIndex == max.idx))
     } else{
-      # Get Minimun
+      # Get Minimum
       min.idx <- lapply(max.idx, function(x) return(min(consecutive.vals[[x]])))
       optimal.idx <- min(unlist(min.idx))
     }

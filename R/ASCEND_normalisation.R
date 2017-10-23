@@ -24,9 +24,10 @@ scranNormalise <- function(object, quickCluster = FALSE) {
     sce.obj <- ConvertToScater(object)
     
     # Remove controls from SCESet object
-    mt.idx <- match(object@Controls$Mt, rownames(sce.obj))
-    rb.idx <- match(object@Controls$Rb, rownames(sce.obj))
-    remove.idx <- c(mt.idx, rb.idx)
+    present.mt <- which(rownames(sce.obj) %in% object@Controls$Mt)
+    present.rb <- which(rownames(sce.obj) %in% object@Controls$Rb)
+
+    remove.idx <- c(present.mt, present.rb)
     
     # Remove ERCC sequences if in dataset
     ercc.idx <- grep("^ercc-", ignore.case = TRUE, rownames(object@ExpressionMatrix))

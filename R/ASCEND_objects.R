@@ -402,6 +402,7 @@ setMethod("ReplaceExpressionMatrix", signature("EMSet"), function(object, expres
         stop("Please check your expression matrix.")
     } else {
         object <- GenerateMetrics(object)
+        object <- SyncSlots(object)
         return(object)
     }
 })
