@@ -273,7 +273,7 @@ PCA, TSNE and MDS plots depict relative distances between cells based on express
 
 Example: Colour cells by cluster
 ```{r LoadCompleteData, echo = FALSE}
-em.set <- readRDS(system.file("extdata", "RGC_EMSet.rds", package = "ascend"))
+em.set <- readRDS(system.file("extdata", "RGC_scRNASeq.rds", package = "ascend"))
 ```
 
 ```{r ColourByBatch}

@@ -4,12 +4,12 @@
 \alias{SubsetCells}
 \title{SubsetCells}
 \usage{
-SubsetCells(object, cell_barcodes)
+SubsetCells(object, cell.barcodes)
 }
 \arguments{
 \item{object}{An \linkS4class{EMSet}}
 
-\item{cell_barcodes}{A list of cell identifiers to subset from the \linkS4class{EMSet}}
+\item{cell.barcodes}{A list of cell identifiers to subset from the \linkS4class{EMSet}}
 }
 \value{
 An \linkS4class{EMSet}
