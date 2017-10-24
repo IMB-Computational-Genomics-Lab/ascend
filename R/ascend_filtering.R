@@ -229,11 +229,14 @@ FilterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   drop.barcodes.controls.names <- BiocParallel::bplapply(drop.barcodes.controls, names)
 
   ### Barcode master list of cells to remove
-  remove.cell.barcodes <- c(drop.barcodes.libsize, drop.barcodes.feature, drop.barcodes.controls)
-  remove.cells.bool <- colnames(expression.matrix) %in% unique(names(remove.cell.barcodes))
-  filtered.expression.matrix <- expression.matrix[, !remove.cells.bool]
+  remove.cell.barcodes <- c(names(drop.barcodes.libsize), names(drop.barcodes.feature))
+  for (control in drop.barcodes.controls.names){
+    remove.cell.barcodes <- c(remove.cell.barcodes, control) 
+  }
+  remove.cells.bool <- !(colnames(expression.matrix) %in% unique(remove.cell.barcodes))
+  filtered.expression.matrix <- expression.matrix[, which(remove.cells.bool)]
   filtered.object <- ReplaceExpressionMatrix(filtered.object, filtered.expression.matrix)
-
+  
   ### Loading filtering log
   filtering.log <- list(CellsFilteredByLibSize = names(drop.barcodes.libsize),
                         CellsFilteredByLowExpression = names(drop.barcodes.feature),
