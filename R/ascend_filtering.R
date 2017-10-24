@@ -232,7 +232,7 @@ FilterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   remove.cell.barcodes <- c(drop.barcodes.libsize, drop.barcodes.feature, drop.barcodes.controls)
   remove.cells.bool <- colnames(expression.matrix) %in% unique(names(remove.cell.barcodes))
   filtered.expression.matrix <- expression.matrix[, !remove.cells.bool]
-  filtered.object@ExpressionMatrix <- filtered.expression.matrix
+  filtered.object <- ReplaceExpressionMatrix(filtered.object, filtered.expression.matrix)
 
   ### Loading filtering log
   filtering.log <- list(CellsFilteredByLibSize = names(drop.barcodes.libsize),
