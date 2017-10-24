@@ -120,6 +120,10 @@ ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
 #' @export
 #'
 JoinMatrices <- function(x = list()){
+  if (!is.list(x)){
+    stop("Please specify a list of data frames.")
+  }
+  
   # Character vector to add all matrix gene identifiers to
   master.gene.ids <- c()
   exprs.mtx.list <- list()
