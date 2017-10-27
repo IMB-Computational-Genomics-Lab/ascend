@@ -157,6 +157,10 @@ setMethod("ConvertGeneAnnotation", signature("EMSet"), function(object, old.anno
     # Move new annotation to column 1
     updated.gene.info <- gene.annotation %>% dplyr::select(new.annotation, dplyr::everything())
     object@GeneInformation <- updated.gene.info
+    
+    # Regenerate metrics
+    object <- GenerateMetrics(object)
+    
     return(object)
 })
 
