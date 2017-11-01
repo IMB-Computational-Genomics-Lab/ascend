@@ -171,6 +171,7 @@ JoinMatrices <- function(x = list(), format = c("data.frame", "matrix", "sparseM
       mat.2 <- rbind(mat, matrix(rep(0, (length(gene.list) - nrow(mat)) * ncol(mat)), ncol = ncol(mat), nrow = length(gene.list) - nrow(mat)))
       new.rownames <- c(gene.list[rownames(mat.2) %in% gene.list], gene.list[!(rownames(mat.2) %in% gene.list)])
       rownames(mat.2) <- new.rownames
+      mat.2 <- mat.2[gene.list,]
       colnames(mat.2) <- paste0(colnames(mat.2), "-", batch.id)
       return(mat.2)
     })
