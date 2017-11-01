@@ -1,14 +1,14 @@
 ---
-title: "An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression"
+title: An introduction to ascend - Analysis of Single Cell Expression, Normalisation
+  and Differential expression
 author: "Anne Senabouth"
 date: "`r Sys.Date()`"
-output: 
+output:
+  pdf_document: default
   html_document:
-    keep_md: true
-vignette: >
-  %\VignetteIndexEntry{An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    keep_md: yes
+vignette: |
+  %\VignetteIndexEntry{An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ## Before you begin
@@ -149,7 +149,8 @@ Generally, an EMSet can be created by using the `NewEMSet` function. You can vie
 ```{r LoadData, echo = FALSE}
 load(system.file("extdata", "RGC_scRNASeq.RData", package = "ascend"))
 
-# Quick prep of data to use as examples. Duplicate of what's done in ascend_Tutorial.md
+# Quick prep of data to use as examples. Duplicate of what's done in 
+# ascend_Tutorial.md
 batch.information <- lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)
 colnames(barcodes) <- c("cell_barcode")
 barcodes$batch <- as.numeric(batch.information)
@@ -159,8 +160,10 @@ genes <- genes[,c("gene_name", "ensembl_id")]
 gene.names <- make.unique(as.vector(genes$gene_name))
 rownames(matrix) <- gene.names
 genes$gene_name <- gene.names
-mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), ignore.case = TRUE)]
-ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", rownames(matrix), ignore.case = TRUE)]
+mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), 
+                                    ignore.case = TRUE)]
+ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", rownames(matrix), 
+                                    ignore.case = TRUE)]
 control.list <- list(Mt = mito.genes, Rb = ribo.genes)
 expression.matrix <- matrix
 gene.information <- genes
@@ -168,7 +171,10 @@ cell.information <- barcodes
 ```
 
 ```{r NewEMSet}
-em.set <- NewEMSet(ExpressionMatrix = expression.matrix, CellInformation = cell.information, GeneInformation = gene.information, Controls = control.list)
+em.set <- NewEMSet(ExpressionMatrix = expression.matrix, 
+                   CellInformation = cell.information, 
+                   GeneInformation = gene.information, 
+                   Controls = control.list)
 em.set
 ```
 
@@ -213,7 +219,9 @@ updated.em.set <- ReplaceCellInfo(em.set, new.cell.info)
 To change or remove controls from a dataset, use `UpdateControls`. Please note that this function just removes the use of controls in an EMSet; transcript counts associated with controls will not be removed.
 ```{r UpdateControls, eval = FALSE}
 old.controls <- GetControls(em.set)
-new.controls <- c(old.controls, list(ERCC = c("ERCC-00031", "ERCC-00017", "ERCC-00024")))
+new.controls <- c(old.controls, list(ERCC = c("ERCC-00031", 
+                                              "ERCC-00017", 
+                                              "ERCC-00024")))
 updated.em.set <- UpdateControls(em.set, new.controls)
 ```
 
@@ -278,9 +286,23 @@ em.set <- readRDS(system.file("extdata", "RGC_scRNASeq.rds", package = "ascend")
 
 ```{r ColourByBatch}
 library(ggplot2)
-pca.plot <- PlotPCA(em.set, dim1 = 1, dim2 = 2, condition = "cluster") + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) + ggtitle("PCA Plot", subtitle = "Labelled by batch")
-mds.plot <- PlotMDS(em.set, PCA = FALSE, dim1 = 1, dim2 = 2, condition = "cluster") + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) + ggtitle("MDS Plot", subtitle = "Labelled by batch")
-tsne.plot <- PlotTSNE(em.set, PCA = TRUE, condition = "cluster", seed = 0, perplexity = 30, theta = 0.5) + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) + ggtitle("TSNE Plot", subtitle = "Labelled by batch")
+# PCA PLOT
+pca.plot <- PlotPCA(em.set, dim1 = 1, dim2 = 2, condition = "cluster")
+pca.plot <- pca.plot + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) 
+pca.plot <- pca.plot + ggtitle("PCA Plot", subtitle = "Labelled by batch")
+
+# MDS PLOT
+mds.plot <- PlotMDS(em.set, PCA = FALSE, dim1 = 1, dim2 = 2, condition = "cluster") 
+mds.plot <- mds.plot + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) 
+mds.plot <- mds.plot + ggtitle("MDS Plot", subtitle = "Labelled by batch")
+
+# TSNE PLOT
+tsne.plot <- PlotTSNE(em.set, 
+                      PCA = TRUE, 
+                      condition = "cluster", 
+                      seed = 0, perplexity = 30, theta = 0.5) 
+tsne.plot <- tsne.plot + scale_color_manual(values=c("#bb5f4c", "#8e5db0", "#729b57")) 
+tsne.plot <- tsne.plot + ggtitle("TSNE Plot", subtitle = "Labelled by batch")
 
 print(pca.plot)
 print(mds.plot)
