@@ -209,7 +209,7 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
 
     # Convert the data.frame input into a sparse matrix
     if (is.data.frame(ExpressionMatrix) | is.matrix(ExpressionMatrix)) {
-        sparse.matrix <- ConvertMatrix(ExpressionMatrix, format = "sparse.matrix")
+        sparse.matrix <- ConvertMatrix(ExpressionMatrix, format = "sparseMatrix")
     } else if (is(ExpressionMatrix, "sparseMatrix")) {
         sparse.matrix <- ExpressionMatrix
     } else {
@@ -393,7 +393,7 @@ setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.m
 
 setMethod("ReplaceExpressionMatrix", signature("EMSet"), function(object, expression.matrix) {
     # Replace the matrix
-    object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format = "sparse.matrix")
+    object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format = "sparseMatrix")
 
     # Check that it's okay before replacing.
     errors <- c()

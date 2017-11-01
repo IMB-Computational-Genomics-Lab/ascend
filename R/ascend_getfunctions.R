@@ -12,7 +12,7 @@ setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
     standardGeneric("GetExpressionMatrix")
 })
 
-setMethod("GetExpressionMatrix", signature("EMSet"), function(object, format = c("data.frame", "matrix", "sparse.matrix")) {
+setMethod("GetExpressionMatrix", signature("EMSet"), function(object, format = c("data.frame", "matrix", "sparseMatrix")) {
     if (missing(format)) {
         format <- "data.frame"
     }

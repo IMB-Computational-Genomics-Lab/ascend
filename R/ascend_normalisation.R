@@ -148,7 +148,7 @@ NormaliseBatches <- function(object) {
     # Load back into EMSet and write metrics
     print("Returning object...")
     colnames(scaled.matrix) <- cell.info[, 1]
-    object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparse.matrix")
+    object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparseMatrix")
     object@Log$NormaliseBatches <- TRUE
     updated.object <- GenerateMetrics(object)
     return(updated.object)
@@ -168,7 +168,7 @@ NormaliseLibSize <- function(object) {
     unscaled.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
     normalised.exprs.mtx <- unscaled.matrix * median.size
     object@Log <- c(object@Log, list(NormaliseLibSize = TRUE))
-    object@ExpressionMatrix <- ConvertMatrix(normalised.exprs.mtx, format = "sparse.matrix")
+    object@ExpressionMatrix <- ConvertMatrix(normalised.exprs.mtx, format = "sparseMatrix")
     new.object <- GenerateMetrics(object)
     new.object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseLibSize"))
     return(new.object)
@@ -222,7 +222,7 @@ NormaliseByRLE <- function(object) {
     
     print("Normalising data...")
     normalised.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
-    object@ExpressionMatrix <- ConvertMatrix(normalised.matrix, "sparse.matrix")
+    object@ExpressionMatrix <- ConvertMatrix(normalised.matrix, "sparseMatrix")
     object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseByRLE"))
     return(object)
 }
