@@ -65,7 +65,7 @@ Please install these packages before installing ascend. You do not need to load 
 Please use `devtools` to load the development version of `ascend`.
 
 ```{r Loadascend}
-devtools::load_all("/Users/a.senabouth/CodeRepositories/ascend")
+devtools::load_all("~/CodeRepositories/ascend")
 ```
 
 You can also use devtools' `install_github` function to install the package, and then load it as normal.
@@ -83,14 +83,14 @@ The main source of input is an expression matrix, or a gene-barcode matrix conta
 
 In an expression matrix, each row represents a gene and each column represents a cell. The names of rows and columns will subsequently be named accordingly.
 
-ascend is able to use any row and column names in the expression matrix, provided they abide by the following criteria:
+`ascend` is able to use any row and column names in the expression matrix, provided they abide by the following criteria:
 
 1. Names should not repeat. If you have a list with repeats, you can make the names unique by using R's 'make.unique' function.
 2. You should be able to identify which genes you would like to select as controls. This is why gene symbols or ENSEMBL transcript IDs should be used.
 3. Cells from different batches, samples or sequencing runs should be given a numeric identifier at the end. eg. BARCODE-1, BARCODE-2, BARCODE-3.
 
 #### Combining expression matrices from different batches
-You can concatenate multiple expression matrices with the function *MergeExprsMtx*. Expression matrices generated with this method should then be normalised with the *NormaliseBatches* function. For pipelines such as Chromium's Cell Ranger, the native aggregation function should be used as it takes into account additional information such as individual reads.
+You can concatenate multiple expression matrices with the function *JoinMatrices*. Expression matrices generated with this method should then be normalised with the *NormaliseBatches* function. For pipelines such as Chromium's Cell Ranger, the native aggregation function should be used as it takes into account additional information such as molecule information.
 
 ### Cell Information
 Cell Information is a data frame containing cell identifiers, their associated batch identifier and additional information. ascend will automatically generate batch information for an expression matrix if none are provided. However, it will make the assumption that there is only one batch of cells in the expression matrix.
@@ -121,7 +121,7 @@ Controls should be organised into a named list, and identifiers used should be p
 
 ## ascend Expression and Metadata Set - EMSet
 ### Structure
-An ascend Expression and Metadata Set (EMSet) is a S4 object that stores information generated and used by the ascend package. This object contains 7 slots which are as follows:
+An `ascend` Expression and Metadata Set (EMSet) is a S4 object that stores information generated and used by the `ascend` package. This object contains 8 slots which are as follows:
 
 * **ExpressionMatrix**: Transcript counts stored as a sparse matrix, where rows are transcript/gene identifiers and columns are invididual cells.
 * **GeneInformation**: A data frame containing information a set of gene identifiers, such as gene symbols or ENSEMBL transcript identifiers. This data frame also holds information on controls and any information provided by the user.

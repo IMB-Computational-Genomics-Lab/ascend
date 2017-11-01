@@ -12,7 +12,7 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 ```{r Loadascend, message = FALSE, echo = FALSE}
-devtools::load_all("/Users/a.senabouth/CodeRepositories/ascend-dev")
+devtools::load_all("~/CodeRepositories/ascend-dev")
 ```
 The `ascend` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
@@ -116,13 +116,11 @@ em.set
 ```
 
 ### Load data from Cell Ranger into ascend automatically
-If you are using Chromium data, you can also load the data into R with this function.
+If you are using Chromium data, you can also load the data into R with the `LoadCellRanger` function. This function loads the data into an EMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
 
 ```{r AutoLoading, eval = FALSE}
-em.set <- CellRangerToascend("RGC_scRNASeq/", "GRCh38")
+em.set <- LoadCellRanger("RGC_scRNASeq/", "GRCh38")
 ```
-
-This function loads the data into an EMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
 
 #### Adding additional metadata to the EMSet
 We can add other information to the EMSet after it is created. 

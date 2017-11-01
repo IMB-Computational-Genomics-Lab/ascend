@@ -7,6 +7,6 @@
 LoadCellRangerData(working.dir, genome.name)
 }
 \description{
-Called by \code{\link{CellRangerToascend}}. This function detects which folder
+Called by \code{\link{LoadCellRanger}}. This function detects which folder
 to use in the 'outs' directory of the Cell Ranger output folder.
 }

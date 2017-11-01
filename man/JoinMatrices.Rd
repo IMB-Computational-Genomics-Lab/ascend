@@ -4,10 +4,12 @@
 \alias{JoinMatrices}
 \title{JoinMatrices}
 \usage{
-JoinMatrices(x = list())
+JoinMatrices(x = list(), format = c("data.frame", "matrix", "sparseMatrix"))
 }
 \arguments{
 \item{x}{A list of data frames containing expression matrices.}
+
+\item{format}{Output joined matrices in one of the following formats: data.frame, matrix or sparseMatrix. DEFAULT: data.frame}
 }
 \description{
 Merge a list of expression matrices in data frame format into one large data frame.

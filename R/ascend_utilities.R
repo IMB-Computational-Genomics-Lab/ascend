@@ -117,48 +117,79 @@ ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
 #'
 #' Merge a list of expression matrices in data frame format into one large data frame.
 #' @param x A list of data frames containing expression matrices.
+#' @param format Output joined matrices in one of the following formats: data.frame, matrix or sparseMatrix. DEFAULT: data.frame
 #' @export
 #'
-JoinMatrices <- function(x = list()){
+JoinMatrices <- function(x = list(), format = c("data.frame", "matrix", "sparseMatrix")){
+  # Basic checks
+  ## Ensure we have a list of matrices
   if (!is.list(x)){
-    stop("Please specify a list of data frames.")
+    stop("Please specify a list of matrices.")
+  } else{
+    # Sparse matrices
+    if (all(sapply(x, function(x) is(x, "sparseMatrix")))){
+      input.format <- "sparseMatrix" 
+    } else if(all(sapply(x, is.data.frame))){
+      input.format <- "data.frame"
+    } else if(all(sapply(x, is.matrix))){
+      input.format <- "matrix"
+    } 
+    else{
+      stop("Please ensure your list is comprised of one of the following: data.frame, matrix, sparseMatrix")
+    }
   }
   
-  # Character vector to add all matrix gene identifiers to
-  master.gene.ids <- c()
-  exprs.mtx.list <- list()
-
-  # Loop to process expression matrices
-  n <- 1
-  for (exprs.mtx in x){
-    # Processing of rownames (gene ids)
-    exprs.mtx.gene.ids <- rownames(exprs.mtx)
-    exprs.mtx.gene.ids <- make.unique(as.character(exprs.mtx.gene.ids))
-    master.gene.ids <- c(master.gene.ids, exprs.mtx.gene.ids)
-
-    # Processing of colnames (cell identifiers)
-    colnames(exprs.mtx) <- paste(colnames(exprs.mtx), as.character(n), sep="-")
-
-    # Outputting edited data frame to a list
-    formatted.mtx <- cbind(data.frame(rownames=I(exprs.mtx.gene.ids)), exprs.mtx)
-    rownames(formatted.mtx) <- exprs.mtx.gene.ids
-    exprs.mtx.list[[n]] <- formatted.mtx
-    n <- n + 1
+  ## Ensure output format has a format - default format is data frame
+  if (missing(format)){
+    format <- "data.frame"
   }
-
-  # Create a new set of indexes to concatenate by
-  unique.gene.ids <- unique(master.gene.ids)
-  output.df <- data.frame(rownames=unique.gene.ids)
-  row.names(output.df) <- unique.gene.ids
-
-  for (df in exprs.mtx.list){
-    output.df <- dplyr::left_join(output.df, df, by="rownames")
+  
+  # Generate a new list of rownames and colnames for the new combined matrix
+  gene.list <- unique(as.vector(unlist(sapply(x, rownames))))
+  cell.list <- as.vector(unlist(sapply(x, colnames)))
+  
+  # Check if there are any duplicates in the cell barcodes. Stop if duplicates are detected.
+  if (any(duplicated(cell.list))){
+    duplicated.cells <- gene.list[anyDuplicated(cell.list)]
+    stop(sprintf("%i duplicate cell barcodes detected. Please check your cell barcodes before trying again.", length(duplicated.cells)))
   }
-
-  rownames(output.df) <- output.df[["rownames"]]
-  output.df$rownames <- NULL
-  output.df[is.na(output.df)] <- 0
-  return(output.df)
+  
+  # Join matrices based on input format
+  
+  if (input.format == "sparseMatrix"){
+    ## Snippet by @sushilashenoy on Github - THANK YOU!
+    matrices <- lapply(seq_along(x), function(batch.id){
+      mat <- x[[batch.id]]
+      mat.sum <- Matrix::summary(mat) # Get i,j,x format for sparse matrix
+      map.genes <- match(rownames(mat), gene.list)
+      new.i <- map.genes[mat.sum$i]
+      Matrix::sparseMatrix(i=new.i, j=mat.sum$j, x=mat.sum$x, dims=c(length(gene.list), ncol(mat)), dimnames=list(gene.list, paste0(colnames(mat), "-", batch.id)))      
+    })
+  } else if(input.format == "matrix"){
+    matrices <- lapply(seq_along(x), function(batch.id){
+      mat <- x[[batch.id]]
+      mat.2 <- rbind(mat, matrix(rep(0, (length(gene.list) - nrow(mat)) * ncol(mat)), ncol = ncol(mat), nrow = length(gene.list) - nrow(mat)))
+      new.rownames <- c(gene.list[rownames(mat.2) %in% gene.list], gene.list[!(rownames(mat.2) %in% gene.list)])
+      rownames(mat.2) <- new.rownames
+      colnames(mat.2) <- paste0(colnames(mat.2), "-", batch.id)
+      return(mat.2)
+    })
+  } else if(input.format == "data.frame"){
+    matrices <- lapply(seq_along(x), function(batch.id){
+      mat <- x[[batch.id]]
+      mat.2 <- mat[gene.list,]
+      rownames(mat.2) <- gene.list
+      mat.2[is.na(mat.2)] <- 0
+      colnames(mat.2) <- paste0(colnames(mat.2), "-", batch.id)
+      return(mat.2)
+    })
+  }
+  output <- do.call(cbind, matrices)
+  
+  if (input.format != format){
+   output <- ConvertMatrix(output, format)
+  }
+  return(output)
 }
 
 #' ConvertMatrix
@@ -169,10 +200,10 @@ JoinMatrices <- function(x = list()){
 #' @param format Format to change the matrix to.
 #' @export
 #'
-ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparse.matrix")){
+ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparseMatrix")){
   # Make sure format is specified correctly
-  if (!any(format %in% c("data.frame", "matrix", "sparse.matrix"))){
-    stop("Please specify format as one of the following: data.frame, matrix or sparse.matrix")
+  if (!any(format %in% c("data.frame", "matrix", "sparseMatrix"))){
+    stop("Please specify format as one of the following: data.frame, matrix or sparseMatrix")
   }
 
   # Dense matrix
@@ -180,7 +211,7 @@ ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparse.mat
     if (format == "data.frame"){
       output <- as.data.frame(matrix)
     }
-    else if (format == "sparse.matrix"){
+    else if (format == "sparseMatrix"){
       output <- Matrix::Matrix(matrix, sparse = TRUE)
     } else{
       output <- matrix
@@ -192,7 +223,7 @@ ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparse.mat
     if (format == "matrix"){
       output <- as.matrix(matrix)
     }
-    else if (format == "sparse.matrix"){
+    else if (format == "sparseMatrix"){
       output <- Matrix::Matrix(as.matrix(matrix), sparse = TRUE)
     }
     else{

@@ -4,7 +4,7 @@
 \alias{ConvertMatrix}
 \title{ConvertMatrix}
 \usage{
-ConvertMatrix(matrix, format = c("data.frame", "matrix", "sparse.matrix"))
+ConvertMatrix(matrix, format = c("data.frame", "matrix", "sparseMatrix"))
 }
 \arguments{
 \item{matrix}{A data frame, dense matrix or sparse matrix.}

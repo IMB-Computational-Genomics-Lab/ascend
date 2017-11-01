@@ -7,7 +7,7 @@
 BuildCellRangerDataset(data.dir)
 }
 \description{
-Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{CellRangerToascend}}.
+Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{LoadCellRanger}}.
 This function reads in the following files:
 \itemize{
 \item{\strong{barcodes.tsv} - Filtered cellular barcodes recognised by Cell Ranger}
