@@ -935,7 +935,7 @@ PlotGeneralQC <- function(object){
       title.string <- sprintf("Proportion of control: %s", control.name)
       percentage.total.counts <- as.data.frame(object@Metrics$PercentageTotalCounts[[control.name]])
       colnames(percentage.total.counts) <- c("Percentage")
-      pct.hist <- ggplot2::ggplot(percentage.total.counts, ggplot2::aes(Percentage)) + ggplot2::geom_histogram(binwidth = 5) + ggplot2::ggtitle(title.string) + ggplot2::theme_bw()
+      pct.hist <- ggplot2::ggplot(percentage.total.counts, ggplot2::aes(Percentage)) + ggplot2::geom_histogram(binwidth = 1) + ggplot2::ggtitle(title.string) + ggplot2::theme_bw()
       pct.hist <- pct.hist + ggplot2::xlab(xlab.string) + ggplot2::ylab("Number of cells") + ggplot2::ggtitle(title.string)
       percentage.total.plots[[control.name]] <- pct.hist
     }

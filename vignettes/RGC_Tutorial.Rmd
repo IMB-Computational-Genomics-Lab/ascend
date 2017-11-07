@@ -259,8 +259,8 @@ print(raw.qc.plots$Log10AverageGeneCount)
 
 If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
 
-```{r FilterByExpressedGenesPerCell, FALSE}
-expression.matrix <- FilterByExpressedGenesPerCell(em.set, 1)
+```{r FilterByExpressedGenesPerCell, eval = FALSE}
+filtered.set <- FilterByExpressedGenesPerCell(em.set, 1)
 ```
 
 However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
