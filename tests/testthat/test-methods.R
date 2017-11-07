@@ -34,7 +34,7 @@ test_that("ConverGeneAnnotation successfully switches", {
   switched.em.set <- ConvertGeneAnnotation(em.set, "gene1", "gene2")
   
   # Match switched annotations to second column of gene information dataframe
-  expect_true(identical(rownames(switched.em.set), gene.information$gene2))
+  expect_true(identical(rownames(switched.em.set@ExpressionMatrix), as.vector(gene.information$gene2)))
 })
 
 test_that("ConvertGeneAnnotation function check", {

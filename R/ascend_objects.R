@@ -398,6 +398,7 @@ setMethod("ReplaceExpressionMatrix", signature("EMSet"), function(object, expres
     # Check that it's okay before replacing.
     errors <- c()
     errors <- CheckExpressionMatrix(object, errors)
+
     if (length(errors) > 0) {
         stop("Please check your expression matrix.")
     } else {

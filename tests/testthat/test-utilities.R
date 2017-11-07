@@ -37,17 +37,17 @@ test_that("Matrix chunking function check", {
 test_that("JoinMatrices check", {
   # Generate dummy matrices
   test.matrix.1 <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids.1 <- sapply(1:ncol(test.matrix.1), function(x) paste0("Cell", x))
+  cell.ids.1 <- sapply(1:ncol(test.matrix.1), function(x) paste0("CellA", x))
   gene.ids <- sapply(1:nrow(test.matrix.1), function(x) paste0("Gene", x))
   colnames(test.matrix.1) <- cell.ids.1
   rownames(test.matrix.1) <- gene.ids
   
   test.matrix.2 <- matrix(rnbinom(1000*100, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids.2 <- sapply(1:ncol(test.matrix.2), function(x) paste0("Cell", x))
+  cell.ids.2 <- sapply(1:ncol(test.matrix.2), function(x) paste0("CellB", x))
   colnames(test.matrix.2) <- cell.ids.2
   rownames(test.matrix.2) <- gene.ids
   
-  joined.matrix <- JoinMatrices(list(test.matrix.1, test.matrix.2))
+  joined.matrix <- JoinMatrices(list(test.matrix.1, test.matrix.2), format = "matrix")
   
   # Check if dimensions make sense
   expect_equal(nrow(joined.matrix), 1000)
@@ -55,9 +55,9 @@ test_that("JoinMatrices check", {
   
   # Check if all dimensions are in the expression matrix
   expect_true(all(rownames(test.matrix.1) %in% rownames(joined.matrix)))
-  expect_true(all(colnames(test.matrix.1) %in% colnames(joined.matrix)))
+  expect_true(all(sapply(colnames(test.matrix.1), function(x) any(grepl(x, colnames(joined.matrix))))))
   expect_true(all(rownames(test.matrix.2) %in% rownames(joined.matrix)))
-  expect_true(all(colnames(test.matrix.2) %in% colnames(joined.matrix)))
+  expect_true(all(sapply(colnames(test.matrix.1), function(x) any(grepl(x, colnames(joined.matrix))))))
 })
 
 test_that("ConvertMatrix function check - data.frame to matrix", {

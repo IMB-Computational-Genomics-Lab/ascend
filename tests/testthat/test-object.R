@@ -83,8 +83,8 @@ test_that("Check if ReplaceGeneInfo works", {
   
   # Generate Dummy Replacement
   old.gene.info <- em.set@GeneInformation
-  new.gene.info <- old.cell.info
-  new.gene.info$test <- rep("Test", nrow(new.cell.info))
+  new.gene.info <- old.gene.info
+  new.gene.info$test <- rep("Test", nrow(new.gene.info))
   
   # Initiate test
   expect_match(class(ReplaceGeneInfo(em.set, new.gene.info)), "EMSet")
