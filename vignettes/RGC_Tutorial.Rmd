@@ -260,7 +260,7 @@ print(raw.qc.plots$Log10AverageGeneCount)
 If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
 
 ```{r FilterByExpressedGenesPerCell, eval = FALSE}
-filtered.set <- FilterByExpressedGenesPerCell(em.set, 1)
+em.set <- FilterByExpressedGenesPerCell(em.set, 1)
 ```
 
 However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
@@ -499,16 +499,18 @@ clean.cluster <- RunCORE(clean.pca)
 PlotDendrogram(clean.cluster)
 ```
 
-Reclustering and differential expression revealed the remaining 1174 cells comprised of three subpopulations, each representing retinal ganglion cells at different stages of differentiation.
+Reclustering and differential expression revealed the remaining 1159 cells comprised of four subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
 ```{r CleanDE, fig.width = 4, fig.height = 5}
-clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3"))
+clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3", "4"))
 cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = FALSE)
 cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = FALSE)
 cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = FALSE)
+cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results$`4vsOthers`, labels = TRUE)
 print(cluster.de.1)
 print(cluster.de.2)
 print(cluster.de.3)
+print(cluster.de.4)
 ```
 
 ## References

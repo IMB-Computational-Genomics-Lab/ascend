@@ -1,6 +1,6 @@
 context("EMSet Get Functions")
 
-test_that("GetExpressionMatrix returns a data frame", {
+test_that("GetExpressionMatrix - data frame test", {
   # Generate dummy expression matrix
   test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
@@ -19,7 +19,7 @@ test_that("GetExpressionMatrix returns a data frame", {
   expect_true(is.data.frame(GetExpressionMatrix(em.set, format = "data.frame")))
 })
 
-test_that("GetExpressionMatrix returns a matrix", {
+test_that("GetExpressionMatrix - matrix test", {
   # Generate dummy expression matrix
   test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))

@@ -81,7 +81,7 @@ test_that("ConvertMatrix function check - data.frame to sparse matrix", {
   rownames(test.matrix.1) <- gene.ids
   test.matrix.1 <- as.data.frame(test.matrix.1)
   
-  expect_true(is(ConvertMatrix(test.matrix.1, "sparse.matrix"), "sparseMatrix"))
+  expect_true(is(ConvertMatrix(test.matrix.1, "sparseMatrix"), "sparseMatrix"))
 })
 
 test_that("ConvertMatrix function check - matrix to data.frame", {
@@ -103,7 +103,7 @@ test_that("ConvertMatrix function check - matrix to sparse matrix", {
   colnames(test.matrix.1) <- cell.ids.1
   rownames(test.matrix.1) <- gene.ids
   
-  expect_true(is(ConvertMatrix(test.matrix.1, "sparse.matrix"), "sparseMatrix"))
+  expect_true(is(ConvertMatrix(test.matrix.1, "sparseMatrix"), "sparseMatrix"))
 })
 
 test_that("ConvertMatrix function check - sparse matrix to data.frame", {
