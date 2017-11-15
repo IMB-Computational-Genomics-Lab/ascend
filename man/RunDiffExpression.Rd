@@ -4,7 +4,9 @@
 \alias{RunDiffExpression}
 \title{RunDiffExpression}
 \usage{
-RunDiffExpression(object, column = NULL, conditions = NULL)
+RunDiffExpression(object, column = NULL, conditions = NULL,
+  fitType = c("parametric", "local"), method = c("pooled", "pooled-CR",
+  "per-condition", "blind"))
 }
 \arguments{
 \item{object}{A \linkS4class{EMSet} object that has undergone clustering
@@ -16,6 +18,12 @@ identified by RunCORE.}
 
 \item{conditions}{List of conditions you want to test, in the order you would
 like to run them in. This list of terms should match those used in your selected column.}
+
+\item{fitType}{Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
+Options: parametric, local (Default)}
+
+\item{method}{Method used by \pkg{DESeq} to compute emperical dispersion.
+Options: pooled, pooled-CR, per-condition (Default), blind}
 }
 \description{
 Compare the differential expression of genes in each cluster versus other clusters.

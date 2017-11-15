@@ -1,0 +1,3 @@
+version 0.1.2 (2017-11-15)
+- Added DESeq's estimateDispersions arguments to RunDiffExpression function
+- Updated RGC_Tutorial.Rmd vignette to reflect updated functions.

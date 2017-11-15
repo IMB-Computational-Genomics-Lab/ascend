@@ -465,12 +465,12 @@ cell.info[1:5,]
 ### Differential Expression
 This package uses `DESeq` to perform differential expression, and can be done with or without clustering. Each cell needs to be assigned one of two conditions; for this tutorial, we will use batch information and clustering information. This step is computationally intensive for larger datasets.
 
-The `RunDiffExpression` calls `DESeq` to perform differential expression between two conditions. This function can be run with or without clustering, after PCA reduction.
-
+The `RunDiffExpression` calls `DESeq` to perform differential expression between two conditions. This function can be run with or without clustering, after PCA reduction. If this function is unable to fit your data, you may adjust the arguments `method` and `fitType`. These arguments are for `DESeq`'s `estimateDispersions` function.
+ 
 First, let's compare the expression of THY1-positive cells to THY1-negative cells.
 
 ```{r THY1DE}
-thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions = c("TRUE", "FALSE"))
+thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions = c("TRUE", "FALSE"), fitType = "local", method = "per-condition")
 thy1.de.result[1:10,]
 ```
 
@@ -486,7 +486,7 @@ print(thy1.volcano.plot)
 Let's examine what genes are differentially expressed between clusters 1 and 2.
 
 ```{r RunDiffExpression}
-cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"))
+cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"), fitType = "local", method = "per-condition")
 cluster.de.result[1:10,]
 ```
 

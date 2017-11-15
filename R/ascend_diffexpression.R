@@ -3,11 +3,11 @@
 #' RunDESeq
 #'
 # Called by RunDiffExpression in parallel. This performs the differential expression part.
-RunDESeq <- function(data, condition.list = list(), condition.a = NULL, condition.b = NULL) {
+RunDESeq <- function(data, condition.list = list(), condition.a = NULL, condition.b = NULL, fitType = NULL, method = NULL) {
     library(DESeq)
     count.dataset <- DESeq::newCountDataSet(data, condition.list)
     count.dataset <- DESeq::estimateSizeFactors(count.dataset)
-    dispersions <- DESeq::estimateDispersions(count.dataset, method = "per-condition", fitType = "local")
+    dispersions <- DESeq::estimateDispersions(count.dataset, method = method, fitType = fitType)
     de.seq.results <- DESeq::nbinomTest(dispersions, condition.a, condition.b)
     return(de.seq.results)
 }
@@ -62,6 +62,8 @@ PrepareCountData <- function(x) {
     # Filter out genes with zero expression, and add one to make it friendly for DESeq
     print("Rounding expression matrix values...")
     expression.matrix <- expression.matrix[which(rowMeans(expression.matrix) > 0), ]
+    sd.row <- apply(expression.matrix, 1, sd)
+    expression.matrix <- expression.matrix[names(sd.row > 0), ]
     expression.matrix <- round(expression.matrix + 1)
 
     print("Chunking matrix...")
@@ -102,7 +104,7 @@ VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.li
 #'
 #' Called by the main function. Runs DESeq on one condition vs others at a time.
 #'
-RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL) {
+RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL, fitType = NULL, method = NULL) {
     # Run Verification
     VerifyArguments(condition.a = condition.a, condition.b = condition.b, condition.list = condition.list)
 
@@ -122,7 +124,12 @@ RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.
 
     # Add all of this information into an environment to load into parallel
     print("Running DESeq...")
-    result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, condition.list = condition.list, condition.a = condition.a, condition.b = condition.b)
+    result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, 
+                                          condition.list = condition.list, 
+                                          condition.a = condition.a, 
+                                          condition.b = condition.b, 
+                                          fitType = fitType,
+                                          method = method)
 
     print("Differential expression complete!")
     print("Returning values...")
@@ -144,9 +151,13 @@ RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.
 #' identified by RunCORE.
 #' @param conditions List of conditions you want to test, in the order you would
 #' like to run them in. This list of terms should match those used in your selected column.
+#' @param fitType Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
+#' Options: parametric, local (Default)
+#' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
+#' Options: pooled, pooled-CR, per-condition (Default), blind 
 #' @export
 #'
-RunDiffExpression <- function(object, column = NULL, conditions = NULL) {
+RunDiffExpression <- function(object, column = NULL, conditions = NULL, fitType = c("parametric", "local"), method = c("pooled", "pooled-CR", "per-condition", "blind")) {
     # Object check
     if (class(object) != "EMSet") {
         stop("Please supply a EMSet object.")
@@ -165,6 +176,15 @@ RunDiffExpression <- function(object, column = NULL, conditions = NULL) {
             stop("Please specify conditions as characters.")
         }
     }
+    
+    if (missing(fitType)){
+      fitType <- "local"
+    }
+
+    if (missing(method)){
+      method <- "per-condition"
+    }
+  
     # Prepare Clusters
     query.list <- as.factor(object@CellInformation[, column])
     queries <- sort(unique(query.list))
@@ -194,13 +214,13 @@ RunDiffExpression <- function(object, column = NULL, conditions = NULL) {
                 } else {
                   condition.b <- condition.b[1]
                 }
-                diff.exp <- RunPairedDE(object, condition.a = x, condition.b = condition.b, condition.list = condition.lists[[x]])
+                diff.exp <- RunPairedDE(object, condition.a = x, condition.b = condition.b, condition.list = condition.lists[[x]], fitType = fitType)
                 output[[paste0(as.character(x), "vs", condition.b)]] <- diff.exp
             }
         } else {
             condition.a <- names(condition.lists)[1]
             condition.b <- conditions[-which(conditions == condition.a)]
-            diff.exp <- RunPairedDE(object, condition.a = condition.a, condition.b = condition.b, condition.list = condition.lists[[condition.a]])
+            diff.exp <- RunPairedDE(object, condition.a = condition.a, condition.b = condition.b, condition.list = condition.lists[[condition.a]], fitType = fitType)
             output <- diff.exp
         }
 

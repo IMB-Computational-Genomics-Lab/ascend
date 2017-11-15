@@ -5,7 +5,7 @@
 \title{RunPairedDE}
 \usage{
 RunPairedDE(x, condition.a = NULL, condition.b = "Other",
-  condition.list = NULL)
+  condition.list = NULL, fitType = NULL, method = NULL)
 }
 \description{
 Called by the main function. Runs DESeq on one condition vs others at a time.

@@ -235,13 +235,6 @@ em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes, CellInfor
 
 ```
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 ```r
@@ -402,13 +395,6 @@ em.set <- ConvertGeneAnnotation(em.set, "gene_symbol", "ensembl_id")
 
 ```
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 ```r
@@ -417,41 +403,7 @@ training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", packag
 
 # Run scranCellCycle
 em.set <- scranCellCycle(em.set, training.data)
-```
 
-```
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-```
-
-```r
 # View cell information
 cell.info <- GetCellInfo(em.set)
 cell.info[1:5, ]
@@ -473,13 +425,6 @@ em.set <- ConvertGeneAnnotation(em.set, "ensembl_id", "gene_symbol")
 
 ```
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 ### Cell filtering 
@@ -495,7 +440,7 @@ print(raw.qc.plots$ControlPercentageTotalCounts$Mt)
 print(raw.qc.plots$ControlPercentageTotalCounts$Rb)
 ```
 
-<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-4.png" style="display: block; margin: auto;" />
+<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-4.png" style="display: block; margin: auto;" />
 
 The `FilterByOutliers` function will remove outliers based on these criteria. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required
 
@@ -506,40 +451,9 @@ em.set <- FilterByOutliers(em.set, cell.threshold = 3, control.threshold = 3)
 
 ```
 ## [1] "Identifying outliers..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Removing cells by library size..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Updating object information..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 #### Filter cells by control gene expression
@@ -606,13 +520,6 @@ em.set <- FilterByControl("Mt", 20, em.set)
 
 ```
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 ```r
@@ -622,13 +529,6 @@ em.set <- FilterByControl("Rb", 50, em.set)
 
 ```
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 Some analyses will require the removal of these controls. This should not be done at this stage; it is best done after normalisation.
@@ -657,18 +557,7 @@ If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. 
 
 
 ```r
-expression.matrix <- FilterByExpressedGenesPerCell(em.set, 1)
-```
-
-```
-## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
+em.set <- FilterByExpressedGenesPerCell(em.set, 1)
 ```
 
 However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
@@ -887,13 +776,6 @@ norm.set <- scranNormalise(em.set)
 ## [1] "Running scater's normalize method..."
 ## [1] "Normalisation complete. Converting SCESet back to EMSet..."
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 #### Reviewing the normalisation process
@@ -1040,16 +922,6 @@ clustered.set <- RunCORE(pca.set)
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
 ```
@@ -1164,13 +1036,13 @@ cell.info[1:5,]
 ### Differential Expression
 This package uses `DESeq` to perform differential expression, and can be done with or without clustering. Each cell needs to be assigned one of two conditions; for this tutorial, we will use batch information and clustering information. This step is computationally intensive for larger datasets.
 
-The `RunDiffExpression` calls `DESeq` to perform differential expression between two conditions. This function can be run with or without clustering, after PCA reduction.
-
+The `RunDiffExpression` calls `DESeq` to perform differential expression between two conditions. This function can be run with or without clustering, after PCA reduction. If this function is unable to fit your data, you may adjust the arguments `method` and `fitType`. These arguments are for `DESeq`'s `estimateDispersions` function.
+ 
 First, let's compare the expression of THY1-positive cells to THY1-negative cells.
 
 
 ```r
-thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions = c("TRUE", "FALSE"))
+thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions = c("TRUE", "FALSE"), fitType = "local", method = "per-condition")
 ```
 
 ```
@@ -1190,16 +1062,6 @@ thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions =
 ```
 ## [1] "Running differential expression on TRUE vs FALSE"
 ## [1] "Running DESeq..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1212,28 +1074,28 @@ thy1.de.result[1:10,]
 ```
 
 ```
-##              id  baseMean baseMeanA baseMeanB foldChange log2FoldChange
-## 11926       MGP  1.906847  1.039802  6.820100 146.226592       7.192062
-## 12388    COL3A1  1.566694  1.080307  4.322886  41.377046       5.370759
-## 10388    LGALS1  4.951281  3.020405 15.892912   7.371249       2.881909
-## 5334       CTGF  2.742901  1.643053  8.975374  12.402361       3.632543
-## 10363      TGM2  1.750495  1.375119  3.877625   7.671226       2.939457
-## 5933      ITGB1  4.572514  3.887745  8.452876   2.580864       1.367854
-## 8614       TPM1 10.756877  7.803241 27.494144   3.894341       1.961379
-## 17413    COL1A1  3.987944  2.909903 10.096845   4.762988       2.251867
-## 20010 TNFRSF12A  2.123340  1.760514  4.179352   4.180531       2.063686
-## 19839     FSTL1  2.570386  2.249719  4.387500   2.710609       1.438617
-##                pval          padj
-## 11926 4.231017e-103 4.252172e-100
-## 12388  6.082067e-47  6.112478e-44
-## 10388  7.791379e-36  7.830336e-33
-## 5334   2.169420e-35  2.180268e-32
-## 10363  2.108726e-26  1.059635e-23
-## 5933   3.374687e-24  1.695780e-21
-## 8614   3.740572e-23  3.759274e-20
-## 17413  4.475804e-23  4.498183e-20
-## 20010  1.173918e-21  1.178613e-18
-## 19839  5.568784e-21  2.795529e-18
+##           id  baseMean baseMeanA baseMeanB foldChange log2FoldChange
+## 2038     WLS  1.506359  1.314792  2.591905  5.0570142       2.338286
+## 10342 COL5A1  1.508378  1.317388  2.590657  5.0117152       2.325304
+## 5933   ITGB1  4.572514  3.887745  8.452876  2.5808641       1.367854
+## 4831    NRP2  1.493867  1.325940  2.445451  4.4347099       2.148840
+## 10464   PTH2  8.702667  9.715472  2.963436  0.2252817      -2.150198
+## 19839  FSTL1  2.570386  2.249719  4.387500  2.7106087       1.438617
+## 2585   SFRP2 36.794737 40.279481 17.047857  0.4085557      -1.291395
+## 21461 COL4A1  1.767416  1.565370  2.912344  3.3824661       1.758075
+## 4203  CYP1B1 12.136030 13.243729  5.859066  0.3968616      -1.333292
+## 10363   TGM2  1.750495  1.375119  3.877625  7.6712259       2.939457
+##               pval         padj
+## 2038  4.819246e-26 4.843342e-23
+## 10342 1.797210e-25 1.806196e-22
+## 5933  2.095424e-25 2.105901e-22
+## 4831  1.250022e-24 1.256273e-21
+## 10464 1.499833e-24 7.536660e-22
+## 19839 1.230526e-23 1.235448e-20
+## 2585  9.878648e-23 4.964020e-20
+## 21461 1.427955e-22 1.433667e-19
+## 4203  2.497434e-22 1.254960e-19
+## 10363 7.839421e-22 2.626206e-19
 ```
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
@@ -1252,7 +1114,7 @@ Let's examine what genes are differentially expressed between clusters 1 and 2.
 
 
 ```r
-cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"))
+cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"), fitType = "local", method = "per-condition")
 ```
 
 ```
@@ -1272,16 +1134,6 @@ cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", condit
 ```
 ## [1] "Running differential expression on 1 vs 2"
 ## [1] "Running DESeq..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1294,28 +1146,28 @@ cluster.de.result[1:10,]
 ```
 
 ```
-##            id  baseMean baseMeanA  baseMeanB foldChange log2FoldChange
-## 2563     ACTB  74.94995  64.82859  361.06346   5.641100       2.495976
-## 14443   GAPDH 144.67988 130.85808  535.39865   4.115251       2.040981
-## 3304   TMSB4X 465.67144 421.60444 1711.37027   4.066458       2.023773
-## 15910 HNRNPA1  55.01068  49.29221  216.66212   4.465775       2.158911
-## 3678     CFL1  27.90242  24.85615  114.01531   4.737367       2.244085
-## 22077   ACTG1  75.75691  68.73451  274.26795   4.034397       2.012353
-## 15890    TUBB  27.83352  24.49401  122.23561   5.160277       2.367448
-## 9669     TPT1  58.96766  53.86907  203.09629   3.822581       1.934547
-## 17980    ENO1  37.88107  33.64132  157.73157   4.801631       2.263525
-## 13180    PPIA  20.92248  18.37981   92.79963   5.281971       2.401076
-##               pval         padj
-## 2563  1.782945e-79 1.791860e-76
-## 14443 1.800859e-75 1.809864e-72
-## 3304  1.144734e-69 1.150458e-66
-## 15910 7.115281e-64 7.150858e-61
-## 3678  2.627571e-59 1.320355e-56
-## 22077 6.599071e-56 6.625467e-53
-## 15890 2.799076e-55 1.406536e-52
-## 9669  3.580087e-55 3.597987e-52
-## 17980 1.110983e-54 1.116538e-51
-## 13180 1.799496e-54 1.808494e-51
+##            id  baseMean  baseMeanA baseMeanB foldChange log2FoldChange
+## 6582    TCEB2  15.24453  13.751275  57.45641   4.427511       2.146496
+## 14443   GAPDH 144.67988 130.858081 535.39865   4.115251       2.040981
+## 6002    ATP5E  28.04789  25.333998 104.76491   4.264195       2.092273
+## 9669     TPT1  58.96766  53.869068 203.09629   3.822581       1.934547
+## 3678     CFL1  27.90242  24.856145 114.01531   4.737367       2.244085
+## 13180    PPIA  20.92248  18.379805  92.79963   5.281971       2.401076
+## 15910 HNRNPA1  55.01068  49.292206 216.66212   4.465775       2.158911
+## 12750  SNRPD2  12.07406  10.762919  49.13782   4.930679       2.301786
+## 11211    SOD1  10.66257   9.589493  40.99652   4.656447       2.219229
+## 6005     MYL6  30.02388  26.946109 117.02712   4.471851       2.160872
+##                pval          padj
+## 6582  8.606366e-106 8.649398e-103
+## 14443  7.268595e-98  7.304938e-95
+## 6002   5.154975e-94  5.180749e-91
+## 9669   8.612425e-89  8.655487e-86
+## 3678   2.848434e-84  2.862676e-81
+## 13180  6.730334e-82  6.763986e-79
+## 15910  2.895830e-78  2.910309e-75
+## 12750  5.416161e-74  5.443242e-71
+## 11211  6.801683e-71  6.835691e-68
+## 6005   2.750734e-70  1.382244e-67
 ```
 
 These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
@@ -1327,13 +1179,6 @@ clean.set <- SubsetCluster(clustered.set, clusters = "1")
 
 ```
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
 ```
 
 ```r
@@ -1357,16 +1202,6 @@ clean.cluster <- RunCORE(clean.pca)
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
 ```
@@ -1377,11 +1212,11 @@ PlotDendrogram(clean.cluster)
 
 ![](RGC_Tutorial_files/figure-html/RemoveCluster-1.png)<!-- -->
 
-Reclustering and differential expression revealed the remaining 1174 cells comprised of three subpopulations, each representing retinal ganglion cells at different stages of differentiation.
+Reclustering and differential expression revealed the remaining 1159 cells comprised of four subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
 
 ```r
-clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3"))
+clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3", "4"))
 ```
 
 ```
@@ -1401,16 +1236,6 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 ## [1] "Running differential expression on 1 vs Others"
 ## [1] "Running DESeq..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1432,16 +1257,6 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 ## [1] "Running differential expression on 2 vs Others"
 ## [1] "Running DESeq..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1463,27 +1278,39 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 ## [1] "Running differential expression on 3 vs Others"
 ## [1] "Running DESeq..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |======================                                           |  33%
-  |                                                                       
-  |===========================================                      |  67%
-  |                                                                       
-  |=================================================================| 100%
-## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 3 vs Others complete!"
+## [1] "Verifying input..."
+## [1] "Input is acceptable. Verification complete!"
+## [1] "Processing expression matrix..."
+## [1] "Rounding expression matrix values..."
+## [1] "Chunking matrix..."
+## [1] "Chunking expression matrix by rows..."
+```
+
+```
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
+## a multiple of split variable
+```
+
+```
+## [1] "Running differential expression on 4 vs Others"
+## [1] "Running DESeq..."
+## [1] "Differential expression complete!"
+## [1] "Returning values..."
+## [1] "Combining DE results..."
+## [1] "Adjusting fold change values..."
+## [1] "Condition: 4 vs Others complete!"
 ```
 
 ```r
 cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = FALSE)
 cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = FALSE)
 cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = FALSE)
+cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results$`4vsOthers`, labels = TRUE)
 print(cluster.de.1)
 ```
 
@@ -1500,6 +1327,12 @@ print(cluster.de.3)
 ```
 
 ![](RGC_Tutorial_files/figure-html/CleanDE-3.png)<!-- -->
+
+```r
+print(cluster.de.4)
+```
+
+![](RGC_Tutorial_files/figure-html/CleanDE-4.png)<!-- -->
 
 ## References
 [1]: https://www.biorxiv.org/content/early/2017/09/22/191395

@@ -5,7 +5,7 @@
 \title{RunDESeq}
 \usage{
 RunDESeq(data, condition.list = list(), condition.a = NULL,
-  condition.b = NULL)
+  condition.b = NULL, fitType = NULL, method = NULL)
 }
 \description{
 RunDESeq
