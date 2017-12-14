@@ -4,12 +4,19 @@
 \alias{scranNormalise}
 \title{scranNormalise}
 \usage{
-scranNormalise(object, quickCluster = FALSE)
+scranNormalise(object, quickCluster = FALSE, min.mean = 1e-05)
 }
 \arguments{
 \item{object}{An \linkS4class{EMSet} that has not undergone normalisation.}
 
-\item{quickCluster}{TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups. Default: FALSE}
+\item{quickCluster}{TRUE: Use scran's quickCluster method FALSE: Use 
+randomly-assigned groups. Default: FALSE}
+
+\item{min.mean}{Threshold for average counts. This argument is for the 
+\code{\link{computeSumFactors}} function from \pkg{scran}. The value of 1 is
+recommended for read count data, while the default value of 1e-5 is best for 
+UMI data. Default: 1e-5. This argument is only used for newer versions of 
+\pkg{scran}.}
 }
 \description{
 Normalise an \linkS4class{EMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.

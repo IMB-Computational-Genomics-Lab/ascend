@@ -111,7 +111,8 @@ controls
 We can now load all of this information into an `EMSet`, using the `NewEMSet` function. To view information about this object, enter the name of the object into the console.
 
 ```{r BuildEMSet}
-em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes, CellInformation = barcodes, Controls = controls)
+em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes, 
+                   CellInformation = barcodes, Controls = controls)
 em.set
 ```
 
@@ -338,7 +339,8 @@ norm.set <- scranNormalise(em.set)
 `PlotNormalisationQC` will generate a series of plots for the review of the normalisation process. This function can only be used if you have retained the un-normalised `EMSet`. You can also review the expression of genes you are interested in; in this case, we will look at the expression of GAPDH and MALAT1 as they are considered 'housekeeping' genes.
 
 ```{r PlotNormalisationQC}
-norm.qc <- PlotNormalisationQC(original = em.set, normalised = norm.set, gene.list = c("GAPDH", "MALAT1"))
+norm.qc <- PlotNormalisationQC(original = em.set, normalised = norm.set, 
+                               gene.list = c("GAPDH", "MALAT1"))
 ```
 
 The first set of graphs are library size histograms. The `scranNormalise` affects library size to a greater extent than the `NormaliseByRLE`.
@@ -470,7 +472,10 @@ The `RunDiffExpression` calls `DESeq` to perform differential expression between
 First, let's compare the expression of THY1-positive cells to THY1-negative cells.
 
 ```{r THY1DE}
-thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions = c("TRUE", "FALSE"), fitType = "local", method = "per-condition")
+thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", 
+                                    conditions = c("TRUE", "FALSE"), 
+                                    fitType = "local", 
+                                    method = "per-condition")
 thy1.de.result[1:10,]
 ```
 

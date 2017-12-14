@@ -32,7 +32,8 @@ VignetteBuilder: knitr
 Depends:
     dplyr,
     data.table,
-    Matrix
+    Matrix,
+    SingleCellExperiment
 Collate:
     'ascend_cellranger.R'
     'ascend_clustering.R'

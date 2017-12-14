@@ -11,84 +11,33 @@
 #' cells will be randomly assigned to a group.
 #'
 #' @param object An \linkS4class{EMSet} that has not undergone normalisation.
-#' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use randomly-assigned groups. Default: FALSE
+#' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use 
+#' randomly-assigned groups. Default: FALSE
+#' @param min.mean Threshold for average counts. This argument is for the 
+#' \code{\link{computeSumFactors}} function from \pkg{scran}. The value of 1 is
+#' recommended for read count data, while the default value of 1e-5 is best for 
+#' UMI data. Default: 1e-5. This argument is only used for newer versions of 
+#' \pkg{scran}.
 #' @export
 #'
-scranNormalise <- function(object, quickCluster = FALSE) {
-    if (!is.null(object@Log$NormalisationMethod)) {
-        stop("This data is already normalised.")
-    }
-    
-    # Convert a scryeR object to a SCRAN object
+scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
+  # Scran Normalise Manual
+  if (!is.null(object@Log$NormalisationMethod)) {
+    stop("This data is already normalised.")
+  }
+  
+  # Check version of scran - this is to ensure we are using the right object
+  if (packageVersion("scater") < "1.6.1"){
     print("Converting EMSet to SCESet...")
-    sce.obj <- ConvertToScater(object)
-    
-    # Remove controls from SCESet object
-    present.mt <- which(rownames(sce.obj) %in% object@Controls$Mt)
-    present.rb <- which(rownames(sce.obj) %in% object@Controls$Rb)
+    sce.obj <- ConvertToSCESet(object, control.list = object@Controls)
+    normalised.obj <- SCESetnormalise(sce.obj, object, quickCluster = quickCluster)
+  } else{
+    print("Converting EMSet to SingleCellExperiment...")
+    sce.obj <- ConvertToSCE(object, control.list = object@Controls)
+    normalised.obj <- SCEnormalise(sce.obj, object, quickCluster = quickCluster, min.mean = min.mean)
+  }
 
-    remove.idx <- c(present.mt, present.rb)
-    
-    # Remove ERCC sequences if in dataset
-    ercc.idx <- grep("^ercc-", ignore.case = TRUE, rownames(object@ExpressionMatrix))
-    if (length(ercc.idx) > 0) {
-        remove.idx <- c(remove.idx, ercc.idx)
-    }
-    
-    # Remove these items
-    sce.obj_rmMtRb <- sce.obj[-remove.idx, ]
-    
-    # Run computeSumFactors based on number of samples If we have more than 10,000 samples, we will run quickCluster Otherwise we supply a set list of sizes
-    if (ncol(sce.obj_rmMtRb) > 10000) {
-        if (quickCluster) {
-            print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.obj)))
-            quick.cluster <- scran::quickCluster(sce.obj_rmMtRb, method = "hclust")
-        } else {
-            print(sprintf("%i cells detected. Randomly grouping cells to feed into computeSumFactors...", ncol(sce.obj)))
-            cell.identifiers <- colnames(sce.obj_rmMtRb)
-            
-            # Assign pseudocluster
-            chunked.idx <- split(sample(1:length(cell.identifiers)), 1:10)
-            quick.cluster <- cell.identifiers
-            
-            for (cluster.id in names(chunked.idx)) {
-                cell.idx <- chunked.idx[[cluster.id]]
-                quick.cluster[cell.idx] <- cluster.id
-            }
-        }
-        
-        # Feed rough clusters into computeSumFactors
-        factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, clusters = quick.cluster, positive = T)
-    } else {
-        print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.obj)))
-        preset.sizes <- c(40, 60, 80, 100)
-        factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, sizes = preset.sizes, positive = T)
-    }
-    
-    print("scran's computeSumFactors complete. Removing zero sum factors from dataset...")
-    zero.size.factors <- which(factored.sce.obj@phenoData@data$size_factor == 0)
-    if (any(zero.size.factors)) {
-        min.size.factor <- min(factored.sce.obj@phenoData@data$size_factor[-zero.size.factors])
-        factored.sce.obj@phenoData@data$size_factor[zero.size.factors] <- min.size.factor
-    }
-    
-    print("Running scater's normalize method...")
-    dcvl.sce.obj <- scater::normalize(factored.sce.obj)
-    
-    # Convert log-transformed results back into counts
-    print("Normalisation complete. Converting SCESet back to EMSet...")
-    dcvl.matrix <- as.matrix(scater::norm_exprs(dcvl.sce.obj))
-    unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
-    
-    # Replace the object
-    normalised.obj <- ReplaceExpressionMatrix(object, unlog.dcvl.matrix)
-    normalised.obj <- SyncSlots(normalised.obj)
-    normalised.obj@Log$NormalisationMethod <- "scranNormalise"
-    normalised.obj@Log$Controls <- FALSE
-    normalised.obj@Log$ExcludeControls <- list(Mt = TRUE, Rb = TRUE)
-    
-    remove(sce.obj)
-    return(normalised.obj)
+  return(normalised.obj)
 }
 
 #' NormWithinBatch
