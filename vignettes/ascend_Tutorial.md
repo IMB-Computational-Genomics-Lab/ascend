@@ -1,15 +1,24 @@
-# An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression
-Anne Senabouth  
-`r Sys.Date()`  
+---
+title: An introduction to ascend - Analysis of Single Cell Expression, Normalisation
+  and Differential expression
+author: "Anne Senabouth"
+date: "2017-12-18"
+output:
+  pdf_document: default
+  html_document:
+    keep_md: yes
+vignette: |
+  %\VignetteIndexEntry{An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
 
 ## Before you begin
 ### System Requirements
-Datasets produced by Single Cell RNAseq (scRNAseq) experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. ascend can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
+Datasets produced by Single Cell RNAseq (scRNAseq) experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. `ascend` can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
 
 We have tested this package on datasets ranging from 100 to 20,000 cells. Generally, increasing the number of CPUs will decrease the processing time of functions, while larger datasets require more RAM. 
 
 ### Configuring BiocParallel
-This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling ascend to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
+This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling `ascend` to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
 
 #### Unix/Linux/MacOS (Single Machine)
 
@@ -24,7 +33,9 @@ register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
 ```r
 library(BiocParallel)
 workers <- 3 # Number of cores on your machine - 1
-register(SnowParam(workers = workers, type = "SOCK", progressbar = TRUE), default = TRUE)
+register(SnowParam(workers = workers, 
+                   type = "SOCK", 
+                   progressbar = TRUE), default = TRUE)
 ```
 
 ### Installation
@@ -52,14 +63,14 @@ ascend requires the following packages:
 * [scran](http://bioconductor.org/packages/release/bioc/html/scran.html)
 * [DESeq](http://bioconductor.org/packages/release/bioc/html/DESeq.html)
 
-Please install these packages before installing ascend. You do not need to load these packages when you work with ascend unless you are using functions directly from these packages (eg. BiocParallel).
+Please install these packages before installing `ascend`. You do not need to load these packages when you work with `ascend` unless you are using functions directly from these packages (eg. `BiocParallel` and `ggplot2`).
 
 #### Installing and loading ascend
 Please use `devtools` to load the development version of `ascend`.
 
 
 ```r
-devtools::load_all("~/CodeRepositories/ascend")
+devtools::load_all("~/CodeRepositories/ascend-dev")
 ```
 
 ```
@@ -85,7 +96,7 @@ In an expression matrix, each row represents a gene and each column represents a
 `ascend` is able to use any row and column names in the expression matrix, provided they abide by the following criteria:
 
 1. Names should not repeat. If you have a list with repeats, you can make the names unique by using R's 'make.unique' function.
-2. You should be able to identify which genes you would like to select as controls. This is why gene symbols or ENSEMBL transcript IDs should be used.
+2. You should be able to identify which genes you would like to select as controls. This is why gene symbols or ENSEMBL gene identifiers should be used.
 3. Cells from different batches, samples or sequencing runs should be given a numeric identifier at the end. eg. BARCODE-1, BARCODE-2, BARCODE-3.
 
 #### Combining expression matrices from different batches
@@ -165,13 +176,7 @@ em.set <- NewEMSet(ExpressionMatrix = expression.matrix,
 
 ```
 ## [1] "Calculating control metrics..."
-## 
-  |                                                                       
-  |                                                                 |   0%
-  |                                                                       
-  |================================                                 |  50%
-  |                                                                       
-  |=================================================================| 100%
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 ```r
@@ -383,22 +388,38 @@ print(tsne.plot)
 ![](ascend_Tutorial_files/figure-html/ColourByBatch-3.png)<!-- -->
 
 ## Using data from ascend with other R packages
-### scran and scater
-As ascend uses functions from `scran` and `scater`, an EMSet can be converted in to a `SCESet` with the function `ConvertToScater`.
+### SingleCellExperiment
+As `ascend` uses functions from `scran` and `scater`, an `EMSet` can be converted to a `SingleCellExperiment` object with the `ConvertToSCE` function.
 
 
 ```r
-sce.set <- ConvertToScater(em.set)
-sce.set
+controls <- GetControls(em.set)
+sce.object <- ConvertToSCE(em.set, control.list = controls)
+sce.object
 ```
 
 ```
-## SCESet (storageMode: lockedEnvironment)
-## assayData: 32904 features, 1174 samples 
-##   element names: counts, exprs 
-## protocolData: none
-## phenoData: none
-## featureData: none
-## experimentData: use 'experimentData(object)'
-## Annotation:
+## class: SingleCellExperiment 
+## dim: 32904 1174 
+## metadata(0):
+## assays(1): counts
+## rownames(32904): MIR1302-2 FAM138A ... AC213203.1 FAM231C.1
+## rowData names(10): is_feature_control is_feature_control_Mt ...
+##   total_counts log10_total_counts
+## colnames(1174): AAACCTGAGCTGTTCA-1 AAACCTGCAATTCCTT-1 ...
+##   TTTGTCAGTGAGTGAC-2 TTTGTCATCTTCATGT-2
+## colData names(33): total_features log10_total_features ...
+##   pct_counts_Rb is_cell_control
+## reducedDimNames(0):
+## spikeNames(0):
 ```
+
+### SCESet (depreciated)
+An `EMSet` can also be converted to an `SCESet` for use with older versions of `scran` and `scater`.
+
+
+```r
+controls <- GetControls(em.set)
+sce.set <- ConvertToSCESet(em.set, control.list = controls)
+```
+

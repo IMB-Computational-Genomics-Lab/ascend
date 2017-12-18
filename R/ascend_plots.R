@@ -83,29 +83,34 @@ PlotDendrogram <- function(object){
   optimal.height <- object@Clusters$OptimalTreeHeight
   nclusters <- object@Clusters$NumberOfClusters
   cluster.list <- object@Clusters$Clusters
-
+  
   # Count table
   cluster.df <- as.data.frame(table(cluster.list))
-
-  # Calculate cut height and cut dendrogram
-  hclust.obj$labels <- rep("", length(hclust.obj$labels))
   dendro.obj <- as.dendrogram(hclust.obj)
-
-  # Sort clusters by order in dendrogram
-  ordered.clusters <- cluster.list[stats::order.dendrogram(dendro.obj)]
-  # Sort cluster sizes in same order.
-  dendro.labels <- cluster.df$Freq[unique(ordered.clusters)]
-
-  # Apply labels directly to dendrogram
-  coloured.dendro <- dendextend::color_branches(dendro.obj, k = nclusters, groupLabels = dendro.labels)
-
-  # Add coloured bars
+  
+  # Reorder count table to match dendrogram order
+  cluster.order <- order.dendrogram(dendro.obj)
+  ordered.clusters <- as.vector(cluster.list)[cluster.order]
+  cluster.df <- cluster.df[match(unique(ordered.clusters), cluster.df$cluster.list), ]
+  
+  # Generate coloured plot
+  coloured.dendro <- dendextend::branches_attr_by_clusters(dendro.obj, clusters = ordered.clusters, attr = 'col')
+  coloured.dendro <- dendextend::set(coloured.dendro, "labels", "")
   plot(coloured.dendro)
+  
+  # Generate cluster bar underneath
   dendro.colours <- unique(dendextend::get_leaves_branches_col(coloured.dendro))
-  coloured.order <- stats::order.dendrogram(coloured.dendro)
+  coloured.order <- cluster.order
   sorted.levels <- dendextend::sort_levels_values(as.vector(cluster.list)[coloured.order])
   sorted.levels <- sorted.levels[match(seq_along(coloured.order), coloured.order)]
   dendextend::colored_bars(dendro.colours[sorted.levels], coloured.dendro, rowLabels = "Cluster")
+  
+  # Get branch colours
+  colour.order <- unique(coloured.dendro %>% dendextend::get_leaves_branches_attr("col"))
+  
+  # Generate legend labels
+  legend.labels <- sapply(1:nrow(cluster.df), function(x) paste0("Cluster ", cluster.df$cluster.list[x], ": ", cluster.df$Freq[x]))
+  legend("topright", legend = c(legend.labels), fill = colour.order, border = colour.order, bty = "n", title = "Cluster Populations")
 }
 
 #' PlotStability
@@ -210,8 +215,8 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
   dimC = dim(colors)
 
   # Create a colour ramp
-  gradient_palette <- grDevices::colorRampPalette(c("#cc0000", "#000000"))
-  palette(c('#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf'))
+  gradient_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))
+  palette(gradient_palette(max(colors)))
   if (is.null(rowLabels) & (length(dimnames(colors)[[2]]) ==
                             dimC[2]))
     rowLabels = colnames(colors)
@@ -711,7 +716,7 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
 # Generate the colors for the chart procedurally with RColorBrewer
 z_theme <- function() {
   palette <- RColorBrewer::brewer.pal("Greys", n=9)
-  color.background = palette[2]
+  color.background = palette[1]
   color.grid.major = palette[5]
   color.axis.text = palette[7]
   color.axis.title = palette[7]

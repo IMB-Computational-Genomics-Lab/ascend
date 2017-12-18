@@ -1,6 +1,16 @@
-# An introduction to ascend - Processing and analysis of retinal ganglion cells
-Anne Senabouth  
-`r Sys.Date()`  
+---
+title:  An introduction to ascend - Processing and analysis of retinal ganglion cells 
+author: "Anne Senabouth"
+date: '2017-12-18'
+output:
+  html_document: 
+    keep_md: true
+  pdf_document: default
+vignette: |
+  %\VignetteIndexEntry{An introduction to ascend - Processing and analysis of retinal ganglion cells} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8}
+---
 
 The `ascend` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
@@ -185,8 +195,11 @@ Finally, we need to identify controls for this experiment. Ribosomal and mitocho
 We are using a quick method of identifying mitochondrial and ribosomal genes, by using the `grep` function to identify these genes by their prefix. 
 
 ```r
-mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), ignore.case = TRUE)]
-ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", rownames(matrix), ignore.case = TRUE)]
+mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), 
+                                    ignore.case = TRUE)]
+ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", 
+                                    rownames(matrix), 
+                                    ignore.case = TRUE)]
 controls <- list(Mt = mito.genes, Rb = ribo.genes)
 controls
 ```
@@ -230,11 +243,13 @@ We can now load all of this information into an `EMSet`, using the `NewEMSet` fu
 
 
 ```r
-em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes, CellInformation = barcodes, Controls = controls)
+em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes, 
+                   CellInformation = barcodes, Controls = controls)
 ```
 
 ```
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 ```r
@@ -389,21 +404,34 @@ To identify the stage of the cell cycle each cell is in, use `scranCellCycle`. T
 
 
 ```r
-# Convert the EMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id column of the GeneInformation dataframe
+# Convert the EMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id 
+# column of the GeneInformation dataframe
 em.set <- ConvertGeneAnnotation(em.set, "gene_symbol", "ensembl_id")
 ```
 
 ```
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 ```r
 # Load scran's training dataset
-training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", package = "scran"))
+training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", 
+                                     package = "scran"))
 
 # Run scranCellCycle
 em.set <- scranCellCycle(em.set, training.data)
+```
 
+```
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+```
+
+```r
 # View cell information
 cell.info <- GetCellInfo(em.set)
 cell.info[1:5, ]
@@ -425,6 +453,7 @@ em.set <- ConvertGeneAnnotation(em.set, "ensembl_id", "gene_symbol")
 
 ```
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 ### Cell filtering 
@@ -440,7 +469,7 @@ print(raw.qc.plots$ControlPercentageTotalCounts$Mt)
 print(raw.qc.plots$ControlPercentageTotalCounts$Rb)
 ```
 
-<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-3-4.png" style="display: block; margin: auto;" />
+<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-4.png" style="display: block; margin: auto;" />
 
 The `FilterByOutliers` function will remove outliers based on these criteria. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required
 
@@ -451,9 +480,16 @@ em.set <- FilterByOutliers(em.set, cell.threshold = 3, control.threshold = 3)
 
 ```
 ## [1] "Identifying outliers..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Removing cells by library size..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Updating object information..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 #### Filter cells by control gene expression
@@ -515,20 +551,22 @@ Use `FilterByCustomControl` to remove cells that are mostly expressing control g
 
 ```r
 # Filter by mitochondrial genes
-em.set <- FilterByControl("Mt", 20, em.set)
+em.set <- FilterByControl(control.name = "Mt", pct.threshold = 20, em.set)
 ```
 
 ```
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 ```r
 # Filter by ribosomal genes
-em.set <- FilterByControl("Rb", 50, em.set)
+em.set <- FilterByControl(control.name = "Rb", pct.threshold = 50, em.set)
 ```
 
 ```
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 Some analyses will require the removal of these controls. This should not be done at this stage; it is best done after normalisation.
@@ -557,7 +595,7 @@ If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. 
 
 
 ```r
-em.set <- FilterByExpressedGenesPerCell(em.set, 1)
+em.set <- FilterByExpressedGenesPerCell(em.set, pct.value = 1)
 ```
 
 However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
@@ -566,7 +604,8 @@ However, there are experiments where this is not ideal, such as this one. For ex
 ```r
 expression.matrix <- GetExpressionMatrix(em.set, "data.frame")
 brn3.transcripts <- c("POU4F1", "POU4F2", "POU4F3")
-expression.matrix[brn3.transcripts, which(colSums(expression.matrix[brn3.transcripts,]) > 0)]
+expression.matrix[brn3.transcripts, 
+                  which(colSums(expression.matrix[brn3.transcripts,]) > 0)]
 ```
 
 ```
@@ -717,10 +756,6 @@ norm.set <- NormaliseByRLE(em.set)
 #### scranNormalise
 This function is a wrapper for the deconvolution method by [Lun et al. 2015][4] that uses the [scran][2] and [scater][4] packages. This method takes into account the high proportion of zero counts in single-cell data and tackles the zero-inflation problem by applying a pooling strategy to calculate size-factors of each pool. The pooled size factors are then deconvoluted to infer the size factor for each cell, which are used scale the counts within that cell. The [scran vignette][5] explains the whole process in greater detail.
 
-If the dataset contains less than 10,000 cells, `scranNormalise` will run `scran`'s `computeSumFactors` function with preset sizes of 40, 60, 80 and 100. For larger datasets, `scranNormalise` will run `quickCluster` before `computeSumFactors`.
-
-This method is computationally intensive; we do not recommend running datasets larger than 5000 cells on a desktop machine. Datasets larger than 10,000 cells should be run on a HPC.
-
 To ensure compatibility with `scran` and `scater`, the `EMSet` needs to have mitochondrial and ribosomal genes as controls. The control list also needs to be formatted as follows:
 
 
@@ -762,20 +797,23 @@ print(GetControls(em.set))
 ## [101] "RPS4Y2"         "RPL3"           "RPS19BP1"
 ```
 
-Run `scranNormalise` as follows:
+If the dataset contains less than 10,000 cells, `scranNormalise` will run `scran`'s `computeSumFactors` function with preset sizes of 40, 60, 80 and 100. For larger datasets, `scranNormalise` will run `quickCluster` before `computeSumFactors`. `scran` 1.6.6 introduced an additional argument - *min.mean* to the function `computeSumFactors`. This is the threshold for average counts. By default, it is set by `ascend` to 1e-5 as this value works best for UMI data. If you are working with read counts, please set this value to 1.
+
+This method is computationally intensive; we do not recommend running datasets larger than 5000 cells on a desktop machine. Datasets larger than 10,000 cells should be run on a HPC.
 
 
 ```r
-norm.set <- scranNormalise(em.set)
+norm.set <- scranNormalise(em.set, quickCluster = FALSE, min.mean = 1e-5)
 ```
 
 ```
-## [1] "Converting EMSet to SCESet..."
+## [1] "Converting EMSet to SingleCellExperiment..."
 ## [1] "1200 cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100..."
 ## [1] "scran's computeSumFactors complete. Removing zero sum factors from dataset..."
 ## [1] "Running scater's normalize method..."
-## [1] "Normalisation complete. Converting SCESet back to EMSet..."
+## [1] "Normalisation complete. Converting SingleCellExperiment back to EMSet..."
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 #### Reviewing the normalisation process
@@ -783,7 +821,8 @@ norm.set <- scranNormalise(em.set)
 
 
 ```r
-norm.qc <- PlotNormalisationQC(original = em.set, normalised = norm.set, gene.list = c("GAPDH", "MALAT1"))
+norm.qc <- PlotNormalisationQC(original = em.set, normalised = norm.set, 
+                               gene.list = c("GAPDH", "MALAT1"))
 ```
 
 ```
@@ -922,6 +961,8 @@ clustered.set <- RunCORE(pca.set)
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
 ```
@@ -1014,6 +1055,12 @@ The `PlotDendrogram` function generates a dendrogram that depicts each cluster a
 PlotDendrogram(clustered.set)
 ```
 
+```
+## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths
+## of the new labels is shorter than the number of leaves in the dendrogram -
+## labels are recycled.
+```
+
 <img src="RGC_Tutorial_files/figure-html/PlotDendrogram-1.png" style="display: block; margin: auto;" />
 
 The cluster information has been added as a new column in the Cell Information slot, which can be retrieved with the `GetCellInfo` function.
@@ -1042,7 +1089,10 @@ First, let's compare the expression of THY1-positive cells to THY1-negative cell
 
 
 ```r
-thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions = c("TRUE", "FALSE"), fitType = "local", method = "per-condition")
+thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", 
+                                    conditions = c("TRUE", "FALSE"), 
+                                    fitType = "local", 
+                                    method = "per-condition")
 ```
 
 ```
@@ -1062,6 +1112,8 @@ thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", conditions =
 ```
 ## [1] "Running differential expression on TRUE vs FALSE"
 ## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1114,7 +1166,10 @@ Let's examine what genes are differentially expressed between clusters 1 and 2.
 
 
 ```r
-cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"), fitType = "local", method = "per-condition")
+cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", 
+                                       conditions = c("1", "2"), 
+                                       fitType = "local", 
+                                       method = "per-condition")
 ```
 
 ```
@@ -1134,6 +1189,8 @@ cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", condit
 ```
 ## [1] "Running differential expression on 1 vs 2"
 ## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1166,7 +1223,7 @@ cluster.de.result[1:10,]
 ## 13180  6.730334e-82  6.763986e-79
 ## 15910  2.895830e-78  2.910309e-75
 ## 12750  5.416161e-74  5.443242e-71
-## 11211  6.801683e-71  6.835691e-68
+## 11211  6.798076e-71  6.832066e-68
 ## 6005   2.750734e-70  1.382244e-67
 ```
 
@@ -1179,6 +1236,7 @@ clean.set <- SubsetCluster(clustered.set, clusters = "1")
 
 ```
 ## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
 ```
 
 ```r
@@ -1202,6 +1260,8 @@ clean.cluster <- RunCORE(clean.pca)
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
 ```
@@ -1210,13 +1270,23 @@ clean.cluster <- RunCORE(clean.pca)
 PlotDendrogram(clean.cluster)
 ```
 
+```
+## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths
+## of the new labels is shorter than the number of leaves in the dendrogram -
+## labels are recycled.
+```
+
 ![](RGC_Tutorial_files/figure-html/RemoveCluster-1.png)<!-- -->
 
 Reclustering and differential expression revealed the remaining 1159 cells comprised of four subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
+#### Comparing each cluster against all other clusters
 
 ```r
-clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3", "4"))
+# Run differential expression on all comparisons
+clean.cluster.de.results <- RunDiffExpression(clean.cluster, 
+                                              column = "cluster", 
+                                              conditions = c("1", "2", "3", "4"))
 ```
 
 ```
@@ -1236,6 +1306,8 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 ## [1] "Running differential expression on 1 vs Others"
 ## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1257,6 +1329,8 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 ## [1] "Running differential expression on 2 vs Others"
 ## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1278,6 +1352,8 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 ## [1] "Running differential expression on 3 vs Others"
 ## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1299,6 +1375,8 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 ## [1] "Running differential expression on 4 vs Others"
 ## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
 ## [1] "Differential expression complete!"
 ## [1] "Returning values..."
 ## [1] "Combining DE results..."
@@ -1307,6 +1385,7 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster",
 ```
 
 ```r
+# Generate volcano plots
 cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = FALSE)
 cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = FALSE)
 cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = FALSE)
@@ -1333,6 +1412,289 @@ print(cluster.de.4)
 ```
 
 ![](RGC_Tutorial_files/figure-html/CleanDE-4.png)<!-- -->
+
+#### Comparing pairs of clusters
+To compare cluster of pairs, subset each pair into a new EMSet object before running the differential expression analysis.
+
+```r
+# Subset EMSet into paired sets
+c1c2 <- SubsetCluster(clean.cluster, clusters = c("1", "2"))
+```
+
+```
+## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+```
+
+```r
+c1c3 <- SubsetCluster(clean.cluster, clusters = c("1", "3"))
+```
+
+```
+## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+```
+
+```r
+c1c4 <- SubsetCluster(clean.cluster, clusters = c("1", "4"))
+```
+
+```
+## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+```
+
+```r
+c2c3 <- SubsetCluster(clean.cluster, clusters = c("2", "3"))
+```
+
+```
+## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+```
+
+```r
+c2c4 <- SubsetCluster(clean.cluster, clusters = c("2", "4"))
+```
+
+```
+## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+```
+
+```r
+c3c4 <- SubsetCluster(clean.cluster, clusters = c("3", "4"))
+```
+
+```
+## [1] "Calculating control metrics..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+```
+
+```r
+# Run differential expression on pairs
+c1c2.de.results <- RunDiffExpression(c1c2, column = "cluster", conditions = c("1", "2"))
+```
+
+```
+## [1] "Verifying input..."
+## [1] "Input is acceptable. Verification complete!"
+## [1] "Processing expression matrix..."
+## [1] "Rounding expression matrix values..."
+## [1] "Chunking matrix..."
+## [1] "Chunking expression matrix by rows..."
+```
+
+```
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
+## a multiple of split variable
+```
+
+```
+## [1] "Running differential expression on 1 vs 2"
+## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+## [1] "Differential expression complete!"
+## [1] "Returning values..."
+## [1] "Combining DE results..."
+## [1] "Adjusting fold change values..."
+## [1] "Condition: 1 vs 2 complete!"
+```
+
+```r
+c1c3.de.results <- RunDiffExpression(c1c3, column = "cluster", conditions = c("1", "3"))
+```
+
+```
+## [1] "Verifying input..."
+## [1] "Input is acceptable. Verification complete!"
+## [1] "Processing expression matrix..."
+## [1] "Rounding expression matrix values..."
+## [1] "Chunking matrix..."
+## [1] "Chunking expression matrix by rows..."
+```
+
+```
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
+## a multiple of split variable
+```
+
+```
+## [1] "Running differential expression on 1 vs 3"
+## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+## [1] "Differential expression complete!"
+## [1] "Returning values..."
+## [1] "Combining DE results..."
+## [1] "Adjusting fold change values..."
+## [1] "Condition: 1 vs 3 complete!"
+```
+
+```r
+c1c4.de.results <- RunDiffExpression(c1c4, column = "cluster", conditions = c("1", "4"))
+```
+
+```
+## [1] "Verifying input..."
+## [1] "Input is acceptable. Verification complete!"
+## [1] "Processing expression matrix..."
+## [1] "Rounding expression matrix values..."
+## [1] "Chunking matrix..."
+## [1] "Chunking expression matrix by rows..."
+```
+
+```
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
+## a multiple of split variable
+```
+
+```
+## [1] "Running differential expression on 1 vs 4"
+## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+## [1] "Differential expression complete!"
+## [1] "Returning values..."
+## [1] "Combining DE results..."
+## [1] "Adjusting fold change values..."
+## [1] "Condition: 1 vs 4 complete!"
+```
+
+```r
+c2c3.de.results <- RunDiffExpression(c2c3, column = "cluster", conditions = c("2", "3"))
+```
+
+```
+## [1] "Verifying input..."
+## [1] "Input is acceptable. Verification complete!"
+## [1] "Processing expression matrix..."
+## [1] "Rounding expression matrix values..."
+## [1] "Chunking matrix..."
+## [1] "Chunking expression matrix by rows..."
+```
+
+```
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
+## a multiple of split variable
+```
+
+```
+## [1] "Running differential expression on 2 vs 3"
+## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+## [1] "Differential expression complete!"
+## [1] "Returning values..."
+## [1] "Combining DE results..."
+## [1] "Adjusting fold change values..."
+## [1] "Condition: 2 vs 3 complete!"
+```
+
+```r
+c2c4.de.results <- RunDiffExpression(c2c4, column = "cluster", conditions = c("2", "4"))
+```
+
+```
+## [1] "Verifying input..."
+## [1] "Input is acceptable. Verification complete!"
+## [1] "Processing expression matrix..."
+## [1] "Rounding expression matrix values..."
+## [1] "Chunking matrix..."
+## [1] "Chunking expression matrix by rows..."
+```
+
+```
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
+## a multiple of split variable
+```
+
+```
+## [1] "Running differential expression on 2 vs 4"
+## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+## [1] "Differential expression complete!"
+## [1] "Returning values..."
+## [1] "Combining DE results..."
+## [1] "Adjusting fold change values..."
+## [1] "Condition: 2 vs 4 complete!"
+```
+
+```r
+c3c4.de.results <- RunDiffExpression(c3c4, column = "cluster", conditions = c("3", "4"))
+```
+
+```
+## [1] "Verifying input..."
+## [1] "Input is acceptable. Verification complete!"
+## [1] "Processing expression matrix..."
+## [1] "Rounding expression matrix values..."
+## [1] "Chunking matrix..."
+## [1] "Chunking expression matrix by rows..."
+```
+
+```
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
+## a multiple of split variable
+```
+
+```
+## [1] "Running differential expression on 3 vs 4"
+## [1] "Running DESeq..."
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+## 
+## [1] "Differential expression complete!"
+## [1] "Returning values..."
+## [1] "Combining DE results..."
+## [1] "Adjusting fold change values..."
+## [1] "Condition: 3 vs 4 complete!"
+```
+
+```r
+# Plot differential expression results
+c1c2.plot <- PlotDEVolcano(c1c2.de.results)
+c1c3.plot <- PlotDEVolcano(c1c3.de.results)
+c1c4.plot <- PlotDEVolcano(c1c4.de.results)
+c2c3.plot <- PlotDEVolcano(c2c3.de.results)
+c2c4.plot <- PlotDEVolcano(c2c4.de.results)
+c3c4.plot <- PlotDEVolcano(c3c4.de.results)
+
+print(c1c2.plot)
+```
+
+![](RGC_Tutorial_files/figure-html/RunPairedDE-1.png)<!-- -->
+
+```r
+print(c1c3.plot)
+```
+
+![](RGC_Tutorial_files/figure-html/RunPairedDE-2.png)<!-- -->
+
+```r
+print(c1c4.plot)
+```
+
+![](RGC_Tutorial_files/figure-html/RunPairedDE-3.png)<!-- -->
+
+```r
+print(c2c3.plot)
+```
+
+![](RGC_Tutorial_files/figure-html/RunPairedDE-4.png)<!-- -->
+
+```r
+print(c2c4.plot)
+```
+
+![](RGC_Tutorial_files/figure-html/RunPairedDE-5.png)<!-- -->
+
+```r
+print(c3c4.plot)
+```
+
+![](RGC_Tutorial_files/figure-html/RunPairedDE-6.png)<!-- -->
 
 ## References
 [1]: https://www.biorxiv.org/content/early/2017/09/22/191395

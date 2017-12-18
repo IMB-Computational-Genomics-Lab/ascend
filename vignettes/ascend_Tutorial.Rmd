@@ -13,12 +13,12 @@ vignette: |
 
 ## Before you begin
 ### System Requirements
-Datasets produced by Single Cell RNAseq (scRNAseq) experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. ascend can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
+Datasets produced by Single Cell RNAseq (scRNAseq) experiments are very large, ranging from a few hundred to a million cells. The number of cells affect the amount of computational resources required to process the dataset – therefore, you need to determine if you have enough computational power and time to complete the analysis. `ascend` can comfortably analyse datasets of up to 10,000 cells on a single machine with 8GB of RAM and a quad-core CPU. Larger datasets should be run on a High Performance Cluster (HPC).
 
 We have tested this package on datasets ranging from 100 to 20,000 cells. Generally, increasing the number of CPUs will decrease the processing time of functions, while larger datasets require more RAM. 
 
 ### Configuring BiocParallel
-This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling ascend to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
+This package makes extensive use of [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html), enabling `ascend` to make the most of your computer's hardware. As each system is different, BiocParallel needs to be configured by the user. Here are some example configurations.
 
 #### Unix/Linux/MacOS (Single Machine)
 ```{r SetupNix, eval = TRUE}
@@ -31,7 +31,9 @@ register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
 ```{r SetupWin, eval = FALSE}
 library(BiocParallel)
 workers <- 3 # Number of cores on your machine - 1
-register(SnowParam(workers = workers, type = "SOCK", progressbar = TRUE), default = TRUE)
+register(SnowParam(workers = workers, 
+                   type = "SOCK", 
+                   progressbar = TRUE), default = TRUE)
 ```
 
 ### Installation
@@ -59,13 +61,13 @@ ascend requires the following packages:
 * [scran](http://bioconductor.org/packages/release/bioc/html/scran.html)
 * [DESeq](http://bioconductor.org/packages/release/bioc/html/DESeq.html)
 
-Please install these packages before installing ascend. You do not need to load these packages when you work with ascend unless you are using functions directly from these packages (eg. BiocParallel).
+Please install these packages before installing `ascend`. You do not need to load these packages when you work with `ascend` unless you are using functions directly from these packages (eg. `BiocParallel` and `ggplot2`).
 
 #### Installing and loading ascend
 Please use `devtools` to load the development version of `ascend`.
 
 ```{r Loadascend}
-devtools::load_all("~/CodeRepositories/ascend")
+devtools::load_all("~/CodeRepositories/ascend-dev")
 ```
 
 You can also use devtools' `install_github` function to install the package, and then load it as normal.
@@ -86,7 +88,7 @@ In an expression matrix, each row represents a gene and each column represents a
 `ascend` is able to use any row and column names in the expression matrix, provided they abide by the following criteria:
 
 1. Names should not repeat. If you have a list with repeats, you can make the names unique by using R's 'make.unique' function.
-2. You should be able to identify which genes you would like to select as controls. This is why gene symbols or ENSEMBL transcript IDs should be used.
+2. You should be able to identify which genes you would like to select as controls. This is why gene symbols or ENSEMBL gene identifiers should be used.
 3. Cells from different batches, samples or sequencing runs should be given a numeric identifier at the end. eg. BARCODE-1, BARCODE-2, BARCODE-3.
 
 #### Combining expression matrices from different batches
@@ -99,7 +101,8 @@ The Cell Information data frame should be structured as follows:
 
 ```{r echo = FALSE, results = "asis"}
 library(knitr)
-kable(data.table(cell_barcode = c("Cell1-1", "Cell2-1", "...", "...", "Cellx-x"), batch = c("1", "1", "...", "...", "x")))
+kable(data.table(cell_barcode = c("Cell1-1", "Cell2-1", "...", "...", "Cellx-x"), 
+                 batch = c("1", "1", "...", "...", "x")))
 ```
 
 Column 1 should hold the cell identifiers, and column 2 should hold batch information.
@@ -111,7 +114,9 @@ The Gene Information data frame should be structured as follows:
 
 ```{r echo = FALSE, results = "asis"}
 library(knitr)
-kable(data.table(gene_identifier1 = c("GENE1", "GENE2", "...", "...", "GENEX"), gene_identifier2 = c("IDENTIFIER1", "IDENTIFIER2", "...", "...", "IDENTIFIERX")))
+kable(data.table(gene_identifier1 = c("GENE1", "GENE2", "...", "...", "GENEX"), 
+                 gene_identifier2 = c("IDENTIFIER1", "IDENTIFIER2", "...", "...", 
+                                      "IDENTIFIERX")))
 ```
 
 ### Controls
@@ -310,10 +315,20 @@ print(tsne.plot)
 ```
 
 ## Using data from ascend with other R packages
-### scran and scater
-As ascend uses functions from `scran` and `scater`, an EMSet can be converted in to a `SCESet` with the function `ConvertToScater`.
+### SingleCellExperiment
+As `ascend` uses functions from `scran` and `scater`, an `EMSet` can be converted to a `SingleCellExperiment` object with the `ConvertToSCE` function.
 
-```{r ConvertToSCRAN}
-sce.set <- ConvertToScater(em.set)
-sce.set
+```{r ConvertToSingleCellExperiment}
+controls <- GetControls(em.set)
+sce.object <- ConvertToSCE(em.set, control.list = controls)
+sce.object
 ```
+
+### SCESet (depreciated)
+An `EMSet` can also be converted to an `SCESet` for use with older versions of `scran` and `scater`.
+
+```{r ConvertToSCESet, eval = FALSE}
+controls <- GetControls(em.set)
+sce.set <- ConvertToSCESet(em.set, control.list = controls)
+```
+

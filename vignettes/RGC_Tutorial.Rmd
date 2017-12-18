@@ -101,8 +101,11 @@ Finally, we need to identify controls for this experiment. Ribosomal and mitocho
 
 We are using a quick method of identifying mitochondrial and ribosomal genes, by using the `grep` function to identify these genes by their prefix. 
 ```{r DefineControls}
-mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), ignore.case = TRUE)]
-ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", rownames(matrix), ignore.case = TRUE)]
+mito.genes <- rownames(matrix)[grep("^MT-", rownames(matrix), 
+                                    ignore.case = TRUE)]
+ribo.genes <- rownames(matrix)[grep("^RPS|^RPL", 
+                                    rownames(matrix), 
+                                    ignore.case = TRUE)]
 controls <- list(Mt = mito.genes, Rb = ribo.genes)
 controls
 ```
@@ -182,11 +185,13 @@ PlotPDF(raw.qc.plots, "RawQC.pdf")
 To identify the stage of the cell cycle each cell is in, use `scranCellCycle`. This function is a wrapper for `scran`'s `cyclone` function. For more information on how this function works, refer to the `scran` [documentation][2]. The `scranCellCycle` and subsequently and `cyclone` function require a training dataset. In this case, we loaded the human dataset that comes packaged with `scran`. We also had to briefly convert the gene annotation used in the EMSet to ENSEMBL IDs, to match the training dataset. Fortunately, Cell Ranger has provided both identifiers in the `genes` data frame, so we can easily switch them with the `ConvertGeneAnnotation` function.
 
 ```{r CellCycle}
-# Convert the EMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id column of the GeneInformation dataframe
+# Convert the EMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id 
+# column of the GeneInformation dataframe
 em.set <- ConvertGeneAnnotation(em.set, "gene_symbol", "ensembl_id")
 
 # Load scran's training dataset
-training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", package = "scran"))
+training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", 
+                                     package = "scran"))
 
 # Run scranCellCycle
 em.set <- scranCellCycle(em.set, training.data)
@@ -237,9 +242,9 @@ Use `FilterByCustomControl` to remove cells that are mostly expressing control g
 
 ```{r FilterByControl}
 # Filter by mitochondrial genes
-em.set <- FilterByControl("Mt", 20, em.set)
+em.set <- FilterByControl(control.name = "Mt", pct.threshold = 20, em.set)
 # Filter by ribosomal genes
-em.set <- FilterByControl("Rb", 50, em.set)
+em.set <- FilterByControl(control.name = "Rb", pct.threshold = 50, em.set)
 ```
 
 Some analyses will require the removal of these controls. This should not be done at this stage; it is best done after normalisation.
@@ -261,7 +266,7 @@ print(raw.qc.plots$Log10AverageGeneCount)
 If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
 
 ```{r FilterByExpressedGenesPerCell, eval = FALSE}
-em.set <- FilterByExpressedGenesPerCell(em.set, 1)
+em.set <- FilterByExpressedGenesPerCell(em.set, pct.value = 1)
 ```
 
 However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
@@ -269,7 +274,8 @@ However, there are experiments where this is not ideal, such as this one. For ex
 ```{r CheckGenesOfInterest}
 expression.matrix <- GetExpressionMatrix(em.set, "data.frame")
 brn3.transcripts <- c("POU4F1", "POU4F2", "POU4F3")
-expression.matrix[brn3.transcripts, which(colSums(expression.matrix[brn3.transcripts,]) > 0)]
+expression.matrix[brn3.transcripts, 
+                  which(colSums(expression.matrix[brn3.transcripts,]) > 0)]
 ```
 
 Other genes that are involved in the differentiation of the stem cells into retinal ganglion cells may also be lowly expressed, so we will omit this filtering step.
@@ -319,20 +325,18 @@ norm.set <- NormaliseByRLE(em.set)
 #### scranNormalise
 This function is a wrapper for the deconvolution method by [Lun et al. 2015][4] that uses the [scran][2] and [scater][4] packages. This method takes into account the high proportion of zero counts in single-cell data and tackles the zero-inflation problem by applying a pooling strategy to calculate size-factors of each pool. The pooled size factors are then deconvoluted to infer the size factor for each cell, which are used scale the counts within that cell. The [scran vignette][5] explains the whole process in greater detail.
 
-If the dataset contains less than 10,000 cells, `scranNormalise` will run `scran`'s `computeSumFactors` function with preset sizes of 40, 60, 80 and 100. For larger datasets, `scranNormalise` will run `quickCluster` before `computeSumFactors`.
-
-This method is computationally intensive; we do not recommend running datasets larger than 5000 cells on a desktop machine. Datasets larger than 10,000 cells should be run on a HPC.
-
 To ensure compatibility with `scran` and `scater`, the `EMSet` needs to have mitochondrial and ribosomal genes as controls. The control list also needs to be formatted as follows:
 
 ```{r GetControlsScran}
 print(GetControls(em.set))
 ```
 
-Run `scranNormalise` as follows:
+If the dataset contains less than 10,000 cells, `scranNormalise` will run `scran`'s `computeSumFactors` function with preset sizes of 40, 60, 80 and 100. For larger datasets, `scranNormalise` will run `quickCluster` before `computeSumFactors`. `scran` 1.6.6 introduced an additional argument - *min.mean* to the function `computeSumFactors`. This is the threshold for average counts. By default, it is set by `ascend` to 1e-5 as this value works best for UMI data. If you are working with read counts, please set this value to 1.
+
+This method is computationally intensive; we do not recommend running datasets larger than 5000 cells on a desktop machine. Datasets larger than 10,000 cells should be run on a HPC.
 
 ```{r scranNormalise}
-norm.set <- scranNormalise(em.set)
+norm.set <- scranNormalise(em.set, quickCluster = FALSE, min.mean = 1e-5)
 ```
 
 #### Reviewing the normalisation process
@@ -491,7 +495,10 @@ print(thy1.volcano.plot)
 Let's examine what genes are differentially expressed between clusters 1 and 2.
 
 ```{r RunDiffExpression}
-cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", conditions = c("1", "2"), fitType = "local", method = "per-condition")
+cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", 
+                                       conditions = c("1", "2"), 
+                                       fitType = "local", 
+                                       method = "per-condition")
 cluster.de.result[1:10,]
 ```
 
@@ -506,8 +513,14 @@ PlotDendrogram(clean.cluster)
 
 Reclustering and differential expression revealed the remaining 1159 cells comprised of four subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
+#### Comparing each cluster against all other clusters
 ```{r CleanDE, fig.width = 4, fig.height = 5}
-clean.cluster.de.results <- RunDiffExpression(clean.cluster, column = "cluster", conditions = c("1", "2", "3", "4"))
+# Run differential expression on all comparisons
+clean.cluster.de.results <- RunDiffExpression(clean.cluster, 
+                                              column = "cluster", 
+                                              conditions = c("1", "2", "3", "4"))
+
+# Generate volcano plots
 cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = FALSE)
 cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = FALSE)
 cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = FALSE)
@@ -516,6 +529,41 @@ print(cluster.de.1)
 print(cluster.de.2)
 print(cluster.de.3)
 print(cluster.de.4)
+```
+
+#### Comparing pairs of clusters
+To compare cluster of pairs, subset each pair into a new EMSet object before running the differential expression analysis.
+```{r RunPairedDE}
+# Subset EMSet into paired sets
+c1c2 <- SubsetCluster(clean.cluster, clusters = c("1", "2"))
+c1c3 <- SubsetCluster(clean.cluster, clusters = c("1", "3"))
+c1c4 <- SubsetCluster(clean.cluster, clusters = c("1", "4"))
+c2c3 <- SubsetCluster(clean.cluster, clusters = c("2", "3"))
+c2c4 <- SubsetCluster(clean.cluster, clusters = c("2", "4"))
+c3c4 <- SubsetCluster(clean.cluster, clusters = c("3", "4"))
+
+# Run differential expression on pairs
+c1c2.de.results <- RunDiffExpression(c1c2, column = "cluster", conditions = c("1", "2"))
+c1c3.de.results <- RunDiffExpression(c1c3, column = "cluster", conditions = c("1", "3"))
+c1c4.de.results <- RunDiffExpression(c1c4, column = "cluster", conditions = c("1", "4"))
+c2c3.de.results <- RunDiffExpression(c2c3, column = "cluster", conditions = c("2", "3"))
+c2c4.de.results <- RunDiffExpression(c2c4, column = "cluster", conditions = c("2", "4"))
+c3c4.de.results <- RunDiffExpression(c3c4, column = "cluster", conditions = c("3", "4"))
+
+# Plot differential expression results
+c1c2.plot <- PlotDEVolcano(c1c2.de.results)
+c1c3.plot <- PlotDEVolcano(c1c3.de.results)
+c1c4.plot <- PlotDEVolcano(c1c4.de.results)
+c2c3.plot <- PlotDEVolcano(c2c3.de.results)
+c2c4.plot <- PlotDEVolcano(c2c4.de.results)
+c3c4.plot <- PlotDEVolcano(c3c4.de.results)
+
+print(c1c2.plot)
+print(c1c3.plot)
+print(c1c4.plot)
+print(c2c3.plot)
+print(c2c4.plot)
+print(c3c4.plot)
 ```
 
 ## References
