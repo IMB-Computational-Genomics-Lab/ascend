@@ -9,8 +9,8 @@
 #' 
 SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
   # Remove controls from SCESet object
-  present.mt <- which(rownames(sce.obj) %in% em.set@Controls$Mt)
-  present.rb <- which(rownames(sce.obj) %in% em.set@Controls$Rb)
+  present.mt <- which(rownames(sce.set) %in% em.set@Controls$Mt)
+  present.rb <- which(rownames(sce.set) %in% em.set@Controls$Rb)
   
   remove.idx <- c(present.mt, present.rb)
   
@@ -21,16 +21,16 @@ SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
   }
   
   # Remove these items
-  sce.obj_rmMtRb <- sce.obj[-remove.idx, ]
+  sce.set_rmMtRb <- sce.set[-remove.idx, ]
   
   # Run computeSumFactors based on number of samples If we have more than 10,000 samples, we will run quickCluster Otherwise we supply a set list of sizes
-  if (ncol(sce.obj_rmMtRb) > 10000) {
+  if (ncol(sce.set_rmMtRb) > 10000) {
     if (quickCluster) {
-      print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.obj)))
-      quick.cluster <- scran::quickCluster(sce.obj_rmMtRb, method = "hclust")
+      print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.set)))
+      quick.cluster <- scran::quickCluster(sce.set_rmMtRb, method = "hclust")
     } else {
-      print(sprintf("%i cells detected. Randomly grouping cells to feed into computeSumFactors...", ncol(sce.obj)))
-      cell.identifiers <- colnames(sce.obj_rmMtRb)
+      print(sprintf("%i cells detected. Randomly grouping cells to feed into computeSumFactors...", ncol(sce.set)))
+      cell.identifiers <- colnames(sce.set_rmMtRb)
       
       # Assign pseudocluster
       chunked.idx <- split(sample(1:length(cell.identifiers)), 1:10)
@@ -43,26 +43,26 @@ SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
     }
     
     # Feed rough clusters into computeSumFactors
-    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, clusters = quick.cluster, positive = T)
+    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, clusters = quick.cluster, positive = T)
   } else {
-    print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.obj)))
+    print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.set)))
     preset.sizes <- c(40, 60, 80, 100)
-    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, sizes = preset.sizes, positive = T)
+    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, sizes = preset.sizes, positive = T)
   }
   
   print("scran's computeSumFactors complete. Removing zero sum factors from dataset...")
-  zero.size.factors <- which(factored.sce.obj@phenoData@data$size_factor == 0)
+  zero.size.factors <- which(factored.sce.set@phenoData@data$size_factor == 0)
   if (any(zero.size.factors)) {
-    min.size.factor <- min(factored.sce.obj@phenoData@data$size_factor[-zero.size.factors])
-    factored.sce.obj@phenoData@data$size_factor[zero.size.factors] <- min.size.factor
+    min.size.factor <- min(factored.sce.set@phenoData@data$size_factor[-zero.size.factors])
+    factored.sce.set@phenoData@data$size_factor[zero.size.factors] <- min.size.factor
   }
   
   print("Running scater's normalize method...")
-  dcvl.sce.obj <- scater::normalize(factored.sce.obj)
+  dcvl.sce.set <- scater::normalize(factored.sce.set)
   
   # Convert log-transformed results back into counts
   print("Normalisation complete. Converting SCESet back to EMSet...")
-  dcvl.matrix <- as.matrix(scater::norm_exprs(dcvl.sce.obj))
+  dcvl.matrix <- as.matrix(scater::norm_exprs(dcvl.sce.set))
   unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
   
   # Replace the em.set
@@ -72,7 +72,7 @@ SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
   normalised.obj@Log$Controls <- FALSE
   normalised.obj@Log$ExcludeControls <- list(Mt = TRUE, Rb = TRUE)
   
-  remove(sce.obj)
+  remove(sce.set)
   return(normalised.obj)
 }
 

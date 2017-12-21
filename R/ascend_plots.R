@@ -573,7 +573,7 @@ PlotPCAVariance <- function(object, n = 100){
     stop("Please supply an object that has undergone PCA reduction.")
   }
 
-  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="point", xlab="Principal Component (PC)", ylab="% Variance", main="Percent Variance per PC")
+  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="point", xlab="Principal Component (PC)", ylab="Variance", main="Percent Variance per PC")
   return(pca.obj)
 }
 
