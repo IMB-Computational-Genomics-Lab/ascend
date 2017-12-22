@@ -12,19 +12,6 @@ RunDESeq <- function(data, condition.list = list(), condition.a = NULL, conditio
     return(de.seq.results)
 }
 
-#' GenerateConditionList
-#'
-#' Automates the generation of a condition 1 vs other clist for feeding into DESeq.
-#'
-GenerateConditionList <- function(condition.a = NULL, condition.b = NULL, barcode.list = NULL) {
-    condition.a.idx <- which(barcode.list == as.character(condition.a))
-    condition.b.idx <- which(barcode.list != as.character(condition.a))
-    condition.list <- as.vector(barcode.list)
-    condition.list[condition.a.idx] <- as.character(condition.a)
-    condition.list[condition.b.idx] <- as.character(condition.b)
-    return(condition.list)
-}
-
 #' ProcessDEREsults
 #'
 #' Called by RunDiffExpression. Compiles the resultant data into data frames and converts
@@ -47,18 +34,11 @@ ProcessDEResults <- function(output.list) {
 #'
 #' Called by RunDiffExpression. This chunks up the expression matrix to feed into DESeq.
 #'
-PrepareCountData <- function(x) {
-    # Set up expression matrix
-    if (class(x) == "EMSet") {
-        expression.matrix <- GetExpressionMatrix(x, "matrix")
-    } else if (is.data.frame(x)) {
-        expression.matrix <- as.matrix(x)
-    } else if (is.matrix(x)) {
-        expression.matrix <- x
-    } else {
-        stop("Please supply an expression matrix in one of the following formats: EMSet, data.frame, matrix")
-    }
-
+PrepareCountData <- function(object, cells) {
+    # Retrieve information from EMSet
+    expression.matrix <- GetExpressionMatrix(object, "matrix")
+    expression.matrix <- expression.matrix[, cells]
+    
     # Filter out genes with zero expression, and add one to make it friendly for DESeq
     print("Rounding expression matrix values...")
     expression.matrix <- expression.matrix[which(rowMeans(expression.matrix) > 0), ]
@@ -73,72 +53,6 @@ PrepareCountData <- function(x) {
     return(chunked.matrix)
 }
 
-#' VerifyArguments
-#'
-#' Called by RunDiffExpression. Makes sure conditions are okay.
-#'
-VerifyArguments <- function(condition.a = NULL, condition.b = NULL, condition.list = list()) {
-    # CHECK DATA FIRST
-    print("Verifying input...")
-    # Check for missing arguments
-    if (missing(condition.a) || missing(condition.list)) {
-        stop("Please supply a string for Condition A and Condition B, in addition to a Condition List.")
-    }
-
-    # Check there are two conditions in the condition.list, and they match what the user has supplied.
-    if (length(unique(condition.list)) != 2) {
-        stop("Please ensure there are only two conditions in the supplied Condition List.")
-    }
-
-    unique.conditions <- unique(condition.list)
-    condition.bool <- c((!condition.a %in% unique.conditions), (!condition.b %in% unique.conditions))
-
-    if (any(condition.bool)) {
-        stop("Please ensure both of the specified conditions are present in the Condition List.")
-    }
-
-    print("Input is acceptable. Verification complete!")
-}
-
-#' RunPairedDE
-#'
-#' Called by the main function. Runs DESeq on one condition vs others at a time.
-#'
-RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.list = NULL, fitType = NULL, method = NULL) {
-    # Run Verification
-    VerifyArguments(condition.a = condition.a, condition.b = condition.b, condition.list = condition.list)
-
-    # Set up expression matrix
-    print("Processing expression matrix...")
-    chunked.matrix <- PrepareCountData(x)
-
-    # Convert condition list to factors
-    condition.list <- as.factor(unlist(condition.list))
-
-    print(sprintf("Running differential expression on %s vs %s", condition.a, condition.b))
-
-    # Coerce condition variables into characters, so DESeq won't reject it.
-    condition.a <- as.character(condition.a)
-    condition.b <- as.character(condition.b)
-
-
-    # Add all of this information into an environment to load into parallel
-    print("Running DESeq...")
-    result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, 
-                                          condition.list = condition.list, 
-                                          condition.a = condition.a, 
-                                          condition.b = condition.b, 
-                                          fitType = fitType,
-                                          method = method)
-
-    print("Differential expression complete!")
-    print("Returning values...")
-
-    print("Combining DE results...")
-    de.result.df <- ProcessDEResults(result.list)
-    print(sprintf("Condition: %s vs %s complete!", condition.a, condition.b))
-    return(de.result.df)
-}
 
 #' RunDiffExpression
 #'
@@ -146,86 +60,89 @@ RunPairedDE <- function(x, condition.a = NULL, condition.b = "Other", condition.
 #'
 #' @param object A \linkS4class{EMSet} object that has undergone clustering
 #' with the \code{\link{RunCORE}} function.
-#' @param column Name of the column in the CellInformations lot where you have
+#' @param conditions Name of the column in the CellInformations lot where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
 #' identified by RunCORE.
-#' @param conditions List of conditions you want to test, in the order you would
-#' like to run them in. This list of terms should match those used in your selected column.
+#' @param condition.a Condition of the group you want to use as the baseline
+#' @param condition.b Condition of the group you want to compare to the baseline. 
 #' @param fitType Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
 #' Options: parametric, local (Default)
 #' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
 #' Options: pooled, pooled-CR, per-condition (Default), blind 
 #' @export
 #'
-RunDiffExpression <- function(object, column = NULL, conditions = NULL, fitType = c("parametric", "local"), method = c("pooled", "pooled-CR", "per-condition", "blind")) {
-    # Object check
-    if (class(object) != "EMSet") {
-        stop("Please supply a EMSet object.")
-    }
-    if (is.null(object@CellInformation[, column])) {
-        stop("Please run the RunCORE function on this object before using this function.")
-    }
-    if (missing(column)) {
-        stop("Please specify a column in CellInformation to use as conditions.")
-    }
-
-    if (missing(conditions)) {
-        stop("Please specify your conditions in order of analysis.")
-    } else {
-        if (!is.character(conditions)) {
-            stop("Please specify conditions as characters.")
-        }
-    }
-    
-    if (missing(fitType)){
-      fitType <- "local"
-    }
-
-    if (missing(method)){
-      method <- "per-condition"
-    }
+RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, condition.b = NULL, fitType = c("parametric", "local"), method = c("pooled", "pooled-CR", "per-condition", "blind")) {
+  # Object check
+  if (class(object) != "EMSet") {
+    stop("Please supply a EMSet object.")
+  }
   
-    # Prepare Clusters
-    query.list <- as.factor(object@CellInformation[, column])
-    queries <- sort(unique(query.list))
-
-    # Ensure conditions match queries
-    if (!all(conditions %in% queries)) {
-        stop("Please ensure all specified conditions are present in your selected column.")
-    }
-
-    output <- list()
-
-    if (length(conditions) > 1) {
-        condition.lists <- list()
-        if (length(queries) > 2) {
-            condition.lists <- lapply(conditions, function(x) GenerateConditionList(condition.a = x, condition.b = "Others", barcode.list = query.list))
-            names(condition.lists) <- conditions
-        } else {
-            condition.lists[[as.character(conditions[1])]] <- query.list
-        }
-        # Loop over condition lists and run DE
-        if (length(condition.lists) > 2) {
-            for (x in names(condition.lists)) {
-                condition.a <- x
-                condition.b <- conditions[-which(conditions == x)]
-                if (length(condition.b) > 1) {
-                  condition.b <- "Others"
-                } else {
-                  condition.b <- condition.b[1]
-                }
-                diff.exp <- RunPairedDE(object, condition.a = x, condition.b = condition.b, condition.list = condition.lists[[x]], fitType = fitType)
-                output[[paste0(as.character(x), "vs", condition.b)]] <- diff.exp
-            }
-        } else {
-            condition.a <- names(condition.lists)[1]
-            condition.b <- conditions[-which(conditions == condition.a)]
-            diff.exp <- RunPairedDE(object, condition.a = condition.a, condition.b = condition.b, condition.list = condition.lists[[condition.a]], fitType = fitType)
-            output <- diff.exp
-        }
-
-    } else {
-        stop("You must have more than one cluster in order to run pairwise comparisons of queries.")
-    }
-    return(output)
+  # If user wants to compare clusters but hasn't run it
+  if ((conditions == "cluster") & (is.null(object@CellInformation[, "cluster"]))) {
+    stop("Please run the RunCORE function on this object before using this function.")
+  }
+  
+  # Check for missing variables 
+  if (missing(conditions) | missing(condition.a) | missing(condition.b)) {
+    stop("Please supply your conditions and try again.")
+  }
+  
+  # Check your conditions
+  if (!(condition.a %in% object@CellInformation[, conditions])){
+    stop("Please make sure Condition A is in your conditions column.")
+  }
+  if (!(condition.b %in% object@CellInformation[, conditions]) & (condition.b != "Others")){
+    stop("Please make sure Condition B is in your conditions column.")
+  }
+  
+  # Use default values for DESeq if user hasn't defined them.
+  if (missing(fitType)){
+    fitType <- "local"
+  }
+  if (missing(method)){
+    method <- "per-condition"
+  }
+  
+  # Prepare conditions for input into DESeq
+  cell.info <- GetCellInfo(object)
+  
+  # Identify relevent conditions
+  barcodes.a <- as.character(cell.info[,1][which(cell.info[, conditions] == condition.a)])
+  
+  # Subset cells if they match Condition B - Either a specific condition or
+  # others
+  if (condition.b == "Others"){
+    barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] != condition.a)])
+  } else{
+    barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] == condition.b)])      
+  }
+  
+  condition.a <- as.character(condition.a)
+  condition.b <- as.character(condition.b)
+  cells <- c(barcodes.a, barcodes.b)
+  condition.list <- cell.info[which(cell.info[,1] %in% cells), conditions]
+  
+  if (condition.b == "Others"){
+    condition.list[which(condition.list != condition.a)] <- "Others"
+  }
+  
+  condition.list <- as.factor(condition.list)
+  # Prepare data for differential expression
+  print("Processing expression matrix...")
+  chunked.matrix <- PrepareCountData(object, cells)
+  
+  print("Running DESeq...")    
+  result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, 
+                                        condition.list = condition.list, 
+                                        condition.a = condition.a, 
+                                        condition.b = condition.b, 
+                                        fitType = fitType,
+                                        method = method)
+  
+  print("Differential expression complete!")
+  
+  print("Combining DE results...")
+  output <- ProcessDEResults(result.list)
+  print(sprintf("Condition: %s vs %s complete!", condition.a, condition.b))
+  return(output)
 }
