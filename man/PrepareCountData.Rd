@@ -4,7 +4,7 @@
 \alias{PrepareCountData}
 \title{PrepareCountData}
 \usage{
-PrepareCountData(x)
+PrepareCountData(object, cells)
 }
 \description{
 Called by RunDiffExpression. This chunks up the expression matrix to feed into DESeq.

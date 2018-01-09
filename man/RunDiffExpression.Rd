@@ -4,20 +4,21 @@
 \alias{RunDiffExpression}
 \title{RunDiffExpression}
 \usage{
-RunDiffExpression(object, column = NULL, conditions = NULL,
-  fitType = c("parametric", "local"), method = c("pooled", "pooled-CR",
-  "per-condition", "blind"))
+RunDiffExpression(object, conditions = NULL, condition.a = NULL,
+  condition.b = NULL, fitType = c("parametric", "local"),
+  method = c("pooled", "pooled-CR", "per-condition", "blind"))
 }
 \arguments{
 \item{object}{A \linkS4class{EMSet} object that has undergone clustering
 with the \code{\link{RunCORE}} function.}
 
-\item{column}{Name of the column in the CellInformations lot where you have
+\item{conditions}{Name of the column in the CellInformations lot where you have
 defined the conditions you would like to test. eg cluster to compare clusters
 identified by RunCORE.}
 
-\item{conditions}{List of conditions you want to test, in the order you would
-like to run them in. This list of terms should match those used in your selected column.}
+\item{condition.a}{Condition of the group you want to use as the baseline}
+
+\item{condition.b}{Condition of the group you want to compare to the baseline.}
 
 \item{fitType}{Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
 Options: parametric, local (Default)}
