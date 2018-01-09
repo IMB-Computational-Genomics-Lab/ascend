@@ -56,10 +56,10 @@ PrepareCountData <- function(object, cells) {
 
 #' RunDiffExpression
 #'
-#' Compare the differential expression of genes in each cluster versus other clusters.
+#' Compare the differential expression of genes between cells of different conditions.
 #'
-#' @param object A \linkS4class{EMSet} object that has undergone clustering
-#' with the \code{\link{RunCORE}} function.
+#' @param object A \linkS4class{EMSet} object that has undergone filtering and 
+#' normalisation.
 #' @param conditions Name of the column in the CellInformations lot where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
 #' identified by RunCORE.
@@ -78,7 +78,7 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, con
   }
   
   # If user wants to compare clusters but hasn't run it
-  if ((conditions == "cluster") & (is.null(object@CellInformation[, "cluster"]))) {
+  if ((conditions == "cluster") && (is.null(object@CellInformation[, "cluster"]))) {
     stop("Please run the RunCORE function on this object before using this function.")
   }
   
