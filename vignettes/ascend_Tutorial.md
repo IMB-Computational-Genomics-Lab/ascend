@@ -2,7 +2,7 @@
 title: An introduction to ascend - Analysis of Single Cell Expression, Normalisation
   and Differential expression
 author: "Anne Senabouth"
-date: "2017-12-18"
+date: "2018-01-09"
 output:
   pdf_document: default
   html_document:

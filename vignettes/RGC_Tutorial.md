@@ -1,7 +1,7 @@
 ---
 title:  An introduction to ascend - Processing and analysis of retinal ganglion cells 
 author: "Anne Senabouth"
-date: '2017-12-18'
+date: '2018-01-09'
 output:
   html_document: 
     keep_md: true
@@ -948,11 +948,11 @@ pca.set <- ReduceDimensions(pca.set, n = 20)
 ```
 
 ### Clustering
-Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `RunCORE` to identify clusters.
+Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `RunCORE` to identify clusters. This function has only one argumenmt - `conservative`. This argument is only used when the algorithm detects more than one set of stable results. If set to TRUE, the function will choose the result that is the most stable but yields the least number of clusters. If set to FALSE, the function will choose the result that is the least stable, but yields the most number of clusters.
 
 
 ```r
-clustered.set <- RunCORE(pca.set)
+clustered.set <- RunCORE(pca.set, conservative = TRUE)
 ```
 
 ```
@@ -1089,15 +1089,15 @@ First, let's compare the expression of THY1-positive cells to THY1-negative cell
 
 
 ```r
-thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", 
-                                    conditions = c("TRUE", "FALSE"), 
+thy1.de.result <- RunDiffExpression(clustered.set, 
+                                    condition.a = "TRUE", 
+                                    condition.b = "FALSE", 
+                                    conditions = "THY1", 
                                     fitType = "local", 
                                     method = "per-condition")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1110,12 +1110,10 @@ thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1",
 ```
 
 ```
-## [1] "Running differential expression on TRUE vs FALSE"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: TRUE vs FALSE complete!"
@@ -1126,28 +1124,28 @@ thy1.de.result[1:10,]
 ```
 
 ```
-##           id  baseMean baseMeanA baseMeanB foldChange log2FoldChange
-## 2038     WLS  1.506359  1.314792  2.591905  5.0570142       2.338286
-## 10342 COL5A1  1.508378  1.317388  2.590657  5.0117152       2.325304
-## 5933   ITGB1  4.572514  3.887745  8.452876  2.5808641       1.367854
-## 4831    NRP2  1.493867  1.325940  2.445451  4.4347099       2.148840
-## 10464   PTH2  8.702667  9.715472  2.963436  0.2252817      -2.150198
-## 19839  FSTL1  2.570386  2.249719  4.387500  2.7106087       1.438617
-## 2585   SFRP2 36.794737 40.279481 17.047857  0.4085557      -1.291395
-## 21461 COL4A1  1.767416  1.565370  2.912344  3.3824661       1.758075
-## 4203  CYP1B1 12.136030 13.243729  5.859066  0.3968616      -1.333292
-## 10363   TGM2  1.750495  1.375119  3.877625  7.6712259       2.939457
-##               pval         padj
-## 2038  4.819246e-26 4.843342e-23
-## 10342 1.797210e-25 1.806196e-22
-## 5933  2.095424e-25 2.105901e-22
-## 4831  1.250022e-24 1.256273e-21
-## 10464 1.499833e-24 7.536660e-22
-## 19839 1.230526e-23 1.235448e-20
-## 2585  9.878648e-23 4.964020e-20
-## 21461 1.427955e-22 1.433667e-19
-## 4203  2.497434e-22 1.254960e-19
-## 10363 7.839421e-22 2.626206e-19
+##              id  baseMean baseMeanA baseMeanB foldChange log2FoldChange
+## 11926       MGP  1.906847  1.039802  6.820100 146.226592       7.192062
+## 12388    COL3A1  1.566694  1.080307  4.322886  41.377046       5.370759
+## 10388    LGALS1  4.951281  3.020405 15.892912   7.371249       2.881909
+## 5334       CTGF  2.742901  1.643053  8.975374  12.402361       3.632543
+## 10363      TGM2  1.750495  1.375119  3.877625   7.671226       2.939457
+## 5933      ITGB1  4.572514  3.887745  8.452876   2.580864       1.367854
+## 8614       TPM1 10.756877  7.803241 27.494144   3.894341       1.961379
+## 17413    COL1A1  3.987944  2.909903 10.096845   4.762988       2.251867
+## 20010 TNFRSF12A  2.123340  1.760514  4.179352   4.180531       2.063686
+## 19839     FSTL1  2.570386  2.249719  4.387500   2.710609       1.438617
+##                pval          padj
+## 11926 4.231017e-103 4.252172e-100
+## 12388  6.082067e-47  6.112478e-44
+## 10388  7.791379e-36  7.830336e-33
+## 5334   2.169420e-35  2.180268e-32
+## 10363  2.108726e-26  1.059635e-23
+## 5933   3.374687e-24  1.695780e-21
+## 8614   3.740572e-23  3.759274e-20
+## 17413  4.475804e-23  4.498183e-20
+## 20010  1.173918e-21  1.178613e-18
+## 19839  5.568784e-21  2.795529e-18
 ```
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
@@ -1166,15 +1164,15 @@ Let's examine what genes are differentially expressed between clusters 1 and 2.
 
 
 ```r
-cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", 
-                                       conditions = c("1", "2"), 
+cluster.de.result <- RunDiffExpression(clustered.set,
+                                       condition.a = "1",
+                                       condition.b = "2",
+                                       condition = "cluster", 
                                        fitType = "local", 
                                        method = "per-condition")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1187,12 +1185,10 @@ cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster",
 ```
 
 ```
-## [1] "Running differential expression on 1 vs 2"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 1 vs 2 complete!"
@@ -1203,28 +1199,28 @@ cluster.de.result[1:10,]
 ```
 
 ```
-##            id  baseMean  baseMeanA baseMeanB foldChange log2FoldChange
-## 6582    TCEB2  15.24453  13.751275  57.45641   4.427511       2.146496
-## 14443   GAPDH 144.67988 130.858081 535.39865   4.115251       2.040981
-## 6002    ATP5E  28.04789  25.333998 104.76491   4.264195       2.092273
-## 9669     TPT1  58.96766  53.869068 203.09629   3.822581       1.934547
-## 3678     CFL1  27.90242  24.856145 114.01531   4.737367       2.244085
-## 13180    PPIA  20.92248  18.379805  92.79963   5.281971       2.401076
-## 15910 HNRNPA1  55.01068  49.292206 216.66212   4.465775       2.158911
-## 12750  SNRPD2  12.07406  10.762919  49.13782   4.930679       2.301786
-## 11211    SOD1  10.66257   9.589493  40.99652   4.656447       2.219229
-## 6005     MYL6  30.02388  26.946109 117.02712   4.471851       2.160872
-##                pval          padj
-## 6582  8.606366e-106 8.649398e-103
-## 14443  7.268595e-98  7.304938e-95
-## 6002   5.154975e-94  5.180749e-91
-## 9669   8.612425e-89  8.655487e-86
-## 3678   2.848434e-84  2.862676e-81
-## 13180  6.730334e-82  6.763986e-79
-## 15910  2.895830e-78  2.910309e-75
-## 12750  5.416161e-74  5.443242e-71
-## 11211  6.798076e-71  6.832066e-68
-## 6005   2.750734e-70  1.382244e-67
+##             id baseMean baseMeanA baseMeanB foldChange log2FoldChange
+## 3224       TTR 4.314462  4.419727  1.338787 0.09906844     -3.3354306
+## 19147     IL32 1.973927  2.000830  1.213398 0.21322056     -2.2295816
+## 11773  DNAJC15 1.750583  1.720315  2.606201 2.22985766      1.1569516
+## 7448     SUMF2 2.171181  2.199026  1.384037 0.32029043     -1.6425474
+## 978     S100A6 1.562109  1.581493  1.014163 0.02435602     -5.3595777
+## 18171      FN1 2.863821  2.906379  1.660785 0.34661783     -1.5285822
+## 22104     COQ5 1.626951  1.606389  2.208205 1.99245941      0.9945503
+## 7604      UPP1 1.591483  1.567226  2.277179 2.25162142      1.1709643
+## 3207     MED31 1.710156  1.683641  2.459693 2.13517471      1.0943541
+## 5254  IVNS1ABP 2.416935  2.370198  3.738095 1.99832002      0.9987876
+##               pval        padj
+## 3224  8.292527e-11 8.33399e-08
+## 19147 2.062445e-03 1.00000e+00
+## 11773 2.712567e-03 1.00000e+00
+## 7448  3.753265e-03 1.00000e+00
+## 978   3.841124e-03 1.00000e+00
+## 18171 5.530897e-03 1.00000e+00
+## 22104 5.897854e-03 1.00000e+00
+## 7604  6.682398e-03 1.00000e+00
+## 3207  8.814417e-03 1.00000e+00
+## 5254  8.860888e-03 1.00000e+00
 ```
 
 These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
@@ -1251,7 +1247,7 @@ clean.pca <- RunPCA(clean.set)
 ```
 
 ```r
-clean.cluster <- RunCORE(clean.pca)
+clean.cluster <- RunCORE(clean.pca, conservative = TRUE)
 ```
 
 ```
@@ -1281,17 +1277,30 @@ PlotDendrogram(clean.cluster)
 Reclustering and differential expression revealed the remaining 1159 cells comprised of four subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
 #### Comparing each cluster against all other clusters
+The `RunDiffExpression` can be called to run multiple comparisons at once, using standard R functions such as `lapply` and `sapply`. The use of "Others" as condition.b tells the function to compare cells that have condition.a to all other cells that don't. If you need to do a lot of comparisons, you can even use BiocParallel's `bplapply` to run this function.
+
 
 ```r
-# Run differential expression on all comparisons
-clean.cluster.de.results <- RunDiffExpression(clean.cluster, 
-                                              column = "cluster", 
-                                              conditions = c("1", "2", "3", "4"))
+# List of clusters to compare
+cluster.list <- c("1", "2", "3", "4")
+
+# Create a custom function to call RunDiffExpession
+customFunction <- function(x, clean.cluster){
+  # This is a standard RunDiffExpression call; The only difference is "x" will
+  # be inputted by the sapply function
+  de.result <- RunDiffExpression(clean.cluster, 
+                                 condition.a = x, 
+                                 condition.b = "Others",
+                                 conditions = "cluster")
+  # This will output the differential expression result as a list of dataframes
+  return (de.result)
+}
+
+clean.cluster.de.results <- lapply(cluster.list, function(x)
+  customFunction(x, clean.cluster))
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1304,17 +1313,13 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster,
 ```
 
 ```
-## [1] "Running differential expression on 1 vs Others"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 1 vs Others complete!"
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1327,17 +1332,13 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster,
 ```
 
 ```
-## [1] "Running differential expression on 2 vs Others"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 2 vs Others complete!"
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1350,17 +1351,13 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster,
 ```
 
 ```
-## [1] "Running differential expression on 3 vs Others"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 3 vs Others complete!"
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1373,12 +1370,10 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster,
 ```
 
 ```
-## [1] "Running differential expression on 4 vs Others"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 4 vs Others complete!"
@@ -1386,10 +1381,10 @@ clean.cluster.de.results <- RunDiffExpression(clean.cluster,
 
 ```r
 # Generate volcano plots
-cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = FALSE)
-cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = FALSE)
-cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = FALSE)
-cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results$`4vsOthers`, labels = TRUE)
+cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results[[1]], labels = FALSE)
+cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results[[2]], labels = FALSE)
+cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results[[3]], labels = FALSE)
+cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results[[4]], labels = TRUE)
 print(cluster.de.1)
 ```
 
@@ -1414,71 +1409,15 @@ print(cluster.de.4)
 ![](RGC_Tutorial_files/figure-html/CleanDE-4.png)<!-- -->
 
 #### Comparing pairs of clusters
-To compare cluster of pairs, subset each pair into a new EMSet object before running the differential expression analysis.
-
-```r
-# Subset EMSet into paired sets
-c1c2 <- SubsetCluster(clean.cluster, clusters = c("1", "2"))
-```
-
-```
-## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
-```
-
-```r
-c1c3 <- SubsetCluster(clean.cluster, clusters = c("1", "3"))
-```
-
-```
-## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
-```
-
-```r
-c1c4 <- SubsetCluster(clean.cluster, clusters = c("1", "4"))
-```
-
-```
-## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
-```
-
-```r
-c2c3 <- SubsetCluster(clean.cluster, clusters = c("2", "3"))
-```
-
-```
-## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
-```
-
-```r
-c2c4 <- SubsetCluster(clean.cluster, clusters = c("2", "4"))
-```
-
-```
-## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
-```
-
-```r
-c3c4 <- SubsetCluster(clean.cluster, clusters = c("3", "4"))
-```
-
-```
-## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
-```
+We can also compare pairs of clusters by setting conditions A and B in the `RunDiffExpression` function.
 
 ```r
 # Run differential expression on pairs
-c1c2.de.results <- RunDiffExpression(c1c2, column = "cluster", conditions = c("1", "2"))
+c1c2.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "2", conditions = "cluster")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1491,24 +1430,21 @@ c1c2.de.results <- RunDiffExpression(c1c2, column = "cluster", conditions = c("1
 ```
 
 ```
-## [1] "Running differential expression on 1 vs 2"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 1 vs 2 complete!"
 ```
 
 ```r
-c1c3.de.results <- RunDiffExpression(c1c3, column = "cluster", conditions = c("1", "3"))
+c1c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "3", conditions = "cluster")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1521,24 +1457,21 @@ c1c3.de.results <- RunDiffExpression(c1c3, column = "cluster", conditions = c("1
 ```
 
 ```
-## [1] "Running differential expression on 1 vs 3"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 1 vs 3 complete!"
 ```
 
 ```r
-c1c4.de.results <- RunDiffExpression(c1c4, column = "cluster", conditions = c("1", "4"))
+c1c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "4", conditions = "cluster")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1551,24 +1484,21 @@ c1c4.de.results <- RunDiffExpression(c1c4, column = "cluster", conditions = c("1
 ```
 
 ```
-## [1] "Running differential expression on 1 vs 4"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 1 vs 4 complete!"
 ```
 
 ```r
-c2c3.de.results <- RunDiffExpression(c2c3, column = "cluster", conditions = c("2", "3"))
+c2c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "2", 
+                                     condition.b = "3", conditions = "cluster")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1581,24 +1511,21 @@ c2c3.de.results <- RunDiffExpression(c2c3, column = "cluster", conditions = c("2
 ```
 
 ```
-## [1] "Running differential expression on 2 vs 3"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 2 vs 3 complete!"
 ```
 
 ```r
-c2c4.de.results <- RunDiffExpression(c2c4, column = "cluster", conditions = c("2", "4"))
+c2c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "2", 
+                                     condition.b = "4", conditions = "cluster")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1611,24 +1538,21 @@ c2c4.de.results <- RunDiffExpression(c2c4, column = "cluster", conditions = c("2
 ```
 
 ```
-## [1] "Running differential expression on 2 vs 4"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 2 vs 4 complete!"
 ```
 
 ```r
-c3c4.de.results <- RunDiffExpression(c3c4, column = "cluster", conditions = c("3", "4"))
+c3c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "3", 
+                                     condition.b = "4", conditions = "cluster")
 ```
 
 ```
-## [1] "Verifying input..."
-## [1] "Input is acceptable. Verification complete!"
 ## [1] "Processing expression matrix..."
 ## [1] "Rounding expression matrix values..."
 ## [1] "Chunking matrix..."
@@ -1641,12 +1565,10 @@ c3c4.de.results <- RunDiffExpression(c3c4, column = "cluster", conditions = c("3
 ```
 
 ```
-## [1] "Running differential expression on 3 vs 4"
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
-## [1] "Returning values..."
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Condition: 3 vs 4 complete!"
@@ -1654,12 +1576,12 @@ c3c4.de.results <- RunDiffExpression(c3c4, column = "cluster", conditions = c("3
 
 ```r
 # Plot differential expression results
-c1c2.plot <- PlotDEVolcano(c1c2.de.results)
-c1c3.plot <- PlotDEVolcano(c1c3.de.results)
-c1c4.plot <- PlotDEVolcano(c1c4.de.results)
-c2c3.plot <- PlotDEVolcano(c2c3.de.results)
-c2c4.plot <- PlotDEVolcano(c2c4.de.results)
-c3c4.plot <- PlotDEVolcano(c3c4.de.results)
+c1c2.plot <- PlotDEVolcano(c1c2.de.results, labels = FALSE)
+c1c3.plot <- PlotDEVolcano(c1c3.de.results, labels = FALSE)
+c1c4.plot <- PlotDEVolcano(c1c4.de.results, labels = FALSE)
+c2c3.plot <- PlotDEVolcano(c2c3.de.results, labels = FALSE)
+c2c4.plot <- PlotDEVolcano(c2c4.de.results, labels = FALSE)
+c3c4.plot <- PlotDEVolcano(c3c4.de.results, labels = FALSE)
 
 print(c1c2.plot)
 ```

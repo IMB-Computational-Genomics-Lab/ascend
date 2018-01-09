@@ -424,10 +424,10 @@ pca.set <- ReduceDimensions(pca.set, n = 20)
 ```
 
 ### Clustering
-Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `RunCORE` to identify clusters.
+Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `RunCORE` to identify clusters. This function has only one argumenmt - `conservative`. This argument is only used when the algorithm detects more than one set of stable results. If set to TRUE, the function will choose the result that is the most stable but yields the least number of clusters. If set to FALSE, the function will choose the result that is the least stable, but yields the most number of clusters.
 
 ```{r RunCORE}
-clustered.set <- RunCORE(pca.set)
+clustered.set <- RunCORE(pca.set, conservative = TRUE)
 ```
 
 The `RunCORE` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to 40 values ranging from 0.025 (the bottom of the tree) to 1 (the top of the tree). 
@@ -476,8 +476,10 @@ The `RunDiffExpression` calls `DESeq` to perform differential expression between
 First, let's compare the expression of THY1-positive cells to THY1-negative cells.
 
 ```{r THY1DE}
-thy1.de.result <- RunDiffExpression(clustered.set, column = "THY1", 
-                                    conditions = c("TRUE", "FALSE"), 
+thy1.de.result <- RunDiffExpression(clustered.set, 
+                                    condition.a = "TRUE", 
+                                    condition.b = "FALSE", 
+                                    conditions = "THY1", 
                                     fitType = "local", 
                                     method = "per-condition")
 thy1.de.result[1:10,]
@@ -495,8 +497,10 @@ print(thy1.volcano.plot)
 Let's examine what genes are differentially expressed between clusters 1 and 2.
 
 ```{r RunDiffExpression}
-cluster.de.result <- RunDiffExpression(clustered.set, column = "cluster", 
-                                       conditions = c("1", "2"), 
+cluster.de.result <- RunDiffExpression(clustered.set,
+                                       condition.a = "1",
+                                       condition.b = "2",
+                                       condition = "cluster", 
                                        fitType = "local", 
                                        method = "per-condition")
 cluster.de.result[1:10,]
@@ -507,24 +511,39 @@ These results underwent further analysis, and revealed cells in cluster 2 were s
 ```{r RemoveCluster, fig.width = 5, fig.height = 4}
 clean.set <- SubsetCluster(clustered.set, clusters = "1")
 clean.pca <- RunPCA(clean.set)
-clean.cluster <- RunCORE(clean.pca)
+clean.cluster <- RunCORE(clean.pca, conservative = TRUE)
 PlotDendrogram(clean.cluster)
 ```
 
 Reclustering and differential expression revealed the remaining 1159 cells comprised of four subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
 #### Comparing each cluster against all other clusters
+The `RunDiffExpression` can be called to run multiple comparisons at once, using standard R functions such as `lapply` and `sapply`. The use of "Others" as condition.b tells the function to compare cells that have condition.a to all other cells that don't. If you need to do a lot of comparisons, you can even use BiocParallel's `bplapply` to run this function.
+
 ```{r CleanDE, fig.width = 4, fig.height = 5}
-# Run differential expression on all comparisons
-clean.cluster.de.results <- RunDiffExpression(clean.cluster, 
-                                              column = "cluster", 
-                                              conditions = c("1", "2", "3", "4"))
+# List of clusters to compare
+cluster.list <- c("1", "2", "3", "4")
+
+# Create a custom function to call RunDiffExpession
+customFunction <- function(x, clean.cluster){
+  # This is a standard RunDiffExpression call; The only difference is "x" will
+  # be inputted by the sapply function
+  de.result <- RunDiffExpression(clean.cluster, 
+                                 condition.a = x, 
+                                 condition.b = "Others",
+                                 conditions = "cluster")
+  # This will output the differential expression result as a list of dataframes
+  return (de.result)
+}
+
+clean.cluster.de.results <- lapply(cluster.list, function(x)
+  customFunction(x, clean.cluster))
 
 # Generate volcano plots
-cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results$`1vsOthers`, labels = FALSE)
-cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results$`2vsOthers`, labels = FALSE)
-cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results$`3vsOthers`, labels = FALSE)
-cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results$`4vsOthers`, labels = TRUE)
+cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results[[1]], labels = FALSE)
+cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results[[2]], labels = FALSE)
+cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results[[3]], labels = FALSE)
+cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results[[4]], labels = TRUE)
 print(cluster.de.1)
 print(cluster.de.2)
 print(cluster.de.3)
@@ -532,31 +551,29 @@ print(cluster.de.4)
 ```
 
 #### Comparing pairs of clusters
-To compare cluster of pairs, subset each pair into a new EMSet object before running the differential expression analysis.
+We can also compare pairs of clusters by setting conditions A and B in the `RunDiffExpression` function.
 ```{r RunPairedDE}
-# Subset EMSet into paired sets
-c1c2 <- SubsetCluster(clean.cluster, clusters = c("1", "2"))
-c1c3 <- SubsetCluster(clean.cluster, clusters = c("1", "3"))
-c1c4 <- SubsetCluster(clean.cluster, clusters = c("1", "4"))
-c2c3 <- SubsetCluster(clean.cluster, clusters = c("2", "3"))
-c2c4 <- SubsetCluster(clean.cluster, clusters = c("2", "4"))
-c3c4 <- SubsetCluster(clean.cluster, clusters = c("3", "4"))
-
 # Run differential expression on pairs
-c1c2.de.results <- RunDiffExpression(c1c2, column = "cluster", conditions = c("1", "2"))
-c1c3.de.results <- RunDiffExpression(c1c3, column = "cluster", conditions = c("1", "3"))
-c1c4.de.results <- RunDiffExpression(c1c4, column = "cluster", conditions = c("1", "4"))
-c2c3.de.results <- RunDiffExpression(c2c3, column = "cluster", conditions = c("2", "3"))
-c2c4.de.results <- RunDiffExpression(c2c4, column = "cluster", conditions = c("2", "4"))
-c3c4.de.results <- RunDiffExpression(c3c4, column = "cluster", conditions = c("3", "4"))
+c1c2.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "2", conditions = "cluster")
+c1c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "3", conditions = "cluster")
+c1c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "4", conditions = "cluster")
+c2c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "2", 
+                                     condition.b = "3", conditions = "cluster")
+c2c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "2", 
+                                     condition.b = "4", conditions = "cluster")
+c3c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "3", 
+                                     condition.b = "4", conditions = "cluster")
 
 # Plot differential expression results
-c1c2.plot <- PlotDEVolcano(c1c2.de.results)
-c1c3.plot <- PlotDEVolcano(c1c3.de.results)
-c1c4.plot <- PlotDEVolcano(c1c4.de.results)
-c2c3.plot <- PlotDEVolcano(c2c3.de.results)
-c2c4.plot <- PlotDEVolcano(c2c4.de.results)
-c3c4.plot <- PlotDEVolcano(c3c4.de.results)
+c1c2.plot <- PlotDEVolcano(c1c2.de.results, labels = FALSE)
+c1c3.plot <- PlotDEVolcano(c1c3.de.results, labels = FALSE)
+c1c4.plot <- PlotDEVolcano(c1c4.de.results, labels = FALSE)
+c2c3.plot <- PlotDEVolcano(c2c3.de.results, labels = FALSE)
+c2c4.plot <- PlotDEVolcano(c2c4.de.results, labels = FALSE)
+c3c4.plot <- PlotDEVolcano(c3c4.de.results, labels = FALSE)
 
 print(c1c2.plot)
 print(c1c3.plot)

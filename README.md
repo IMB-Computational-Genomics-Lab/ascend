@@ -26,7 +26,7 @@
 * [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) *(Required for Bioconductor 3.6)*
 
 #### Installing ascend
-As this package is still under development, please use devtools to load the package.
+As this package is under continuous development, please use devtools to load the package.
 
 ```{r}
 devtools::load_all("ascend/")

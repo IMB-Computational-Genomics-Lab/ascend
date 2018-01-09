@@ -1,0 +1,21 @@
+version 0.2.5 (2018-01-09)
+- Changed how RunDiffExpression compares datasets (subsetting of EMSets by user 
+is no longer required)
+- Updated vignette to reflect recent changes
+
+version 0.2.3 (2017-12-22)
+- Bugfix for SCESet-associated scran functions
+- Fixed % Variance label on PlotPCAVariance plot
+- Changed SingleCellExperiment to Suggests 
+
+version 0.2.0 (2017-12-18)
+- Upgraded references to scran/scater SCESet to SingleCellExpression objects.
+- Added min.mean argument to scranNormalise function.
+- Replaced PlotDendrogram’s kclust call with inputted clusters argument.
+- Removed branch labels on PlotDendrogram with detailed legend.
+- Replaced colour scale on PlotStabilityDendro with RColorBrewer’s paired palette.
+- Updated required packages to reflect changes. 
+
+version 0.1.2 (2017-11-15)
+- Added DESeq's estimateDispersions arguments to RunDiffExpression function
+- Updated RGC_Tutorial.Rmd vignette to reflect updated functions.
