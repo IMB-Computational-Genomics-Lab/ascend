@@ -2,3 +2,4 @@
 .Rhistory
 .Ruserdata
 inst/doc
+SingleCellExperiment.R

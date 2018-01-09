@@ -18,7 +18,7 @@ identified by RunCORE.}
 
 \item{condition.a}{Condition of the group you want to use as the baseline}
 
-\item{condition.b}{Condition of the group you want to compare to the baseline.}
+\item{condition.b}{Conditions of the group you want to compare to the baseline.}
 
 \item{fitType}{Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
 Options: parametric, local (Default)}
