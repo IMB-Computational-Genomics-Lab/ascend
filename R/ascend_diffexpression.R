@@ -64,7 +64,7 @@ PrepareCountData <- function(object, cells) {
 #' defined the conditions you would like to test. eg cluster to compare clusters
 #' identified by RunCORE.
 #' @param condition.a Condition of the group you want to use as the baseline
-#' @param condition.b Condition of the group you want to compare to the baseline. 
+#' @param condition.b Conditions of the group you want to compare to the baseline. 
 #' @param fitType Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
 #' Options: parametric, local (Default)
 #' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
@@ -91,10 +91,17 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, con
   if (!(condition.a %in% object@CellInformation[, conditions])){
     stop("Please make sure Condition A is in your conditions column.")
   }
-  if (!(condition.b %in% object@CellInformation[, conditions]) & (condition.b != "Others")){
-    stop("Please make sure Condition B is in your conditions column.")
-  }
   
+  if (length(condition.b) > 1){
+    if (!(all(sapply(condition.b, function(x) x %in% object@CellInformation[, conditions])))){
+      stop("Please make sure all conditions in Condition B are in your conditions column.")
+    }    
+  } else{
+    if (!(condition.b %in% object@CellInformation[, conditions]) & condition.b != "Others"){
+      stop("Please make sure Condition B is in your conditions column.")
+    }
+  }
+
   # Use default values for DESeq if user hasn't defined them.
   if (missing(fitType)){
     fitType <- "local"
@@ -109,24 +116,42 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, con
   # Identify relevent conditions
   barcodes.a <- as.character(cell.info[,1][which(cell.info[, conditions] == condition.a)])
   
-  # Subset cells if they match Condition B - Either a specific condition or
-  # others
-  if (condition.b == "Others"){
-    barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] != condition.a)])
+  # Subset cells if they match Condition B - Either a specific condition, a list 
+  # of conditions or "Others"
+  if (length(condition.b) > 1){
+    barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] %in% condition.b)])    
   } else{
-    barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] == condition.b)])      
+    if (condition.b == "Others"){
+      barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] != condition.a)])      
+    } else{
+      barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] == condition.b)])  
+    }
   }
-  
+
+  # Force conditions into characters
   condition.a <- as.character(condition.a)
-  condition.b <- as.character(condition.b)
+  
+  # If conditions are a list
+  if (length(condition.b) > 1){
+    # Create a string for output to plots
+    string.1 <- condition.b[1:length(condition.b) - 1]
+    string.2 <- condition.b[length(condition.b)]
+    if (length(string.1) > 1){
+      condition.b <- paste(string.1, collapse = ", ")
+      condition.b <- paste0(condition.b, " and ", string.2)
+    } else{
+      condition.b <- paste(condition.b, collapse = " and ")
+    }
+  } else{
+    condition.b <- as.character(condition.b)  
+  }
+
+  # List of cells to subset
   cells <- c(barcodes.a, barcodes.b)
   condition.list <- cell.info[which(cell.info[,1] %in% cells), conditions]
-  
-  if (condition.b == "Others"){
-    condition.list[which(condition.list != condition.a)] <- "Others"
-  }
-  
+  condition.list[which(condition.list != condition.a)] <- condition.b
   condition.list <- as.factor(condition.list)
+  
   # Prepare data for differential expression
   print("Processing expression matrix...")
   chunked.matrix <- PrepareCountData(object, cells)
