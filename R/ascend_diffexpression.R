@@ -34,10 +34,12 @@ ProcessDEResults <- function(output.list) {
 #'
 #' Called by RunDiffExpression. This chunks up the expression matrix to feed into DESeq.
 #'
-PrepareCountData <- function(object, cells) {
+PrepareCountData <- function(object, cells, ngenes) {
     # Retrieve information from EMSet
     expression.matrix <- GetExpressionMatrix(object, "matrix")
-    expression.matrix <- expression.matrix[, cells]
+    ordered.genes <- object@Metrics$TopGeneList
+    top.genes <- ordered.genes[1:ngenes]
+    expression.matrix <- expression.matrix[top.genes, cells]
     
     # Filter out genes with zero expression, and add one to make it friendly for DESeq
     print("Rounding expression matrix values...")
@@ -47,8 +49,15 @@ PrepareCountData <- function(object, cells) {
     expression.matrix <- round(expression.matrix + 1)
 
     print("Chunking matrix...")
-    # We want chunks with 1K rows
-    chunk.size <- nrow(expression.matrix)/1000
+    # Check how many genes are present, before determining chunk size.
+    if (nrow(expression.matrix) > 1000){
+      chunk.size <- nrow(expression.matrix)/1000      
+    } else if (nrow(expression.matrix) < 100){
+      chunk.size <- nrow(expression.matrix)/10
+    } else{
+      chunk.size <- nrow(expression.matrix)/100
+    }
+
     chunked.matrix <- ChunkMatrix(expression.matrix, axis = 0, chunks = chunk.size)
     return(chunked.matrix)
 }
@@ -64,14 +73,19 @@ PrepareCountData <- function(object, cells) {
 #' defined the conditions you would like to test. eg cluster to compare clusters
 #' identified by RunCORE.
 #' @param condition.a Condition of the group you want to use as the baseline
-#' @param condition.b Conditions of the group you want to compare to the baseline. 
+#' @param condition.b Conditions of the group you want to compare to the baseline.
+#' @param ngenes Perform differential expression analysis using top number of genes.
+#' If omitted, this function will run analysis on ALL genes.
 #' @param fitType Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
 #' Options: parametric, local (Default)
 #' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
 #' Options: pooled, pooled-CR, per-condition (Default), blind 
 #' @export
 #'
-RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, condition.b = NULL, fitType = c("parametric", "local"), method = c("pooled", "pooled-CR", "per-condition", "blind")) {
+RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, 
+                              condition.b = NULL, fitType = c("parametric", "local"), 
+                              method = c("pooled", "pooled-CR", "per-condition", "blind"),
+                              ngenes = NULL) {
   # Object check
   if (class(object) != "EMSet") {
     stop("Please supply a EMSet object.")
@@ -101,6 +115,20 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, con
       stop("Please make sure Condition B is in your conditions column.")
     }
   }
+  
+  # Check ngenes
+  if (!missing(ngenes)){
+    if (!is.numeric(ngenes)){
+      stop("Please ensure ngenes argument is a number.")
+    } else{
+      # Check it doesn't exceed the number of genes in the matrix
+      if (ngenes > nrow(object@ExpressionMatrix)){
+        stop("You have specified more genes than what is present in the matrix. 
+             Please specify a value that is less than the number of genes in the 
+             matrix.")
+      }
+    }
+  }
 
   # Use default values for DESeq if user hasn't defined them.
   if (missing(fitType)){
@@ -108,6 +136,10 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, con
   }
   if (missing(method)){
     method <- "per-condition"
+  }
+  
+  if (missing(ngenes)){
+    ngenes <- nrow(object@ExpressionMatrix)
   }
   
   # Prepare conditions for input into DESeq
@@ -154,7 +186,7 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, con
   
   # Prepare data for differential expression
   print("Processing expression matrix...")
-  chunked.matrix <- PrepareCountData(object, cells)
+  chunked.matrix <- PrepareCountData(object, cells, ngenes)
   
   print("Running DESeq...")    
   result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, 

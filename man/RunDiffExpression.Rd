@@ -6,7 +6,8 @@
 \usage{
 RunDiffExpression(object, conditions = NULL, condition.a = NULL,
   condition.b = NULL, fitType = c("parametric", "local"),
-  method = c("pooled", "pooled-CR", "per-condition", "blind"))
+  method = c("pooled", "pooled-CR", "per-condition", "blind"),
+  ngenes = NULL)
 }
 \arguments{
 \item{object}{A \linkS4class{EMSet} object that has undergone filtering and 
@@ -25,6 +26,9 @@ Options: parametric, local (Default)}
 
 \item{method}{Method used by \pkg{DESeq} to compute emperical dispersion.
 Options: pooled, pooled-CR, per-condition (Default), blind}
+
+\item{ngenes}{Perform differential expression analysis using top number of genes.
+If omitted, this function will run analysis on ALL genes.}
 }
 \description{
 Compare the differential expression of genes between cells of different conditions.
