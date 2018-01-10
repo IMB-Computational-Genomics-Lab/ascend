@@ -4,12 +4,16 @@
 \alias{SubsetCondition}
 \title{SubsetCondition}
 \usage{
-SubsetCondition(object, conditions)
+SubsetCondition(object, condition, subconditions)
 }
 \arguments{
 \item{object}{A \linkS4class{EMSet} object}
 
-\item{conditions}{Name of the columns which contain boolean information on whether to keep or discard a cell.}
+\item{condition}{Name of the condition/column you would like to subset the
+\linkS4class{EMSet} by}
+
+\item{subconditions}{List of subconditions that are stored in the condition
+column, that you would like to select}
 }
 \value{
 An \linkS4class{EMSet} containing only this batch.

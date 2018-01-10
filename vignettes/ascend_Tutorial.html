@@ -11,7 +11,7 @@
 
 <meta name="author" content="Anne Senabouth" />
 
-<meta name="date" content="2018-01-09" />
+<meta name="date" content="2018-01-10" />
 
 <title>An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression</title>
 
@@ -121,7 +121,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression</h1>
 <h4 class="author"><em>Anne Senabouth</em></h4>
-<h4 class="date"><em>2018-01-09</em></h4>
+<h4 class="date"><em>2018-01-10</em></h4>
 
 </div>
 
@@ -476,7 +476,7 @@ updated.em.set &lt;- UpdateControls(em.set, new.controls)</code></pre>
 <p>To subset cells by cluster, use <code>SubsetCluster</code>.</p>
 <pre class="r"><code>subset.clusters &lt;- SubsetCluster(em.set, clusters = c(&quot;2&quot;, &quot;3&quot;))</code></pre>
 <p>To subset cells by a condition, use <code>SubsetCondition</code>.</p>
-<pre class="r"><code>thy1.set &lt;- SubsetCondition(em.set, conditions = c(&quot;THY1&quot;))</code></pre>
+<pre class="r"><code>thy1.set &lt;- SubsetCondition(em.set, condition = &quot;phase&quot;, subconditions = c(&quot;G1&quot;, &quot;G2M&quot;))</code></pre>
 <p>To subset cells by a list of cell identifiers, use <code>SubsetCells</code>.</p>
 <pre class="r"><code># Retrieve cell information from an EMSet
 cell.info &lt;- GetCellInfo(em.set)

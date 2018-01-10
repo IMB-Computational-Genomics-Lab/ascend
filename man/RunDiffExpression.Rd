@@ -9,8 +9,8 @@ RunDiffExpression(object, conditions = NULL, condition.a = NULL,
   method = c("pooled", "pooled-CR", "per-condition", "blind"))
 }
 \arguments{
-\item{object}{A \linkS4class{EMSet} object that has undergone clustering
-with the \code{\link{RunCORE}} function.}
+\item{object}{A \linkS4class{EMSet} object that has undergone filtering and 
+normalisation.}
 
 \item{conditions}{Name of the column in the CellInformations lot where you have
 defined the conditions you would like to test. eg cluster to compare clusters
@@ -27,5 +27,5 @@ Options: parametric, local (Default)}
 Options: pooled, pooled-CR, per-condition (Default), blind}
 }
 \description{
-Compare the differential expression of genes in each cluster versus other clusters.
+Compare the differential expression of genes between cells of different conditions.
 }

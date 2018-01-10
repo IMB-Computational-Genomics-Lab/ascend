@@ -250,7 +250,7 @@ subset.clusters <- SubsetCluster(em.set, clusters = c("2", "3"))
 
 To subset cells by a condition, use `SubsetCondition`.
 ```{r SubsetCondition, eval = FALSE}
-thy1.set <- SubsetCondition(em.set, conditions = c("THY1"))
+thy1.set <- SubsetCondition(em.set, condition = "phase", subconditions = c("G1", "G2M"))
 ```
 
 To subset cells by a list of cell identifiers, use `SubsetCells`.

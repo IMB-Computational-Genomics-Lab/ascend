@@ -4,21 +4,29 @@
 #' Subset specific conditions from a \linkS4class{EMSet} object.
 #'
 #' @param object A \linkS4class{EMSet} object
-#' @param conditions Name of the columns which contain boolean information on whether to keep or discard a cell.
+#' @param condition Name of the condition/column you would like to subset the
+#' \linkS4class{EMSet} by
+#' @param subconditions List of subconditions that are stored in the condition
+#' column, that you would like to select
 #'
 #' @return An \linkS4class{EMSet} containing only this batch.
 #' @include ascend_objects.R
 #' @export
-setGeneric(name = "SubsetCondition", def = function(object, conditions) {
+setGeneric(name = "SubsetCondition", def = function(object, condition, subconditions) {
     standardGeneric("SubsetCondition")
 })
 
-setMethod("SubsetCondition", signature("EMSet"), function(object, conditions = c()) {
-  # Check if selected batches are present in the batches column
-  if (!any(conditions %in% colnames(object@CellInformation))) {
-    stop("None of your selected batches are present in the dataset.")
+setMethod("SubsetCondition", signature("EMSet"), function(object, condition = NULL, subconditions = c()) {
+  # Check if selected condition are present
+  if (!(condition %in% colnames(object@CellInformation))) {
+    stop("Please check if your condition has been defined in the object's Cell Information.")
   }
 
+  # Check if your selected subconditions are present in your condition column
+  if (!all(unlist(lapply(subconditions, function(subcondition) subcondition %in% object@CellInformation[, condition])))){
+    stop("Please check if your selected subconditions are in your defined in your selected condition column.")
+  }
+  
   # Create a new object to output, ensures original object does not get overwritten.
   subset.obj <- object
 
@@ -27,18 +35,10 @@ setMethod("SubsetCondition", signature("EMSet"), function(object, conditions = c
   cell.info <- subset.obj@CellInformation
 
   # Select out the specified columns
-  subset.cell.info <- cell.info[, c(1, which(colnames(cell.info) %in% conditions))]
+  subset.cell.info <- cell.info[which(cell.info[, condition] %in% subconditions), ]
 
   # Select out rows that are true in at least one column
-  keep.list <- c()
-
-  for (condition in conditions) {
-    keep.list <- c(keep.list, which(subset.cell.info[, condition]))
-  }
-
-  keep.list <- unique(keep.list)
-  subset.cell.info <- cell.info[keep.list, c(1, 2, which(colnames(cell.info) %in% conditions))]
-  keep.barcodes <- subset.cell.info[,1]
+  keep.barcodes <- as.vector(subset.cell.info[ ,1])
 
   # Subset the expression matrix.
   subset.matrix <- expression.matrix[, keep.barcodes]
@@ -49,7 +49,7 @@ setMethod("SubsetCondition", signature("EMSet"), function(object, conditions = c
   # Clean up the object
   subset.obj@PCA <- list()
   subset.obj@Clusters <- list()
-  subset.obj@Log <- c(subset.obj@Log, list(SubsetByCondition = TRUE, SubsettedConditions = conditions))
+  subset.obj@Log <- c(subset.obj@Log, list(SubsetByCondition = TRUE, SubsettedConditions = condition))
   return(subset.obj)
 })
 

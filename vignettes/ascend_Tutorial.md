@@ -2,7 +2,7 @@
 title: An introduction to ascend - Analysis of Single Cell Expression, Normalisation
   and Differential expression
 author: "Anne Senabouth"
-date: "2018-01-09"
+date: "2018-01-10"
 output:
   pdf_document: default
   html_document:
@@ -293,7 +293,7 @@ subset.clusters <- SubsetCluster(em.set, clusters = c("2", "3"))
 To subset cells by a condition, use `SubsetCondition`.
 
 ```r
-thy1.set <- SubsetCondition(em.set, conditions = c("THY1"))
+thy1.set <- SubsetCondition(em.set, condition = "phase", subconditions = c("G1", "G2M"))
 ```
 
 To subset cells by a list of cell identifiers, use `SubsetCells`.
