@@ -139,7 +139,7 @@ SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5)
     
     # Replace zero size factors
     size.factors[zero.size.factors] <- min.size.factor
-    SingleCellExperiment::colData(factored.sce.obj, internal = TRUE)$size_factor <- size.factors
+    SummarizedExperiment::colData(factored.sce.obj, internal = TRUE)$size_factor <- size.factors
   }
   
   print("Running scater's normalize method...")
