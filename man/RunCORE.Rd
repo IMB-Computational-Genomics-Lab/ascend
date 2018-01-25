@@ -5,12 +5,14 @@
 \title{RunCORE}
 \usage{
 RunCORE(object, conservative = TRUE, windows = seq(0.025:1, by = 0.025),
-  remove_outlier = TRUE)
+  remove_outlier = FALSE)
 }
 \arguments{
 \item{object}{An EMSet object that has undergone PCA reduction.}
 
 \item{conservative}{Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE}
+
+\item{windows}{Range to perform cuts on the dendrogram Default: seq(0.025:1, by=0.025).}
 
 \item{remove_outlier}{Remove cells that weren't assigned a cluster with dynamicTreeCut. This is indicative of outlier cells within the sample. Default: TRUE}
 }

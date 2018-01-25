@@ -35,17 +35,27 @@ ProcessDEResults <- function(output.list) {
 #' Called by RunDiffExpression. This chunks up the expression matrix to feed into DESeq.
 #'
 PrepareCountData <- function(object, cells, ngenes) {
+    if (is.null(ngenes)){
+      ngenes <- nrow(object@ExpressionMatrix)
+    }
+  
     # Retrieve information from EMSet
     expression.matrix <- GetExpressionMatrix(object, "matrix")
-    ordered.genes <- object@Metrics$TopGeneList
-    top.genes <- ordered.genes[1:ngenes]
-    expression.matrix <- expression.matrix[top.genes, cells]
+    expression.matrix <- expression.matrix[ ,cells]
     
     # Filter out genes with zero expression, and add one to make it friendly for DESeq
     print("Rounding expression matrix values...")
-    expression.matrix <- expression.matrix[which(rowMeans(expression.matrix) > 0), ]
-    sd.row <- apply(expression.matrix, 1, sd)
-    expression.matrix <- expression.matrix[names(sd.row > 0), ]
+    ordered.genes <- object@Metrics$TopGeneList
+    
+    # Identify which genes to keep
+    ## 1. They need to be within the top genes that the user has specified
+    ## 2. The mean of these genes need to be greater than zero
+    ## 3. Their standard deviation needs to be greater than zero
+    top.genes <- ordered.genes[1:ngenes]
+    mean.gene.expression <- rownames(expression.matrix)[which(rowMeans(expression.matrix) > 0)]
+    gene.sd <- rownames(expression.matrix)[which(apply(expression.matrix, 1, sd) > 0)]
+    gene.list <- intersect(intersect(top.genes, mean.gene.expression), gene.sd)
+    expression.matrix <- expression.matrix[gene.list, ]
     expression.matrix <- round(expression.matrix + 1)
 
     print("Chunking matrix...")
@@ -117,19 +127,12 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL,
   }
   
   # Check ngenes
-  if (!missing(ngenes)){
+  if (!missing(ngenes) & !is.null(ngenes)){
     if (!is.numeric(ngenes)){
       stop("Please ensure ngenes argument is a number.")
-    } else{
-      # Check it doesn't exceed the number of genes in the matrix
-      if (ngenes > nrow(object@ExpressionMatrix)){
-        stop("You have specified more genes than what is present in the matrix. 
-             Please specify a value that is less than the number of genes in the 
-             matrix.")
-      }
-    }
+    } 
   }
-
+  
   # Use default values for DESeq if user hasn't defined them.
   if (missing(fitType)){
     fitType <- "local"
@@ -137,32 +140,33 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL,
   if (missing(method)){
     method <- "per-condition"
   }
-  
   if (missing(ngenes)){
-    ngenes <- nrow(object@ExpressionMatrix)
+    ngenes <- NULL
   }
-  
   # Prepare conditions for input into DESeq
   cell.info <- GetCellInfo(object)
   
   # Identify relevent conditions
-  barcodes.a <- as.character(cell.info[,1][which(cell.info[, conditions] == condition.a)])
+  barcodes.a <- as.vector(cell.info[,1])[which(cell.info[, conditions] == condition.a)]
   
   # Subset cells if they match Condition B - Either a specific condition, a list 
   # of conditions or "Others"
   if (length(condition.b) > 1){
-    barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] %in% condition.b)])    
+    barcodes.b <- as.vector(cell.info[,1][which(cell.info[, conditions] %in% condition.b)])
+    cells <- c(barcodes.a, barcodes.b)
   } else{
     if (condition.b == "Others"){
-      barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] != condition.a)])      
+      cells <- as.vector(cell.info[ ,1])
     } else{
-      barcodes.b <- as.character(cell.info[,1][which(cell.info[, conditions] == condition.b)])  
+      barcodes.b <- as.vector(cell.info[ ,1])[which(as.vector(cell.info[, conditions]) == condition.b)]
+      cells <- c(barcodes.a, barcodes.b)
     }
   }
-
+  
   # Force conditions into characters
   condition.a <- as.character(condition.a)
   
+  # Generate Condition Names
   # If conditions are a list
   if (length(condition.b) > 1){
     # Create a string for output to plots
@@ -170,20 +174,23 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL,
     string.2 <- condition.b[length(condition.b)]
     if (length(string.1) > 1){
       condition.b <- paste(string.1, collapse = ", ")
-      condition.b <- paste0(condition.b, " and ", string.2)
+      condition.b <- paste0(condition.b.name, " and ", string.2)
     } else{
       condition.b <- paste(condition.b, collapse = " and ")
     }
   } else{
     condition.b <- as.character(condition.b)  
   }
-
-  # List of cells to subset
-  cells <- c(barcodes.a, barcodes.b)
-  condition.list <- cell.info[which(cell.info[,1] %in% cells), conditions]
-  condition.list[which(condition.list != condition.a)] <- condition.b
-  condition.list <- as.factor(condition.list)
   
+     
+  # Grab these cells from the condition.list
+  condition.list <- cell.info[as.vector(cell.info[,1]) %in% cells, conditions]
+  condition.a.idx <- which(condition.list == condition.a)
+  condition.b.idx <- which(condition.list != condition.a)
+# Replace condition b with reformatted condition label
+  condition.list[condition.b.idx] <- condition.b
+  condition.list <- as.factor(condition.list)
+
   # Prepare data for differential expression
   print("Processing expression matrix...")
   chunked.matrix <- PrepareCountData(object, cells, ngenes)

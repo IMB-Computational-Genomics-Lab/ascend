@@ -2,7 +2,7 @@
 title: An introduction to ascend - Analysis of Single Cell Expression, Normalisation
   and Differential expression
 author: "Anne Senabouth"
-date: "2018-01-10"
+date: "2018-01-25"
 output:
   pdf_document: default
   html_document:
@@ -69,12 +69,11 @@ Please install these packages before installing `ascend`. You do not need to loa
 Please use `devtools` to load the development version of `ascend`.
 
 
-```r
-devtools::load_all("~/CodeRepositories/ascend-dev")
 ```
 
-```
-## Loading ascend
+
+```r
+devtools::load_all("~/CodeRepositories/ascend")
 ```
 
 You can also use devtools' `install_github` function to install the package, and then load it as normal.

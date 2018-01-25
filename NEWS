@@ -1,3 +1,8 @@
+version 0.3.0 (2018-01-18)
+- Major update to RunCORE function; RunCORE now removes outlier cells identified
+by dynamicTreeCut prior to the generation of candidate clusters. Users can also
+specify sliding windows.
+
 version 0.2.7 (2018-01-11)
 - Added 'ngenes' argument to RunDiffExpression function, enabling users to run
 analysis on top n genes

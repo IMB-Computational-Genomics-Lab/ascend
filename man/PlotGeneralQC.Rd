@@ -9,6 +9,9 @@ PlotGeneralQC(object)
 \arguments{
 \item{object}{An \linkS4class{EMSet} object}
 }
+\value{
+A list of ggplot globs
+}
 \description{
 This function generates the following plots:
 \itemize{

@@ -1,7 +1,7 @@
 ---
 title:  An introduction to ascend - Processing and analysis of retinal ganglion cells 
 author: "Anne Senabouth"
-date: '2018-01-09'
+date: '2018-01-25'
 output:
   html_document: 
     keep_md: true
@@ -377,28 +377,6 @@ The resulting plots are stored in a named list. You can use the `PlotPDF` functi
 raw.qc.plots <- PlotGeneralQC(em.set)
 ```
 
-```
-## [1] "Plotting Total Count and Library Size..."
-## [1] "Plotting Average Counts..."
-```
-
-```
-## [1] "Plotting Proportion of Control Histograms..."
-## [1] "Using ggplot2 to plot Control Percentages..."
-## [1] "Using ggplot2 to plot Library Sizes Per Sample..."
-## [1] "Using ggplot2 to plot Top Genes Per Sample..."
-## [1] "Using ggplot2 to plot Top Gene Expression..."
-```
-
-```r
-PlotPDF(raw.qc.plots, "RawQC.pdf")
-```
-
-```
-## quartz_off_screen 
-##                 2
-```
-
 ### Classifying cells by cell cycle
 To identify the stage of the cell cycle each cell is in, use `scranCellCycle`. This function is a wrapper for `scran`'s `cyclone` function. For more information on how this function works, refer to the `scran` [documentation][2]. The `scranCellCycle` and subsequently and `cyclone` function require a training dataset. In this case, we loaded the human dataset that comes packaged with `scran`. We also had to briefly convert the gene annotation used in the EMSet to ENSEMBL IDs, to match the training dataset. Fortunately, Cell Ranger has provided both identifiers in the `genes` data frame, so we can easily switch them with the `ConvertGeneAnnotation` function.
 
@@ -428,7 +406,7 @@ em.set <- scranCellCycle(em.set, training.data)
 ## 
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ```
 
 ```r
@@ -453,7 +431,7 @@ em.set <- ConvertGeneAnnotation(em.set, "ensembl_id", "gene_symbol")
 
 ```
 ## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ```
 
 ### Cell filtering 
@@ -469,7 +447,7 @@ print(raw.qc.plots$ControlPercentageTotalCounts$Mt)
 print(raw.qc.plots$ControlPercentageTotalCounts$Rb)
 ```
 
-<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-4.png" style="display: block; margin: auto;" />
+<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-4.png" style="display: block; margin: auto;" />
 
 The `FilterByOutliers` function will remove outliers based on these criteria. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required
 
@@ -480,16 +458,16 @@ em.set <- FilterByOutliers(em.set, cell.threshold = 3, control.threshold = 3)
 
 ```
 ## [1] "Identifying outliers..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Removing cells by library size..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Updating object information..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ```
 
 #### Filter cells by control gene expression
@@ -514,36 +492,21 @@ print(GetControls(em.set))
 
 ```
 ## $Mt
-##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3" 
-##  [8] "MT-ND3"  "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
+##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3"  "MT-ND3"  "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
 ## 
 ## $Rb
-##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"          
-##   [5] "RPL5"           "RPS27"          "RPS6KC1"        "RPS7"          
-##   [9] "RPS27A"         "RPL31"          "RPL37A"         "RPL32"         
-##  [13] "RPL15"          "RPSA"           "RPL14"          "RPL29"         
-##  [17] "RPL24"          "RPL22L1"        "RPL39L"         "RPL35A"        
-##  [21] "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"         
-##  [25] "RPL37"          "RPS23"          "RPS14"          "RPL26L1"       
-##  [29] "RPS18"          "RPS10-NUDT3"    "RPS10"          "RPL10A"        
-##  [33] "RPL7L1"         "RPS12"          "RPS6KA2"        "RPS6KA2-AS1"   
-##  [37] "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"        
-##  [41] "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"         
-##  [45] "RPL7"           "RPL30"          "RPL8"           "RPS6"          
-##  [49] "RPL35"          "RPL12"          "RPL7A"          "RPLP2"         
-##  [53] "RPL27A"         "RPS13"          "RPS6KA4"        "RPS6KB2"       
-##  [57] "RPS3"           "RPS25"          "RPS24"          "RPS26"         
-##  [61] "RPL41"          "RPL6"           "RPLP0"          "RPL21"         
-##  [65] "RPL10L"         "RPS29"          "RPL36AL"        "RPS6KL1"       
-##  [69] "RPS6KA5"        "RPS27L"         "RPL4"           "RPLP1"         
-##  [73] "RPS17"          "RPL3L"          "RPS2"           "RPS15A"        
-##  [77] "RPL13"          "RPL26"          "RPL23A"         "RPL23"         
-##  [81] "RPL19"          "RPL27"          "RPS6KB1"        "RPL38"         
-##  [85] "RPL17-C18orf32" "RPL17"          "RPS21"          "RPS15"         
-##  [89] "RPL36"          "RPS28"          "RPL18A"         "RPS16"         
-##  [93] "RPS19"          "RPL18"          "RPL13A"         "RPS11"         
-##  [97] "RPS9"           "RPL28"          "RPS5"           "RPS4Y1"        
-## [101] "RPS4Y2"         "RPL3"           "RPS19BP1"
+##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"           "RPL5"           "RPS27"          "RPS6KC1"        "RPS7"           "RPS27A"        
+##  [10] "RPL31"          "RPL37A"         "RPL32"          "RPL15"          "RPSA"           "RPL14"          "RPL29"          "RPL24"          "RPL22L1"       
+##  [19] "RPL39L"         "RPL35A"         "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"          "RPL37"          "RPS23"          "RPS14"         
+##  [28] "RPL26L1"        "RPS18"          "RPS10-NUDT3"    "RPS10"          "RPL10A"         "RPL7L1"         "RPS12"          "RPS6KA2"        "RPS6KA2-AS1"   
+##  [37] "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"         "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"          "RPL7"          
+##  [46] "RPL30"          "RPL8"           "RPS6"           "RPL35"          "RPL12"          "RPL7A"          "RPLP2"          "RPL27A"         "RPS13"         
+##  [55] "RPS6KA4"        "RPS6KB2"        "RPS3"           "RPS25"          "RPS24"          "RPS26"          "RPL41"          "RPL6"           "RPLP0"         
+##  [64] "RPL21"          "RPL10L"         "RPS29"          "RPL36AL"        "RPS6KL1"        "RPS6KA5"        "RPS27L"         "RPL4"           "RPLP1"         
+##  [73] "RPS17"          "RPL3L"          "RPS2"           "RPS15A"         "RPL13"          "RPL26"          "RPL23A"         "RPL23"          "RPL19"         
+##  [82] "RPL27"          "RPS6KB1"        "RPL38"          "RPL17-C18orf32" "RPL17"          "RPS21"          "RPS15"          "RPL36"          "RPS28"         
+##  [91] "RPL18A"         "RPS16"          "RPS19"          "RPL18"          "RPL13A"         "RPS11"          "RPS9"           "RPL28"          "RPS5"          
+## [100] "RPS4Y1"         "RPS4Y2"         "RPL3"           "RPS19BP1"
 ```
 
 Use `FilterByCustomControl` to remove cells that are mostly expressing control genes. This function takes two arguments - the name of the list of control genes and the minimum percentage expression to filter by.
@@ -556,7 +519,7 @@ em.set <- FilterByControl(control.name = "Mt", pct.threshold = 20, em.set)
 
 ```
 ## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ```
 
 ```r
@@ -566,7 +529,7 @@ em.set <- FilterByControl(control.name = "Rb", pct.threshold = 50, em.set)
 
 ```
 ## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ```
 
 Some analyses will require the removal of these controls. This should not be done at this stage; it is best done after normalisation.
@@ -609,34 +572,18 @@ expression.matrix[brn3.transcripts,
 ```
 
 ```
-##        ACAGCCGTCTCGCTTG-1 ACGCCAGGTGGTGTAG-1 AGGGTGATCGCGTTTC-1
-## POU4F1                  0                  0                  0
-## POU4F2                  1                  2                  1
-## POU4F3                  0                  0                  0
-##        CAAGTTGTCACGCGGT-1 CACAGGCGTCGACTAT-1 CCAGCGATCAGCACAT-1
-## POU4F1                  1                  0                  0
-## POU4F2                  0                  3                  1
-## POU4F3                  0                  0                  0
-##        CGGGTCATCGCAAGCC-1 CGTAGCGCATCACCCT-1 CTACACCCAAAGGAAG-1
-## POU4F1                  0                  0                  0
-## POU4F2                  4                  1                  4
-## POU4F3                  0                  0                  0
-##        CTAGCCTGTGCAACGA-1 GAACGGAGTGGTCTCG-1 TAAGTGCGTAGCTTGT-1
-## POU4F1                  0                  0                  0
-## POU4F2                 10                  7                  5
-## POU4F3                  0                  0                  0
-##        TCGCGAGGTTCTCATT-1 TTTGCGCGTCTTTCAT-1 AAATGCCAGACAGACC-2
-## POU4F1                  0                  0                  0
-## POU4F2                  1                  2                  4
-## POU4F3                  0                  0                  0
-##        AACTTTCGTAGCGTCC-2 AGGCCGTTCACCCGAG-2 AGGGAGTGTTGGGACA-2
-## POU4F1                  1                  0                  0
-## POU4F2                  0                  1                  3
-## POU4F3                  0                  0                  0
-##        CGTCACTCATATGAGA-2 GGAAAGCAGGCCGAAT-2
-## POU4F1                  0                  0
-## POU4F2                  1                  5
-## POU4F3                  0                  0
+##        ACAGCCGTCTCGCTTG-1 ACGCCAGGTGGTGTAG-1 AGGGTGATCGCGTTTC-1 CAAGTTGTCACGCGGT-1 CACAGGCGTCGACTAT-1 CCAGCGATCAGCACAT-1 CGGGTCATCGCAAGCC-1 CGTAGCGCATCACCCT-1
+## POU4F1                  0                  0                  0                  1                  0                  0                  0                  0
+## POU4F2                  1                  2                  1                  0                  3                  1                  4                  1
+## POU4F3                  0                  0                  0                  0                  0                  0                  0                  0
+##        CTACACCCAAAGGAAG-1 CTAGCCTGTGCAACGA-1 GAACGGAGTGGTCTCG-1 TAAGTGCGTAGCTTGT-1 TCGCGAGGTTCTCATT-1 TTTGCGCGTCTTTCAT-1 AAATGCCAGACAGACC-2 AACTTTCGTAGCGTCC-2
+## POU4F1                  0                  0                  0                  0                  0                  0                  0                  1
+## POU4F2                  4                 10                  7                  5                  1                  2                  4                  0
+## POU4F3                  0                  0                  0                  0                  0                  0                  0                  0
+##        AGGCCGTTCACCCGAG-2 AGGGAGTGTTGGGACA-2 CGTCACTCATATGAGA-2 GGAAAGCAGGCCGAAT-2
+## POU4F1                  0                  0                  0                  0
+## POU4F2                  1                  3                  1                  5
+## POU4F3                  0                  0                  0                  0
 ```
 
 Other genes that are involved in the differentiation of the stem cells into retinal ganglion cells may also be lowly expressed, so we will omit this filtering step.
@@ -658,53 +605,37 @@ DisplayLog(em.set)
 ## NULL
 ## 
 ## $FilterByOutliers$CellsFilteredByLowExpression
-##  [1] "AACTGGTTCATAAAGG-1" "AAGACCTAGACAATAC-1" "ACAGCCGGTCTCTCTG-1"
-##  [4] "ACGATACGTCACACGC-1" "ACTTGTTCAAGCGTAG-1" "AGCCTAACAGTAACGG-1"
-##  [7] "AGTCTTTTCACCACCT-1" "AGTGTCAAGCCACTAT-1" "ATAACGCGTCGACTAT-1"
-## [10] "ATCTACTCATTTGCTT-1" "ATTATCCTCCTTGACC-1" "CAGATCACAATAACGA-1"
-## [13] "CCTCTGAAGATGTGGC-1" "CCTCTGATCGCATGAT-1" "CGCTATCGTGGCTCCA-1"
-## [16] "CGTGTCTTCAATCACG-1" "CTCGTCATCAAACGGG-1" "CTTAACTCACCACGTG-1"
-## [19] "GACCAATGTTCAACCA-1" "GACTAACGTTTGCATG-1" "GGCGTGTTCCAAGTAC-1"
-## [22] "TAGACCAAGCTAACAA-1" "TAGCCGGCAGTCCTTC-1" "TCATTACAGGCAATTA-1"
-## [25] "TGACTAGCATCACGTA-1" "ACTGAGTGTTAAGTAG-2"
+##  [1] "AACTGGTTCATAAAGG-1" "AAGACCTAGACAATAC-1" "ACAGCCGGTCTCTCTG-1" "ACGATACGTCACACGC-1" "ACTTGTTCAAGCGTAG-1" "AGCCTAACAGTAACGG-1" "AGTCTTTTCACCACCT-1"
+##  [8] "AGTGTCAAGCCACTAT-1" "ATAACGCGTCGACTAT-1" "ATCTACTCATTTGCTT-1" "ATTATCCTCCTTGACC-1" "CAGATCACAATAACGA-1" "CCTCTGAAGATGTGGC-1" "CCTCTGATCGCATGAT-1"
+## [15] "CGCTATCGTGGCTCCA-1" "CGTGTCTTCAATCACG-1" "CTCGTCATCAAACGGG-1" "CTTAACTCACCACGTG-1" "GACCAATGTTCAACCA-1" "GACTAACGTTTGCATG-1" "GGCGTGTTCCAAGTAC-1"
+## [22] "TAGACCAAGCTAACAA-1" "TAGCCGGCAGTCCTTC-1" "TCATTACAGGCAATTA-1" "TGACTAGCATCACGTA-1" "ACTGAGTGTTAAGTAG-2"
 ## 
 ## $FilterByOutliers$CellsFilteredByControls
 ## $FilterByOutliers$CellsFilteredByControls$Mt
-##  [1] "AACACGTAGTGGGTTG-1" "AACGTTGTCACGAAGG-1" "AAGACCTGTCTGGAGA-1"
-##  [4] "ACGATGTTCCCATTTA-1" "ACGGCCACACCAGCAC-1" "ACTTTCATCCTAAGTG-1"
-##  [7] "AGATCTGGTCGACTGC-1" "CACAGGCCATGTTGAC-1" "CATCGGGAGGCGCTCT-1"
-## [10] "CTCTACGCAATCCGAT-1" "CTGAAACAGCACAGGT-1" "CTGATAGGTAAACGCG-1"
-## [13] "GAAACTCGTTGGTAAA-1" "GAACCTAAGATATGGT-1" "GCACATATCTTCATGT-1"
-## [16] "GGACAAGCAACTGCGC-1" "GGACAAGTCCTGCCAT-1" "GTATCTTTCACCAGGC-1"
-## [19] "GTGAAGGTCTAACTTC-1" "GTTCTCGGTCGTTGTA-1" "TCATTTGGTCCGAACC-1"
-## [22] "TGGCTGGCATAGAAAC-1" "TGTGGTAGTGCAGTAG-1" "AAAGTAGGTTAGTGGG-2"
-## [25] "AAGGCAGAGCTAACAA-2" "ACTGAGTGTTAAGTAG-2" "AGCTCCTTCTCCAGGG-2"
-## [28] "ATGTGTGAGTCAAGCG-2" "CGCGTTTAGGTGATAT-2" "CTGTGCTCAGCGTTCG-2"
-## [31] "GACAGAGTCACAATGC-2" "GACGTTAGTACCCAAT-2" "GCGACCAGTTTGCATG-2"
-## [34] "GTGAAGGGTGCTAGCC-2" "TGAGCCGCACAAGACG-2" "TGTGGTAAGTACGCGA-2"
+##  [1] "AACACGTAGTGGGTTG-1" "AACGTTGTCACGAAGG-1" "AAGACCTGTCTGGAGA-1" "ACGATGTTCCCATTTA-1" "ACGGCCACACCAGCAC-1" "ACTTTCATCCTAAGTG-1" "AGATCTGGTCGACTGC-1"
+##  [8] "CACAGGCCATGTTGAC-1" "CATCGGGAGGCGCTCT-1" "CTCTACGCAATCCGAT-1" "CTGAAACAGCACAGGT-1" "CTGATAGGTAAACGCG-1" "GAAACTCGTTGGTAAA-1" "GAACCTAAGATATGGT-1"
+## [15] "GCACATATCTTCATGT-1" "GGACAAGCAACTGCGC-1" "GGACAAGTCCTGCCAT-1" "GTATCTTTCACCAGGC-1" "GTGAAGGTCTAACTTC-1" "GTTCTCGGTCGTTGTA-1" "TCATTTGGTCCGAACC-1"
+## [22] "TGGCTGGCATAGAAAC-1" "TGTGGTAGTGCAGTAG-1" "AAAGTAGGTTAGTGGG-2" "AAGGCAGAGCTAACAA-2" "ACTGAGTGTTAAGTAG-2" "AGCTCCTTCTCCAGGG-2" "ATGTGTGAGTCAAGCG-2"
+## [29] "CGCGTTTAGGTGATAT-2" "CTGTGCTCAGCGTTCG-2" "GACAGAGTCACAATGC-2" "GACGTTAGTACCCAAT-2" "GCGACCAGTTTGCATG-2" "GTGAAGGGTGCTAGCC-2" "TGAGCCGCACAAGACG-2"
+## [36] "TGTGGTAAGTACGCGA-2"
 ## 
 ## $FilterByOutliers$CellsFilteredByControls$Rb
-## [1] "AACTGGTTCATAAAGG-1" "ACGATACGTCACACGC-1" "AGCCTAACAGTAACGG-1"
-## [4] "AGTCTTTTCACCACCT-1" "ATAACGCGTCGACTAT-1" "ATCTACTCATTTGCTT-1"
-## [7] "ATTATCCTCCTTGACC-1" "CTTAACTCACCACGTG-1" "TCATTACAGGCAATTA-1"
+## [1] "AACTGGTTCATAAAGG-1" "ACGATACGTCACACGC-1" "AGCCTAACAGTAACGG-1" "AGTCTTTTCACCACCT-1" "ATAACGCGTCGACTAT-1" "ATCTACTCATTTGCTT-1" "ATTATCCTCCTTGACC-1" "CTTAACTCACCACGTG-1"
+## [9] "TCATTACAGGCAATTA-1"
 ## 
 ## 
 ## 
 ## $FilteringLog
-##   CellsFilteredByLibSize CellsFilteredByExpression CellsFilteredByControls
-## 1                      0                        26                      45
-##   CellsFilteredByMt CellsFilteredByRb
-## 1                 0                11
+##   CellsFilteredByLibSize CellsFilteredByExpression CellsFilteredByControls CellsFilteredByMt CellsFilteredByRb
+## 1                      0                        26                      45                 0                11
 ## 
 ## $FilterByControl
 ## $FilterByControl$Mt
 ## list()
 ## 
 ## $FilterByControl$Rb
-##  [1] "ACCAGTATCGGTTCGG-1" "CAGCGACAGCAGCGTA-1" "CGAATGTAGGCTCTTA-1"
-##  [4] "CTTCTCTAGCACGCCT-1" "GGGAGATGTAAAGGAG-1" "GTATTCTAGTCCATAC-1"
-##  [7] "TCGCGTTAGCAGGTCA-1" "TGCCCTAGTCCAGTTA-1" "TGGCTGGTCGAATCCA-1"
-## [10] "TTAGTTCAGTTACGGG-1" "TTCGGTCAGGATGGAA-1"
+##  [1] "ACCAGTATCGGTTCGG-1" "CAGCGACAGCAGCGTA-1" "CGAATGTAGGCTCTTA-1" "CTTCTCTAGCACGCCT-1" "GGGAGATGTAAAGGAG-1" "GTATTCTAGTCCATAC-1" "TCGCGTTAGCAGGTCA-1"
+##  [8] "TGCCCTAGTCCAGTTA-1" "TGGCTGGTCGAATCCA-1" "TTAGTTCAGTTACGGG-1" "TTCGGTCAGGATGGAA-1"
 ```
 
 You can also run `PlotGeneralQC` again to see how the filtering has altered the dataset.
@@ -765,36 +696,21 @@ print(GetControls(em.set))
 
 ```
 ## $Mt
-##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3" 
-##  [8] "MT-ND3"  "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
+##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3"  "MT-ND3"  "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
 ## 
 ## $Rb
-##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"          
-##   [5] "RPL5"           "RPS27"          "RPS6KC1"        "RPS7"          
-##   [9] "RPS27A"         "RPL31"          "RPL37A"         "RPL32"         
-##  [13] "RPL15"          "RPSA"           "RPL14"          "RPL29"         
-##  [17] "RPL24"          "RPL22L1"        "RPL39L"         "RPL35A"        
-##  [21] "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"         
-##  [25] "RPL37"          "RPS23"          "RPS14"          "RPL26L1"       
-##  [29] "RPS18"          "RPS10-NUDT3"    "RPS10"          "RPL10A"        
-##  [33] "RPL7L1"         "RPS12"          "RPS6KA2"        "RPS6KA2-AS1"   
-##  [37] "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"        
-##  [41] "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"         
-##  [45] "RPL7"           "RPL30"          "RPL8"           "RPS6"          
-##  [49] "RPL35"          "RPL12"          "RPL7A"          "RPLP2"         
-##  [53] "RPL27A"         "RPS13"          "RPS6KA4"        "RPS6KB2"       
-##  [57] "RPS3"           "RPS25"          "RPS24"          "RPS26"         
-##  [61] "RPL41"          "RPL6"           "RPLP0"          "RPL21"         
-##  [65] "RPL10L"         "RPS29"          "RPL36AL"        "RPS6KL1"       
-##  [69] "RPS6KA5"        "RPS27L"         "RPL4"           "RPLP1"         
-##  [73] "RPS17"          "RPL3L"          "RPS2"           "RPS15A"        
-##  [77] "RPL13"          "RPL26"          "RPL23A"         "RPL23"         
-##  [81] "RPL19"          "RPL27"          "RPS6KB1"        "RPL38"         
-##  [85] "RPL17-C18orf32" "RPL17"          "RPS21"          "RPS15"         
-##  [89] "RPL36"          "RPS28"          "RPL18A"         "RPS16"         
-##  [93] "RPS19"          "RPL18"          "RPL13A"         "RPS11"         
-##  [97] "RPS9"           "RPL28"          "RPS5"           "RPS4Y1"        
-## [101] "RPS4Y2"         "RPL3"           "RPS19BP1"
+##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"           "RPL5"           "RPS27"          "RPS6KC1"        "RPS7"           "RPS27A"        
+##  [10] "RPL31"          "RPL37A"         "RPL32"          "RPL15"          "RPSA"           "RPL14"          "RPL29"          "RPL24"          "RPL22L1"       
+##  [19] "RPL39L"         "RPL35A"         "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"          "RPL37"          "RPS23"          "RPS14"         
+##  [28] "RPL26L1"        "RPS18"          "RPS10-NUDT3"    "RPS10"          "RPL10A"         "RPL7L1"         "RPS12"          "RPS6KA2"        "RPS6KA2-AS1"   
+##  [37] "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"         "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"          "RPL7"          
+##  [46] "RPL30"          "RPL8"           "RPS6"           "RPL35"          "RPL12"          "RPL7A"          "RPLP2"          "RPL27A"         "RPS13"         
+##  [55] "RPS6KA4"        "RPS6KB2"        "RPS3"           "RPS25"          "RPS24"          "RPS26"          "RPL41"          "RPL6"           "RPLP0"         
+##  [64] "RPL21"          "RPL10L"         "RPS29"          "RPL36AL"        "RPS6KL1"        "RPS6KA5"        "RPS27L"         "RPL4"           "RPLP1"         
+##  [73] "RPS17"          "RPL3L"          "RPS2"           "RPS15A"         "RPL13"          "RPL26"          "RPL23A"         "RPL23"          "RPL19"         
+##  [82] "RPL27"          "RPS6KB1"        "RPL38"          "RPL17-C18orf32" "RPL17"          "RPS21"          "RPS15"          "RPL36"          "RPS28"         
+##  [91] "RPL18A"         "RPS16"          "RPS19"          "RPL18"          "RPL13A"         "RPS11"          "RPS9"           "RPL28"          "RPS5"          
+## [100] "RPS4Y1"         "RPS4Y2"         "RPL3"           "RPS19BP1"
 ```
 
 If the dataset contains less than 10,000 cells, `scranNormalise` will run `scran`'s `computeSumFactors` function with preset sizes of 40, 60, 80 and 100. For larger datasets, `scranNormalise` will run `quickCluster` before `computeSumFactors`. `scran` 1.6.6 introduced an additional argument - *min.mean* to the function `computeSumFactors`. This is the threshold for average counts. By default, it is set by `ascend` to 1e-5 as this value works best for UMI data. If you are working with read counts, please set this value to 1.
@@ -813,7 +729,7 @@ norm.set <- scranNormalise(em.set, quickCluster = FALSE, min.mean = 1e-5)
 ## [1] "Running scater's normalize method..."
 ## [1] "Normalisation complete. Converting SingleCellExperiment back to EMSet..."
 ## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ```
 
 #### Reviewing the normalisation process
@@ -948,20 +864,34 @@ pca.set <- ReduceDimensions(pca.set, n = 20)
 ```
 
 ### Clustering
-Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `RunCORE` to identify clusters. This function has only one argumenmt - `conservative`. This argument is only used when the algorithm detects more than one set of stable results. If set to TRUE, the function will choose the result that is the most stable but yields the least number of clusters. If set to FALSE, the function will choose the result that is the least stable, but yields the most number of clusters.
+Clustering can be done on the original expression matrix or the PCA-transformed matrix, which is the preferred input. Use `RunCORE` to identify clusters. You can use the following arguments to finetune the algorithm. 
+
+
+Argument         Description                                                                                                                            
+---------------  ---------------------------------------------------------------------------------------------------------------------------------------
+conservative     Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE                                                        
+windows          Range to perform cuts on the dendrogram Default: seq(0.025:1, by=0.025).                                                               
+remove_outlier   Remove cells that weren't assigned a cluster with dynamicTreeCut. This is indicative of outlier cells within the sample. Default: TRUE 
+
+This function has only one argumenmt - `conservative`. This argument is only used when the algorithm detects more than one set of stable results. If set to TRUE, the function will choose the result that is the most stable but yields the least number of clusters. If set to FALSE, the function will choose the result that is the least stable, but yields the most number of clusters.
 
 
 ```r
-clustered.set <- RunCORE(pca.set, conservative = TRUE)
+clustered.set <- RunCORE(pca.set, 
+                         conservative = TRUE, 
+                         windows = seq(0.025:1, by = 0.025), 
+                         remove_outlier = FALSE )
 ```
 
 ```
 ## [1] "Performing unsupervised clustering..."
 ## [1] "Generating clusters by running dynamicTreeCut at different heights..."
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
+## 
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
@@ -1056,9 +986,7 @@ PlotDendrogram(clustered.set)
 ```
 
 ```
-## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths
-## of the new labels is shorter than the number of leaves in the dendrogram -
-## labels are recycled.
+## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths of the new labels is shorter than the number of leaves in the dendrogram - labels are recycled.
 ```
 
 <img src="RGC_Tutorial_files/figure-html/PlotDendrogram-1.png" style="display: block; margin: auto;" />
@@ -1105,13 +1033,12 @@ thy1.de.result <- RunDiffExpression(clustered.set,
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1124,28 +1051,17 @@ thy1.de.result[1:10,]
 ```
 
 ```
-##              id  baseMean baseMeanA baseMeanB foldChange log2FoldChange
-## 11926       MGP  1.906847  1.039802  6.820100 146.226592       7.192062
-## 12388    COL3A1  1.566694  1.080307  4.322886  41.377046       5.370759
-## 10388    LGALS1  4.951281  3.020405 15.892912   7.371249       2.881909
-## 5334       CTGF  2.742901  1.643053  8.975374  12.402361       3.632543
-## 10363      TGM2  1.750495  1.375119  3.877625   7.671226       2.939457
-## 5933      ITGB1  4.572514  3.887745  8.452876   2.580864       1.367854
-## 8614       TPM1 10.756877  7.803241 27.494144   3.894341       1.961379
-## 17413    COL1A1  3.987944  2.909903 10.096845   4.762988       2.251867
-## 20010 TNFRSF12A  2.123340  1.760514  4.179352   4.180531       2.063686
-## 19839     FSTL1  2.570386  2.249719  4.387500   2.710609       1.438617
-##                pval          padj
-## 11926 4.231017e-103 4.252172e-100
-## 12388  6.082067e-47  6.112478e-44
-## 10388  7.791379e-36  7.830336e-33
-## 5334   2.169420e-35  2.180268e-32
-## 10363  2.108726e-26  1.059635e-23
-## 5933   3.374687e-24  1.695780e-21
-## 8614   3.740572e-23  3.759274e-20
-## 17413  4.475804e-23  4.498183e-20
-## 20010  1.173918e-21  1.178613e-18
-## 19839  5.568784e-21  2.795529e-18
+##              id  baseMean baseMeanA baseMeanB foldChange log2FoldChange          pval         padj
+## 8572        MGP  1.909382  1.041005  6.830186 142.182641       7.151602 8.649951e-102 8.693201e-99
+## 9197     COL3A1  1.569831  1.082235  4.332875  40.528617       5.340869  5.398602e-47 5.425595e-44
+## 9716     LGALS1  4.961239  3.026392 15.925373   7.365490       2.880782  8.760503e-36 4.402153e-33
+## 18062      CTGF  2.737184  1.638402  8.963615  12.474295       3.640886  2.215788e-35 2.226867e-32
+## 5654       TGM2  1.755788  1.379821  3.886269   7.599029       2.925815  2.298909e-26 2.310404e-23
+## 18429     ITGB1  4.579503  3.893725  8.465577   2.579919       1.367326  1.205198e-23 1.211224e-20
+## 11478      TPM1 10.780457  7.822569 27.541825   3.890298       1.959881  3.965197e-23 3.985023e-20
+## 20941    COL1A1  3.977642  2.902676 10.069116   4.766505       2.252932  4.004524e-23 4.020542e-20
+## 12769 TNFRSF12A  2.124411  1.761467  4.181094   4.177587       2.062670  1.191989e-21 1.197949e-18
+## 7095      FSTL1  2.568801  2.247936  4.387037   2.714111       1.440480  9.793004e-21 9.841969e-18
 ```
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
@@ -1180,13 +1096,12 @@ cluster.de.result <- RunDiffExpression(clustered.set,
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1199,28 +1114,17 @@ cluster.de.result[1:10,]
 ```
 
 ```
-##             id baseMean baseMeanA baseMeanB foldChange log2FoldChange
-## 3224       TTR 4.314462  4.419727  1.338787 0.09906844     -3.3354306
-## 19147     IL32 1.973927  2.000830  1.213398 0.21322056     -2.2295816
-## 11773  DNAJC15 1.750583  1.720315  2.606201 2.22985766      1.1569516
-## 7448     SUMF2 2.171181  2.199026  1.384037 0.32029043     -1.6425474
-## 978     S100A6 1.562109  1.581493  1.014163 0.02435602     -5.3595777
-## 18171      FN1 2.863821  2.906379  1.660785 0.34661783     -1.5285822
-## 22104     COQ5 1.626951  1.606389  2.208205 1.99245941      0.9945503
-## 7604      UPP1 1.591483  1.567226  2.277179 2.25162142      1.1709643
-## 3207     MED31 1.710156  1.683641  2.459693 2.13517471      1.0943541
-## 5254  IVNS1ABP 2.416935  2.370198  3.738095 1.99832002      0.9987876
-##               pval        padj
-## 3224  8.292527e-11 8.33399e-08
-## 19147 2.062445e-03 1.00000e+00
-## 11773 2.712567e-03 1.00000e+00
-## 7448  3.753265e-03 1.00000e+00
-## 978   3.841124e-03 1.00000e+00
-## 18171 5.530897e-03 1.00000e+00
-## 22104 5.897854e-03 1.00000e+00
-## 7604  6.682398e-03 1.00000e+00
-## 3207  8.814417e-03 1.00000e+00
-## 5254  8.860888e-03 1.00000e+00
+##             id baseMean baseMeanA baseMeanB foldChange log2FoldChange         pval         padj
+## 11597      TTR 4.315688  4.420919  1.340993 0.09967865     -3.3265717 2.575660e-10 2.588538e-07
+## 6687      IL32 1.972194  1.999082  1.212106 0.21230099     -2.2358170 2.529421e-03 1.000000e+00
+## 10727  DNAJC15 1.751679  1.721394  2.607792 2.22872844      1.1562208 2.809195e-03 1.000000e+00
+## 11038   S100A6 1.565236  1.584672  1.015794 0.02701366     -5.2101671 3.804767e-03 1.000000e+00
+## 16147      FN1 2.862196  2.904748  1.659328 0.34614972     -1.5305319 5.421205e-03 1.000000e+00
+## 8808      COQ5 1.627089  1.606495  2.209256 1.99384376      0.9955524 5.967384e-03 1.000000e+00
+## 2793     SUMF2 2.177518  2.205467  1.387451 0.32141134     -1.6375073 6.086799e-03 1.000000e+00
+## 10699     UPP1 1.594382  1.570041  2.282481 2.24980608      1.1698007 7.128989e-03 1.000000e+00
+## 759      MED31 1.702437  1.676023  2.449107 2.14357648      1.1000199 8.525362e-03 1.000000e+00
+## 1356  IVNS1ABP 2.411329  2.364764  3.727650 1.99862415      0.9990072 8.901406e-03 1.000000e+00
 ```
 
 These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
@@ -1232,7 +1136,7 @@ clean.set <- SubsetCluster(clustered.set, clusters = "1")
 
 ```
 ## [1] "Calculating control metrics..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |================================                                 |  50%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |================================================================================                                                                                 |  50%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ```
 
 ```r
@@ -1253,10 +1157,12 @@ clean.cluster <- RunCORE(clean.pca, conservative = TRUE)
 ```
 ## [1] "Performing unsupervised clustering..."
 ## [1] "Generating clusters by running dynamicTreeCut at different heights..."
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
+## 
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
@@ -1267,9 +1173,7 @@ PlotDendrogram(clean.cluster)
 ```
 
 ```
-## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths
-## of the new labels is shorter than the number of leaves in the dendrogram -
-## labels are recycled.
+## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths of the new labels is shorter than the number of leaves in the dendrogram - labels are recycled.
 ```
 
 ![](RGC_Tutorial_files/figure-html/RemoveCluster-1.png)<!-- -->
@@ -1308,13 +1212,12 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1327,13 +1230,12 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1346,13 +1248,12 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1365,13 +1266,12 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1384,7 +1284,7 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results[[1]], labels = FALSE)
 cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results[[2]], labels = FALSE)
 cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results[[3]], labels = FALSE)
-cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results[[4]], labels = TRUE)
+cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results[[4]], labels = FALSE)
 print(cluster.de.1)
 ```
 
@@ -1425,13 +1325,12 @@ c1c2.de.results <- RunDiffExpression(clean.cluster, condition.a = "1",
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1452,13 +1351,12 @@ c1c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "1",
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1479,13 +1377,12 @@ c1c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "1",
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1506,13 +1403,12 @@ c2c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "2",
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1533,13 +1429,12 @@ c2c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "2",
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
@@ -1560,13 +1455,12 @@ c3c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "3",
 ```
 
 ```
-## Warning in split.default(sample(1:nelements), 1:chunks): data length is not
-## a multiple of split variable
+## Warning in split.default(sample(1:nelements), 1:chunks): data length is not a multiple of split variable
 ```
 
 ```
 ## [1] "Running DESeq..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
+##   |                                                                                                                                                                         |                                                                                                                                                                 |   0%  |                                                                                                                                                                         |======================================================                                                                                                           |  33%  |                                                                                                                                                                         |===========================================================================================================                                                      |  67%  |                                                                                                                                                                         |=================================================================================================================================================================| 100%
 ## 
 ## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."

@@ -66,8 +66,13 @@ Please install these packages before installing `ascend`. You do not need to loa
 #### Installing and loading ascend
 Please use `devtools` to load the development version of `ascend`.
 
-```{r Loadascend}
+```{r LoadDevAscend, echo = FALSE, message = FALSE}
 devtools::load_all("~/CodeRepositories/ascend-dev")
+```
+```
+
+```{r Loadascend, eval = FALSE}
+devtools::load_all("~/CodeRepositories/ascend")
 ```
 
 You can also use devtools' `install_github` function to install the package, and then load it as normal.

@@ -23,7 +23,7 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
         if (!(is.matrix(expression.matrix) || is.data.frame(expression.matrix) || is(expression.matrix, "sparseMatrix"))) {
             stop("Please supply an EMSet, matrix or dataframe.")
         } else {
-            object <- x
+            x <- object
             PCA = FALSE
         }
     }

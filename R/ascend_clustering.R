@@ -378,11 +378,12 @@ RetrieveCluster <- function(height, hclust.obj = NULL, distance.matrix = NULL){
 #' }
 #' @param object An EMSet object that has undergone PCA reduction.
 #' @param conservative Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE
+#' @param windows Range to perform cuts on the dendrogram Default: seq(0.025:1, by=0.025).
 #' @param remove_outlier Remove cells that weren't assigned a cluster with dynamicTreeCut. This is indicative of outlier cells within the sample. Default: TRUE
 #' @export
 #'
 RunCORE <- function(object, conservative = TRUE, windows = seq(0.025:1, by=0.025), 
-                    remove_outlier = TRUE){
+                    remove_outlier = FALSE){
   # User inputs a EMSet
   if (class(object) == "EMSet"){
     # Making sure user has run PCA and reduced dimensions
@@ -456,11 +457,10 @@ RunCORE <- function(object, conservative = TRUE, windows = seq(0.025:1, by=0.025
   print("Generating clusters by running dynamicTreeCut at different heights...")
   
   # Need to optimise this steps
-  print(system.time(cluster.list <- BiocParallel::bplapply(windows, RetrieveCluster,
+  cluster.list <- BiocParallel::bplapply(windows, RetrieveCluster,
                                                            hclust.obj = original.tree,
-                                                           distance.matrix = distance.matrix)))
-  print(system.time(height.list <- lapply(windows, function(x) x)))
-  
+                                                           distance.matrix = distance.matrix)
+  height.list <- lapply(windows, function(x) x)
   cluster.matrix <- GenerateClusteringMatrix(original.clusters, cluster.list)
   
   print("Calculating rand indices...")

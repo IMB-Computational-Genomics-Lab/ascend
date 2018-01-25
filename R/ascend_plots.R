@@ -904,6 +904,7 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #' \item{\strong{Library Size}: A histogram depicting library sizes across the dataset.}
 #' }
 #' @param object An \linkS4class{EMSet} object
+#' @return A list of ggplot globs
 #' @export
 #'
 PlotGeneralQC <- function(object){

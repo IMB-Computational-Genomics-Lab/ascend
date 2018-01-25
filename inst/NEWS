@@ -1,7 +1,10 @@
+version 0.2.7 (2018-01-25)
+- Fixed bug associated with RunDiffExpression - subsets were selected incorrectly
+
 version 0.2.6 (2018-01-10)
 - Fixed SubsetCondition
 - Fixed RunDiffExpression for non-cluster differential expression function
-- Updated ascend general vignette on how to use SubsetCondition correctlyx
+- Updated ascend general vignette on how to use SubsetCondition correctly
 
 version 0.2.5 (2018-01-09)
 - Changed how RunDiffExpression compares datasets (subsetting of EMSets by user 
