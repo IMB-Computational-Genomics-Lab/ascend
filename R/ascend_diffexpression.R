@@ -51,6 +51,7 @@ PrepareCountData <- function(object, cells, ngenes) {
     ## 1. They need to be within the top genes that the user has specified
     ## 2. The mean of these genes need to be greater than zero
     ## 3. Their standard deviation needs to be greater than zero
+    
     top.genes <- ordered.genes[1:ngenes]
     mean.gene.expression <- rownames(expression.matrix)[which(rowMeans(expression.matrix) > 0)]
     gene.sd <- rownames(expression.matrix)[which(apply(expression.matrix, 1, sd) > 0)]
@@ -143,56 +144,27 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL,
   if (missing(ngenes)){
     ngenes <- NULL
   }
+  
   # Prepare conditions for input into DESeq
   cell.info <- GetCellInfo(object)
   
-  # Identify relevent conditions
-  barcodes.a <- as.vector(cell.info[,1])[which(cell.info[, conditions] == condition.a)]
+  # Get Condition A information
+  condition.a.df <- cell.info[which(cell.info[, conditions] == condition.a), ]
   
-  # Subset cells if they match Condition B - Either a specific condition, a list 
-  # of conditions or "Others"
-  if (length(condition.b) > 1){
-    barcodes.b <- as.vector(cell.info[,1][which(cell.info[, conditions] %in% condition.b)])
-    cells <- c(barcodes.a, barcodes.b)
+  # Get Condition B information
+  if (condition.b != "Others"){
+    condition.b.df <- cell.info[which(cell.info[ ,conditions] == condition.b), ]
   } else{
-    if (condition.b == "Others"){
-      cells <- as.vector(cell.info[ ,1])
-    } else{
-      barcodes.b <- as.vector(cell.info[ ,1])[which(as.vector(cell.info[, conditions]) == condition.b)]
-      cells <- c(barcodes.a, barcodes.b)
-    }
+    condition.b.df <- cell.info[which(cell.info[ ,conditions] != condition.a), ]
   }
   
-  # Force conditions into characters
-  condition.a <- as.character(condition.a)
-  
-  # Generate Condition Names
-  # If conditions are a list
-  if (length(condition.b) > 1){
-    # Create a string for output to plots
-    string.1 <- condition.b[1:length(condition.b) - 1]
-    string.2 <- condition.b[length(condition.b)]
-    if (length(string.1) > 1){
-      condition.b <- paste(string.1, collapse = ", ")
-      condition.b <- paste0(condition.b.name, " and ", string.2)
-    } else{
-      condition.b <- paste(condition.b, collapse = " and ")
-    }
-  } else{
-    condition.b <- as.character(condition.b)  
-  }
-  
-     
-  # Grab these cells from the condition.list
-  condition.list <- cell.info[as.vector(cell.info[,1]) %in% cells, conditions]
-  condition.a.idx <- which(condition.list == condition.a)
-  condition.b.idx <- which(condition.list != condition.a)
-# Replace condition b with reformatted condition label
-  condition.list[condition.b.idx] <- condition.b
+  cells <- c(as.vector(condition.a.df[ ,1]), as.vector(condition.b.df[ ,1]))
+  condition.a.list <- as.character(condition.a.df[, conditions])
+  condition.b.list <- as.character(rep(condition.b, nrow(condition.b.df)))
+  condition.list <- c(condition.a.list, condition.b.list)
   condition.list <- as.factor(condition.list)
-
-  # Prepare data for differential expression
-  print("Processing expression matrix...")
+  
+  # Prepare chunked matrix
   chunked.matrix <- PrepareCountData(object, cells, ngenes)
   
   print("Running DESeq...")    
@@ -207,6 +179,5 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL,
   
   print("Combining DE results...")
   output <- ProcessDEResults(result.list)
-  print(sprintf("Condition: %s vs %s complete!", condition.a, condition.b))
   return(output)
 }
