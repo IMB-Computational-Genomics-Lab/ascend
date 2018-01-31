@@ -134,12 +134,12 @@ SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5)
   zero.size.factors <- which(size.factors == 0)
   
   # Adjust zero size factors to smallest size factor and replace current size factor
-  if (any(zero.size.factors)) {
+  if (length(zero.size.factors) > 0) {
     min.size.factor <- min(size.factors[-zero.size.factors])
     
     # Replace zero size factors
     size.factors[zero.size.factors] <- min.size.factor
-    SummarizedExperiment::colData(factored.sce.obj, internal = TRUE)$size_factor <- size.factors
+    BiocGenerics::sizeFactors(factored.sce.obj, internal = TRUE) <- size.factors
   }
   
   print("Running scater's normalize method...")

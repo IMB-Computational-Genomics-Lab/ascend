@@ -1,3 +1,9 @@
+version 0.2.9 (2018-01-31)
+- Fixed size factor replacement in the intermediate Single Cell Experiment object used for scranNormalisation function
+
+version 0.2.8 (2018-01-30)
+- RunDiffExpression was still bugged - addressed condition subsetting
+
 version 0.2.7 (2018-01-25)
 - Fixed bug associated with RunDiffExpression - subsets were selected incorrectly
 
