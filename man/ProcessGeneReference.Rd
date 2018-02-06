@@ -6,6 +6,13 @@
 \usage{
 ProcessGeneReference(gene.obj)
 }
+\arguments{
+\item{gene.obj}{Gene information stored in a data frame imported from Cell
+Ranger output.}
+}
+\value{
+A dataframe containing gene_symbols in the first column
+}
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to parse genes.tsv into a data
 frame.

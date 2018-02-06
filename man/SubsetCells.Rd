@@ -9,11 +9,18 @@ SubsetCells(object, cell.barcodes)
 \arguments{
 \item{object}{An \linkS4class{EMSet}}
 
-\item{cell.barcodes}{A list of cell identifiers to subset from the \linkS4class{EMSet}}
+\item{cell.barcodes}{A list of cell identifiers to subset from the 
+\linkS4class{EMSet}}
 }
 \value{
 An \linkS4class{EMSet}
 }
 \description{
 Subset cells in the supplied list from an \linkS4class{EMSet}.
+}
+\examples{
+\dontrun{
+barcode_list <- c("Barcode1", "Barcode2", "Barcode3")
+subset_emset <- SubsetCells(em.set, cell.barcodes = barcode_list)
+}
 }

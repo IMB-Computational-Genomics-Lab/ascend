@@ -2,7 +2,18 @@
 
 #' RunDESeq
 #'
-# Called by RunDiffExpression in parallel. This performs the differential expression part.
+#' Called by \code{\link{RunDiffExpression}} to run in parallel. This performs 
+#' the differential expression part.
+#' 
+#' @param data Chunk of count matrix
+#' @param condition.list List of conditions to test
+#' @param condition.a Condition A
+#' @param condition.b Condition B
+#' @param fitType Type of fit to use with \pkg{DESeq}
+#' @param method Method to use with \pkg{DESeq}
+#' @return A dataframe containing DESeq results
+#' @importFrom DESeq newCountDataSet estimateSizeFactors estimateDispersions nbinomTest
+#' 
 RunDESeq <- function(data, condition.list = list(), condition.a = NULL, condition.b = NULL, fitType = NULL, method = NULL) {
     library(DESeq)
     count.dataset <- DESeq::newCountDataSet(data, condition.list)
@@ -14,9 +25,13 @@ RunDESeq <- function(data, condition.list = list(), condition.a = NULL, conditio
 
 #' ProcessDEREsults
 #'
-#' Called by RunDiffExpression. Compiles the resultant data into data frames and converts
-#' the results to absolute fold change.
+#' Called by \code{\link{RunDiffExpression}}. Compiles the resultant data into 
+#' data frames and converts the results to absolute fold change.
 #'
+#' @param output.list List of DESeq resuilts to process and compile
+#' @return One data frame containing DESeq results for all genes
+#' @importFrom dplyr bind_rows
+#'  
 ProcessDEResults <- function(output.list) {
     de.result.df <- dplyr::bind_rows(output.list)
 
@@ -32,8 +47,14 @@ ProcessDEResults <- function(output.list) {
 
 #' PrepareCountData
 #'
-#' Called by RunDiffExpression. This chunks up the expression matrix to feed into DESeq.
-#'
+#' Called by \code{\link{RunDiffExpression}}. This chunks up the expression 
+#' matrix to feed into \pkg{DESeq}.
+#' 
+#' @param object An \linkS4class{EMSet} to perform differential expression on
+#' @param cells List of cells to extract from the \linkS4class{EMSet}
+#' @param ngenes Number of cells to extract from the \linkS4class{EMSet}
+#' @return A list of chunks of the expression matrix
+#' 
 PrepareCountData <- function(object, cells, ngenes) {
     if (is.null(ngenes)){
       ngenes <- nrow(object@ExpressionMatrix)
@@ -91,6 +112,13 @@ PrepareCountData <- function(object, cells, ngenes) {
 #' Options: parametric, local (Default)
 #' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
 #' Options: pooled, pooled-CR, per-condition (Default), blind 
+#' @examples
+#' \dontrun{
+#' de.result <- RunDiffExpression(em.set, conditions = "cluster", 
+#' condition.a = "1", condition.b = "2", fitType = "local", 
+#' method = "per-condition", ngenes = 1500)
+#' }
+#' importFrom BiocParallel bplapply
 #' @export
 #'
 RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, 

@@ -6,6 +6,14 @@
 \usage{
 CheckGeneInformation(object, errors)
 }
+\arguments{
+\item{object}{An EMSEt object}
+
+\item{errors}{Vector to store error messages in. If the object is returned
+with values - the object will be declared invalid.}
+}
 \description{
-Check Gene Annotation if supplied by the user.
+Checks the validity of gene information if supplied by the user. This is to
+ensure the gene information in the first column matches the information 
+stored in the expression matrix.
 }

@@ -6,6 +6,12 @@
 \usage{
 ChooseNew(n, k)
 }
+\arguments{
+\item{n}{First clustering result}
+
+\item{k}{Second clustering result}
+}
 \description{
-Iterator for rand index calculation.
+Function to calculate rand index. Adapted from function by Steve Horvarth and
+Luohua Jiang (UCLA, 2003).
 }

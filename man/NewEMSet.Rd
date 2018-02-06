@@ -22,6 +22,13 @@ This function generates an object belonging to the \linkS4class{EMSet}.
 \description{
 \code{\link{NewEMSet}} generates a \linkS4class{EMSet} object for use with the ascend package. This object contains an expression matrix, associated metadata, downstream analysis and a log documenting the actions taken to generate this object.
 }
+\examples{
+\dontrun{
+MyEMSet <- NewEMSet(ExpressionMatrix = expression_matrix, 
+GeneInformation = gene_information, CellInformation = cell_information, 
+Controls = list())
+} 
+}
 \seealso{
 \linkS4class{EMSet}
 }

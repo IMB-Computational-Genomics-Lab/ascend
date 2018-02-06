@@ -9,8 +9,18 @@ JoinMatrices(x = list(), format = c("data.frame", "matrix", "sparseMatrix"))
 \arguments{
 \item{x}{A list of data frames containing expression matrices.}
 
-\item{format}{Output joined matrices in one of the following formats: data.frame, matrix or sparseMatrix. DEFAULT: data.frame}
+\item{format}{Output joined matrices in one of the following formats: 
+data.frame (Default), matrix or sparseMatrix}
+}
+\value{
+A single expression matrix in your chosen format.
 }
 \description{
-Merge a list of expression matrices in data frame format into one large data frame.
+Merge a list of expression matrices into one large matrix.
+}
+\examples{
+\dontrun{
+matrix_list <- c(matrix1, matrix2, matrix3)
+joined_matrix <- JoinMatrices(matrix_list, format = "data.frame")
+}
 }

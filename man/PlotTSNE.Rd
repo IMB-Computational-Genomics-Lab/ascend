@@ -20,6 +20,22 @@ PlotTSNE(object, PCA = TRUE, condition = NULL, seed = 0,
 
 \item{theta}{(Optional) Numeric; Speed/accuracy trade-off (increase for less accuracy)}
 }
+\value{
+A ggplot glob that contains a scatter plot
+}
 \description{
-Generates a 2D TSNE plot.
+Generates a 2D TSNE plot. As this function requires the reduction of the
+expression matrix by TSNE, it takes longer to run in comparison to the other
+reduced dimension plots.
+}
+\details{
+If you just require a TSNE matrix, you can generate this with the
+\code{\link{RunTSNE}} function.
+}
+\examples{
+\dontrun{
+library(ggplot2)
+my_tsne_plot <- PlotTSNE(em.set, PCA = TRUE, condition = "cluster", seed = 1)  
+my_tsne_plot <- my_tsne_plot + ggtitle("My TSNE Plot")
+}
 }

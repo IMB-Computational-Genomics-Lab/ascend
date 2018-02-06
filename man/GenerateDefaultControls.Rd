@@ -6,6 +6,12 @@
 \usage{
 GenerateDefaultControls(gene.obj)
 }
+\arguments{
+\item{gene.obj}{Gene information imported from Cell Ranger output}
+}
+\value{
+A list of controls
+}
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to retrieve mitochondrial and
 ribosomal gene names and list them as controls.

@@ -6,6 +6,9 @@
 \usage{
 DisplayLog(object)
 }
+\value{
+A print-out of the log attached to an \linkS4class{EMSet}
+}
 \description{
 Print out the log of an \linkS4class{EMSet}.
 }

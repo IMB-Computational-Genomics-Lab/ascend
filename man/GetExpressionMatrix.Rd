@@ -15,5 +15,5 @@ GetExpressionMatrix(object, format)
 Returns the expression matrix in the chosen format (data.frame or matrix).
 }
 \description{
-Returns a data frame containing the expression matrix from a \linkS4class{EMSet} object.
+Returns a data frame containing the expression matrix from an \linkS4class{EMSet} object.
 }

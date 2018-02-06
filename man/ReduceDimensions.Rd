@@ -12,6 +12,23 @@ ReduceDimensions(object, n = 10)
 \item{n}{The number of PC dimensions you would like to select. Refer to
 vignette on how to select this value. Default: 10}
 }
+\value{
+An \linkS4class{EMSet} with a PCA matrix of dimensions ncells by 
+ndimensions
+}
 \description{
 GetReducedDimensions
+}
+\examples{
+\dontrun{
+# Reduce a dataset with RunPCA
+pca_set <- RunPCA(em.set)
+
+# View scree plot
+print(PlotPCAVariance(pca_set))
+
+# Reduce number of Principle Components stored in EMSet
+reduced_pca <- ReduceDimensions(pca_set, n = 10)
+
+}
 }

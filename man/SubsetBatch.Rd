@@ -7,13 +7,18 @@
 SubsetBatch(object, batches)
 }
 \arguments{
-\item{object}{A \linkS4class{EMSet} object}
+\item{object}{An \linkS4class{EMSet}}
 
-\item{batches}{Name or number of the batch(es) you would like to subset.}
+\item{batches}{Name or number of the batch(es) you would like to subset}
 }
 \value{
-An \linkS4class{EMSet} containing only this batch.
+An \linkS4class{EMSet} containing only this batch
 }
 \description{
-Subset a specific batch from a \linkS4class{EMSet} object. This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
+Subset a specific batch from an \linkS4class{EMSet}.
+}
+\examples{
+\dontrun{
+sample1_emset <- SubsetBatch(em.set, batches = c("1", "2", "3"))
+}
 }

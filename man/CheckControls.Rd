@@ -3,11 +3,19 @@
 \name{CheckControls}
 \alias{CheckControls}
 \title{CheckControls
-Check controls if they are present, for issues such as mismatches.}
+Another check function for EMSets. This check is only run if controls are 
+present.}
 \usage{
 CheckControls(object, errors)
 }
+\arguments{
+\item{object}{An EMSEt object}
+
+\item{errors}{Vector to store error messages in. If the object is returned
+with values - the object will be declared invalid.}
+}
 \description{
 CheckControls
-Check controls if they are present, for issues such as mismatches.
+Another check function for EMSets. This check is only run if controls are 
+present.
 }

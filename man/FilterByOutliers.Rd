@@ -8,11 +8,16 @@ Automatically filter cells based on expression levels}
 FilterByOutliers(object, cell.threshold = 3, control.threshold = 3)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object}
+\item{object}{An \linkS4class{EMSet}}
 
-\item{cell.threshold}{Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3}
+\item{cell.threshold}{Mean Absolute Deviation (MAD) value to filter cells by 
+library size. Default: 3}
 
-\item{control.threshold}{Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3}
+\item{control.threshold}{Mean Absolute Deviation (MAD) value to filter cells 
+by proportion of control genes. Default: 3}
+}
+\value{
+An \linkS4class{EMSet} with outlier cells filtered out
 }
 \description{
 These values are then used to filter out cells based on the following criteria:
@@ -24,4 +29,10 @@ These values are then used to filter out cells based on the following criteria:
 }
 \details{
 This function then loads the filtered expression matrix into the EMSet object.
+}
+\examples{
+\dontrun{
+filtered_emset <- FilterByOutliers(em.set, cell.threshold = 3, 
+control.threshold = 3)
+}
 }

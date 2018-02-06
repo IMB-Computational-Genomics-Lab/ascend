@@ -6,6 +6,11 @@
 \usage{
 CalculateRandIndex(x, adjust = TRUE)
 }
+\arguments{
+\item{x}{Set of clustering results}
+
+\item{adjust}{TRUE or FALSE}
+}
 \description{
-Calculates Rand index
+Calculates rand matrix based on clustering results
 }

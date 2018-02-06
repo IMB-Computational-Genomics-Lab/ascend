@@ -7,14 +7,23 @@
 SubsetCluster(object, clusters)
 }
 \arguments{
-\item{object}{A \linkS4class{EMSet} object}
+\item{object}{A \linkS4class{EMSet}}
 
-\item{clusters}{Clusters to subset from the dataset.}
+\item{clusters}{Clusters to subset from the dataset}
 }
 \value{
-Returns an \linkS4class{EMSet} containing only this cluster.
+Returns an \linkS4class{EMSet} containing only the selected clusters
 }
 \description{
-Subset a \linkS4class{EMSet} object by cluster. Please make sure you have clustered with \code{\link{RunCORE}} before using this function.
-This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
+Subset an \linkS4class{EMSet} by cluster. Please make sure you have clustered 
+with \code{\link{RunCORE}} before using this function.
+}
+\details{
+This data is already normalised, but if you wish to recluster the data, you 
+will need to use the RunPCA function again.
+}
+\examples{
+\dontrun{
+cluster1_object <- SubsetCluster(em.set, clusters = c("1", "2", "3"))
+}
 }

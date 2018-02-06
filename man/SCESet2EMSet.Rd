@@ -11,6 +11,10 @@ SCESet2EMSet(SCESet, EMSet)
 
 \item{EMSet}{An \linkS4class{EMSet}}
 }
+\value{
+An \linkS4class{EMSet} with data retrieved from a SCESet
+}
 \description{
-Loads data from an \linkS4class{SCESet} to a \linkS4class{EMSet} object.
+Loads data from a SCESet to a pre-existing 
+\linkS4class{EMSet} object.
 }

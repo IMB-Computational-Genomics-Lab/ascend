@@ -9,8 +9,18 @@ ConvertMatrix(matrix, format = c("data.frame", "matrix", "sparseMatrix"))
 \arguments{
 \item{matrix}{A data frame, dense matrix or sparse matrix.}
 
-\item{format}{Format to change the matrix to.}
+\item{format}{Format to change the matrix to - data.frame (Default), matrix
+and sparseMatrix}
+}
+\value{
+Matrix in the format of your choice
 }
 \description{
-Converts matrix to format of choice. This function gets called by other functions.
+Converts matrix to format of choice. This function gets called by other 
+functions.
+}
+\examples{
+my_matrix <- matrix(replicate(10, rnorm(20)))
+my_dataframe <- ConvertMatrix(my_matrix, format = "data.frame")
+
 }

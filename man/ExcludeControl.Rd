@@ -7,10 +7,16 @@
 ExcludeControl(object, control.name)
 }
 \arguments{
-\item{object}{A \linkS4class{EMSet} object. It is recommended that you run this step after this object has undergone filtering.}
+\item{object}{An \linkS4class{EMSet} object. It is recommended that you run 
+this step after this object has undergone filtering}
 
-\item{control.name}{Name of the control set you want to remove from the dataset.}
+\item{control.name}{Name of the control set you want to remove from the dataset}
+}
+\value{
+An \linkS4class{EMSet} without controls in the expression matrix
 }
 \description{
-Removes the specified control from the expression matrix.
+Removes the specified control from the expression matrix. This should be used
+after normalisation, and prior to PCA reduction, clustering and differential
+expression analysis.
 }

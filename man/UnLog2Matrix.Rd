@@ -9,6 +9,16 @@ UnLog2Matrix(expression.matrix)
 \arguments{
 \item{expression.matrix}{An expression.matrix}
 }
+\value{
+The expression matrix in dense matrix format
+}
 \description{
-Converts count values of a matrix that had undergone normalisation via scran's deconvolution method.
+Converts count values of a matrix that had undergone normalisation via 
+scran's deconvolution method. This converts the log2 values + 1 pseudocount
+values back into transcript count values.
+}
+\examples{
+\dontrun{
+unlogged.matrix <- Unlog2Matrix(expression.matrix)
+}
 }

@@ -9,12 +9,32 @@ UpdateControls(object, controls)
 \arguments{
 \item{object}{An \linkS4class{EMSet} object.}
 
-\item{controls}{A named list containing the gene identifiers. These identifiers must match the identifiers used in the expression matrix. This list will replace any pre-existing controls.}
+\item{controls}{A named list containing the gene identifiers. These 
+identifiers must match the identifiers used in the expression matrix. This 
+list will replace any pre-existing controls.}
 }
 \value{
-This function returns an EMSet object with the upated controls.
+This function returns an \linkS4class{EMSet} with the updated controls.
 }
 \description{
-Replaces the control list in a \linkS4class{EMSet} object with a new control list. This also recalculates the metrics associated with the \linkS4class{EMSet} object.
-For best results, define your controls before you attempt any filtering. You can also use this function to change an EMSet into a control-less dataset.
+Replaces the control list in a \linkS4class{EMSet} object with a new control 
+list. This also recalculates the metrics associated with the 
+\linkS4class{EMSet} object.
+}
+\details{
+For best results, define your controls before you attempt any filtering. You 
+can also use this function to change an EMSet into a control-less dataset.
+}
+\examples{
+\dontrun{
+# Create an EMSet with no controls
+EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+
+# List of controls to add
+control_list <- list(Mt = c("MT-TF", "MT-RNR1", "MT-TV"), 
+Rb = c("RPL9", "RPL19", "RPS20"))
+
+# Add controls to EMSet
+control_EMSet <- UpdateControls(EMSet, control_list)
+}
 }

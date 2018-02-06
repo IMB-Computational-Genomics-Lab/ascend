@@ -13,6 +13,13 @@ ChunkMatrix(expression.matrix, axis = 0, chunks = 1)
 
 \item{chunks}{Number of chunks you would like to break the matrix into}
 }
+\value{
+A list of matrices
+}
 \description{
 Chunks a matrix randomly - either along rows or columns
+}
+\examples{
+my_matrix <- matrix(replicate(10, rnorm(20)))
+chunked_matrix <- ChunkMatrix(my_matrix, axis = 0, chunks = 5)
 }

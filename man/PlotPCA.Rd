@@ -13,8 +13,21 @@ PlotPCA(object, dim1 = 1, dim2 = 2, condition = NULL)
 
 \item{dim2}{Principal component to plot on the y-axis}
 
-\item{condition}{(Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by}
+\item{condition}{(Optional) Name of the column in CellIdentifiers that 
+describe a set of conditions you would like to colour cells by}
+}
+\value{
+A ggplot glob that contains a scatter plot
 }
 \description{
-Plot two principal components (PCs) on a scatter plot.
+Plot two principal components (PCs) on a scatter plot. This plot corresponds
+more closely to the distance between points and therefore is good to use
+to review the effectiveness of clustering by the CORE algorithm.
+}
+\examples{
+\dontrun{
+library(ggplot2)
+my_pca_plot <- PlotPCA(em.set, dim1 = 1, dim2 = 2,  condition = "cluster")  
+my_pca_plot <- my_pca_plot + ggtitle("My PCA Plot")
+}
 }

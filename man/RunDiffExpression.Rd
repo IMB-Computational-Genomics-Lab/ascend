@@ -33,3 +33,11 @@ If omitted, this function will run analysis on ALL genes.}
 \description{
 Compare the differential expression of genes between cells of different conditions.
 }
+\examples{
+\dontrun{
+de.result <- RunDiffExpression(em.set, conditions = "cluster", 
+condition.a = "1", condition.b = "2", fitType = "local", 
+method = "per-condition", ngenes = 1500)
+}
+importFrom BiocParallel bplapply
+}

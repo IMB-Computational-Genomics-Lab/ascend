@@ -12,8 +12,18 @@ ConvertToSCESet(object, control.list = list())
 \item{control.list}{Optional - a named list containing mitochondrial and 
 ribosomal genes.}
 }
+\value{
+A SCESet
+}
 \description{
-Convert a \linkS4class{EMSet} object into a \linkS4class{SCESet} for use with
-older versions of \pkg{scater} and \pkg{scran}. In order to use this function, 
-you must have mitochondrial and ribosomal genes in your expression data.
+Convert a \linkS4class{EMSet} object into a \pkg{scater} SCESet for 
+use with older versions of \pkg{scater} and \pkg{scran}. In order to use this 
+function, you must have mitochondrial and ribosomal genes in your expression 
+data.
+}
+\examples{
+\dontrun{
+sce_set <- ConvertToSCESet(em.set, 
+control.list = list(Mt = mt.genes, Rb = rb.genes))
+}
 }

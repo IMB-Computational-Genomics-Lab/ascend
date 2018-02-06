@@ -12,8 +12,33 @@ PlotNormalisationQC(original = NULL, normalised = NULL,
 
 \item{normalised}{A normalised \linkS4class{EMSet}}
 
-\item{gene.list}{OPTIONAL: A list of genes to plot expression levels for. If not defined, ascend will choose a gene at random}
+\item{gene.list}{OPTIONAL: A list of genes to plot expression levels for. 
+If not defined, \pkg{ascend} will choose a gene at random. Good candidates
+are MALAT1 and GAPDH.}
+}
+\value{
+A list containing the following plots:
+\itemize{
+\item{Plot1}
+\item{Plot2}
+\item{Plot3}
+}
 }
 \description{
-Generates a series of plots comparing an un-normalised and a normalised \linkS4class{EMSet}.
+Generates a series of plots comparing an un-normalised and a normalised 
+\linkS4class{EMSet}.
+}
+\examples{
+\dontrun{
+# Normalise dataset using relative log expression (RLE)
+norm_set <- NormaliseByRLE(em.set)
+
+# Generate QC plots for normalisation
+norm_plots <- PlotNormalisationQC(original = em.set, normalised = norm_set,
+gene.list = c("MALAT1", "GAPDH")
+)
+
+# Output plots to PDF
+PlotPDF(norm_plots, "NormQC.pdf")
+}
 }

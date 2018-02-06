@@ -10,5 +10,6 @@ PlotStability(object)
 \item{object}{An \linkS4class{EMSet} object that has undergone clustering}
 }
 \description{
-Plots Stability, Consecutive RI and Rand Index.
+Plots Stability, Consecutive RI and Rand Index. This can be used to determine
+the optimal resolution of the clustering results.
 }

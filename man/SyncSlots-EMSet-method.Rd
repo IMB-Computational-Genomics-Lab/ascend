@@ -7,7 +7,23 @@
 \usage{
 \S4method{SyncSlots}{EMSet}(object)
 }
+\arguments{
+\item{object}{An EMSet to sync}
+}
+\value{
+Original \linkS4class{EMSet} with CellInformation, GeneInformation and 
+ExpressionMatrix slots syncronised together.
+}
 \description{
-Synchronises the data frames ExpressionMatrix, GeneInformation and CellInformation, to ensure everything is up to date.
-This is important as the object will undergo a series of changes during the filtering and normalisation process.
+Synchronises the data frames ExpressionMatrix, GeneInformation and 
+CellInformation, to ensure everything is up to date.
+}
+\details{
+This is important as the object will undergo a series of changes during the 
+filtering and normalisation process.
+}
+\examples{
+\dontrun{
+synced_emset <- SyncSlots(unsynced_EMSet)
+}
 }

@@ -7,8 +7,9 @@
 PlotLibrarySizesPerSample(object)
 }
 \arguments{
-\item{object}{A \linkS4class{EMSet}}
+\item{object}{An \linkS4class{EMSet} object}
 }
 \description{
-Generates a violin-beeswarm plot of library sizes per sample.
+Generates a violin-beeswarm plot of library sizes per sample. This is called 
+by the \code{\link{PlotGeneralQC}} function.
 }

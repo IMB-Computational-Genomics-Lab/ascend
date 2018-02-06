@@ -6,6 +6,16 @@
 \usage{
 CalcNormFactor(x, geo.means)
 }
+\arguments{
+\item{x}{List of counts associated with a gene}
+
+\item{geo.means}{Geometric mean associated with a cell as calculated by the
+\code{\link{CalcGeoMeans}} function}
+}
+\value{
+A list of normalisation factors
+}
 \description{
-Calculate the normalisation factor between all cells.
+Calculate the normalisation factor between all cells. This function is called
+by \code{\link{NormaliseByRLE}}.
 }

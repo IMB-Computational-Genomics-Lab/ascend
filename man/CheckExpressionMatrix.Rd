@@ -6,6 +6,13 @@
 \usage{
 CheckExpressionMatrix(object, errors)
 }
+\arguments{
+\item{object}{An EMSEt object}
+
+\item{errors}{Vector to store error messages in. If the object is returned
+with values - the object will be declared invalid.}
+}
 \description{
-Check the expression matrix for issues.
+Checks the expression matrix to ensure it is not empty, does not contain any
+NA values and does not have any duplicated column or row names.
 }

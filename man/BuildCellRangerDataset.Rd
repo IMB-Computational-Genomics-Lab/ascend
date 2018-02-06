@@ -6,6 +6,12 @@
 \usage{
 BuildCellRangerDataset(data.dir)
 }
+\arguments{
+\item{data.dir}{Where Cell Ranger output is stored}
+}
+\value{
+A list of processed files
+}
 \description{
 Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{LoadCellRanger}}.
 This function reads in the following files:

@@ -10,5 +10,6 @@ PlotDendrogram(object)
 \item{object}{An \linkS4class{EMSet} that has undergone clustering}
 }
 \description{
-PlotDendrogram
+Generates a colour-labelled dendrogram to the device, using a clustered
+\linkS4class{EMSet}.
 }
