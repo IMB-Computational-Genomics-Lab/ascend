@@ -8,7 +8,7 @@ Automatically filter cells based on expression levels}
 FilterByOutliers(object, cell.threshold = 3, control.threshold = 3)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet}}
+\item{object}{An \code{\linkS4class{EMSet}}}
 
 \item{cell.threshold}{Mean Absolute Deviation (MAD) value to filter cells by 
 library size. Default: 3}
@@ -17,7 +17,7 @@ library size. Default: 3}
 by proportion of control genes. Default: 3}
 }
 \value{
-An \linkS4class{EMSet} with outlier cells filtered out
+An \code{\linkS4class{EMSet}} with outlier cells filtered out
 }
 \description{
 These values are then used to filter out cells based on the following criteria:

@@ -8,7 +8,7 @@ PlotTSNE(object, PCA = TRUE, condition = NULL, seed = 0,
   perplexity = 30, theta = 0.5)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet}.}
+\item{object}{An \code{\linkS4class{EMSet}}.}
 
 \item{PCA}{Set to FALSE to not use PCA-reduced values}
 

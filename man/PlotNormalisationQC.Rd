@@ -8,9 +8,9 @@ PlotNormalisationQC(original = NULL, normalised = NULL,
   gene.list = list())
 }
 \arguments{
-\item{original}{An un-normalised \linkS4class{EMSet}}
+\item{original}{An un-normalised \code{\linkS4class{EMSet}}}
 
-\item{normalised}{A normalised \linkS4class{EMSet}}
+\item{normalised}{A normalised \code{\linkS4class{EMSet}}}
 
 \item{gene.list}{OPTIONAL: A list of genes to plot expression levels for. 
 If not defined, \pkg{ascend} will choose a gene at random. Good candidates
@@ -26,7 +26,7 @@ A list containing the following plots:
 }
 \description{
 Generates a series of plots comparing an un-normalised and a normalised 
-\linkS4class{EMSet}.
+\code{\linkS4class{EMSet}}.
 }
 \examples{
 \dontrun{

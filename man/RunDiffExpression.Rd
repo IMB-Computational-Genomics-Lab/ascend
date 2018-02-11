@@ -10,8 +10,8 @@ RunDiffExpression(object, conditions = NULL, condition.a = NULL,
   ngenes = NULL)
 }
 \arguments{
-\item{object}{A \linkS4class{EMSet} object that has undergone filtering and 
-normalisation.}
+\item{object}{A \code{\linkS4class{EMSet}} object that has undergone 
+filtering and normalisation.}
 
 \item{conditions}{Name of the column in the CellInformations lot where you have
 defined the conditions you would like to test. eg cluster to compare clusters
@@ -39,5 +39,4 @@ de.result <- RunDiffExpression(em.set, conditions = "cluster",
 condition.a = "1", condition.b = "2", fitType = "local", 
 method = "per-condition", ngenes = 1500)
 }
-importFrom BiocParallel bplapply
 }

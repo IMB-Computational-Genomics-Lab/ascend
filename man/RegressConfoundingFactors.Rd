@@ -14,7 +14,7 @@ Refer to the vignette on how to choose genes for regression.}
 it from a EMSet object with the GetExpressionMatrix function.}
 }
 \value{
-An \linkS4class{EMSet} with confounding factors regressed from the
+An \code{\linkS4class{EMSet}} with confounding factors regressed from the
 expression values
 }
 \description{

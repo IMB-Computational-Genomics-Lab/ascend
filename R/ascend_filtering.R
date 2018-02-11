@@ -5,11 +5,11 @@
 #' normalisation. As this step may remove rare transcripts, this filtering step
 #' is optional.
 #' 
-#' @param object An \linkS4class{EMSet} that has been filtered by 
+#' @param object An \code{\linkS4class{EMSet}} that has been filtered by 
 #' \code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.
 #' @param pct.value Percentage threshold as a whole number. Default: 1
-#' @return An \linkS4class{EMSet} with low abundance genes removed from the 
-#' dataset
+#' @return An \code{\linkS4class{EMSet}} with low abundance genes removed from 
+#' the dataset
 #' @examples
 #' \dontrun{
 #' filtered_EMSet <- FilterLowAbundanceGenes(em.set, pct.value = 1)
@@ -69,8 +69,8 @@ FilterLowAbundanceGenes <- function(object, pct.value = 1){
 #' supplied to the EMSet object
 #' @param pct.threshold Percentage threshold to filter cells by, as a whole 
 #' number. Default: 20
-#' @param object An \linkS4class{EMSet}
-#' @return An \linkS4class{EMSet} with filtered controls
+#' @param object An \code{\linkS4class{EMSet}}
+#' @return An \code{\linkS4class{EMSet}} with filtered controls
 #' @examples
 #' \dontrun{
 #' filtered_EMSet <- FilterByControl(control.name = "Mt", pct.threshold = 20,
@@ -200,12 +200,12 @@ FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), 
 #'
 #' This function then loads the filtered expression matrix into the EMSet object.
 #'
-#' @param object An \linkS4class{EMSet}
+#' @param object An \code{\linkS4class{EMSet}}
 #' @param cell.threshold  Mean Absolute Deviation (MAD) value to filter cells by 
 #' library size. Default: 3
 #' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells 
 #' by proportion of control genes. Default: 3
-#' @return An \linkS4class{EMSet} with outlier cells filtered out
+#' @return An \code{\linkS4class{EMSet}} with outlier cells filtered out
 #' @examples
 #' \dontrun{
 #' filtered_emset <- FilterByOutliers(em.set, cell.threshold = 3, 

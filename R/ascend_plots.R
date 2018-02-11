@@ -72,9 +72,9 @@ PlotDEVolcano <- function(de.results, threshold = 5e-3, l2fc = 2, labels = FALSE
 #' PlotDendrogram
 #' 
 #' Generates a colour-labelled dendrogram to the device, using a clustered
-#' \linkS4class{EMSet}.
+#' \code{\linkS4class{EMSet}}.
 #' 
-#' @param object An \linkS4class{EMSet} that has undergone clustering
+#' @param object An \code{\linkS4class{EMSet}} that has undergone clustering
 #' @importFrom stats as.dendrogram order.dendrogram
 #' @importFrom dendextend branches_attr_by_clusters set get_leaves_branches_col sort_levels_values colored_bars get_leaves_branches_attr
 #' @importFrom graphics legend
@@ -130,7 +130,7 @@ PlotDendrogram <- function(object){
 #' Plots Stability, Consecutive RI and Rand Index. This can be used to determine
 #' the optimal resolution of the clustering results.
 #'
-#' @param object An \linkS4class{EMSet} object that has undergone clustering
+#' @param object An \code{\linkS4class{EMSet}} object that has undergone clustering
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot geom_line theme_bw theme element_text aes xlab ylab
 #' @export
@@ -242,7 +242,7 @@ PlotConsensusBars <- function (dendro, colors, rowLabels = NULL, rowWidths = NUL
 #' 
 #' @importFrom grDevices colorRampPalette palette
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom graphics barplot strwidth rect lines
+#' @importFrom graphics barplot strwidth rect lines strheight text
 #' 
 PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL,
                                rowText = NULL, rowTextAlignment = c("left", "center", "right"),
@@ -399,7 +399,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
 #' below. This function is derived from the plotDendroAndColors function found
 #' in the \pkg{WGCNA} package.
 #' 
-#' @param object An \linkS4class{EMSet} that has undergone clustering
+#' @param object An \code{\linkS4class{EMSet}} that has undergone clustering
 #' @examples
 #' \dontrun{
 #' pdf("MyStabilityDendrogram.pdf")
@@ -427,7 +427,7 @@ PlotStabilityDendro <- function(object){
 #'
 #' Generates a Multi-Dimensional Scaling (MDS) plot.
 #'
-#' @param object An \linkS4class{EMSet} that has undergone clustering with 
+#' @param object An \code{\linkS4class{EMSet}} that has undergone clustering with 
 #' \code{\link{RunCORE}}.
 #' @param PCA If true, use PCA-reduced matrix to generate MDS plot
 #' @param dim1 Which dimension to plot on the x-axis
@@ -525,7 +525,7 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
 #' If you just require a TSNE matrix, you can generate this with the
 #' \code{\link{RunTSNE}} function.
 #' 
-#' @param object An \linkS4class{EMSet}.
+#' @param object An \code{\linkS4class{EMSet}}.
 #' @param PCA Set to FALSE to not use PCA-reduced values
 #' @param condition (Optional) Name of the column in CellIdentifiers that describe a set of conditions you would like to colour cells by
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots
@@ -595,7 +595,7 @@ PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, perplexity 
 #' more closely to the distance between points and therefore is good to use
 #' to review the effectiveness of clustering by the CORE algorithm.
 #'
-#' @param object An \linkS4class{EMSet} object that has undergone PCA
+#' @param object An \code{\linkS4class{EMSet}} object that has undergone PCA
 #' @param dim1 Principal component to plot on the x-axis
 #' @param dim2 Principal component to plot on the y-axis
 #' @param condition (Optional) Name of the column in CellIdentifiers that 
@@ -648,7 +648,7 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
 #' largest percent variance to the smallest percent variance. This plot is
 #' for determining the optimal number of PCs to retain for further analysis.
 #'
-#' @param object An \linkS4class{EMSet} that has undergone PCA.
+#' @param object An \code{\linkS4class{EMSet}} that has undergone PCA.
 #' @param n Number of PCs to view on the plot
 #' @return A ggplot2 glob that contains a scatter qplot
 #' @examples
@@ -674,10 +674,10 @@ PlotPCAVariance <- function(object, n = 100){
 #' PlotNormalisationQC
 #'
 #' Generates a series of plots comparing an un-normalised and a normalised 
-#' \linkS4class{EMSet}.
+#' \code{\linkS4class{EMSet}}.
 #'
-#' @param original An un-normalised \linkS4class{EMSet}
-#' @param normalised A normalised \linkS4class{EMSet}
+#' @param original An un-normalised \code{\linkS4class{EMSet}}
+#' @param normalised A normalised \code{\linkS4class{EMSet}}
 #' @param gene.list OPTIONAL: A list of genes to plot expression levels for. 
 #' If not defined, \pkg{ascend} will choose a gene at random. Good candidates
 #' are MALAT1 and GAPDH.
@@ -873,7 +873,7 @@ z_theme <- function() {
 #' Generates a violin/beeswarm plot of top genes per sample. This is called by
 #' the \code{\link{PlotGeneralQC}} function.
 #'
-#' @param object An \linkS4class{EMSet} object
+#' @param object An \code{\linkS4class{EMSet}} object
 #' @importFrom Matrix colSums
 #' @importFrom ggplot2 ggplot scale_colour_gradient aes geom_violin scale_x_discrete xlab ylab ggtitle
 #' @importFrom ggbeeswarm geom_quasirandom 
@@ -920,7 +920,7 @@ PlotTopGenesPerSample <- function(object){
 #' Generates a violin-beeswarm plot of library sizes per sample. This is called 
 #' by the \code{\link{PlotGeneralQC}} function.
 #'
-#' @param object An \linkS4class{EMSet} object
+#' @param object An \code{\linkS4class{EMSet}} object
 #' @importFrom ggplot2 ggplot scale_colour_gradient aes geom_violin scale_x_discrete xlab ylab ggtitle
 #' @importFrom ggbeeswarm geom_quasirandom 
 #' @export
@@ -958,7 +958,7 @@ PlotLibrarySizesPerSample <- function(object){
 #' Generates a violin/beeswarm plot of percentage of control expression per 
 #' sample. Called by \code{\link{PlotGeneralQC}}.
 #' 
-#' @param object An \linkS4class{EMSet} object
+#' @param object An \code{\linkS4class{EMSet}} object
 #' @param control.name Name of the control you would like to plot
 #' @importFrom ggplot2 ggplot scale_colour_gradient aes geom_violin scale_x_discrete xlab ylab ggtitle
 #' @importFrom ggbeeswarm geom_quasirandom 
@@ -1020,7 +1020,7 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
   # Prep data to feed in
   if(!controls){
     control.list <- object@Controls
-    if(names(control.list) == c("Mt", "Rb")){
+    if(all(names(control.list) %in% c("Mt", "Rb"))){
       object <- ExcludeControl(object, "Mt")
       object <- ExcludeControl(object, "Rb")
     }
@@ -1069,7 +1069,7 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #' \item{\strong{Proportion of Control Expression}: Violin/beehive plots for each sample and control, depicting the proportion of controls to total expression}
 #' }
 #' 
-#' @param object An \linkS4class{EMSet} object
+#' @param object An \code{\linkS4class{EMSet}} object
 #' @return A list of ggplot globs
 #' @examples
 #' \dontrun{

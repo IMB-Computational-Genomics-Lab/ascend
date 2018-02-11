@@ -1,7 +1,7 @@
 #' scranNormalise
 #'
-#' Normalise an \linkS4class{EMSet} with \pkg{scran}'s deconvolution method by 
-#' Lun et al. 2016.
+#' Normalise an \code{\linkS4class{EMSet}} with \pkg{scran}'s deconvolution 
+#' method by Lun et al. 2016.
 #'
 #' @details Pooling method of cells is influenced by the size of the cell 
 #' population.For datasets containing less than 20000 cells, this function will 
@@ -15,7 +15,8 @@
 #' \code{\link[scran]{quickCluster}} is not selected, cells will be randomly 
 #' assigned to a group.
 #'
-#' @param object An \linkS4class{EMSet} that has not undergone normalisation
+#' @param object An \code{\linkS4class{EMSet}} that has not undergone 
+#' normalisation
 #' @param quickCluster Use scran's quickCluster method (TRUE) or  use randomly-
 #' assigned groups (FALSE, Default)
 #' @param min.mean Threshold for average counts. This argument is for the 
@@ -23,7 +24,7 @@
 #' of 1 is recommended for read count data, while the default value of 1e-5 is 
 #' best for UMI data. This argument is only used for newer versions of 
 #' \pkg{scran}.
-#' @return An \linkS4class{EMSet} with an expression matrix with counts 
+#' @return An \code{\linkS4class{EMSet}} with an expression matrix with counts 
 #' normalised by \code{\link[scater]{normalize}} function
 #' @examples
 #' \dontrun{
@@ -89,8 +90,8 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL
 #'
 #' This step should be done prior to any filtering and normalisation between cells.
 #'
-#' @param object An \linkS4class{EMSet} with cells from more than one batch
-#' @return An \linkS4class{EMSet} with batch-normalised expression values
+#' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch
+#' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values
 #' @examples
 #' \dontrun{
 #' batch_normalised_object <- NormaliseBatches(em.set)
@@ -133,9 +134,9 @@ NormaliseBatches <- function(object) {
 #' NormaliseLibSize
 #'
 #' Normalise library sizes by scaling.
-#' @param object An \linkS4class{EMSet} object. Please remove spike-ins from the 
-#' expression matrix before normalising.
-#' @return An \linkS4class{EMSet} normalised by library size
+#' @param object An \code{\linkS4class{EMSet}} object. Please remove spike-ins 
+#' from the expression matrix before normalising.
+#' @return An \code{\linkS4class{EMSet}} normalised by library size
 #' @importFrom Matrix colSums t
 #' @importFrom stats median
 #' @export
@@ -198,9 +199,9 @@ CalcGeoMeans <- function(x) {
 #' than 0, and also assumes most genes are not differentially expressed. Only 
 #' counts that are greater than zero are considered in this normalisation method.
 #' 
-#' @param object An \linkS4class{EMSet} set that has undergone filtering. 
+#' @param object An \code{\linkS4class{EMSet}} set that has undergone filtering. 
 #' Please ensure spike-ins have been removed before using this function.
-#' @return An \linkS4class{EMSet} with normalised expression values
+#' @return An \code{\linkS4class{EMSet}} with normalised expression values
 #' @examples
 #' \dontrun{
 #' normalised_object <- NormaliseByRLE(em.set)

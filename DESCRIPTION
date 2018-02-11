@@ -24,6 +24,7 @@ Imports: methods,
     RColorBrewer,
     scater,
     scran,
+    locfit,
     DESeq
 Suggests: knitr,
     rmarkdown,

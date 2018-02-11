@@ -6,24 +6,6 @@
 \usage{
 SubsetCondition(object, condition, subconditions)
 }
-\arguments{
-\item{object}{An \linkS4class{EMSet}}
-
-\item{condition}{Name of the condition/column you would like to subset the
-\linkS4class{EMSet} by}
-
-\item{subconditions}{List of subconditions that are stored in the condition
-column, that you would like to select}
-}
-\value{
-An \linkS4class{EMSet} containing cells that only have this condition
-}
 \description{
-Subset cells of a specific condition(s) from an \linkS4class{EMSet}.
-}
-\examples{
-\dontrun{
-happy_emset <- SubsetCondition(em.set, condition = "emotion", 
-subconditions = "happy") 
-}
+Generic for \code{\link{SubsetCondition}}.
 }

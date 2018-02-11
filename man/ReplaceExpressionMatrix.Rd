@@ -6,24 +6,6 @@
 \usage{
 ReplaceExpressionMatrix(object, expression.matrix)
 }
-\arguments{
-\item{object}{The \linkS4class{EMSet} you would like to update.}
-
-\item{expression.matrix}{Expression matrix in matrix form}
-}
-\value{
-An \linkS4class{EMSet} with an updated expression matrix
-}
 \description{
-Replace the expression matrix in a \linkS4class{EMSet} with a new expression 
-matrix and re-calculate its metrics.
-}
-\examples{
-\dontrun{
-# Create an EMSet with just expression data
-EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
-
-# Replace it with another expression matrix
-updated_em_set <- ReplaceExpressionMatrix(EMSet, new_matrix)
-}
+Definition for \code{\link{ReplaceExpressionMatrix}} function.
 }

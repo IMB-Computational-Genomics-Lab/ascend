@@ -6,12 +6,6 @@
 \usage{
 GetDistanceMatrix(object)
 }
-\arguments{
-\item{object}{An \linkS4class{EMSet} object.}
-}
-\value{
-This function returns a distance matrix.
-}
 \description{
-Retrieve the distance matrix from an \linkS4class{EMSet} object that has undergone clustering.
+Generic for \code{\link{GetDistanceMatrix}}.
 }

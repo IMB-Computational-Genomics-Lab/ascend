@@ -7,7 +7,7 @@
 RunPCA(object, ngenes = 1500, scaling = TRUE)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has undergone filtering and 
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone filtering and 
 normalisation.}
 
 \item{ngenes}{The top number of genes you would like to perform the reduction by. 
@@ -17,12 +17,12 @@ Default: 1500}
 Default: TRUE}
 }
 \value{
-An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
+An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
 slot.
 }
 \description{
 Reduce the dimensions of an expression matrix stored in an 
-\linkS4class{EMSet}. This should be used prior to clustering.
+\code{\linkS4class{EMSet}}. This should be used prior to clustering.
 }
 \examples{
 \dontrun{

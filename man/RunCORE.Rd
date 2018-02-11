@@ -19,7 +19,7 @@ dynamicTreeCut. This is indicative of outlier cells within the sample.
 Default: FALSE}
 }
 \value{
-An \linkS4class{EMSet} with cluster information loaded into the 
+An \code{\linkS4class{EMSet}} with cluster information loaded into the 
 Clusters slot
 }
 \description{

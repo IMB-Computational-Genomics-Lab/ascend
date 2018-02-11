@@ -7,7 +7,7 @@
 PlotMDS(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has undergone clustering with 
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone clustering with 
 \code{\link{RunCORE}}.}
 
 \item{PCA}{If true, use PCA-reduced matrix to generate MDS plot}

@@ -7,11 +7,11 @@
 NormaliseByRLE(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} set that has undergone filtering. 
+\item{object}{An \code{\linkS4class{EMSet}} set that has undergone filtering. 
 Please ensure spike-ins have been removed before using this function.}
 }
 \value{
-An \linkS4class{EMSet} with normalised expression values
+An \code{\linkS4class{EMSet}} with normalised expression values
 }
 \description{
 Normalisation of expression between cells, by scaling to relative log 

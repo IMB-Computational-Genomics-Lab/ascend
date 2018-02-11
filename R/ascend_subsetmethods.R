@@ -1,14 +1,23 @@
 # Functions for subsetting EMSets
 #' SubsetCondition
+#' 
+#' Generic for \code{\link{SubsetCondition}}.
+#' 
+#' @importFrom methods setMethod
+setGeneric(name = "SubsetCondition", def = function(object, condition, subconditions) {
+    standardGeneric("SubsetCondition")
+})
+
+#' SubsetCondition
 #'
-#' Subset cells of a specific condition(s) from an \linkS4class{EMSet}.
+#' Subset cells of a specific condition(s) from an \code{\linkS4class{EMSet}}.
 #'
-#' @param object An \linkS4class{EMSet}
+#' @param object An \code{\linkS4class{EMSet}}
 #' @param condition Name of the condition/column you would like to subset the
-#' \linkS4class{EMSet} by
+#' \code{\linkS4class{EMSet}} by
 #' @param subconditions List of subconditions that are stored in the condition
 #' column, that you would like to select
-#' @return An \linkS4class{EMSet} containing cells that only have this condition
+#' @return An \code{\linkS4class{EMSet}} containing cells that only have this condition
 #' @examples
 #' \dontrun{
 #' happy_emset <- SubsetCondition(em.set, condition = "emotion", 
@@ -17,10 +26,6 @@
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
-setGeneric(name = "SubsetCondition", def = function(object, condition, subconditions) {
-    standardGeneric("SubsetCondition")
-})
-
 setMethod("SubsetCondition", signature("EMSet"), function(object, condition = NULL, subconditions = c()) {
   # Check if selected condition are present
   if (!(condition %in% colnames(object@CellInformation))) {
@@ -58,14 +63,22 @@ setMethod("SubsetCondition", signature("EMSet"), function(object, condition = NU
   return(subset.obj)
 })
 
+#' SubsetBatch
+#' 
+#' Generic for \code{\link{SubsetBatch}}.
+#' 
+#' @importFrom methods setMethod
+setGeneric(name = "SubsetBatch", def = function(object, batches) {
+    standardGeneric("SubsetBatch")
+})
 
 #' SubsetBatch
 #'
-#' Subset a specific batch from an \linkS4class{EMSet}.
+#' Subset a specific batch from an \code{\linkS4class{EMSet}}.
 #'
-#' @param object An \linkS4class{EMSet}
+#' @param object An \code{\linkS4class{EMSet}}
 #' @param batches Name or number of the batch(es) you would like to subset
-#' @return An \linkS4class{EMSet} containing only this batch
+#' @return An \code{\linkS4class{EMSet}} containing only this batch
 #' @examples
 #' \dontrun{
 #' sample1_emset <- SubsetBatch(em.set, batches = c("1", "2", "3"))
@@ -73,10 +86,6 @@ setMethod("SubsetCondition", signature("EMSet"), function(object, condition = NU
 #' @importFrom methods setGeneric setMethod
 #' @include ascend_objects.R
 #' @export
-setGeneric(name = "SubsetBatch", def = function(object, batches) {
-    standardGeneric("SubsetBatch")
-})
-
 setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
     # Check if selected batches are present in the batches column
     if (!any(batches %in% object@CellInformation[, 2])) {
@@ -106,16 +115,25 @@ setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
 })
 
 #' SubsetCluster
+#' 
+#' Generic for \code{\link{SubsetCluster}}.
+#' 
+#' @importFrom methods setMethod
+setGeneric(name = "SubsetCluster", def = function(object, clusters) {
+    standardGeneric("SubsetCluster")
+})
+
+#' SubsetCluster
 #'
-#' Subset an \linkS4class{EMSet} by cluster. Please make sure you have clustered 
+#' Subset an\code{\linkS4class{EMSet}} by cluster. Please make sure you have clustered 
 #' with \code{\link{RunCORE}} before using this function.
 #' 
 #' This data is already normalised, but if you wish to recluster the data, you 
 #' will need to use the RunPCA function again.
 #'
-#' @param object A \linkS4class{EMSet}
+#' @param object A \code{\linkS4class{EMSet}}
 #' @param clusters Clusters to subset from the dataset
-#' @return Returns an \linkS4class{EMSet} containing only the selected clusters
+#' @return Returns an \code{\linkS4class{EMSet}} containing only the selected clusters
 #' @examples
 #' \dontrun{
 #' cluster1_object <- SubsetCluster(em.set, clusters = c("1", "2", "3"))
@@ -124,10 +142,6 @@ setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
 #' @importFrom methods setGeneric setMethod
 #' @export
 #'
-setGeneric(name = "SubsetCluster", def = function(object, clusters) {
-    standardGeneric("SubsetCluster")
-})
-
 setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) {
     # Check if data has been clustered
     if (is.null(object@CellInformation[, "cluster"])) {
@@ -166,13 +180,22 @@ setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) 
 })
 
 #' SubsetCells
+#' 
+#' Generic for \code{\link{SubsetCells}}.
+#' 
+#' @importFrom methods setMethod
+setGeneric(name = "SubsetCells", def = function(object, cell.barcodes) {
+    standardGeneric("SubsetCells")
+})
+
+#' SubsetCells
 #'
-#' Subset cells in the supplied list from an \linkS4class{EMSet}.
+#' Subset cells in the supplied list from an \code{\linkS4class{EMSet}}.
 #'
-#' @param object An \linkS4class{EMSet}
+#' @param object An \code{\linkS4class{EMSet}}
 #' @param cell.barcodes A list of cell identifiers to subset from the 
 #' \linkS4class{EMSet}
-#' @return An \linkS4class{EMSet}
+#' @return An \code{\linkS4class{EMSet}}
 #' @examples
 #' \dontrun{
 #' barcode_list <- c("Barcode1", "Barcode2", "Barcode3")
@@ -182,10 +205,6 @@ setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) 
 #' @importFrom methods setGeneric setMethod
 #' @export
 #'
-setGeneric(name = "SubsetCells", def = function(object, cell.barcodes) {
-    standardGeneric("SubsetCells")
-})
-
 setMethod("SubsetCells", signature("EMSet"), function(object, cell.barcodes = c()) {
     # Check cells are in the expression matrix.
     expression.matrix <- GetExpressionMatrix(object, "data.frame")

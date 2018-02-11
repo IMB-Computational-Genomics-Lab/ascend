@@ -7,7 +7,7 @@
 PlotPCAVariance(object, n = 100)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has undergone PCA.}
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone PCA.}
 
 \item{n}{Number of PCs to view on the plot}
 }

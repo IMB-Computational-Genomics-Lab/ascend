@@ -6,11 +6,6 @@
 \usage{
 GetBatchMatrix(object, batch.id)
 }
-\arguments{
-\item{object}{\linkS4class{EMSet} object}
-
-\item{batch.id}{Batch identifier that you would like to retrieve}
-}
 \description{
-Retrieve a portion of the matrix by batch label
+Generic for \code{\link{GetBatchMatrix}}.
 }

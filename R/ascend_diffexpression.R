@@ -12,10 +12,13 @@
 #' @param fitType Type of fit to use with \pkg{DESeq}
 #' @param method Method to use with \pkg{DESeq}
 #' @return A dataframe containing DESeq results
-#' @importFrom DESeq newCountDataSet estimateSizeFactors estimateDispersions nbinomTest
+#' @import DESeq
+#' @importFrom locfit locfit
 #' 
 RunDESeq <- function(data, condition.list = list(), condition.a = NULL, condition.b = NULL, fitType = NULL, method = NULL) {
-    library(DESeq)
+    suppressPackageStartupMessages({
+      library(DESeq)
+    })
     count.dataset <- DESeq::newCountDataSet(data, condition.list)
     count.dataset <- DESeq::estimateSizeFactors(count.dataset)
     dispersions <- DESeq::estimateDispersions(count.dataset, method = method, fitType = fitType)
@@ -50,11 +53,11 @@ ProcessDEResults <- function(output.list) {
 #' Called by \code{\link{RunDiffExpression}}. This chunks up the expression 
 #' matrix to feed into \pkg{DESeq}.
 #' 
-#' @param object An \linkS4class{EMSet} to perform differential expression on
-#' @param cells List of cells to extract from the \linkS4class{EMSet}
-#' @param ngenes Number of cells to extract from the \linkS4class{EMSet}
+#' @param object An \code{\linkS4class{EMSet}} to perform differential expression on
+#' @param cells List of cells to extract from the \code{\linkS4class{EMSet}}
+#' @param ngenes Number of cells to extract from the \code{\linkS4class{EMSet}}
 #' @return A list of chunks of the expression matrix
-#' 
+#' @importFrom stats sd
 PrepareCountData <- function(object, cells, ngenes) {
     if (is.null(ngenes)){
       ngenes <- nrow(object@ExpressionMatrix)
@@ -75,7 +78,7 @@ PrepareCountData <- function(object, cells, ngenes) {
     
     top.genes <- ordered.genes[1:ngenes]
     mean.gene.expression <- rownames(expression.matrix)[which(rowMeans(expression.matrix) > 0)]
-    gene.sd <- rownames(expression.matrix)[which(apply(expression.matrix, 1, sd) > 0)]
+    gene.sd <- rownames(expression.matrix)[which(apply(expression.matrix, 1, stats::sd) > 0)]
     gene.list <- intersect(intersect(top.genes, mean.gene.expression), gene.sd)
     expression.matrix <- expression.matrix[gene.list, ]
     expression.matrix <- round(expression.matrix + 1)
@@ -99,8 +102,8 @@ PrepareCountData <- function(object, cells, ngenes) {
 #'
 #' Compare the differential expression of genes between cells of different conditions.
 #'
-#' @param object A \linkS4class{EMSet} object that has undergone filtering and 
-#' normalisation.
+#' @param object A \code{\linkS4class{EMSet}} object that has undergone 
+#' filtering and normalisation.
 #' @param conditions Name of the column in the CellInformations lot where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
 #' identified by RunCORE.
@@ -118,7 +121,7 @@ PrepareCountData <- function(object, cells, ngenes) {
 #' condition.a = "1", condition.b = "2", fitType = "local", 
 #' method = "per-condition", ngenes = 1500)
 #' }
-#' importFrom BiocParallel bplapply
+#' @importFrom BiocParallel bplapply
 #' @export
 #'
 RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, 

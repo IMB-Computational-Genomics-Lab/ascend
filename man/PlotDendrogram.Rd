@@ -7,9 +7,9 @@
 PlotDendrogram(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has undergone clustering}
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone clustering}
 }
 \description{
 Generates a colour-labelled dendrogram to the device, using a clustered
-\linkS4class{EMSet}.
+\code{\linkS4class{EMSet}}.
 }

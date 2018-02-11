@@ -7,7 +7,7 @@
 ConvertToSCE(object, control.list = list())
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object.}
+\item{object}{An \code{\linkS4class{EMSet}} object.}
 
 \item{control.list}{Optional - a named list containing mitochondrial and 
 ribosomal genes.}
@@ -16,7 +16,7 @@ ribosomal genes.}
 A SingleCellExperiment object
 }
 \description{
-Convert a \linkS4class{EMSet} object into a SingleCellExperiment object for 
+Convert a \code{\linkS4class{EMSet}} object into a SingleCellExperiment object for 
 use with \pkg{scater}, \pkg{scran} and other Bioconductor packages.
 }
 \details{

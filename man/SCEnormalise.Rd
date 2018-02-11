@@ -9,18 +9,18 @@ SCEnormalise(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-05)
 \arguments{
 \item{sce.obj}{A \pkg{SingleCellExperiment} object}
 
-\item{em.set}{An \linkS4class{EMSet} that the sce.set originated from}
+\item{em.set}{An \code{\linkS4class{EMSet}} that the sce.set originated from}
 
 \item{quickCluster}{Normalise with quickCluster Default: FALSE}
 
 \item{min.mean}{Argument to pass on to 
-\code{\link[scater]{computeSumFactors}} from \pkg{scran} Default: 1e-5}
+\code{\link[scran]{computeSumFactors}} from \pkg{scran} Default: 1e-5}
 }
 \value{
-A normalised \linkS4class{EMSet}
+A normalised \code{\linkS4class{EMSet}}
 }
 \description{
-Called by \code{\link{scranNormalise}} - runs normalisation on a
+Called by \code{\link{scranNormalise}} - runs normalisation on a 
 \pkg{SingleCellExperiment} object and converts it back to an 
 \linkS4class{EMSet}.
 }

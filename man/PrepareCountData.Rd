@@ -7,11 +7,11 @@
 PrepareCountData(object, cells, ngenes)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} to perform differential expression on}
+\item{object}{An \code{\linkS4class{EMSet}} to perform differential expression on}
 
-\item{cells}{List of cells to extract from the \linkS4class{EMSet}}
+\item{cells}{List of cells to extract from the \code{\linkS4class{EMSet}}}
 
-\item{ngenes}{Number of cells to extract from the \linkS4class{EMSet}}
+\item{ngenes}{Number of cells to extract from the \code{\linkS4class{EMSet}}}
 }
 \value{
 A list of chunks of the expression matrix

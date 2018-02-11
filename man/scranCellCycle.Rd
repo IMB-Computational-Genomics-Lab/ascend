@@ -7,7 +7,7 @@
 scranCellCycle(object, training.set)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet}}
+\item{object}{An \code{\linkS4class{EMSet}} object}
 
 \item{training.set}{A training dataset containing pairs of marker genes}
 }

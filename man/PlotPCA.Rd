@@ -7,7 +7,7 @@
 PlotPCA(object, dim1 = 1, dim2 = 2, condition = NULL)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object that has undergone PCA}
+\item{object}{An \code{\linkS4class{EMSet}} object that has undergone PCA}
 
 \item{dim1}{Principal component to plot on the x-axis}
 

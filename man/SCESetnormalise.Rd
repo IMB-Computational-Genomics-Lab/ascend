@@ -9,16 +9,15 @@ SCESetnormalise(sce.set, em.set, quickCluster = FALSE)
 \arguments{
 \item{sce.set}{A \pkg{SingleCellExperiment} object}
 
-\item{em.set}{An \linkS4class{EMSet} that the \pkg{SingleCellExperiment} 
-originated from}
+\item{em.set}{The \code{\linkS4class{EMSet}} to load the SCESet into}
 
 \item{quickCluster}{Whether or not to use quickCluster (Default: FALSE)}
 }
 \value{
-A normalised \linkS4class{EMSet}
+A normalised \code{\linkS4class{EMSet}} object
 }
 \description{
 Called by \code{\link{scranNormalise}} - runs normalisation on a 
 \pkg{SingleCellExperiment} object and converts it back to an 
-\linkS4class{EMSets}.
+\linkS4class{EMSet}.
 }

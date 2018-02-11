@@ -7,11 +7,11 @@
 NormaliseLibSize(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object. Please remove spike-ins from the 
-expression matrix before normalising.}
+\item{object}{An \code{\linkS4class{EMSet}} object. Please remove spike-ins 
+from the expression matrix before normalising.}
 }
 \value{
-An \linkS4class{EMSet} normalised by library size
+An \code{\linkS4class{EMSet}} normalised by library size
 }
 \description{
 Normalise library sizes by scaling.

@@ -7,7 +7,7 @@
 PlotControlPercentagesPerSample(object, control.name)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object}
+\item{object}{An \code{\linkS4class{EMSet}} object}
 
 \item{control.name}{Name of the control you would like to plot}
 }

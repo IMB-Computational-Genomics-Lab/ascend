@@ -412,14 +412,14 @@ RetrieveCluster <- function(height.list, hclust.obj = NULL, distance.matrix = NU
 #' @param remove_outlier Remove cells that weren't assigned a cluster with 
 #' dynamicTreeCut. This is indicative of outlier cells within the sample.
 #' Default: FALSE
-#' @return An \linkS4class{EMSet} with cluster information loaded into the 
+#' @return An \code{\linkS4class{EMSet}} with cluster information loaded into the 
 #' Clusters slot
 #' @examples
 #' \dontrun{
 #' clustered_set <- RunCORE(em.set, conservative = TRUE, 
 #' windows = 40, remove_outlier = TRUE)
 #' }
-#' @importFrom stats dist hclust
+#' @importFrom stats dist hclust setNames
 #' @importFrom dynamicTreeCut cutreeDynamic
 #' @importFrom BiocParallel bplapply
 #' @export
@@ -557,9 +557,9 @@ RunCORE <- function(object, conservative = TRUE, nres = 40, remove_outlier = FAL
   output.list <- list(
     DistanceMatrix = distance.matrix,
     Hclust = original.tree,
-    PutativeClusters = setNames(original.clusters, cell.labels),
+    PutativeClusters = stats::setNames(original.clusters, cell.labels),
     ClusteringMatrix = cluster.matrix,
-    Clusters = setNames(optimal.cluster.list, cell.labels),
+    Clusters = stats::setNames(optimal.cluster.list, cell.labels),
     NumberOfClusters = as.numeric(optimal.cluster.number),
     OptimalTreeHeight = as.numeric(optimal.tree.height),
     KeyStats = key.stats,

@@ -13,10 +13,10 @@ supplied to the EMSet object}
 \item{pct.threshold}{Percentage threshold to filter cells by, as a whole 
 number. Default: 20}
 
-\item{object}{An \linkS4class{EMSet}}
+\item{object}{An \code{\linkS4class{EMSet}}}
 }
 \value{
-An \linkS4class{EMSet} with filtered controls
+An \code{\linkS4class{EMSet}} with filtered controls
 }
 \description{
 Filter cells in an expression matrix based on the expression levels of a

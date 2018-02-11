@@ -6,34 +6,6 @@
 \usage{
 ReplaceCellInfo(object, cell.info)
 }
-\arguments{
-\item{object}{An \linkS4class{EMSet} object.}
-
-\item{cell.info}{A data frame containing cell information. The first column 
-must contain cell identifiers that match the cell identifiers used in the 
-expression matrix. The second column, while optional - should contain batch 
-information.}
-}
-\value{
-An \linkS4class{EMSet} with updated cell information.
-}
 \description{
-Can be called by the user or by a filtering function. Updates Cell 
-Information in a \linkS4class{EMSet} object, replacing the old data frame 
-with a new one.
-}
-\examples{
-\dontrun{
-# Create an EMSet with just expression data
-EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
-
-# Define Cell Information
-cell_info <- data.frame(cell_barcode = c("Cell1", "Cell2", "Cell3"),
-batch = c("1", "1", "2")
-)
-
-# Replace Cell Information
-updated_em_set <- ReplaceCellInfo(EMSet, cell_info)
-}
-
+Definition for the \code{\link{ReplaceCellInfo}} function.
 }

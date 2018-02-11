@@ -19,11 +19,11 @@ A sparse matrix in dgCMatrix format
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to do the following:
 \enumerate{
-\item Convert the loaded \linkS4class{dgTMatrix} to \linkS4class{dgCMatrix}
+\item Convert the loaded dgTMatrix to dgCMatrix
 \item Add cellular barcodes as column labels
 \item Add gene names as row labels
 }
 }
 \details{
-\linkS4class{dgCMatrix} objects are preferred due to their smaller size.
+dgCMatrix objects are preferred due to their smaller size.
 }

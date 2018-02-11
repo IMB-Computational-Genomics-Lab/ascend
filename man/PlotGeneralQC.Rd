@@ -7,7 +7,7 @@
 PlotGeneralQC(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object}
+\item{object}{An \code{\linkS4class{EMSet}} object}
 }
 \value{
 A list of ggplot globs

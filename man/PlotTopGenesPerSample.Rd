@@ -7,7 +7,7 @@
 PlotTopGenesPerSample(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object}
+\item{object}{An \code{\linkS4class{EMSet}} object}
 }
 \description{
 Generates a violin/beeswarm plot of top genes per sample. This is called by

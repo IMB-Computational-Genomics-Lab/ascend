@@ -68,10 +68,10 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
 
 #' GetReducedDimensions
 #'
-#' @param object An \linkS4class{EMSet} object that has undergone PCA reduction.
+#' @param object An \code{\linkS4class{EMSet}} object that has undergone PCA reduction.
 #' @param n The number of PC dimensions you would like to select. Refer to
 #' vignette on how to select this value. Default: 10
-#' @return An \linkS4class{EMSet} with a PCA matrix of dimensions ncells by 
+#' @return An \code{\linkS4class{EMSet}} with a PCA matrix of dimensions ncells by 
 #' ndimensions
 #' @examples
 #' \dontrun{
@@ -126,15 +126,15 @@ CalcRowVariance <- function(x) {
 #' RunPCA
 #'
 #' Reduce the dimensions of an expression matrix stored in an 
-#' \linkS4class{EMSet}. This should be used prior to clustering.
+#' \code{\linkS4class{EMSet}}. This should be used prior to clustering.
 #' 
-#' @param object An \linkS4class{EMSet} that has undergone filtering and 
+#' @param object An \code{\linkS4class{EMSet}} that has undergone filtering and 
 #' normalisation.
 #' @param ngenes The top number of genes you would like to perform the reduction by. 
 #' Default: 1500
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values. 
 #' Default: TRUE
-#' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
+#' @return An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @examples
 #' \dontrun{

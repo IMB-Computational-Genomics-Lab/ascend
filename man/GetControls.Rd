@@ -6,12 +6,6 @@
 \usage{
 GetControls(object)
 }
-\arguments{
-\item{object}{An \linkS4class{EMSet} object.}
-}
-\value{
-This function returns a list of controls defined by the user.
-}
 \description{
-Retrieve list of controls from \linkS4class{EMSet}.
+Generic for \code{\link{GetControls}}.
 }

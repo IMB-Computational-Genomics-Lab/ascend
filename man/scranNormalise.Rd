@@ -7,7 +7,8 @@
 scranNormalise(object, quickCluster = FALSE, min.mean = 1e-05)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has not undergone normalisation}
+\item{object}{An \code{\linkS4class{EMSet}} that has not undergone 
+normalisation}
 
 \item{quickCluster}{Use scran's quickCluster method (TRUE) or  use randomly-
 assigned groups (FALSE, Default)}
@@ -19,12 +20,12 @@ best for UMI data. This argument is only used for newer versions of
 \pkg{scran}.}
 }
 \value{
-An \linkS4class{EMSet} with an expression matrix with counts 
+An \code{\linkS4class{EMSet}} with an expression matrix with counts 
 normalised by \code{\link[scater]{normalize}} function
 }
 \description{
-Normalise an \linkS4class{EMSet} with \pkg{scran}'s deconvolution method by 
-Lun et al. 2016.
+Normalise an \code{\linkS4class{EMSet}} with \pkg{scran}'s deconvolution 
+method by Lun et al. 2016.
 }
 \details{
 Pooling method of cells is influenced by the size of the cell 

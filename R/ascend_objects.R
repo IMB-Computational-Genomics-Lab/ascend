@@ -163,7 +163,12 @@ setClass("EMSet", representation(ExpressionMatrix = "Matrix", GeneInformation = 
     Clusters = "list", Metrics = "list", Log = "list"), prototype(ExpressionMatrix = Matrix::Matrix(0, nrow = 0, ncol = 0, sparse = TRUE), GeneInformation = data.frame(matrix(nr = 0,
     nc = 0)), CellInformation = data.frame(matrix(nr = 0, nc = 0)), Controls = list(), PCA = list(), Clusters = list(), Metrics = list(), Log = list()), validity = CheckEMSet)
 
-# More methods for this class
+#' show
+#' 
+#' Generic display function for \linkS4class{EMSet}s. Displays summary of the
+#' object.
+#' 
+#' @importFrom methods setMethod
 setMethod("show", signature("EMSet"), function(object) {
     # Rethink this slot Get number of genes and cells from the expression matrix dimensions
     print("ascend Object - EMSet")
@@ -272,6 +277,10 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
     return(em.set)
 }
 
+#' SyncSlots (Generic)
+#' 
+#' Generic for the \code{\link{SyncSlots}} function.
+#' @importFrom methods setGeneric
 setGeneric(name = "SyncSlots", def = function(object) {
     standardGeneric("SyncSlots")
 })
@@ -293,7 +302,7 @@ setGeneric(name = "SyncSlots", def = function(object) {
 #' \dontrun{
 #' synced_emset <- SyncSlots(unsynced_EMSet)
 #' }
-#' @importFrom methods setGeneric setMethod
+#' @importFrom methods setMethod
 #' @export
 setMethod("SyncSlots", signature("EMSet"), function(object) {
     # Get data frames
@@ -330,6 +339,14 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
     return(object)
 })
 
+#' UpdateControls (Generic)
+#' 
+#' Definition for the \code{\link{UpdateControls}} function.
+#' @importFrom methods setGeneric
+setGeneric(name = "UpdateControls", def = function(object, controls) {
+    standardGeneric("UpdateControls")
+})
+
 #' UpdateControls
 #'
 #' Replaces the control list in a \linkS4class{EMSet} object with a new control 
@@ -360,11 +377,6 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
 #' }
 #' @importFrom methods setGeneric setMethod
 #' @export
-#' 
-setGeneric(name = "UpdateControls", def = function(object, controls) {
-    standardGeneric("UpdateControls")
-})
-
 setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
     errors <- character()
 
@@ -392,6 +404,15 @@ setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
         object <- GenerateMetrics(object)
         return(object)
     }
+})
+
+#' ReplaceCellInfo
+#' 
+#' Definition for the \code{\link{ReplaceCellInfo}} function.
+#' 
+#' @importFrom methods setGeneric
+setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
+    standardGeneric("ReplaceCellInfo")
 })
 
 #' ReplaceCellInfo
@@ -424,11 +445,6 @@ setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
 #' 
 #' @importFrom methods setGeneric setMethod
 #' @export
-#' 
-setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
-    standardGeneric("ReplaceCellInfo")
-})
-
 setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
     # Check replacement is valid.
     replacement <- object
@@ -442,6 +458,15 @@ setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
     } else {
         return(replacement)
     }
+})
+
+#' ReplaceGeneInfo
+#' 
+#' Definition for \code{\link{ReplaceCellInfo}} function.
+#' 
+#' @importFrom methods setGeneric
+setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
+    standardGeneric("ReplaceGeneInfo")
 })
 
 #' ReplaceGeneInfo
@@ -472,11 +497,6 @@ setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
 #' }
 #' @importFrom methods setGeneric setMethod
 #' @export
-#' 
-setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
-    standardGeneric("ReplaceGeneInfo")
-})
-
 setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
     # Check replacement is valid.
     replacement <- object
@@ -488,6 +508,15 @@ setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
     } else {
         return(replacement)
     }
+})
+
+#' ReplaceExpressionMatrix
+#' 
+#' Definition for \code{\link{ReplaceExpressionMatrix}} function.
+#' 
+#' @importFrom methods setGeneric
+setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
+    standardGeneric("ReplaceExpressionMatrix")
 })
 
 #' ReplaceExpressionMatrix
@@ -509,10 +538,6 @@ setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
 #' }
 #' @importFrom methods setGeneric setMethod
 #' @export
-setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
-    standardGeneric("ReplaceExpressionMatrix")
-})
-
 setMethod("ReplaceExpressionMatrix", signature("EMSet"), function(object, expression.matrix) {
     # Replace the matrix
     object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format = "sparseMatrix")
