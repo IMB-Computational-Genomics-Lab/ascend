@@ -8,12 +8,12 @@
 \S4method{SubsetBatch}{EMSet}(object, batches = c())
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}}}
+\item{object}{An \code{\linkS4class{EMSet}}.}
 
-\item{batches}{Name or number of the batch(es) you would like to subset}
+\item{batches}{Name or number of the batch(es) you would like to subset.}
 }
 \value{
-An \code{\linkS4class{EMSet}} containing only this batch
+An \code{\linkS4class{EMSet}} containing only this batch.
 }
 \description{
 Subset a specific batch from an \code{\linkS4class{EMSet}}.

@@ -8,13 +8,13 @@ FindOutliers(values, nmads = 3, type = c("both", "lower", "upper"),
   na.rm = FALSE)
 }
 \arguments{
-\item{values}{List of values}
+\item{values}{List of values.}
 
-\item{nmads}{Mean Absolute Deviation value threshold. Default: 3}
+\item{nmads}{Mean Absolute Deviation value threshold. Default: 3.}
 
 \item{type}{Direction to find outliers in - both (Default), lower, upper.}
 
-\item{na.rm}{Remove NA values if present (Default: False)}
+\item{na.rm}{Remove NA values if present (Default: False).}
 }
 \description{
 Adapted from \code{\link[scater]{isOutlier}}. Determines outliers based on 

@@ -7,17 +7,17 @@
 BuildCellRangerDataset(data.dir)
 }
 \arguments{
-\item{data.dir}{Where Cell Ranger output is stored}
+\item{data.dir}{Where Cell Ranger output is stored.}
 }
 \value{
-A list of processed files
+A list of processed files.
 }
 \description{
 Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{LoadCellRanger}}.
 This function reads in the following files:
 \itemize{
-\item{\strong{barcodes.tsv} - Filtered cellular barcodes recognised by Cell Ranger}
-\item{\strong{genes.tsv} - ENSEMBL transcript IDs and their associated gene symbols}
-\item{\strong{matrix.mtx} - The expression matrix in Market Matrix format}
+\item{\strong{barcodes.tsv} - Filtered cellular barcodes recognised by Cell Ranger.}
+\item{\strong{genes.tsv} - ENSEMBL transcript IDs and their associated gene symbols.}
+\item{\strong{matrix.mtx} - The expression matrix in Market Matrix format.}
 }
 }

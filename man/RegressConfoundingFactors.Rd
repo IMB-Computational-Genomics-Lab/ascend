@@ -15,7 +15,7 @@ it from a EMSet object with the GetExpressionMatrix function.}
 }
 \value{
 An \code{\linkS4class{EMSet}} with confounding factors regressed from the
-expression values
+expression values.
 }
 \description{
 This function generates a scaled regression matrix based on candidate genes

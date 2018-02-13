@@ -7,17 +7,17 @@
 PlotPCA(object, dim1 = 1, dim2 = 2, condition = NULL)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} object that has undergone PCA}
+\item{object}{An \code{\linkS4class{EMSet}} object that has undergone PCA.}
 
-\item{dim1}{Principal component to plot on the x-axis}
+\item{dim1}{Principal component to plot on the x-axis.}
 
-\item{dim2}{Principal component to plot on the y-axis}
+\item{dim2}{Principal component to plot on the y-axis.}
 
 \item{condition}{(Optional) Name of the column in CellIdentifiers that 
-describe a set of conditions you would like to colour cells by}
+describe a set of conditions you would like to colour cells by.}
 }
 \value{
-A ggplot glob that contains a scatter plot
+A ggplot glob that contains a scatter plot.
 }
 \description{
 Plot two principal components (PCs) on a scatter plot. This plot corresponds

@@ -9,9 +9,9 @@ list}
 CheckData(object, query)
 }
 \arguments{
-\item{object}{List 1}
+\item{object}{List 1.}
 
-\item{query}{List 2}
+\item{query}{List 2.}
 }
 \value{
 List of missing objects

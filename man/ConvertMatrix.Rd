@@ -9,11 +9,11 @@ ConvertMatrix(matrix, format = c("data.frame", "matrix", "sparseMatrix"))
 \arguments{
 \item{matrix}{A data frame, dense matrix or sparse matrix.}
 
-\item{format}{Format to change the matrix to - data.frame (Default), matrix
-and sparseMatrix}
+\item{format}{Format to change the matrix to - "data.frame" (Default), 
+"matrix" and "sparseMatrix".}
 }
 \value{
-Matrix in the format of your choice
+Matrix in the format of your choice.
 }
 \description{
 Converts matrix to format of choice. This function gets called by other 

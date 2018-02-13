@@ -10,7 +10,7 @@ JoinMatrices(x = list(), format = c("data.frame", "matrix", "sparseMatrix"))
 \item{x}{A list of data frames containing expression matrices.}
 
 \item{format}{Output joined matrices in one of the following formats: 
-data.frame (Default), matrix or sparseMatrix}
+data.frame (Default), matrix or sparseMatrix.}
 }
 \value{
 A single expression matrix in your chosen format.

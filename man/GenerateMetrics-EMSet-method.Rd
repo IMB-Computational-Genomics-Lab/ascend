@@ -10,17 +10,17 @@
 \description{
 This function generates the following set of values per cell:
 \itemize{
-\item{\strong{Total Counts}: Total number of expressed transcripts per cell}
-\item{\strong{Total Feature Counts per Cell}: Number of non-control genes expressed per cell}
-\item{\strong{Total Expression}: Total number of expressed transcripts in the dataset}
-\item{\strong{Top Gene List}: Entire list of genes organised from most expressed to least expressed across the entire dataset}
-\item{\strong{Control Transcript Counts}: Total sum of control transcript counts per cell}
-\item{\strong{Percentage Total Counts}: Percentage of transcripts originating from control genes per cell}
-\item{\strong{AverageCounts}: Average transcript count for a gene}
-\item{\strong{GenesPerCell}: Number of unique transcripts expressed by a cell}
-\item{\strong{CellsPerGene}: Number of cells expressing a gene}
-\item{\strong{CountsPerGene}: Total number of transcripts produced by that gene expressed by all cells}
-\item{\strong{Mean Gene Expression}: Mean expression level of a gene across the entire dataset}
+\item{\strong{Total Counts}: Total number of expressed transcripts per cell.}
+\item{\strong{Total Feature Counts per Cell}: Number of non-control genes expressed per cell.}
+\item{\strong{Total Expression}: Total number of expressed transcripts in the dataset.}
+\item{\strong{Top Gene List}: Entire list of genes organised from most expressed to least expressed across the entire dataset.}
+\item{\strong{Control Transcript Counts}: Total sum of control transcript counts per cell.}
+\item{\strong{Percentage Total Counts}: Percentage of transcripts originating from control genes per cell.}
+\item{\strong{AverageCounts}: Average transcript count for a gene.}
+\item{\strong{GenesPerCell}: Number of unique transcripts expressed by a cell.}
+\item{\strong{CellsPerGene}: Number of cells expressing a gene.}
+\item{\strong{CountsPerGene}: Total number of transcripts produced by that gene expressed by all cells.}
+\item{\strong{Mean Gene Expression}: Mean expression level of a gene across the entire dataset.}
 }
 }
 \details{

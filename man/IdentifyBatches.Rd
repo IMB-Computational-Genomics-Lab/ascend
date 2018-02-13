@@ -12,7 +12,7 @@ from Cell Ranger output.}
 }
 \value{
 A dataframe containing cell barcodes in the first column and batch
-information in the second column
+information in the second column.
 }
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to parse batch labels from

@@ -10,17 +10,17 @@ PlotMDS(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL)
 \item{object}{An \code{\linkS4class{EMSet}} that has undergone clustering with 
 \code{\link{RunCORE}}.}
 
-\item{PCA}{If true, use PCA-reduced matrix to generate MDS plot}
+\item{PCA}{If true, use PCA-reduced matrix to generate MDS plot.}
 
-\item{dim1}{Which dimension to plot on the x-axis}
+\item{dim1}{Which dimension to plot on the x-axis.}
 
-\item{dim2}{Which dimension to plot on the y-axis}
+\item{dim2}{Which dimension to plot on the y-axis.}
 
 \item{condition}{(Optional) Name of the condition in Cell Identifiers that 
-describe a set of conditions you would like to colour cells by}
+describe a set of conditions you would like to colour cells by.}
 }
 \value{
-A ggplot glob that contains a scatter plot
+A ggplot glob that contains a scatter plot.
 }
 \description{
 Generates a Multi-Dimensional Scaling (MDS) plot.

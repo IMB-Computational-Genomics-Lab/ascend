@@ -8,12 +8,13 @@
 \S4method{SubsetCluster}{EMSet}(object, clusters = c())
 }
 \arguments{
-\item{object}{A \code{\linkS4class{EMSet}}}
+\item{object}{A \code{\linkS4class{EMSet}}.}
 
-\item{clusters}{Clusters to subset from the dataset}
+\item{clusters}{Clusters to subset from the dataset.}
 }
 \value{
-Returns an \code{\linkS4class{EMSet}} containing only the selected clusters
+Returns an \code{\linkS4class{EMSet}} containing only the selected 
+clusters.
 }
 \description{
 Subset an\code{\linkS4class{EMSet}} by cluster. Please make sure you have clustered 

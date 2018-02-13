@@ -33,17 +33,17 @@ setGeneric(name = "GenerateMetrics", def = function(object) {
 #'
 #' This function generates the following set of values per cell:
 #' \itemize{
-#' \item{\strong{Total Counts}: Total number of expressed transcripts per cell}
-#' \item{\strong{Total Feature Counts per Cell}: Number of non-control genes expressed per cell}
-#' \item{\strong{Total Expression}: Total number of expressed transcripts in the dataset}
-#' \item{\strong{Top Gene List}: Entire list of genes organised from most expressed to least expressed across the entire dataset}
-#' \item{\strong{Control Transcript Counts}: Total sum of control transcript counts per cell}
-#' \item{\strong{Percentage Total Counts}: Percentage of transcripts originating from control genes per cell}
-#' \item{\strong{AverageCounts}: Average transcript count for a gene}
-#' \item{\strong{GenesPerCell}: Number of unique transcripts expressed by a cell}
-#' \item{\strong{CellsPerGene}: Number of cells expressing a gene}
-#' \item{\strong{CountsPerGene}: Total number of transcripts produced by that gene expressed by all cells}
-#' \item{\strong{Mean Gene Expression}: Mean expression level of a gene across the entire dataset}
+#' \item{\strong{Total Counts}: Total number of expressed transcripts per cell.}
+#' \item{\strong{Total Feature Counts per Cell}: Number of non-control genes expressed per cell.}
+#' \item{\strong{Total Expression}: Total number of expressed transcripts in the dataset.}
+#' \item{\strong{Top Gene List}: Entire list of genes organised from most expressed to least expressed across the entire dataset.}
+#' \item{\strong{Control Transcript Counts}: Total sum of control transcript counts per cell.}
+#' \item{\strong{Percentage Total Counts}: Percentage of transcripts originating from control genes per cell.}
+#' \item{\strong{AverageCounts}: Average transcript count for a gene.}
+#' \item{\strong{GenesPerCell}: Number of unique transcripts expressed by a cell.}
+#' \item{\strong{CellsPerGene}: Number of cells expressing a gene.}
+#' \item{\strong{CountsPerGene}: Total number of transcripts produced by that gene expressed by all cells.}
+#' \item{\strong{Mean Gene Expression}: Mean expression level of a gene across the entire dataset.}
 #' }
 #'
 #' This function is called by \code{\link{NewEMSet}} and generates metrics for 
@@ -127,7 +127,7 @@ setMethod("GenerateMetrics", signature("EMSet"), function(object) {
 #' This is a hidden function and shouldn't be used directly by users.
 #' 
 #' @param gene.information A dataframe containing gene identiers in the first 
-#' column
+#' column.
 #' @param controls List of controls supplied by the user. They must match the
 #' gene identifiers used in the expression matrix.
 #' 
@@ -215,9 +215,9 @@ setGeneric(name = "ExcludeControl", def = function(object, control.name) {
 #' expression analysis.
 #' 
 #' @param object An \code{\linkS4class{EMSet}} object. It is recommended that 
-#' you run this step after this object has undergone filtering
-#' @param control.name Name of the control set you want to remove from the dataset
-#' @return An \code{\linkS4class{EMSet}} without controls in the expression matrix
+#' you run this step after this object has undergone filtering.
+#' @param control.name Name of the control set you want to remove from the dataset.
+#' @return An \code{\linkS4class{EMSet}} without controls in the expression matrix.
 #' @importFrom methods setGeneric setMethod
 #' @export
 #'
@@ -283,7 +283,7 @@ setGeneric(name = "DisplayLog", def = function(object) {
 #'
 #' Print out the log of an \code{\linkS4class{EMSet}}.
 #' @include ascend_objects.R
-#' @return A print-out of the log attached to an \code{\linkS4class{EMSet}}
+#' @return A print-out of the log attached to an \code{\linkS4class{EMSet}}.
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("DisplayLog", signature("EMSet"), function(object) {

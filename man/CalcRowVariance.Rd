@@ -7,10 +7,10 @@
 CalcRowVariance(x)
 }
 \arguments{
-\item{x}{A matrix to calculate the row-wise variance of}
+\item{x}{A matrix to calculate the row-wise variance of.}
 }
 \value{
-A vector of numeric values
+A vector of numeric values.
 }
 \description{
 Internal function called by RunPCA function

@@ -8,13 +8,13 @@
 \S4method{SubsetCells}{EMSet}(object, cell.barcodes = c())
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}}}
+\item{object}{An \code{\linkS4class{EMSet}}.}
 
 \item{cell.barcodes}{A list of cell identifiers to subset from the 
-\linkS4class{EMSet}}
+\linkS4class{EMSet}.}
 }
 \value{
-An \code{\linkS4class{EMSet}}
+An \code{\linkS4class{EMSet}}.
 }
 \description{
 Subset cells in the supplied list from an \code{\linkS4class{EMSet}}.

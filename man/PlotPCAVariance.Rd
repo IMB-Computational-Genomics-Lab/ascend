@@ -9,10 +9,10 @@ PlotPCAVariance(object, n = 100)
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} that has undergone PCA.}
 
-\item{n}{Number of PCs to view on the plot}
+\item{n}{Number of PCs to view on the plot.}
 }
 \value{
-A ggplot2 glob that contains a scatter qplot
+A ggplot2 glob that contains a scatter qplot.
 }
 \description{
 Generates a scree plot. The principal components (PCs) are sorted from 

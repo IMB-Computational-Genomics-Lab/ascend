@@ -8,9 +8,9 @@
 \S4method{GetBatchMatrix}{EMSet}(object, batch.id)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} object}
+\item{object}{An \code{\linkS4class{EMSet}} object.}
 
-\item{batch.id}{Batch identifier that you would like to retrieve}
+\item{batch.id}{Batch identifier that you would like to retrieve.}
 }
 \description{
 Retrieve a portion of the matrix by batch label

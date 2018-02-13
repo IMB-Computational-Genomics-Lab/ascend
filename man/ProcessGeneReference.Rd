@@ -11,7 +11,7 @@ ProcessGeneReference(gene.obj)
 Ranger output.}
 }
 \value{
-A dataframe containing gene_symbols in the first column
+A dataframe containing gene_symbols in the first column.
 }
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to parse genes.tsv into a data

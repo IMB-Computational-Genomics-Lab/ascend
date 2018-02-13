@@ -7,9 +7,9 @@
 CalculateRandIndex(x, adjust = TRUE)
 }
 \arguments{
-\item{x}{Set of clustering results}
+\item{x}{Set of clustering results.}
 
-\item{adjust}{TRUE or FALSE}
+\item{adjust}{TRUE or FALSE.}
 }
 \description{
 Calculates rand matrix based on clustering results

@@ -8,11 +8,11 @@
 \S4method{SyncSlots}{EMSet}(object)
 }
 \arguments{
-\item{object}{An EMSet to sync}
+\item{object}{An EMSet to sync.}
 }
 \value{
-Original \linkS4class{EMSet} with CellInformation, GeneInformation and 
-ExpressionMatrix slots syncronised together.
+Original \linkS4class{EMSet} with CellInformation, GeneInformation 
+and ExpressionMatrix slots syncronised together.
 }
 \description{
 Synchronises the data frames ExpressionMatrix, GeneInformation and 

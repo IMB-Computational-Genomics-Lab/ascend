@@ -4,10 +4,10 @@
 #' \pkg{SingleCellExperiment} object and converts it back to an 
 #' \linkS4class{EMSet}.
 #' 
-#' @param sce.set A \pkg{SingleCellExperiment} object
-#' @param em.set The \code{\linkS4class{EMSet}} to load the SCESet into
-#' @param quickCluster Whether or not to use quickCluster (Default: FALSE)
-#' @return A normalised \code{\linkS4class{EMSet}} object
+#' @param sce.set A \pkg{SingleCellExperiment} object.
+#' @param em.set The \code{\linkS4class{EMSet}} to load the SCESet into.
+#' @param quickCluster Whether or not to use quickCluster (Default: FALSE).
+#' @return A normalised \code{\linkS4class{EMSet}} object.
 #' @importFrom scran quickCluster computeSumFactors
 #' @importFrom scater normalize
 #' 
@@ -87,12 +87,12 @@ SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
 #' \pkg{SingleCellExperiment} object and converts it back to an 
 #' \linkS4class{EMSet}.
 #' 
-#' @param sce.obj A \pkg{SingleCellExperiment} object
-#' @param em.set An \code{\linkS4class{EMSet}} that the sce.set originated from
-#' @param quickCluster Normalise with quickCluster Default: FALSE
-#' @param min.mean Argument to pass on to 
-#' \code{\link[scran]{computeSumFactors}} from \pkg{scran} Default: 1e-5
-#' @return A normalised \code{\linkS4class{EMSet}}
+#' @param sce.obj A \pkg{SingleCellExperiment} object.
+#' @param em.set An \code{\linkS4class{EMSet}} that the sce.set originated from.
+#' @param quickCluster Normalise with quickCluster Default: FALSE.
+#' @param min.mean Argument to pass on to
+#' \code{\link[scran]{computeSumFactors}} from \pkg{scran} Default: 1e-5.
+#' @return A normalised \code{\linkS4class{EMSet}}.
 #' 
 #' @importFrom scran quickCluster computeSumFactors
 #' @importFrom scater normalize
@@ -176,8 +176,8 @@ SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5)
 #' *ensembl_id* as your rownames in this dataset. Also ensure you are using
 #' mitochondrial and ribosomal genes as controls.
 #'
-#' @param object An \code{\linkS4class{EMSet}} object
-#' @param training.set A training dataset containing pairs of marker genes
+#' @param object An \code{\linkS4class{EMSet}} object.
+#' @param training.set A training dataset containing pairs of marker genes.
 #' @importFrom scran cyclone
 #' @importFrom BiocParallel bpparam
 #' @export
@@ -312,9 +312,9 @@ ConvertToSCE <- function(object, control.list = list()) {
 #' Loads data from a SCESet to a pre-existing 
 #' \linkS4class{EMSet} object.
 #' 
-#' @param SCESet A SCESet from \pkg{scater}
-#' @param EMSet An \code{\linkS4class{EMSet}} to load data from
-#' @return An \code{\linkS4class{EMSet}} with data retrieved from a SCESet
+#' @param SCESet A SCESet from \pkg{scater}.
+#' @param EMSet An \code{\linkS4class{EMSet}} to load data from.
+#' @return An \code{\linkS4class{EMSet}} with data retrieved from a SCESet.
 #' @export
 #'
 SCESet2EMSet <- function(SCESet, EMSet) {

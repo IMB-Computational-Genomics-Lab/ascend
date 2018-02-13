@@ -11,10 +11,10 @@ RunPCA(object, ngenes = 1500, scaling = TRUE)
 normalisation.}
 
 \item{ngenes}{The top number of genes you would like to perform the reduction by. 
-Default: 1500}
+Default: 1500.}
 
 \item{scaling}{Boolean - set to FALSE if you do not want to scale your values. 
-Default: TRUE}
+Default: TRUE.}
 }
 \value{
 An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA

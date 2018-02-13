@@ -14,7 +14,7 @@ setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
 #' \code{\linkS4class{EMSet}} object.
 #'
 #' @param object A \code{\linkS4class{EMSet}} to retrieve the expression matrix 
-#' from
+#' from.
 #' @param format Format of the returned matrix - 'data.frame' or 'matrix'
 #' @return Returns the expression matrix in the chosen format (data.frame or 
 #' matrix).
@@ -103,8 +103,8 @@ setGeneric(name = "GetBatchMatrix", def = function(object, batch.id) {
 #' GetBatchMatrix
 #'
 #' Retrieve a portion of the matrix by batch label
-#' @param object An \code{\linkS4class{EMSet}} object
-#' @param batch.id Batch identifier that you would like to retrieve
+#' @param object An \code{\linkS4class{EMSet}} object.
+#' @param batch.id Batch identifier that you would like to retrieve.
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("GetBatchMatrix", signature("EMSet"), function(object, batch.id) {

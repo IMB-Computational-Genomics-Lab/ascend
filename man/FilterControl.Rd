@@ -7,14 +7,14 @@
 FilterControl(control.group, total.counts, expression.matrix)
 }
 \arguments{
-\item{control.group}{Name of control group}
+\item{control.group}{Name of control group.}
 
-\item{total.counts}{List of total counts of each cell}
+\item{total.counts}{List of total counts of each cell.}
 
-\item{expression.matrix}{An expression matrix}
+\item{expression.matrix}{An expression matrix.}
 }
 \value{
-Percentage expression of controls per cell
+Percentage expression of controls per cell.
 }
 \description{
 Called by \code{\link{FilterByOutliers}}. This function identifies cells to

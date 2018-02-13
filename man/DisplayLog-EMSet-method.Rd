@@ -8,7 +8,7 @@
 \S4method{DisplayLog}{EMSet}(object)
 }
 \value{
-A print-out of the log attached to an \code{\linkS4class{EMSet}}
+A print-out of the log attached to an \code{\linkS4class{EMSet}}.
 }
 \description{
 Print out the log of an \code{\linkS4class{EMSet}}.

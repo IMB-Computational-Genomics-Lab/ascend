@@ -8,9 +8,9 @@ PlotNormalisationQC(original = NULL, normalised = NULL,
   gene.list = list())
 }
 \arguments{
-\item{original}{An un-normalised \code{\linkS4class{EMSet}}}
+\item{original}{An un-normalised \code{\linkS4class{EMSet}}.}
 
-\item{normalised}{A normalised \code{\linkS4class{EMSet}}}
+\item{normalised}{A normalised \code{\linkS4class{EMSet}}.}
 
 \item{gene.list}{OPTIONAL: A list of genes to plot expression levels for. 
 If not defined, \pkg{ascend} will choose a gene at random. Good candidates
@@ -19,9 +19,9 @@ are MALAT1 and GAPDH.}
 \value{
 A list containing the following plots:
 \itemize{
-\item{Plot1}
-\item{Plot2}
-\item{Plot3}
+\item{Library size histograms.}
+\item{Scatter boxplots for selected genes.}
+\item{Scatter boxplots for each gene.}
 }
 }
 \description{

@@ -7,21 +7,21 @@
 BuildExpressionMatrix(sparse.matrix, barcode.obj, gene.obj)
 }
 \arguments{
-\item{sparse.matrix}{matrix.mtx imported from Cell Ranger output}
+\item{sparse.matrix}{matrix.mtx imported from Cell Ranger output.}
 
-\item{barcode.obj}{barcodes.tsv imported from Cell Ranger output}
+\item{barcode.obj}{barcodes.tsv imported from Cell Ranger output.}
 
-\item{gene.obj}{genes.tsv imported from Cell Ranger output}
+\item{gene.obj}{genes.tsv imported from Cell Ranger output.}
 }
 \value{
-A sparse matrix in dgCMatrix format
+A sparse matrix in dgCMatrix format.
 }
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to do the following:
 \enumerate{
-\item Convert the loaded dgTMatrix to dgCMatrix
-\item Add cellular barcodes as column labels
-\item Add gene names as row labels
+\item{Convert the loaded dgTMatrix to dgCMatrix.}
+\item{Add cellular barcodes as column labels.}
+\item{Add gene names as row labels.}
 }
 }
 \details{

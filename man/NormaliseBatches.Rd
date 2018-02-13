@@ -7,10 +7,10 @@
 NormaliseBatches(object)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} with cells from more than one batch}
+\item{object}{An \code{\linkS4class{EMSet}} with cells from more than one batch.}
 }
 \value{
-An \code{\linkS4class{EMSet}} with batch-normalised expression values
+An \code{\linkS4class{EMSet}} with batch-normalised expression values.
 }
 \description{
 Normalise counts to remove batch effects. This normalisation method is for

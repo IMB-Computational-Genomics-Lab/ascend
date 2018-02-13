@@ -17,15 +17,15 @@ filtering and normalisation.}
 defined the conditions you would like to test. eg cluster to compare clusters
 identified by RunCORE.}
 
-\item{condition.a}{Condition of the group you want to use as the baseline}
+\item{condition.a}{Condition of the group you want to use as the baseline.}
 
 \item{condition.b}{Conditions of the group you want to compare to the baseline.}
 
 \item{fitType}{Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
-Options: parametric, local (Default)}
+Options: parametric, local (Default).}
 
 \item{method}{Method used by \pkg{DESeq} to compute emperical dispersion.
-Options: pooled, pooled-CR, per-condition (Default), blind}
+Options: pooled, pooled-CR, per-condition (Default), blind.}
 
 \item{ngenes}{Perform differential expression analysis using top number of genes.
 If omitted, this function will run analysis on ALL genes.}

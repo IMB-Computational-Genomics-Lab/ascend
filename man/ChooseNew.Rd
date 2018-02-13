@@ -7,9 +7,9 @@
 ChooseNew(n, k)
 }
 \arguments{
-\item{n}{First clustering result}
+\item{n}{First clustering result.}
 
-\item{k}{Second clustering result}
+\item{k}{Second clustering result.}
 }
 \description{
 Function to calculate rand index. Adapted from function by Steve Horvarth and

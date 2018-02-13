@@ -7,9 +7,9 @@
 scranCellCycle(object, training.set)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} object}
+\item{object}{An \code{\linkS4class{EMSet}} object.}
 
-\item{training.set}{A training dataset containing pairs of marker genes}
+\item{training.set}{A training dataset containing pairs of marker genes.}
 }
 \description{
 Wrapper for \pkg{scran}'s cell cycle functions. Please ensure you are using

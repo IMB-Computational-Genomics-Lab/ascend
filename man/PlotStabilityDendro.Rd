@@ -7,7 +7,7 @@
 PlotStabilityDendro(object)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} that has undergone clustering}
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone clustering.}
 }
 \description{
 Generate a dendrogram with coloured bars representing each clustering result

@@ -37,7 +37,7 @@ RegressGene <- function(x, covariate.matrix = NULL, expression.matrix = NULL) {
 #' @param candidate.genes A list of genes you wish to regress from the dataset.
 #' Refer to the vignette on how to choose genes for regression.
 #' @return An \code{\linkS4class{EMSet}} with confounding factors regressed from the
-#' expression values
+#' expression values.
 #' @examples
 #' \dontrun{
 #' regressed_object <- RegressConfoundingFactors(em.set, 

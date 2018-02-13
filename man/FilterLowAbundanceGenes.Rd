@@ -10,11 +10,11 @@ FilterLowAbundanceGenes(object, pct.value = 1)
 \item{object}{An \code{\linkS4class{EMSet}} that has been filtered by 
 \code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.}
 
-\item{pct.value}{Percentage threshold as a whole number. Default: 1}
+\item{pct.value}{Percentage threshold as a whole number. Default: 1.}
 }
 \value{
 An \code{\linkS4class{EMSet}} with low abundance genes removed from 
-the dataset
+the dataset.
 }
 \description{
 Removes genes if they are expressed in less than a set percentage of cells . 

@@ -7,10 +7,10 @@
 GenerateDefaultControls(gene.obj)
 }
 \arguments{
-\item{gene.obj}{Gene information imported from Cell Ranger output}
+\item{gene.obj}{Gene information imported from Cell Ranger output.}
 }
 \value{
-A list of controls
+A list of controls.
 }
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to retrieve mitochondrial and

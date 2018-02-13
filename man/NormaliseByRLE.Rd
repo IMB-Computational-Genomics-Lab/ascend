@@ -11,7 +11,7 @@ NormaliseByRLE(object)
 Please ensure spike-ins have been removed before using this function.}
 }
 \value{
-An \code{\linkS4class{EMSet}} with normalised expression values
+An \code{\linkS4class{EMSet}} with normalised expression values.
 }
 \description{
 Normalisation of expression between cells, by scaling to relative log 

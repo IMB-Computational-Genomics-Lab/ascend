@@ -12,12 +12,13 @@ setGeneric(name = "SubsetCondition", def = function(object, condition, subcondit
 #'
 #' Subset cells of a specific condition(s) from an \code{\linkS4class{EMSet}}.
 #'
-#' @param object An \code{\linkS4class{EMSet}}
+#' @param object An \code{\linkS4class{EMSet}}.
 #' @param condition Name of the condition/column you would like to subset the
-#' \code{\linkS4class{EMSet}} by
+#' \code{\linkS4class{EMSet}} by.
 #' @param subconditions List of subconditions that are stored in the condition
-#' column, that you would like to select
-#' @return An \code{\linkS4class{EMSet}} containing cells that only have this condition
+#' column, that you would like to select.
+#' @return An \code{\linkS4class{EMSet}} containing cells that only have this 
+#' condition.
 #' @examples
 #' \dontrun{
 #' happy_emset <- SubsetCondition(em.set, condition = "emotion", 
@@ -76,9 +77,9 @@ setGeneric(name = "SubsetBatch", def = function(object, batches) {
 #'
 #' Subset a specific batch from an \code{\linkS4class{EMSet}}.
 #'
-#' @param object An \code{\linkS4class{EMSet}}
-#' @param batches Name or number of the batch(es) you would like to subset
-#' @return An \code{\linkS4class{EMSet}} containing only this batch
+#' @param object An \code{\linkS4class{EMSet}}.
+#' @param batches Name or number of the batch(es) you would like to subset.
+#' @return An \code{\linkS4class{EMSet}} containing only this batch.
 #' @examples
 #' \dontrun{
 #' sample1_emset <- SubsetBatch(em.set, batches = c("1", "2", "3"))
@@ -131,9 +132,10 @@ setGeneric(name = "SubsetCluster", def = function(object, clusters) {
 #' This data is already normalised, but if you wish to recluster the data, you 
 #' will need to use the RunPCA function again.
 #'
-#' @param object A \code{\linkS4class{EMSet}}
-#' @param clusters Clusters to subset from the dataset
-#' @return Returns an \code{\linkS4class{EMSet}} containing only the selected clusters
+#' @param object A \code{\linkS4class{EMSet}}.
+#' @param clusters Clusters to subset from the dataset.
+#' @return Returns an \code{\linkS4class{EMSet}} containing only the selected 
+#' clusters.
 #' @examples
 #' \dontrun{
 #' cluster1_object <- SubsetCluster(em.set, clusters = c("1", "2", "3"))
@@ -192,10 +194,10 @@ setGeneric(name = "SubsetCells", def = function(object, cell.barcodes) {
 #'
 #' Subset cells in the supplied list from an \code{\linkS4class{EMSet}}.
 #'
-#' @param object An \code{\linkS4class{EMSet}}
+#' @param object An \code{\linkS4class{EMSet}}.
 #' @param cell.barcodes A list of cell identifiers to subset from the 
-#' \linkS4class{EMSet}
-#' @return An \code{\linkS4class{EMSet}}
+#' \linkS4class{EMSet}.
+#' @return An \code{\linkS4class{EMSet}}.
 #' @examples
 #' \dontrun{
 #' barcode_list <- c("Barcode1", "Barcode2", "Barcode3")

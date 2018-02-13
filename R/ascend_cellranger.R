@@ -5,8 +5,8 @@
 #' Called by \code{\link{BuildCellRangerDataset}} to retrieve mitochondrial and
 #' ribosomal gene names and list them as controls.
 #' 
-#' @param gene.obj Gene information imported from Cell Ranger output
-#' @return A list of controls
+#' @param gene.obj Gene information imported from Cell Ranger output.
+#' @return A list of controls.
 #'
 GenerateDefaultControls <- function(gene.obj) {
     mitochondrial.genes <- gene.obj$gene_symbol[grep("^mt-", ignore.case = TRUE, gene.obj$gene_symbol)]
@@ -19,17 +19,17 @@ GenerateDefaultControls <- function(gene.obj) {
 #'
 #' Called by \code{\link{BuildCellRangerDataset}} to do the following:
 #' \enumerate{
-#' \item Convert the loaded dgTMatrix to dgCMatrix
-#' \item Add cellular barcodes as column labels
-#' \item Add gene names as row labels
+#' \item{Convert the loaded dgTMatrix to dgCMatrix.}
+#' \item{Add cellular barcodes as column labels.}
+#' \item{Add gene names as row labels.}
 #' }
 #'
 #' dgCMatrix objects are preferred due to their smaller size.
 #'
-#' @param sparse.matrix matrix.mtx imported from Cell Ranger output
-#' @param barcode.obj barcodes.tsv imported from Cell Ranger output
-#' @param gene.obj genes.tsv imported from Cell Ranger output
-#' @return A sparse matrix in dgCMatrix format
+#' @param sparse.matrix matrix.mtx imported from Cell Ranger output.
+#' @param barcode.obj barcodes.tsv imported from Cell Ranger output.
+#' @param gene.obj genes.tsv imported from Cell Ranger output.
+#' @return A sparse matrix in dgCMatrix format.
 #' @importFrom methods as
 #' 
 BuildExpressionMatrix <- function(sparse.matrix, barcode.obj, gene.obj) {
@@ -50,7 +50,7 @@ BuildExpressionMatrix <- function(sparse.matrix, barcode.obj, gene.obj) {
 #' 
 #' @param gene.obj Gene information stored in a data frame imported from Cell
 #' Ranger output.
-#' @return A dataframe containing gene_symbols in the first column
+#' @return A dataframe containing gene_symbols in the first column.
 #' 
 ProcessGeneReference <- function(gene.obj) {
     # Convert to data frame, set gene symbol as column 1
@@ -73,7 +73,7 @@ ProcessGeneReference <- function(gene.obj) {
 #' @param barcode.obj Cell barcode information stored in a data frame imported
 #' from Cell Ranger output.
 #' @return A dataframe containing cell barcodes in the first column and batch
-#' information in the second column
+#' information in the second column.
 #' 
 IdentifyBatches <- function(barcode.obj) {
     colnames(barcode.obj) <- c("cell_barcode")
@@ -87,13 +87,13 @@ IdentifyBatches <- function(barcode.obj) {
 #' Called by \code{\link{LoadCellRangerData}} as a part of \code{\link{LoadCellRanger}}.
 #' This function reads in the following files:
 #' \itemize{
-#' \item{\strong{barcodes.tsv} - Filtered cellular barcodes recognised by Cell Ranger}
-#' \item{\strong{genes.tsv} - ENSEMBL transcript IDs and their associated gene symbols}
-#' \item{\strong{matrix.mtx} - The expression matrix in Market Matrix format}
+#' \item{\strong{barcodes.tsv} - Filtered cellular barcodes recognised by Cell Ranger.}
+#' \item{\strong{genes.tsv} - ENSEMBL transcript IDs and their associated gene symbols.}
+#' \item{\strong{matrix.mtx} - The expression matrix in Market Matrix format.}
 #' }
 #'
-#' @param data.dir Where Cell Ranger output is stored
-#' @return A list of processed files
+#' @param data.dir Where Cell Ranger output is stored.
+#' @return A list of processed files.
 #' 
 BuildCellRangerDataset <- function(data.dir) {
     # Default filepaths for Cell Ranger
@@ -137,9 +137,9 @@ BuildCellRangerDataset <- function(data.dir) {
 #' Called by \code{\link{LoadCellRangerData}}. This function is involved in
 #' checks to make sure the Cell Ranger output folder is structured correctly.
 #' 
-#' @param target.dir User-inputted directory
-#' @param cellranger.dir Expected Cell Ranger directory
-#' @return Correct cell ranger directories
+#' @param target.dir User-inputted directory.
+#' @param cellranger.dir Expected Cell Ranger directory.
+#' @return Correct cell ranger directories.
 #' 
 CheckCellRangerDirs <- function(target.dir, cellranger.dir) {
     result.dir <- lapply(cellranger.dir, function(x) dir.exists(paste0(target.dir, "/", x)))
@@ -160,8 +160,8 @@ CheckCellRangerDirs <- function(target.dir, cellranger.dir) {
 #' Called by \code{\link{LoadCellRanger}}. This function detects which folder
 #' to use in the 'outs' directory of the Cell Ranger output folder.
 #'
-#' @param working.dir Path inputted by user
-#' @param genome.name Name of reference inputted by the user
+#' @param working.dir Path inputted by user.
+#' @param genome.name Name of reference inputted by the user.
 #' 
 LoadCellRangerData <- function(working.dir, genome.name) {
     cellranger.dir <- c("filtered_gene_bc_matrices", "filtered_gene_bc_matrices_mex")
@@ -193,10 +193,10 @@ LoadCellRangerData <- function(working.dir, genome.name) {
 #' a control for the experiment.
 #'
 #' @param cellranger.path This is the path to the folder of data generated by
-#' Cell Ranger's count pipeline
-#' @param genome This is the name of the reference genome used by Cell Ranger
+#' Cell Ranger's count pipeline.
+#' @param genome This is the name of the reference genome used by Cell Ranger.
 #' @return An \code{\linkS4class{EMSet}} with cell information, gene information and
-#' controls set
+#' controls set.
 #' @examples
 #' \dontrun{
 #' new_em_set <- LoadCellRanger("CellRangerData/", "GRCh38")

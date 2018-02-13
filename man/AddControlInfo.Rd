@@ -10,7 +10,7 @@ AddControlInfo(gene.information, controls)
 }
 \arguments{
 \item{gene.information}{A dataframe containing gene identiers in the first 
-column}
+column.}
 
 \item{controls}{List of controls supplied by the user. They must match the
 gene identifiers used in the expression matrix.}

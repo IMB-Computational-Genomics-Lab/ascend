@@ -7,10 +7,10 @@
 UnLog2Matrix(expression.matrix)
 }
 \arguments{
-\item{expression.matrix}{An expression.matrix}
+\item{expression.matrix}{An expression.matrix.}
 }
 \value{
-The expression matrix in dense matrix format
+The expression matrix in dense matrix format.
 }
 \description{
 Converts count values of a matrix that had undergone normalisation via 

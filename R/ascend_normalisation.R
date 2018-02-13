@@ -16,16 +16,16 @@
 #' assigned to a group.
 #'
 #' @param object An \code{\linkS4class{EMSet}} that has not undergone 
-#' normalisation
+#' normalisation.
 #' @param quickCluster Use scran's quickCluster method (TRUE) or  use randomly-
-#' assigned groups (FALSE, Default)
+#' assigned groups (FALSE, Default).
 #' @param min.mean Threshold for average counts. This argument is for the 
 #' \code{\link[scran]{computeSumFactors}} function from \pkg{scran}. The value 
 #' of 1 is recommended for read count data, while the default value of 1e-5 is 
 #' best for UMI data. This argument is only used for newer versions of 
 #' \pkg{scran}.
 #' @return An \code{\linkS4class{EMSet}} with an expression matrix with counts 
-#' normalised by \code{\link[scater]{normalize}} function
+#' normalised by \code{\link[scater]{normalize}} function.
 #' @examples
 #' \dontrun{
 #' normalised_object <- scranNormalise(em.set, quickCluster = TRUE, 
@@ -58,11 +58,11 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
 #'
 #' Called by NormaliseBatches. Performs normalisation within a batch.
 #' 
-#' @param batch.id Batch identifier as stored in CellInformation
-#' @param expression.matrix Expression matrix that has not been batch-normalised
-#' @param cell.info Cell Information data frame
+#' @param batch.id Batch identifier as stored in CellInformation.
+#' @param expression.matrix Expression matrix that has not been batch-normalised.
+#' @param cell.info Cell Information data frame.
 #' @return A list containing the normalisation factor and a batch-normalised 
-#' expression matrix in sparse format
+#' expression matrix in sparse format.
 #' @importFrom Matrix t rowSums
 #'
 NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL) {
@@ -90,8 +90,8 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL
 #'
 #' This step should be done prior to any filtering and normalisation between cells.
 #'
-#' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch
-#' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values
+#' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch.
+#' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values.
 #' @examples
 #' \dontrun{
 #' batch_normalised_object <- NormaliseBatches(em.set)
@@ -136,7 +136,7 @@ NormaliseBatches <- function(object) {
 #' Normalise library sizes by scaling.
 #' @param object An \code{\linkS4class{EMSet}} object. Please remove spike-ins 
 #' from the expression matrix before normalising.
-#' @return An \code{\linkS4class{EMSet}} normalised by library size
+#' @return An \code{\linkS4class{EMSet}} normalised by library size.
 #' @importFrom Matrix colSums t
 #' @importFrom stats median
 #' @export
@@ -162,10 +162,10 @@ NormaliseLibSize <- function(object) {
 #' Calculate the normalisation factor between all cells. This function is called
 #' by \code{\link{NormaliseByRLE}}.
 #' 
-#' @param x List of counts associated with a gene
+#' @param x List of counts associated with a gene.
 #' @param geo.means Geometric mean associated with a cell as calculated by the
-#' \code{\link{CalcGeoMeans}} function
-#' @return A list of normalisation factors
+#' \code{\link{CalcGeoMeans}} function.
+#' @return A list of normalisation factors.
 #' @importFrom stats median
 #' 
 CalcNormFactor <- function(x, geo.means) {
@@ -183,8 +183,8 @@ CalcNormFactor <- function(x, geo.means) {
 #' Calculate the geometric mean around a point. Called by 
 #' \code{\link{NormaliseByRLE}} function.
 #' 
-#' @param x Counts associated with a cell
-#' @return Geometric means associated with each cell
+#' @param x Counts associated with a cell.
+#' @return Geometric means associated with each cell.
 #' 
 CalcGeoMeans <- function(x) {
     x <- x[x > 0]
@@ -201,7 +201,7 @@ CalcGeoMeans <- function(x) {
 #' 
 #' @param object An \code{\linkS4class{EMSet}} set that has undergone filtering. 
 #' Please ensure spike-ins have been removed before using this function.
-#' @return An \code{\linkS4class{EMSet}} with normalised expression values
+#' @return An \code{\linkS4class{EMSet}} with normalised expression values.
 #' @examples
 #' \dontrun{
 #' normalised_object <- NormaliseByRLE(em.set)

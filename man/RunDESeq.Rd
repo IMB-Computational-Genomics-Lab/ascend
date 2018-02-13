@@ -8,20 +8,20 @@ RunDESeq(data, condition.list = list(), condition.a = NULL,
   condition.b = NULL, fitType = NULL, method = NULL)
 }
 \arguments{
-\item{data}{Chunk of count matrix}
+\item{data}{Chunk of count matrix.}
 
-\item{condition.list}{List of conditions to test}
+\item{condition.list}{List of conditions to test.}
 
-\item{condition.a}{Condition A}
+\item{condition.a}{Condition A.}
 
-\item{condition.b}{Condition B}
+\item{condition.b}{Condition B.}
 
-\item{fitType}{Type of fit to use with \pkg{DESeq}}
+\item{fitType}{Type of fit to use with \pkg{DESeq}.}
 
-\item{method}{Method to use with \pkg{DESeq}}
+\item{method}{Method to use with \pkg{DESeq}.}
 }
 \value{
-A dataframe containing DESeq results
+A dataframe containing DESeq results.
 }
 \description{
 Called by \code{\link{RunDiffExpression}} to run in parallel. This performs 

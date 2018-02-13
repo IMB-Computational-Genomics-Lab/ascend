@@ -7,10 +7,10 @@
 CalcColVariance(x)
 }
 \arguments{
-\item{x}{A matrix to calculate the column-wise variance of}
+\item{x}{A matrix to calculate the column-wise variance of.}
 }
 \value{
-A vector of numeric valueså
+A vector of numeric values.
 }
 \description{
 Internal function called by RunPCA function

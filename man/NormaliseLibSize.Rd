@@ -11,7 +11,7 @@ NormaliseLibSize(object)
 from the expression matrix before normalising.}
 }
 \value{
-An \code{\linkS4class{EMSet}} normalised by library size
+An \code{\linkS4class{EMSet}} normalised by library size.
 }
 \description{
 Normalise library sizes by scaling.

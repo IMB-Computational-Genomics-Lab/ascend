@@ -10,11 +10,11 @@ ReduceDimensions(object, n = 10)
 \item{object}{An \code{\linkS4class{EMSet}} object that has undergone PCA reduction.}
 
 \item{n}{The number of PC dimensions you would like to select. Refer to
-vignette on how to select this value. Default: 10}
+vignette on how to select this value. Default: 10.}
 }
 \value{
 An \code{\linkS4class{EMSet}} with a PCA matrix of dimensions ncells by 
-ndimensions
+ndimensions.
 }
 \description{
 GetReducedDimensions

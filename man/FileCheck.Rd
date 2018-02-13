@@ -9,7 +9,7 @@ to process the file. This checks if the file exists.}
 FileCheck(filename)
 }
 \arguments{
-\item{filename}{Name of the file you want to check}
+\item{filename}{Name of the file you want to check.}
 }
 \value{
 Returns a boolean

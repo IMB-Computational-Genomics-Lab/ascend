@@ -7,9 +7,9 @@
 LoadCellRangerData(working.dir, genome.name)
 }
 \arguments{
-\item{working.dir}{Path inputted by user}
+\item{working.dir}{Path inputted by user.}
 
-\item{genome.name}{Name of reference inputted by the user}
+\item{genome.name}{Name of reference inputted by the user.}
 }
 \description{
 Called by \code{\link{LoadCellRanger}}. This function detects which folder

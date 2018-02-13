@@ -6,16 +6,18 @@
 #' 
 #' @param object An expression matrix or a PCA-reduced matrix.
 #' @param PCA Set this PCA flag to TRUE if the object is a PCA-reduced matrix. 
-#' Default: FALSE
+#' Default: FALSE.
 #' @param dimensions Number of dimensions you would like to reduce to. 
-#' Default: 2
+#' Default: 2.
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots. 
-#' Default: 0
-#' @param perplexity (Optional) Numeric; perplexity parameter. Default: 30
-#' @param theta (Optional) Numeric; Speed/accuracy trade-off 
-#' (increase for less accuracy). Default: 0.5
+#' Default: 0.
+#' @param perplexity (Optional) Numeric; perplexity parameter. Default: 30.
+#' @param theta (Optional) Numeric; Speed/accuracy trade-off. 
+#' (increase for less accuracy). Default: 0.5.
+#' @param ... Additional arguments to pass on to \code{\link[Rtsne]{Rtsne}}
+#' function.
 #' @return A dataframe containing expression data for each cell reduced to 
-#' selected number of dimensions
+#' selected number of dimensions.
 #' @examples
 #' \dontrun{
 #' tsne_matrix <- RunTSNE(em.set, PCA = TRUE, dimensions = 2, seed = 1, 
@@ -70,9 +72,9 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
 #'
 #' @param object An \code{\linkS4class{EMSet}} object that has undergone PCA reduction.
 #' @param n The number of PC dimensions you would like to select. Refer to
-#' vignette on how to select this value. Default: 10
+#' vignette on how to select this value. Default: 10.
 #' @return An \code{\linkS4class{EMSet}} with a PCA matrix of dimensions ncells by 
-#' ndimensions
+#' ndimensions.
 #' @examples
 #' \dontrun{
 #' # Reduce a dataset with RunPCA
@@ -103,8 +105,8 @@ ReduceDimensions <- function(object, n = 10) {
 #' 
 #' Internal function called by RunPCA function
 #' 
-#' @param x A matrix to calculate the column-wise variance of
-#' @return A vector of numeric valueså
+#' @param x A matrix to calculate the column-wise variance of.
+#' @return A vector of numeric values.
 #' 
 CalcColVariance <- function(x) {
     col.variance <- sqrt(colSums((x - colMeans(x))^2)/(dim(x)[1] - 1))
@@ -115,8 +117,8 @@ CalcColVariance <- function(x) {
 #' 
 #' Internal function called by RunPCA function
 #' 
-#' @param x A matrix to calculate the row-wise variance of
-#' @return A vector of numeric values
+#' @param x A matrix to calculate the row-wise variance of.
+#' @return A vector of numeric values.
 #' 
 CalcRowVariance <- function(x) {
     row.variance <- sqrt(rowSums((x - rowMeans(x))^2)/(dim(x)[2] - 1))
@@ -131,9 +133,9 @@ CalcRowVariance <- function(x) {
 #' @param object An \code{\linkS4class{EMSet}} that has undergone filtering and 
 #' normalisation.
 #' @param ngenes The top number of genes you would like to perform the reduction by. 
-#' Default: 1500
+#' Default: 1500.
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values. 
-#' Default: TRUE
+#' Default: TRUE.
 #' @return An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @examples

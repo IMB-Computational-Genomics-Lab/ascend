@@ -5,13 +5,13 @@
 #' Called by \code{\link{RunDiffExpression}} to run in parallel. This performs 
 #' the differential expression part.
 #' 
-#' @param data Chunk of count matrix
-#' @param condition.list List of conditions to test
-#' @param condition.a Condition A
-#' @param condition.b Condition B
-#' @param fitType Type of fit to use with \pkg{DESeq}
-#' @param method Method to use with \pkg{DESeq}
-#' @return A dataframe containing DESeq results
+#' @param data Chunk of count matrix.
+#' @param condition.list List of conditions to test.
+#' @param condition.a Condition A.
+#' @param condition.b Condition B.
+#' @param fitType Type of fit to use with \pkg{DESeq}.
+#' @param method Method to use with \pkg{DESeq}.
+#' @return A dataframe containing DESeq results.
 #' @import DESeq
 #' @importFrom locfit locfit
 #' 
@@ -53,10 +53,10 @@ ProcessDEResults <- function(output.list) {
 #' Called by \code{\link{RunDiffExpression}}. This chunks up the expression 
 #' matrix to feed into \pkg{DESeq}.
 #' 
-#' @param object An \code{\linkS4class{EMSet}} to perform differential expression on
-#' @param cells List of cells to extract from the \code{\linkS4class{EMSet}}
-#' @param ngenes Number of cells to extract from the \code{\linkS4class{EMSet}}
-#' @return A list of chunks of the expression matrix
+#' @param object An \code{\linkS4class{EMSet}} to perform differential expression on.
+#' @param cells List of cells to extract from the \code{\linkS4class{EMSet}}.
+#' @param ngenes Number of cells to extract from the \code{\linkS4class{EMSet}}.
+#' @return A list of chunks of the expression matrix.
 #' @importFrom stats sd
 PrepareCountData <- function(object, cells, ngenes) {
     if (is.null(ngenes)){
@@ -107,14 +107,14 @@ PrepareCountData <- function(object, cells, ngenes) {
 #' @param conditions Name of the column in the CellInformations lot where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
 #' identified by RunCORE.
-#' @param condition.a Condition of the group you want to use as the baseline
+#' @param condition.a Condition of the group you want to use as the baseline.
 #' @param condition.b Conditions of the group you want to compare to the baseline.
 #' @param ngenes Perform differential expression analysis using top number of genes.
 #' If omitted, this function will run analysis on ALL genes.
 #' @param fitType Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
-#' Options: parametric, local (Default)
+#' Options: parametric, local (Default).
 #' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
-#' Options: pooled, pooled-CR, per-condition (Default), blind 
+#' Options: pooled, pooled-CR, per-condition (Default), blind.
 #' @examples
 #' \dontrun{
 #' de.result <- RunDiffExpression(em.set, conditions = "cluster", 

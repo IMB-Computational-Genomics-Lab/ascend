@@ -7,9 +7,9 @@
 PlotControlPercentagesPerSample(object, control.name)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} object}
+\item{object}{An \code{\linkS4class{EMSet}} object.}
 
-\item{control.name}{Name of the control you would like to plot}
+\item{control.name}{Name of the control you would like to plot.}
 }
 \description{
 Generates a violin/beeswarm plot of percentage of control expression per 

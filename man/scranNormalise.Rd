@@ -8,10 +8,10 @@ scranNormalise(object, quickCluster = FALSE, min.mean = 1e-05)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} that has not undergone 
-normalisation}
+normalisation.}
 
 \item{quickCluster}{Use scran's quickCluster method (TRUE) or  use randomly-
-assigned groups (FALSE, Default)}
+assigned groups (FALSE, Default).}
 
 \item{min.mean}{Threshold for average counts. This argument is for the 
 \code{\link[scran]{computeSumFactors}} function from \pkg{scran}. The value 
@@ -21,7 +21,7 @@ best for UMI data. This argument is only used for newer versions of
 }
 \value{
 An \code{\linkS4class{EMSet}} with an expression matrix with counts 
-normalised by \code{\link[scater]{normalize}} function
+normalised by \code{\link[scater]{normalize}} function.
 }
 \description{
 Normalise an \code{\linkS4class{EMSet}} with \pkg{scran}'s deconvolution 
