@@ -70,7 +70,7 @@ Please install these packages before installing `ascend`. You do not need to loa
 Please use `devtools` to load the development version of `ascend`.
 
 ```{r LoadDevAscend, echo = FALSE, message = FALSE}
-devtools::load_all("~/CodeRepositories/ascend-dev")
+devtools::load_all(dirname(getwd()))
 ```
 
 ```{r Loadascend, eval = FALSE}

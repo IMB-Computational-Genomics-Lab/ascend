@@ -123,7 +123,7 @@ em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes,
 em.set
 ```
 
-### Load data from Cell Ranger into ascend automatically
+### SHORTCUT - Load data from Cell Ranger into ascend automatically
 If you are using Chromium data, you can also load the data into R with the `LoadCellRanger` function. This function loads the data into an EMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
 
 ```{r AutoLoading, eval = FALSE}

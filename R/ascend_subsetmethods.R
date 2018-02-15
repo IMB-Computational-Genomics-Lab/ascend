@@ -4,6 +4,7 @@
 #' Generic for \code{\link{SubsetCondition}}.
 #' 
 #' @importFrom methods setMethod
+#' @export
 setGeneric(name = "SubsetCondition", def = function(object, condition, subconditions) {
     standardGeneric("SubsetCondition")
 })
@@ -69,6 +70,7 @@ setMethod("SubsetCondition", signature("EMSet"), function(object, condition = NU
 #' Generic for \code{\link{SubsetBatch}}.
 #' 
 #' @importFrom methods setMethod
+#' @export
 setGeneric(name = "SubsetBatch", def = function(object, batches) {
     standardGeneric("SubsetBatch")
 })
@@ -120,6 +122,7 @@ setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
 #' Generic for \code{\link{SubsetCluster}}.
 #' 
 #' @importFrom methods setMethod
+#' @export
 setGeneric(name = "SubsetCluster", def = function(object, clusters) {
     standardGeneric("SubsetCluster")
 })
@@ -186,6 +189,7 @@ setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) 
 #' Generic for \code{\link{SubsetCells}}.
 #' 
 #' @importFrom methods setMethod
+#' @export
 setGeneric(name = "SubsetCells", def = function(object, cell.barcodes) {
     standardGeneric("SubsetCells")
 })

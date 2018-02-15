@@ -8,7 +8,7 @@
 #' @param object An EMSEt object.
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid.
-#'  
+#' @export 
 CheckExpressionMatrix <- function(object, errors) {
     # Check expression matrix using plyr's empty function.
     if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
@@ -43,7 +43,7 @@ CheckExpressionMatrix <- function(object, errors) {
 #' @param object An EMSEt object.
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid.
-#'
+#' @export
 CheckControls <- function(object, errors) {
     # Control checks - verify presence of controls in the matrix.
     if (length(object@Controls) > 0) {
@@ -66,7 +66,7 @@ CheckControls <- function(object, errors) {
 #' @param object An EMSEt object.
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid.
-#'  
+#' @export
 CheckCellInformation <- function(object, errors) {
     ## Check if number of batch identifiers match the number of columns in the expression matrix
     if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
@@ -92,7 +92,7 @@ CheckCellInformation <- function(object, errors) {
 #' @param object An EMSEt object.
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid.
-#'  
+#' @export
 CheckGeneInformation <- function(object, errors) {
     if (!all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[, 1])) {
         msg <- "Please make sure gene identifiers in column 1 of the Gene Information
@@ -312,6 +312,7 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
 #' 
 #' Generic for the \code{\link{SyncSlots}} function.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "SyncSlots", def = function(object) {
     standardGeneric("SyncSlots")
 })
@@ -374,6 +375,7 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
 #' 
 #' Definition for the \code{\link{UpdateControls}} function.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "UpdateControls", def = function(object, controls) {
     standardGeneric("UpdateControls")
 })
@@ -496,6 +498,7 @@ setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
 #' Definition for \code{\link{ReplaceCellInfo}} function.
 #' 
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
     standardGeneric("ReplaceGeneInfo")
 })
@@ -546,6 +549,7 @@ setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
 #' Definition for \code{\link{ReplaceExpressionMatrix}} function.
 #' 
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
     standardGeneric("ReplaceExpressionMatrix")
 })

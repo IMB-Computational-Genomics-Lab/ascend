@@ -4,6 +4,7 @@
 #' 
 #' Generic for \code{\link{GetExpressionMatrix}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
     standardGeneric("GetExpressionMatrix")
 })
@@ -34,6 +35,7 @@ setMethod("GetExpressionMatrix", signature("EMSet"), function(object, format = c
 #' 
 #' Generic for \code{\link{GetControls}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetControls", def = function(object) {
     standardGeneric("GetControls")
 })
@@ -56,6 +58,7 @@ setMethod("GetControls", signature("EMSet"), function(object) {
 #' 
 #' Generic for \code{\link{GetCellInfo}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetCellInfo", def = function(object) {
     standardGeneric("GetCellInfo")
 })
@@ -96,6 +99,7 @@ setMethod("GetGeneInfo", signature("EMSet"), function(object) {
 #' 
 #' Generic for \code{\link{GetBatchMatrix}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetBatchMatrix", def = function(object, batch.id) {
     standardGeneric("GetBatchMatrix")
 })
@@ -120,6 +124,7 @@ setMethod("GetBatchMatrix", signature("EMSet"), function(object, batch.id) {
 #' 
 #' Generic for \code{\link{GetRandMatrix}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetRandMatrix", def = function(object) {
     standardGeneric("GetRandMatrix")
 })
@@ -144,6 +149,7 @@ setMethod("GetRandMatrix", signature("EMSet"), function(object) {
 #' 
 #' Generic for \code{\link{GetPCA}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetPCA", def = function(object) {
     standardGeneric("GetPCA")
 })
@@ -170,6 +176,7 @@ setMethod("GetPCA", signature = "EMSet", function(object) {
 #' 
 #' Generic for \code{\link{GetDistanceMatrix}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetDistanceMatrix", def = function(object) {
     standardGeneric("GetDistanceMatrix")
 })
@@ -197,6 +204,7 @@ setMethod("GetDistanceMatrix", signature = "EMSet", function(object) {
 #' 
 #' Generic for \code{\link{GetHclust}}.
 #' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "GetHclust", def = function(object) {
     standardGeneric("GetHclust")
 })

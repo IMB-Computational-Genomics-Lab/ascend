@@ -53,7 +53,7 @@ PlotPDF <- function(plot.list, filename = NULL, width = 11, height = 8.5, ...){
 #' unlogged.matrix <- Unlog2Matrix(expression.matrix)
 #' }
 #' @importFrom Matrix t
-#'
+#' @export
 UnLog2Matrix <- function(expression.matrix){
   unlog.matrix <-apply(expression.matrix, 1, function(x) 2^x)
   unlog.matrix.sub.1 <- unlog.matrix -1
@@ -302,6 +302,7 @@ ConvertMatrix <- function(matrix, format = c("data.frame", "matrix", "sparseMatr
 #' @param object List 1.
 #' @param query List 2.
 #' @return List of missing objects
+#' @export
 CheckData <- function(object, query) {
   matches <- !all(is.na(match(query, object)))
   return(matches)
@@ -313,7 +314,7 @@ CheckData <- function(object, query) {
 #' 
 #' @param filename Name of the file you want to check.
 #' @return Returns a boolean
-#' 
+#' @export
 FileCheck <- function(filename) {
   if (!(file.exists(filename))) {
     stop(sprintf("%s is missing", filename))
