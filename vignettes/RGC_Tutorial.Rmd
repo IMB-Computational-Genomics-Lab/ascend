@@ -17,6 +17,9 @@ code_dir <- dirname(getwd())
 devtools::load_all(code_dir)
 library(BiocParallel)
 ncores <- parallel::detectCores() - 1
+if (ncores < 1){
+  ncores <- 1
+}
 register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
 load(url("https://github.com/IMB-Computational-Genomics-Lab/ascend/blob/master/inst/extdata/RGC_scRNASeq.RData?raw=true"))
 ```
