@@ -149,6 +149,12 @@ RunPCA <- function(object, ngenes = 1500, scaling = TRUE) {
     print("Retrieving data...")
     expression.matrix <- GetExpressionMatrix(object, format = "matrix")
     
+    # Check if ngenes is too large, just use all the genes to stop it from
+    # spazzing out.
+    if (ngenes > nrow(expression.matrix)){
+      ngenes <- nrow(expression.matrix)
+    }
+    
     # Selecting top ngenes by variance
     print("Calculating variance...")
     gene.variance <- CalcRowVariance(expression.matrix)
