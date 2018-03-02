@@ -4,7 +4,7 @@
 \alias{FindOptimalResult}
 \title{FindOptimalResult}
 \usage{
-FindOptimalResult(key.stats, conservative = TRUE, nres)
+FindOptimalResult(key.stats, conservative = TRUE, nres = 40)
 }
 \arguments{
 \item{key.stats}{A data frame containing clustering results across 40 res.}

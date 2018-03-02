@@ -3,3 +3,5 @@
 .Ruserdata
 inst/doc
 SingleCellExperiment.R
+
+\.\.Rcheck/

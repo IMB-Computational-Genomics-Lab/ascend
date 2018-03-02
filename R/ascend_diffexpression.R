@@ -15,7 +15,9 @@
 #' @import DESeq
 #' @importFrom locfit locfit
 #' 
-RunDESeq <- function(data, condition.list = list(), condition.a = NULL, condition.b = NULL, fitType = NULL, method = NULL) {
+RunDESeq <- function(data, condition.list = list(), 
+                     condition.a = NULL, condition.b = NULL, 
+                     fitType = NULL, method = NULL) {
     suppressPackageStartupMessages({
       require(locfit)
     })
@@ -205,24 +207,7 @@ RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL,
                                         condition.b = condition.b, 
                                         fitType = fitType,
                                         method = method)
-  # Break DESeq function into multiple bplapply calls
-  # 1. Generate count datasets
-  # 2. Estimate size factors for dataset
-  # 3. Estimate dispersions
-  # Urgh locfit wasn't exported to DESeq's estimateDispersions function...
-  #print("Converting to CountDataSet")
-  #chunked_count_datasets <- BiocParallel::bplapply(chunked.matrix, DESeq::newCountDataSet, conditions = condition.list)
-  
-  #print("Estimate size factors with DESeq")
-  #chunked_factored_datasets <- BiocParallel::bplapply(chunked_count_datasets, DESeq::estimateSizeFactors)
-  
-  #print("Estimating dispersions values...")
-  #chunked_dispersion_datasets <- BiocParallel::bplapply(chunked_factored_datasets, estimateDispersions, method = method, fitType = fitType)
-  
-  #print("Running DESeq's nbinom test")
-  #result.list <- BiocParallel::bplapply(chunked_dispersion_datasets, DESeq::nbinomTest, condA = condition.a, condB = condition.b) 
-  #print("Differential expression complete!")
-  
+
   print("Combining DE results...")
   output <- ProcessDEResults(result.list)
   return(output)

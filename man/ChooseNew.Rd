@@ -4,7 +4,7 @@
 \alias{ChooseNew}
 \title{ChooseNew}
 \usage{
-ChooseNew(n, k)
+ChooseNew(n = NULL, k = NULL)
 }
 \arguments{
 \item{n}{First clustering result.}

@@ -127,7 +127,10 @@ BuildCellRangerDataset <- function(data.dir) {
     control.list <- GenerateDefaultControls(gene.df)
     
     ### Return objects as a named list
-    processed.list <- list(CellInformation = batch.list, GeneInformation = gene.df, ExpressionMatrix = expression.matrix, Controls = control.list)
+    processed.list <- list(CellInformation = batch.list, 
+                           GeneInformation = gene.df, 
+                           ExpressionMatrix = expression.matrix, 
+                           Controls = control.list)
     return(processed.list)
 }
 
@@ -208,6 +211,9 @@ LoadCellRanger <- function(cellranger.path, genome.name) {
     genes <- loaded.data$GeneInformation
     batch <- loaded.data$CellInformation
     controls <- loaded.data$Controls
-    object <- NewEMSet(ExpressionMatrix = exprs.mtx, GeneInformation = genes, CellInformation = batch, Controls = controls)
+    object <- NewEMSet(ExpressionMatrix = exprs.mtx, 
+                       GeneInformation = genes, 
+                       CellInformation = batch, 
+                       Controls = controls)
     return(object)
 }

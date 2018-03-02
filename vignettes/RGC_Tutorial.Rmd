@@ -21,7 +21,7 @@ if (ncores < 1){
   ncores <- 1
 }
 register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
-load(url("https://github.com/IMB-Computational-Genomics-Lab/ascend/blob/master/inst/extdata/RGC_scRNASeq.RData?raw=true"))
+load(url("https://github.com/IMB-Computational-Genomics-Lab/ascend-guide/blob/master/data/sample_data/RGC_scRNASeq.rdata?raw=true"))
 ```
 The `ascend` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
@@ -32,7 +32,7 @@ You can read more about this dataset in the paper [Single Cell RNA Sequencing of
 
 ## Loading Data for use in ascend
 ### Preparing data manually
-The data for this vignette can be downloaded from CloudStor using [this link](https://cloudstor.aarnet.edu.au/plus/s/WhKqtjqZClRMvx7). You can load the data with the following command:
+The data for this vignette can be downloaded from the [ascend website repository](https://github.com/IMB-Computational-Genomics-Lab/ascend-guide). You can load the data with the following command:
 
 ```{R LoadData, eval = FALSE}
 load("RGC_scRNASeq.RData")
