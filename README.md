@@ -107,7 +107,7 @@ You must provide a list of gene identifiers linked to controls, if you would lik
 Controls should be organised into a named list, and identifiers used should be present in the expression matrix.
 
 #### Loading the data into ascend
-Follow the vignettes [Introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression](vignettes/ascend_Tutorial.md) and [Retina Ganglion Cells - A step-by-step ascend guide](vignettes/RGC_Tutorial.md) to learn about how to load your prepared data for use with ascend.
+Follow the vignettes [Introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression](vignettes/ascend_Tutorial.pdf) and [Retina Ganglion Cells - A step-by-step ascend guide](vignettes/RGC_Tutorial.md) to learn about how to load your prepared data for use with ascend.
 
 #### Contact
 Please report any bugs on the Issues tracker of this repository. Feel free to send any other queries to a.senabouth@imb.uq.edu.au.
