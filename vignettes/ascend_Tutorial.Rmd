@@ -4,14 +4,13 @@ title: An introduction to ascend - Analysis of Single Cell Expression, Normalisa
 author: "Anne Senabouth"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document:
     keep_md: yes
+  pdf_document: default
 vignette: |
   %\VignetteIndexEntry{An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression} 
-  %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}
-
+  %\VignetteEngine{knitr::rmarkdown} 
 ---
 
 ## Before you begin
