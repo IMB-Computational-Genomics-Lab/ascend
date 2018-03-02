@@ -6,6 +6,14 @@
 \usage{
 IdentifyBatches(barcode.obj)
 }
+\arguments{
+\item{barcode.obj}{Cell barcode information stored in a data frame imported
+from Cell Ranger output.}
+}
+\value{
+A dataframe containing cell barcodes in the first column and batch
+information in the second column.
+}
 \description{
 Called by \code{\link{BuildCellRangerDataset}} to parse batch labels from
 barcodes.tsv file. The result is a named list featuring cell barcodes as the

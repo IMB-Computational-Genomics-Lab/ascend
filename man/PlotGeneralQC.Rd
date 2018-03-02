@@ -7,14 +7,51 @@
 PlotGeneralQC(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object}
+\item{object}{An \code{\linkS4class{EMSet}} object.}
 }
 \value{
 A list of ggplot globs
 }
 \description{
-This function generates the following plots:
+This function generates a series of plots that can be used to assess the
+present quality of an EMSet.
+}
+\details{
+The plots are as follows:
 \itemize{
-\item{\strong{Library Size}: A histogram depicting library sizes across the dataset.}
+\item{\strong{Library Size}: A histogram depicting the distribution of 
+library sizes across the dataset.}
+\item{\strong{Average Gene Count}: A histogram depicting number of cells vs 
+mean gene expression.}
+\item{\strong{Average Gene Count (Log2)}: A histogram depicting number of 
+cells vs Log2 mean gene expression.}
+\item{\strong{Average Gene Count (Log10)}: A histogram depicting number of 
+cells vs Log2 mean gene expression.}
+\item{\strong{Log 10 Average Gene Count (Smooth Scatter)}: Smooth scatter 
+plot of number of cells vs Log10 mean gene expression.}
+\item{\strong{Top Genes Per Sample}: Violin/beehive plots depicting 
+proportion of top genes per sample.}
+\item{\strong{Top Gene Expression}: Boxplots depicting top 50 genes in terms 
+of expression.}
+}
+If controls are defined, two additional plots are generated:
+\itemize{
+\item{\strong{Percentage Control Expression}: Histograms depicting number of 
+cells with the contribution of control genes as a percentage of total counts.}
+\item{\strong{Proportion of Control Expression}: Violin/beehive plots for 
+each sample and control, depicting the proportion of controls to total 
+expression.}
+}
+}
+\examples{
+\dontrun{
+# Create a new EMSet
+em.set <- NewEMSet(ExpressionMatrix = my_matrix)
+
+# Assess quality of data by generating plots with PlotGeneralQC
+raw.qc.plots <- PlotGeneralQC(em.set)
+
+# Print QC plots out to a PDF file
+PlotPDF(raw.qc.plots, "GeneralQCPlots.pdf")
 }
 }

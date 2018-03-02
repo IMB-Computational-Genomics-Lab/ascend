@@ -6,13 +6,6 @@
 \usage{
 ConvertGeneAnnotation(object, old.annotation, new.annotation)
 }
-\arguments{
-\item{object}{A \linkS4class{EMSet} object.}
-
-\item{old.annotation}{Name of the column containing the current gene annotations.}
-
-\item{new.annotation}{Name of the column you would like to convert the gene annotations to.}
-}
 \description{
-Convert gene identifiers used in this \linkS4class{EMSet} to identifiers used in another column of a dataframe stored in the GeneAnnotation slot.
+Generic method for \code{\link{ConvertGeneAnnotation}}.
 }

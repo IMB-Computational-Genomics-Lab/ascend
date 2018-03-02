@@ -6,6 +6,14 @@
 \usage{
 GetConsecutiveSequence(x, direction = c("forward", "reverse"))
 }
+\arguments{
+\item{x}{Set of values to find the consecutive sequences in.}
+
+\item{direction}{Direction to find the consecutive sequences in.}
+}
+\value{
+A list of consecutive numbers.
+}
 \description{
 Function used to determine consecutive sequences on boundaries.
 This is called by FindOptimalResult to determine which clustering results are

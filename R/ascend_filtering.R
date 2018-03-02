@@ -1,13 +1,23 @@
-#' FilterByExpressedGenesPerCell
+#' FilterLowAbundanceGenes
 #'
-#' Filtered cells by the proportion of expressed genes in the cell. This step is
-#' usually done after the other filtering steps and prior to normalisation.
-#' @param object EMSet (ascend) object that has been filtered by
+#' Removes genes if they are expressed in less than a set percentage of cells . 
+#' This step is usually done after the other filtering steps and prior to 
+#' normalisation. As this step may remove rare transcripts, this filtering step
+#' is optional.
+#' 
+#' @param object An \code{\linkS4class{EMSet}} that has been filtered by 
 #' \code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.
-#' @param pct.value Percentage threshold as a whole number. Default: 1
+#' @param pct.value Percentage threshold as a whole number. Default: 1.
+#' @return An \code{\linkS4class{EMSet}} with low abundance genes removed from 
+#' the dataset.
+#' @examples
+#' \dontrun{
+#' filtered_EMSet <- FilterLowAbundanceGenes(em.set, pct.value = 1)
+#' }
+#' @importFrom Matrix rowSums
 #' @export
 #'
-FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
+FilterLowAbundanceGenes <- function(object, pct.value = 1){
   filtered.object <- object
   expression.matrix <- filtered.object@ExpressionMatrix
   
@@ -55,9 +65,18 @@ FilterByExpressedGenesPerCell <- function(object, pct.value = 1){
 #' This function should be used AFTER the cells have undergone general filtering
 #' with the \code{\link{FilterByOutliers}} function.
 #'
-#' @param control.name Name of the control group, as used in the named list supplied to the EMSet object
-#' @param pct.threshold Percentage threshold to filter cells by, as a whole number. Default: 20
-#' @param object A \linkS4class{EMSet} object.
+#' @param control.name Name of the control group, as used in the named list 
+#' supplied to the EMSet object.
+#' @param pct.threshold Percentage threshold to filter cells by, as a whole 
+#' number. Default: 20.
+#' @param object An \code{\linkS4class{EMSet}}.
+#' @return An \code{\linkS4class{EMSet}} with filtered controls.
+#' @examples
+#' \dontrun{
+#' filtered_EMSet <- FilterByControl(control.name = "Mt", pct.threshold = 20,
+#' em.set
+#' )
+#' }
 #' @export
 #'
 
@@ -128,6 +147,12 @@ FilterByControl <- function(control.name = NULL, pct.threshold = 20, object){
 #'
 #' Called by \code{\link{FilterByOutliers}}. This function identifies cells to
 #' remove based on expression levels of control genes.
+#' 
+#' @param control.group Name of control group.
+#' @param total.counts List of total counts of each cell.
+#' @param expression.matrix An expression matrix.
+#' @return Percentage expression of controls per cell.
+#' @importFrom Matrix colSums
 #' @export
 #'
 FilterControl <- function(control.group, total.counts, expression.matrix ){
@@ -141,10 +166,13 @@ FilterControl <- function(control.group, total.counts, expression.matrix ){
 
 #' FindOutliers
 #'
-#' Adapted from \code{\link[scater]{isOutlier}}. Determines outliers based on MAD value.
-#' @param values List of values
-#' @param nmads Mean Absolute Deviation value threshold. Default: 3
-#' @param type Direction to find outliers in - both, lower, upper. Default: both
+#' Adapted from \code{\link[scater]{isOutlier}}. Determines outliers based on 
+#' Mean Absolute Deviation (MAD) value.
+#' @param values List of values.
+#' @param nmads Mean Absolute Deviation value threshold. Default: 3.
+#' @param type Direction to find outliers in - both (Default), lower, upper.
+#' @param na.rm Remove NA values if present (Default: False).
+#' @importFrom stats median mad
 #' @export
 #'
 FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), na.rm = FALSE) {
@@ -165,16 +193,24 @@ FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), 
 #'
 #' These values are then used to filter out cells based on the following criteria:
 #' \itemize{
-#' \item{Low overall gene expression}
-#' \item{Low number of expressed genes}
-#' \item{Expression of control genes beyond set threshold}
+#' \item{Low overall gene expression.}
+#' \item{Low number of expressed genes.}
+#' \item{Expression of control genes beyond set threshold.}
 #' }
 #'
 #' This function then loads the filtered expression matrix into the EMSet object.
 #'
-#' @param object An \linkS4class{EMSet} object
-#' @param cell.threshold  Mean Absolute Deviation (MAD) value to filter cells by library size. Default: 3
-#' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells by proportion of control genes. Default: 3
+#' @param object An \code{\linkS4class{EMSet}}.
+#' @param cell.threshold  Mean Absolute Deviation (MAD) value to filter cells by 
+#' library size. Default: 3.
+#' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells 
+#' by proportion of control genes. Default: 3.
+#' @return An \code{\linkS4class{EMSet}} with outlier cells filtered out.
+#' @examples
+#' \dontrun{
+#' filtered_emset <- FilterByOutliers(em.set, cell.threshold = 3, 
+#' control.threshold = 3)
+#' }
 #' @export
 #'
 FilterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) {

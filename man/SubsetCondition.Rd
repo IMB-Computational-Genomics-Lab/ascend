@@ -6,18 +6,6 @@
 \usage{
 SubsetCondition(object, condition, subconditions)
 }
-\arguments{
-\item{object}{A \linkS4class{EMSet} object}
-
-\item{condition}{Name of the condition/column you would like to subset the
-\linkS4class{EMSet} by}
-
-\item{subconditions}{List of subconditions that are stored in the condition
-column, that you would like to select}
-}
-\value{
-An \linkS4class{EMSet} containing only this batch.
-}
 \description{
-Subset specific conditions from a \linkS4class{EMSet} object.
+Generic for \code{\link{SubsetCondition}}.
 }

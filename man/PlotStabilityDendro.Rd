@@ -7,8 +7,17 @@
 PlotStabilityDendro(object)
 }
 \arguments{
-\item{object}{A \linkS4class{EMSet} that has undergone clustering.}
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone clustering.}
 }
 \description{
-PlotStabilityDendro
+Generate a dendrogram with coloured bars representing each clustering result
+below. This function is derived from the plotDendroAndColors function found
+in the \pkg{WGCNA} package.
+}
+\examples{
+\dontrun{
+pdf("MyStabilityDendrogram.pdf")
+PlotStabilityDendro(em.set)
+dev.off()
+}
 }

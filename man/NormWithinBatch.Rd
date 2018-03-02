@@ -6,6 +6,17 @@
 \usage{
 NormWithinBatch(batch.id, expression.matrix = NULL, cell.info = NULL)
 }
+\arguments{
+\item{batch.id}{Batch identifier as stored in CellInformation.}
+
+\item{expression.matrix}{Expression matrix that has not been batch-normalised.}
+
+\item{cell.info}{Cell Information data frame.}
+}
+\value{
+A list containing the normalisation factor and a batch-normalised 
+expression matrix in sparse format.
+}
 \description{
 Called by NormaliseBatches. Performs normalisation within a batch.
 }

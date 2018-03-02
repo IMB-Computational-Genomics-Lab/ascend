@@ -6,7 +6,13 @@
 \usage{
 ProcessDEResults(output.list)
 }
+\arguments{
+\item{output.list}{List of DESeq resuilts to process and compile}
+}
+\value{
+One data frame containing DESeq results for all genes
+}
 \description{
-Called by RunDiffExpression. Compiles the resultant data into data frames and converts
-the results to absolute fold change.
+Called by \code{\link{RunDiffExpression}}. Compiles the resultant data into 
+data frames and converts the results to absolute fold change.
 }

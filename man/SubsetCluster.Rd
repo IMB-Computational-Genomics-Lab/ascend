@@ -6,15 +6,6 @@
 \usage{
 SubsetCluster(object, clusters)
 }
-\arguments{
-\item{object}{A \linkS4class{EMSet} object}
-
-\item{clusters}{Clusters to subset from the dataset.}
-}
-\value{
-Returns an \linkS4class{EMSet} containing only this cluster.
-}
 \description{
-Subset a \linkS4class{EMSet} object by cluster. Please make sure you have clustered with \code{\link{RunCORE}} before using this function.
-This data is already normalised, but if you wish to recluster the data, you will need to use the RunPCA function again.
+Generic for \code{\link{SubsetCluster}}.
 }

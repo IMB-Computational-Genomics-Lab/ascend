@@ -8,12 +8,37 @@ PlotNormalisationQC(original = NULL, normalised = NULL,
   gene.list = list())
 }
 \arguments{
-\item{original}{An un-normalised \linkS4class{EMSet}}
+\item{original}{An un-normalised \code{\linkS4class{EMSet}}.}
 
-\item{normalised}{A normalised \linkS4class{EMSet}}
+\item{normalised}{A normalised \code{\linkS4class{EMSet}}.}
 
-\item{gene.list}{OPTIONAL: A list of genes to plot expression levels for. If not defined, ascend will choose a gene at random}
+\item{gene.list}{OPTIONAL: A list of genes to plot expression levels for. 
+If not defined, \pkg{ascend} will choose a gene at random. Good candidates
+are MALAT1 and GAPDH.}
+}
+\value{
+A list containing the following plots:
+\itemize{
+\item{Library size histograms.}
+\item{Scatter boxplots for selected genes.}
+\item{Scatter boxplots for each gene.}
+}
 }
 \description{
-Generates a series of plots comparing an un-normalised and a normalised \linkS4class{EMSet}.
+Generates a series of plots comparing an un-normalised and a normalised 
+\code{\linkS4class{EMSet}}.
+}
+\examples{
+\dontrun{
+# Normalise dataset using relative log expression (RLE)
+norm_set <- NormaliseByRLE(em.set)
+
+# Generate QC plots for normalisation
+norm_plots <- PlotNormalisationQC(original = em.set, normalised = norm_set,
+gene.list = c("MALAT1", "GAPDH")
+)
+
+# Output plots to PDF
+PlotPDF(norm_plots, "NormQC.pdf")
+}
 }

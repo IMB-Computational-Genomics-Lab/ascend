@@ -1,0 +1,107 @@
+library(BiocParallel)
+FUN <- function(x){ round(sqrt(x), 4)}
+bplapply(1:4, FUN)
+library(limma)
+bplapply(1:4, FUN)
+library(DESeq)
+bplapply(1:4, FUN)
+q()
+BiocInstaller::useDevel()
+biocValid()
+biocLite()
+library(BiocParallel)
+library(scater)
+FUN <- function(x) { round(sqrt(x), 4) }
+lapply(1:4, FUN)
+bplapply(1:4, FUN)
+# Load ASCEND#
+# BiocParallel Debugging#
+library(BiocParallel)#
+#
+# Set up environment#
+devtools::load_all("/Users/a.senabouth/CodeRepositories/ASCEND")#
+#
+ncores <- parallel::detectCores() - 1#
+register(MulticoreParam(workers = ncores, progressbar = TRUE, stop.on.error = TRUE), default = TRUE)#
+#
+FUN <- function(x) { round(sqrt(x), 4) }#
+bptry(bplapply(1:4, FUN))
+## try http:// if https:// URLs are not supported#
+source("https://bioconductor.org/biocLite.R")#
+pkgs <- rownames(installed.packages())#
+biocLite(pkgs, type="source")
+install.packages("data.table")
+library(parallel)#
+library(data.table)#
+mclapply(1:2, sqrt)
+library(parallel)#
+library(data.table)
+sessionInfo()
+mclapply(1:2, sqrt)
+library(data.table)
+library(parallel)
+sessionInfo()
+mclapply(1:2, sqrt)
+remove.packages("data.table")#
+install.packages("data.table")
+library(data.table)
+library(parallel)
+mclapply(1:2, sqrt)
+remove.packages("data.table")
+remove.packages("data.table")#
+install.packages("data.table", type = "source",#
+    repos = "http://Rdatatable.github.io/data.table")
+remove.packages("data.table")
+remove.packages("data.table")#
+install.packages("data.table", type = "source",#
+    repos = "http://Rdatatable.github.io/data.table")
+remove(data.table)
+remove.packages("data.table")
+remove.packages("data.table")#
+install.packages("data.table", type = "source",#
+    repos = "http://Rdatatable.github.io/data.table")
+library(parallel)
+library(data.table)
+mclapply(1:2, sqrt)
+q()
+remove.packages("data.table")#
+install.packages("data.table", type = "source",#
+    repos = "http://Rdatatable.github.io/data.table")
+q()
+remove.packages("data.table")
+library(devtools)
+install_version("data.table", version = "1.10.4", repos = "http://cran.us.r-project.org")
+library(parallel)
+library(data.table)
+mclapply(1:2, sqrt)
+library(scater)
+?newSCESet
+q()
+library(BiocInstaller)
+biocLite()
+biocValid()
+downgrade with biocLite(c("annotate", "AnnotationDbi", "Biobase", "BiocCheck",#
+  "BiocGenerics", "BiocParallel", "biocViews", "biomaRt", "DelayedArray",#
+  "DESeq", "edgeR", "genefilter", "geneplotter", "GenomeInfoDb",#
+  "GenomicRanges", "graph", "HDF5Array", "IRanges", "limma", "RBGL", "rhdf5",#
+  "S4Vectors", "scater", "scran", "splatter", "SummarizedExperiment",#
+  "tximport", "XVector", "zlibbioc", "GenomeInfoDbData"))
+biocLite(c("annotate", "AnnotationDbi", "Biobase", "BiocCheck",#
+  "BiocGenerics", "BiocParallel", "biocViews", "biomaRt", "DelayedArray",#
+  "DESeq", "edgeR", "genefilter", "geneplotter", "GenomeInfoDb",#
+  "GenomicRanges", "graph", "HDF5Array", "IRanges", "limma", "RBGL", "rhdf5",#
+  "S4Vectors", "scater", "scran", "splatter", "SummarizedExperiment",#
+  "tximport", "XVector", "zlibbioc", "GenomeInfoDbData"))
+exit
+q()
+sample1.matrix <- read.csv("/Volumes/Anne's External HD/RetinaGanglionCells/iPSC_RGCscRNASeq_Sample1.tsv", sep = "\t")
+sample1.matrix[1:10, 1:10]
+sample2.matrix <- read.csv("/Volumes/Anne's External HD/RetinaGanglionCells/iPSC_RGCscRNASeq_Sample2.tsv", sep = "\t")
+library(dplyr)
+expression.matrix <- full_join(sample1.matrix, sample2.matrix, by = "X")
+dim(expression.matrix)
+dim(expression.matrix)exit
+exit
+q()
+setwd("~/CodeRepositories/ascend-dev")
+CMD CHECK --ignore-vignettes

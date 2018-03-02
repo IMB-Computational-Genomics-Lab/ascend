@@ -4,8 +4,14 @@
 \alias{ChooseNew}
 \title{ChooseNew}
 \usage{
-ChooseNew(n, k)
+ChooseNew(n = NULL, k = NULL)
+}
+\arguments{
+\item{n}{First clustering result.}
+
+\item{k}{Second clustering result.}
 }
 \description{
-Iterator for rand index calculation.
+Function to calculate rand index. Adapted from function by Steve Horvarth and
+Luohua Jiang (UCLA, 2003).
 }

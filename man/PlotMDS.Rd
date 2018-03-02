@@ -6,14 +6,29 @@
 \usage{
 PlotMDS(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL)
 }
+\arguments{
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone clustering with 
+\code{\link{RunCORE}}.}
+
+\item{PCA}{If true, use PCA-reduced matrix to generate MDS plot.}
+
+\item{dim1}{Which dimension to plot on the x-axis.}
+
+\item{dim2}{Which dimension to plot on the y-axis.}
+
+\item{condition}{(Optional) Name of the condition in Cell Identifiers that 
+describe a set of conditions you would like to colour cells by.}
+}
+\value{
+A ggplot glob that contains a scatter plot.
+}
 \description{
 Generates a Multi-Dimensional Scaling (MDS) plot.
 }
-\details{
-@param object An \linkS4class{EMSet} that has undergone clustering with \code{RunCORE}.
- @param PCA If true, use PCA-reduced matrix to generate MDS plot
- @param dim1 Which dimension to plot on the x-axis
- @param dim2 Which dimension to plot on the y-axis
- @param condition (Optional) Name of the condition in Cell Identifiers that describe a set of conditions you would like to colour cells by
- @export
+\examples{
+ \dontrun{
+ library(ggplot2)
+ my_mds_plot <- PlotMDS(em.set, PCA = TRUE, dim1 = 3, dim2 = 4, 
+ condition = "cluster") + ggtitle("My MDS Plot")
+ }
 }

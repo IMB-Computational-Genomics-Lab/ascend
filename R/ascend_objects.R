@@ -2,8 +2,13 @@
 
 #' CheckExpressionMatrix
 #'
-#' Check the expression matrix for issues.
-#'
+#' Checks the expression matrix to ensure it is not empty, does not contain any
+#' NA values and does not have any duplicated column or row names.
+#' 
+#' @param object An EMSEt object.
+#' @param errors Vector to store error messages in. If the object is returned
+#' with values - the object will be declared invalid.
+#' @export 
 CheckExpressionMatrix <- function(object, errors) {
     # Check expression matrix using plyr's empty function.
     if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
@@ -32,8 +37,13 @@ CheckExpressionMatrix <- function(object, errors) {
 }
 
 #' CheckControls
-#' Check controls if they are present, for issues such as mismatches.
-#'
+#' Another check function for EMSets. This check is only run if controls are 
+#' present.
+#' 
+#' @param object An EMSEt object.
+#' @param errors Vector to store error messages in. If the object is returned
+#' with values - the object will be declared invalid.
+#' @export
 CheckControls <- function(object, errors) {
     # Control checks - verify presence of controls in the matrix.
     if (length(object@Controls) > 0) {
@@ -50,8 +60,13 @@ CheckControls <- function(object, errors) {
 
 #' CheckCellInformation
 #'
-#' Checks cell information supplied by the user.
-#'
+#' Checks the validity of cell information supplied by the user, to ensure it
+#' matches the information held in the expression matrix.
+#' 
+#' @param object An EMSEt object.
+#' @param errors Vector to store error messages in. If the object is returned
+#' with values - the object will be declared invalid.
+#' @export
 CheckCellInformation <- function(object, errors) {
     ## Check if number of batch identifiers match the number of columns in the expression matrix
     if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
@@ -70,8 +85,14 @@ CheckCellInformation <- function(object, errors) {
 
 #' CheckGeneInformation
 #'
-#' Check Gene Annotation if supplied by the user.
-#'
+#' Checks the validity of gene information if supplied by the user. This is to
+#' ensure the gene information in the first column matches the information 
+#' stored in the expression matrix.
+#' 
+#' @param object An EMSEt object.
+#' @param errors Vector to store error messages in. If the object is returned
+#' with values - the object will be declared invalid.
+#' @export
 CheckGeneInformation <- function(object, errors) {
     if (!all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[, 1])) {
         msg <- "Please make sure gene identifiers in column 1 of the Gene Information
@@ -86,14 +107,15 @@ CheckGeneInformation <- function(object, errors) {
 #'
 #' @details The checks are as follows:
 #' \enumerate{
-#'     \item Check if the expression matrix is empty.
-#'     \item Check if there are any NA values in the expression matrix.
-#'     \item Check if there are any duplicated rownames or colnames in the expression matrix.
-#'     \item Check gene identifiers are present in the supplied control list.
-#'     \item Check if gene identifiers listed in the supplied controls are present in the expression matrix.
-#'     \item If supplied, verify batch information matches colnames in the expression matrix.
-#'     \item If supplied, verify gene identifiers match rownames in the expression matrix.
+#'     \item{Check if the expression matrix is empty.}
+#'     \item{Check if there are any NA values in the expression matrix.}
+#'     \item{Check if there are any duplicated rownames or colnames in the expression matrix.}
+#'     \item{Check gene identifiers are present in the supplied control list.}
+#'     \item{Check if gene identifiers listed in the supplied controls are present in the expression matrix.}
+#'     \item{If supplied, verify batch information matches colnames in the expression matrix.}
+#'     \item{If supplied, verify gene identifiers match rownames in the expression matrix.}
 #' }
+#' @param object EMSet this function is checking.
 #' @export
 #'
 CheckEMSet <- function(object) {
@@ -126,20 +148,39 @@ CheckEMSet <- function(object) {
 #' Expression and Metadata Set (EMSet)
 #'
 #' An S4 class to contain data in a format ascend can work with for analysis.
-#' @slot ExpressionMatrix Transcript counts stored as a sparse matrix, where rows are transcript/gene identifiers and columns are invididual cells.
-#' @slot GeneInformation A data frame containing information a set of gene identifiers, such as gene symbols or ENSEMBL transcript identifiers. This data frame also holds information on controls and any information provided by the user.
-#' @slot CellInformation A data frame containing each cell identifier, its associated batch/sample and additional information such as conditions.
-#' @slot Controls A named list featuring gene identifiers to use as controls. These gene identifiers must match the identifiers used in the expression matrix.
-#' @slot PCA Objects related to dimension reduction, such as a PCA matrixand a list of percentage variance values per principle component (PC). Populated by \code{\link{RunPCA}}.
-#' @slot Clusters Objects related to clustering, including a distance matrix, a hclust object, cell identifiers and their associated cluster. Populated by \code{\link{RunCORE}}.
-#' @slot Metrics A list of values generated by the \code{\link{GenerateMetrics}} function.
+#' @slot ExpressionMatrix Transcript counts stored as a sparse matrix, where 
+#' rows are transcript/gene identifiers and columns are invididual cells.
+#' @slot GeneInformation A data frame containing information a set of gene 
+#' identifiers, such as gene symbols or ENSEMBL transcript identifiers. This 
+#' data frame also holds information on controls and any information provided by 
+#' the user.
+#' @slot CellInformation A data frame containing each cell identifier, its 
+#' associated batch/sample and additional information such as conditions.
+#' @slot Controls A named list featuring gene identifiers to use as controls. 
+#' These gene identifiers must match the identifiers used in the expression 
+#' matrix.
+#' @slot PCA Objects related to dimension reduction, such as a PCA matrixand a 
+#' list of percentage variance values per principle component (PC). Populated by 
+#' \code{\link{RunPCA}}.
+#' @slot Clusters Objects related to clustering, including a distance matrix, a 
+#' hclust object, cell identifiers and their associated cluster. Populated by 
+#' \code{\link{RunCORE}}.
+#' @slot Metrics A list of values generated by the \code{\link{GenerateMetrics}} 
+#' function.
 #' @slot Log A record of functions used on an \linkS4class{EMSet}.
+#' @importFrom methods setClass setMethod
+#' @importFrom Matrix Matrix
 #' @export
 setClass("EMSet", representation(ExpressionMatrix = "Matrix", GeneInformation = "data.frame", CellInformation = "data.frame", Controls = "list", PCA = "list",
     Clusters = "list", Metrics = "list", Log = "list"), prototype(ExpressionMatrix = Matrix::Matrix(0, nrow = 0, ncol = 0, sparse = TRUE), GeneInformation = data.frame(matrix(nr = 0,
     nc = 0)), CellInformation = data.frame(matrix(nr = 0, nc = 0)), Controls = list(), PCA = list(), Clusters = list(), Metrics = list(), Log = list()), validity = CheckEMSet)
 
-# More methods for this class
+#' show
+#' 
+#' Generic display function for \linkS4class{EMSet}s. Displays summary of the
+#' object.
+#' 
+#' @importFrom methods setMethod
 setMethod("show", signature("EMSet"), function(object) {
     # Rethink this slot Get number of genes and cells from the expression matrix dimensions
     print("ascend Object - EMSet")
@@ -180,12 +221,38 @@ setMethod("show", signature("EMSet"), function(object) {
 # Constructor function for EMSet
 #' NewEMSet
 #'
-#' \code{\link{NewEMSet}} generates a \linkS4class{EMSet} object for use with the ascend package. This object contains an expression matrix, associated metadata, downstream analysis and a log documenting the actions taken to generate this object.
-#' @param ExpressionMatrix An expression matrix in data.frame, dgCMatrix (sparse) or matrix format. Rows should represent a transcript and its counts, while columns should represent individual cells. This is usually the end point for Single Cell RNA-Seq pipelines such as Cell Ranger and DropSeq.
-#' @param Controls A named list of controls, eg. mitochondrial genes, ribosomal genes and ERCC spike-ins. These genes must be specified using the identifier used in the expression matrix. This information is required for some functions.
-#' @param GeneInformation A data frame containing gene identifiers used in the expression matrix. The first column should hold the cell identifiers you are using in the expression matrix. Other columns contain information about the genes, such as their corresponding ENSEMBL transcript identifiers, whether or not they are a control and any additional information supplied by the user. This is an optional field.
-#' @param CellInformation A data frame containing cell identifiers (usually barcodes) and an integer representing which batch they belong to. This is an optional field, and it best used for experiments that contain data from multiple samples. This data frame can also hold additional information supplied by the user.
-#' @return This function generates an object belonging to the \linkS4class{EMSet}.
+#' \code{\link{NewEMSet}} generates a \linkS4class{EMSet} object for use with 
+#' the ascend package. This object contains an expression matrix, associated 
+#' metadata, downstream analysis and a log documenting the actions taken to 
+#' generate this object.
+#' @param ExpressionMatrix An expression matrix in data.frame, dgCMatrix 
+#' (sparse) or matrix format. Rows should represent a transcript and its counts, 
+#' while columns should represent individual cells. This is usually the end 
+#' point for Single Cell RNA-Seq pipelines such as Cell Ranger and DropSeq.
+#' @param Controls A named list of controls, eg. mitochondrial genes, ribosomal 
+#' genes and ERCC spike-ins. These genes must be specified using the identifier 
+#' used in the expression matrix. This information is required for some 
+#' functions.
+#' @param GeneInformation A data frame containing gene identifiers used in the 
+#' expression matrix. The first column should hold the cell identifiers you are 
+#' using in the expression matrix. Other columns contain information about the 
+#' genes, such as their corresponding ENSEMBL transcript identifiers, whether or 
+#' not they are a control and any additional information supplied by the user. 
+#' This is an optional field.
+#' @param CellInformation A data frame containing cell identifiers 
+#' (usually barcodes) and an integer representing which batch they belong to. 
+#' This is an optional field, and it best used for experiments that contain data 
+#' from multiple samples. This data frame can also hold additional information 
+#' supplied by the user.
+#' @return This function generates an object belonging to the 
+#' \linkS4class{EMSet}.
+#' @examples
+#' \dontrun{
+#' MyEMSet <- NewEMSet(ExpressionMatrix = expression_matrix, 
+#' GeneInformation = gene_information, CellInformation = cell_information, 
+#' Controls = list())
+#' } 
+#' @importFrom methods is new setGeneric setMethod
 #' @seealso \linkS4class{EMSet}
 #' @export
 NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInformation = NULL, Controls = list()) {
@@ -241,15 +308,34 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
     return(em.set)
 }
 
+#' SyncSlots (Generic)
+#' 
+#' Generic for the \code{\link{SyncSlots}} function.
+#' @importFrom methods setGeneric
+#' @export
 setGeneric(name = "SyncSlots", def = function(object) {
     standardGeneric("SyncSlots")
 })
 
 #' SyncSlots
 #'
-#' Synchronises the data frames ExpressionMatrix, GeneInformation and CellInformation, to ensure everything is up to date.
-#' This is important as the object will undergo a series of changes during the filtering and normalisation process.
+#' Synchronises the data frames ExpressionMatrix, GeneInformation and 
+#' CellInformation, to ensure everything is up to date.
+#' 
+#' This is important as the object will undergo a series of changes during the 
+#' filtering and normalisation process.
 #'
+#' @param object An EMSet to sync.
+#' 
+#' @return Original \linkS4class{EMSet} with CellInformation, GeneInformation 
+#' and ExpressionMatrix slots syncronised together.
+#' 
+#' @examples
+#' \dontrun{
+#' synced_emset <- SyncSlots(unsynced_EMSet)
+#' }
+#' @importFrom methods setMethod
+#' @export
 setMethod("SyncSlots", signature("EMSet"), function(object) {
     # Get data frames
     expression.matrix <- object@ExpressionMatrix
@@ -285,19 +371,45 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
     return(object)
 })
 
-#' UpdateControls
-#'
-#' Replaces the control list in a \linkS4class{EMSet} object with a new control list. This also recalculates the metrics associated with the \linkS4class{EMSet} object.
-#' For best results, define your controls before you attempt any filtering. You can also use this function to change an EMSet into a control-less dataset.
-#'
-#' @param object An \linkS4class{EMSet} object.
-#' @param controls A named list containing the gene identifiers. These identifiers must match the identifiers used in the expression matrix. This list will replace any pre-existing controls.
-#' @return This function returns an EMSet object with the upated controls.
+#' UpdateControls (Generic)
+#' 
+#' Definition for the \code{\link{UpdateControls}} function.
+#' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "UpdateControls", def = function(object, controls) {
     standardGeneric("UpdateControls")
 })
 
+#' UpdateControls
+#'
+#' Replaces the control list in a \linkS4class{EMSet} object with a new control 
+#' list. This also recalculates the metrics associated with the 
+#' \linkS4class{EMSet} object.
+#' 
+#' For best results, define your controls before you attempt any filtering. You 
+#' can also use this function to change an EMSet into a control-less dataset.
+#'
+#' @param object An \linkS4class{EMSet} object.
+#' @param controls A named list containing the gene identifiers. These 
+#' identifiers must match the identifiers used in the expression matrix. This 
+#' list will replace any pre-existing controls.
+#' 
+#' @return This function returns an \linkS4class{EMSet} with the updated controls.
+#' 
+#' @examples
+#' \dontrun{
+#' # Create an EMSet with no controls
+#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+#' 
+#' # List of controls to add
+#' control_list <- list(Mt = c("MT-TF", "MT-RNR1", "MT-TV"), 
+#' Rb = c("RPL9", "RPL19", "RPS20"))
+#' 
+#' # Add controls to EMSet
+#' control_EMSet <- UpdateControls(EMSet, control_list)
+#' }
+#' @importFrom methods setGeneric setMethod
+#' @export
 setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
     errors <- character()
 
@@ -328,17 +440,44 @@ setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
 })
 
 #' ReplaceCellInfo
-#'
-#' Can be called by the user or by a filtering function. Updates Cell Information in a \linkS4class{EMSet} object, replacing the old data frame with a new one.
-#'
-#' @param object An \linkS4class{EMSet} object.
-#' @param cell.info A data frame containing cell information. The first column must comprise of cell identifiers that match the cell identifiers used in the expression matrix. The second column, while optional - should contain batch information.
-#' @include ascend_objects.R
-#' @export
+#' 
+#' Definition for the \code{\link{ReplaceCellInfo}} function.
+#' 
+#' @importFrom methods setGeneric
 setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
     standardGeneric("ReplaceCellInfo")
 })
 
+#' ReplaceCellInfo
+#'
+#' Can be called by the user or by a filtering function. Updates Cell 
+#' Information in a \linkS4class{EMSet} object, replacing the old data frame 
+#' with a new one.
+#'
+#' @param object An \linkS4class{EMSet} object.
+#' @param cell.info A data frame containing cell information. The first column 
+#' must contain cell identifiers that match the cell identifiers used in the 
+#' expression matrix. The second column, while optional - should contain batch 
+#' information.
+#' 
+#' @return An \linkS4class{EMSet} with updated cell information.
+#' 
+#' @examples
+#' \dontrun{
+#' # Create an EMSet with just expression data
+#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+#'
+#' # Define Cell Information
+#' cell_info <- data.frame(cell_barcode = c("Cell1", "Cell2", "Cell3"),
+#' batch = c("1", "1", "2")
+#' )
+#' 
+#' # Replace Cell Information
+#' updated_em_set <- ReplaceCellInfo(EMSet, cell_info)
+#' }
+#' 
+#' @importFrom methods setGeneric setMethod
+#' @export
 setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
     # Check replacement is valid.
     replacement <- object
@@ -355,17 +494,43 @@ setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
 })
 
 #' ReplaceGeneInfo
-#'
-#' Can be called by the user or by a filtering function. Updates Gene Information in a \linkS4class{EMSet} object, replacing the old data frame with a new one.
-#'
-#' @param object An \linkS4class{EMSet} object.
-#' @param gene.info A data frame containing cell information. The first column must comprise of gene identifiers that match the gene identifiers used in the expression matrix. The second column, while optional - should contain batch information.
-#' @include ascend_objects.R
+#' 
+#' Definition for \code{\link{ReplaceCellInfo}} function.
+#' 
+#' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
     standardGeneric("ReplaceGeneInfo")
 })
 
+#' ReplaceGeneInfo
+#'
+#' Can be called by the user or by a filtering function. Updates Gene 
+#' Information in a \linkS4class{EMSet} object, replacing the old data frame 
+#' with a new one.
+#'
+#' @param object An \linkS4class{EMSet} object.
+#' @param gene.info A data frame containing cell information. The first column 
+#' must comprise of gene identifiers that match the gene identifiers used in the 
+#' expression matrix. The remaining columns can contain anything.
+#'
+#' @return An \linkS4class{EMSet} with updated gene information.
+#' 
+#' @examples
+#' \dontrun{
+#' # Create an EMSet with just expression data
+#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+#'
+#' # Define Gene Information
+#' gene_info <- data.frame(gene_id = c("Gene1", "Gene2", "Gene3"),
+#' group = c("Control", "Feature", "Feature")
+#' )
+#' 
+#' # Replace Gene Information
+#' updated_em_set <- ReplaceGeneInfo(EMSet, gene_info)
+#' }
+#' @importFrom methods setGeneric setMethod
+#' @export
 setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
     # Check replacement is valid.
     replacement <- object
@@ -380,17 +545,34 @@ setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
 })
 
 #' ReplaceExpressionMatrix
-#'
-#' Replace the expression matrix in a \linkS4class{EMSet} with a new expression matrix and re-calculate its metrics.
-#'
-#' @param object The \linkS4class{EMSet} you would like to update.
-#' @param expression.matrix Expression matrix in matrix form
-#' @include ascend_objects.R
+#' 
+#' Definition for \code{\link{ReplaceExpressionMatrix}} function.
+#' 
+#' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
     standardGeneric("ReplaceExpressionMatrix")
 })
 
+#' ReplaceExpressionMatrix
+#'
+#' Replace the expression matrix in a \linkS4class{EMSet} with a new expression 
+#' matrix and re-calculate its metrics.
+#'
+#' @param object The \linkS4class{EMSet} you would like to update.
+#' @param expression.matrix Expression matrix in matrix form
+#' @return An \linkS4class{EMSet} with an updated expression matrix
+#' 
+#' @examples
+#' \dontrun{
+#' # Create an EMSet with just expression data
+#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+#'
+#' # Replace it with another expression matrix
+#' updated_em_set <- ReplaceExpressionMatrix(EMSet, new_matrix)
+#' }
+#' @importFrom methods setGeneric setMethod
+#' @export
 setMethod("ReplaceExpressionMatrix", signature("EMSet"), function(object, expression.matrix) {
     # Replace the matrix
     object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format = "sparseMatrix")

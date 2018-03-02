@@ -1,7 +1,7 @@
 ---
 title:  An introduction to ascend - Processing and analysis of retinal ganglion cells 
 author: "Anne Senabouth"
-date: '2018-01-30'
+date: '2018-03-02'
 output:
   html_document: 
     keep_md: true
@@ -21,11 +21,11 @@ You can read more about this dataset in the paper [Single Cell RNA Sequencing of
 
 ## Loading Data for use in ascend
 ### Preparing data manually
-The data for this vignette is included with the package. You can load the data by using the following command:
+The data for this vignette can be downloaded from the [ascend website repository](https://github.com/IMB-Computational-Genomics-Lab/ascend-guide). You can load the data with the following command:
 
 
 ```r
-load(system.file("extdata", "RGC_scRNASeq.RData", package = "ascend"))
+load("RGC_scRNASeq.RData")
 ```
 
 These objects contain all the information we need to create an `EMSet` - the main data object of the ascend package. 
@@ -293,7 +293,7 @@ em.set
 ## [101] "RPS4Y2"         "RPL3"           "RPS19BP1"
 ```
 
-### Load data from Cell Ranger into ascend automatically
+### SHORTCUT - Load data from Cell Ranger into ascend automatically
 If you are using Chromium data, you can also load the data into R with the `LoadCellRanger` function. This function loads the data into an EMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
 
 
@@ -444,7 +444,7 @@ print(raw.qc.plots$ControlPercentageTotalCounts$Mt)
 print(raw.qc.plots$ControlPercentageTotalCounts$Rb)
 ```
 
-<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-4-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-4-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-4-4.png" style="display: block; margin: auto;" />
+<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-2.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-3.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-4.png" style="display: block; margin: auto;" />
 
 The `FilterByOutliers` function will remove outliers based on these criteria. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required
 
@@ -566,11 +566,11 @@ print(raw.qc.plots$Log10AverageGeneCount)
 
 <img src="RGC_Tutorial_files/figure-html/AverageGeneCountLogPlots-1.png" style="display: block; margin: auto;" /><img src="RGC_Tutorial_files/figure-html/AverageGeneCountLogPlots-2.png" style="display: block; margin: auto;" />
 
-If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
+If we wanted to remove these genes, we can use `FilterLowAbundanceGenes`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
 
 
 ```r
-em.set <- FilterByExpressedGenesPerCell(em.set, pct.value = 1)
+em.set <- FilterLowAbundanceGenes(em.set, pct.value = 1)
 ```
 
 However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
@@ -915,34 +915,40 @@ Clustering can be done on the original expression matrix or the PCA-transformed 
 Argument         Description                                                                                                                            
 ---------------  ---------------------------------------------------------------------------------------------------------------------------------------
 conservative     Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE                                                        
-windows          Range to perform cuts on the dendrogram Default: seq(0.025:1, by=0.025).                                                               
+nres             Number of resolutions to test Default: 40                                                                                              
 remove_outlier   Remove cells that weren't assigned a cluster with dynamicTreeCut. This is indicative of outlier cells within the sample. Default: TRUE 
 
-This function has only one argumenmt - `conservative`. This argument is only used when the algorithm detects more than one set of stable results. If set to TRUE, the function will choose the result that is the most stable but yields the least number of clusters. If set to FALSE, the function will choose the result that is the least stable, but yields the most number of clusters.
+The `RunCORE` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to the chosen number of resolutions values ranging from 0 (the bottom of the tree) to 1 (the top of the tree).
+
 
 
 ```r
 clustered.set <- RunCORE(pca.set, 
                          conservative = TRUE, 
-                         windows = seq(0.025:1, by = 0.025), 
+                         nres = 40, 
                          remove_outlier = FALSE )
 ```
 
 ```
 ## [1] "Performing unsupervised clustering..."
 ## [1] "Generating clusters by running dynamicTreeCut at different heights..."
+```
+
+```
+## Warning in split.default(windows, 1:nworkers): data length is not a
+## multiple of split variable
+```
+
+```
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
-## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
 ```
 
-The `RunCORE` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to 40 values ranging from 0.025 (the bottom of the tree) to 1 (the top of the tree). 
 
 The `PlotStabilityDendro` generates a plot that represents this part of the process. In addition to the dendrogram, it generates the distribution of clusters across the 40 cut heights.
 
@@ -1087,7 +1093,6 @@ thy1.de.result <- RunDiffExpression(clustered.set,
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1160,7 +1165,6 @@ cluster.de.result <- RunDiffExpression(clustered.set,
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1224,13 +1228,19 @@ clean.cluster <- RunCORE(clean.pca, conservative = TRUE)
 ```
 ## [1] "Performing unsupervised clustering..."
 ## [1] "Generating clusters by running dynamicTreeCut at different heights..."
+```
+
+```
+## Warning in split.default(windows, 1:nworkers): data length is not a
+## multiple of split variable
+```
+
+```
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
 ## [1] "Aggregating data..."
-##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
-## 
 ## [1] "Finding optimal number of clusters..."
 ## [1] "Optimal number of clusters found! Returning output..."
 ```
@@ -1288,7 +1298,6 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Rounding expression matrix values..."
@@ -1305,7 +1314,6 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Rounding expression matrix values..."
@@ -1322,7 +1330,6 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ## [1] "Rounding expression matrix values..."
@@ -1339,7 +1346,6 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1397,7 +1403,6 @@ c1c2.de.results <- RunDiffExpression(clean.cluster, condition.a = "1",
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1422,7 +1427,6 @@ c1c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "1",
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1447,7 +1451,6 @@ c1c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "1",
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1472,7 +1475,6 @@ c2c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "2",
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1497,7 +1499,6 @@ c2c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "2",
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```
@@ -1522,7 +1523,6 @@ c3c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "3",
 ## [1] "Running DESeq..."
 ##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
-## [1] "Differential expression complete!"
 ## [1] "Combining DE results..."
 ## [1] "Adjusting fold change values..."
 ```

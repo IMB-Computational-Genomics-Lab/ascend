@@ -1,3 +1,8 @@
+version 0.3.3 (2018-03-02)
+- PlotStability now works properly for all resolutions
+- Example datasets have been moved to another repository
+- Ready for testing on other systems
+
 version 0.2.9 (2018-01-31)
 - Fixed size factor replacement in the intermediate Single Cell Experiment object used for scranNormalisation function
 

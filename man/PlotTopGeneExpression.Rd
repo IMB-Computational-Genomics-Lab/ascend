@@ -7,10 +7,22 @@
 PlotTopGeneExpression(object, n = 50, controls = TRUE)
 }
 \arguments{
-\item{object}{A EMSet object}
+\item{object}{A EMSet object.}
 
-\item{n}{Number of genes to be plotted}
+\item{n}{Number of genes to be plotted.}
+
+\item{controls}{Include control genes in plot (Default: TRUE).}
+}
+\value{
+A ggplot glob containing a box scatter plot that represents the 
+expression of the most highly expressed genes.
 }
 \description{
-Generates a boxplot using \link[ggplot2]{geom_boxplot} of the most expressed genes in the dataset, in a range defined by the user.
+Generates a boxplot using \link[ggplot2]{geom_boxplot} of the most expressed 
+genes in the dataset, in a range defined by the user.
+}
+\examples{
+\dontrun{
+top_gene_expression <- PlotTopGeneExpression(em.set, n = 20, controls = FALSE)
+}
 }

@@ -7,10 +7,24 @@
 PlotPCAVariance(object, n = 100)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has undergone PCA.}
+\item{object}{An \code{\linkS4class{EMSet}} that has undergone PCA.}
 
-\item{n}{Number of PCA values on the plot}
+\item{n}{Number of PCs to view on the plot.}
+}
+\value{
+A ggplot2 glob that contains a scatter qplot.
 }
 \description{
-Plots PCA Percent Variance.
+Generates a scree plot. The principal components (PCs) are sorted from 
+largest percent variance to the smallest percent variance. This plot is
+for determining the optimal number of PCs to retain for further analysis.
+}
+\examples{
+\dontrun{
+# Run PCA on an EMSet
+pca_set <- RunPCA(em.set)
+
+# Review first 100 dimensions on the scree plot
+print(PlotPCAVariance(pca_set, n = 100))
+}
 }

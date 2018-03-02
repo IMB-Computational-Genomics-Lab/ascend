@@ -6,18 +6,21 @@
 \usage{
 CheckEMSet(object)
 }
+\arguments{
+\item{object}{EMSet this function is checking.}
+}
 \description{
 Validation function for the S4 class \linkS4class{EMSet}.
 }
 \details{
 The checks are as follows:
 \enumerate{
-    \item Check if the expression matrix is empty.
-    \item Check if there are any NA values in the expression matrix.
-    \item Check if there are any duplicated rownames or colnames in the expression matrix.
-    \item Check gene identifiers are present in the supplied control list.
-    \item Check if gene identifiers listed in the supplied controls are present in the expression matrix.
-    \item If supplied, verify batch information matches colnames in the expression matrix.
-    \item If supplied, verify gene identifiers match rownames in the expression matrix.
+    \item{Check if the expression matrix is empty.}
+    \item{Check if there are any NA values in the expression matrix.}
+    \item{Check if there are any duplicated rownames or colnames in the expression matrix.}
+    \item{Check gene identifiers are present in the supplied control list.}
+    \item{Check if gene identifiers listed in the supplied controls are present in the expression matrix.}
+    \item{If supplied, verify batch information matches colnames in the expression matrix.}
+    \item{If supplied, verify gene identifiers match rownames in the expression matrix.}
 }
 }

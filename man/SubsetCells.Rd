@@ -6,14 +6,6 @@
 \usage{
 SubsetCells(object, cell.barcodes)
 }
-\arguments{
-\item{object}{An \linkS4class{EMSet}}
-
-\item{cell.barcodes}{A list of cell identifiers to subset from the \linkS4class{EMSet}}
-}
-\value{
-An \linkS4class{EMSet}
-}
 \description{
-Subset cells in the supplied list from an \linkS4class{EMSet}.
+Generic for \code{\link{SubsetCells}}.
 }

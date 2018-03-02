@@ -6,6 +6,14 @@
 \usage{
 CheckCellRangerDirs(target.dir, cellranger.dir)
 }
+\arguments{
+\item{target.dir}{User-inputted directory.}
+
+\item{cellranger.dir}{Expected Cell Ranger directory.}
+}
+\value{
+Correct cell ranger directories.
+}
 \description{
 Called by \code{\link{LoadCellRangerData}}. This function is involved in
 checks to make sure the Cell Ranger output folder is structured correctly.

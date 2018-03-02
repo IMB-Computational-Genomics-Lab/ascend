@@ -7,12 +7,19 @@
 ChunkMatrix(expression.matrix, axis = 0, chunks = 1)
 }
 \arguments{
-\item{expression.matrix}{An expression matrix to chunk}
+\item{expression.matrix}{An expression matrix to chunk.}
 
-\item{axis}{Specify either 0 (rows) or 1 (columns)}
+\item{axis}{Specify either 0 (rows) or 1 (columns).}
 
-\item{chunks}{Number of chunks you would like to break the matrix into}
+\item{chunks}{Number of chunks you would like to break the matrix into.}
+}
+\value{
+A list of matrices.
 }
 \description{
 Chunks a matrix randomly - either along rows or columns
+}
+\examples{
+my_matrix <- matrix(replicate(10, rnorm(20)))
+chunked_matrix <- ChunkMatrix(my_matrix, axis = 0, chunks = 5)
 }

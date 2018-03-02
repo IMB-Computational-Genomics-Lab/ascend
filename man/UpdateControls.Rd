@@ -2,19 +2,10 @@
 % Please edit documentation in R/ascend_objects.R
 \name{UpdateControls}
 \alias{UpdateControls}
-\title{UpdateControls}
+\title{UpdateControls (Generic)}
 \usage{
 UpdateControls(object, controls)
 }
-\arguments{
-\item{object}{An \linkS4class{EMSet} object.}
-
-\item{controls}{A named list containing the gene identifiers. These identifiers must match the identifiers used in the expression matrix. This list will replace any pre-existing controls.}
-}
-\value{
-This function returns an EMSet object with the upated controls.
-}
 \description{
-Replaces the control list in a \linkS4class{EMSet} object with a new control list. This also recalculates the metrics associated with the \linkS4class{EMSet} object.
-For best results, define your controls before you attempt any filtering. You can also use this function to change an EMSet into a control-less dataset.
+Definition for the \code{\link{UpdateControls}} function.
 }

@@ -7,7 +7,10 @@
 NormaliseBatches(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object.}
+\item{object}{An \code{\linkS4class{EMSet}} with cells from more than one batch.}
+}
+\value{
+An \code{\linkS4class{EMSet}} with batch-normalised expression values.
 }
 \description{
 Normalise counts to remove batch effects. This normalisation method is for
@@ -15,5 +18,10 @@ experiments where data from batches of different samples are combined without
 undergoing library equalisation.
 }
 \details{
-This step must be done prior to any filtering and normalisation between cells.
+This step should be done prior to any filtering and normalisation between cells.
+}
+\examples{
+\dontrun{
+batch_normalised_object <- NormaliseBatches(em.set)
+}
 }

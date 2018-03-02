@@ -7,13 +7,25 @@
 ConvertToSCE(object, control.list = list())
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object.}
+\item{object}{An \code{\linkS4class{EMSet}} object.}
 
-\item{control.list}{Optional - a named list containing mitochondrial and ribosomal genes.}
+\item{control.list}{Optional - a named list containing mitochondrial and 
+ribosomal genes.}
+}
+\value{
+A SingleCellExperiment object
 }
 \description{
-Convert a \linkS4class{EMSet} object into a \linkS4class{SingleCellExperiment} 
-for use with \pkg{scater}, \pkg{scran} and other Bioconductor packages.
+Convert a \code{\linkS4class{EMSet}} object into a SingleCellExperiment object for 
+use with \pkg{scater}, \pkg{scran} and other Bioconductor packages.
+}
+\details{
 In order to use this function, you must have mitochondrial and ribosomal 
 genes in your expression data.
+}
+\examples{
+\dontrun{
+single_cell_experiment <- ConvertToSCE(em.set, control.list = list(
+Mt = mt.genes, Rb = rb.genes
+))}
 }

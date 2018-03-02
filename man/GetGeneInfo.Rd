@@ -6,12 +6,6 @@
 \usage{
 GetGeneInfo(object)
 }
-\arguments{
-\item{object}{A \linkS4class{EMSet} object.}
-}
-\value{
-This function returns a data frame.
-}
 \description{
-Retrieve gene information from an \linkS4class{EMSet} object.
+Generic for \code{\link{GetGeneInfo}}.
 }

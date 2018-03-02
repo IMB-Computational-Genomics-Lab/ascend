@@ -6,11 +6,6 @@
 \usage{
 ExcludeControl(object, control.name)
 }
-\arguments{
-\item{object}{A \linkS4class{EMSet} object. It is recommended that you run this step after this object has undergone filtering.}
-
-\item{control.name}{Name of the control set you want to remove from the dataset.}
-}
 \description{
-Removes the specified control from the expression matrix.
+Generic method for \code{\link{ExcludeControl}}.
 }

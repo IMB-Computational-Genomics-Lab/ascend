@@ -8,19 +8,45 @@ NewEMSet(ExpressionMatrix = NULL, GeneInformation = NULL,
   CellInformation = NULL, Controls = list())
 }
 \arguments{
-\item{ExpressionMatrix}{An expression matrix in data.frame, dgCMatrix (sparse) or matrix format. Rows should represent a transcript and its counts, while columns should represent individual cells. This is usually the end point for Single Cell RNA-Seq pipelines such as Cell Ranger and DropSeq.}
+\item{ExpressionMatrix}{An expression matrix in data.frame, dgCMatrix 
+(sparse) or matrix format. Rows should represent a transcript and its counts, 
+while columns should represent individual cells. This is usually the end 
+point for Single Cell RNA-Seq pipelines such as Cell Ranger and DropSeq.}
 
-\item{GeneInformation}{A data frame containing gene identifiers used in the expression matrix. The first column should hold the cell identifiers you are using in the expression matrix. Other columns contain information about the genes, such as their corresponding ENSEMBL transcript identifiers, whether or not they are a control and any additional information supplied by the user. This is an optional field.}
+\item{GeneInformation}{A data frame containing gene identifiers used in the 
+expression matrix. The first column should hold the cell identifiers you are 
+using in the expression matrix. Other columns contain information about the 
+genes, such as their corresponding ENSEMBL transcript identifiers, whether or 
+not they are a control and any additional information supplied by the user. 
+This is an optional field.}
 
-\item{CellInformation}{A data frame containing cell identifiers (usually barcodes) and an integer representing which batch they belong to. This is an optional field, and it best used for experiments that contain data from multiple samples. This data frame can also hold additional information supplied by the user.}
+\item{CellInformation}{A data frame containing cell identifiers 
+(usually barcodes) and an integer representing which batch they belong to. 
+This is an optional field, and it best used for experiments that contain data 
+from multiple samples. This data frame can also hold additional information 
+supplied by the user.}
 
-\item{Controls}{A named list of controls, eg. mitochondrial genes, ribosomal genes and ERCC spike-ins. These genes must be specified using the identifier used in the expression matrix. This information is required for some functions.}
+\item{Controls}{A named list of controls, eg. mitochondrial genes, ribosomal 
+genes and ERCC spike-ins. These genes must be specified using the identifier 
+used in the expression matrix. This information is required for some 
+functions.}
 }
 \value{
-This function generates an object belonging to the \linkS4class{EMSet}.
+This function generates an object belonging to the 
+\linkS4class{EMSet}.
 }
 \description{
-\code{\link{NewEMSet}} generates a \linkS4class{EMSet} object for use with the ascend package. This object contains an expression matrix, associated metadata, downstream analysis and a log documenting the actions taken to generate this object.
+\code{\link{NewEMSet}} generates a \linkS4class{EMSet} object for use with 
+the ascend package. This object contains an expression matrix, associated 
+metadata, downstream analysis and a log documenting the actions taken to 
+generate this object.
+}
+\examples{
+\dontrun{
+MyEMSet <- NewEMSet(ExpressionMatrix = expression_matrix, 
+GeneInformation = gene_information, CellInformation = cell_information, 
+Controls = list())
+} 
 }
 \seealso{
 \linkS4class{EMSet}

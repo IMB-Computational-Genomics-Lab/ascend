@@ -19,7 +19,7 @@ test_that("SubsetCondition returns an EMSet with the correct number of cells", {
   em.set <- NewEMSet(ExpressionMatrix = test.matrix, Controls = controls, CellInformation = cell.information)
   
   # SubsetCondition - expect number of targets to be equal
-  expect_equal(ncol((SubsetCondition(em.set, conditions = "condition")@ExpressionMatrix)), length(targets))
+  expect_equal(ncol((SubsetCondition(em.set, condition = "condition", subconditions = "TRUE")@ExpressionMatrix)), length(targets))
 })
 
 test_that("Test if SubsetBatch returns an EMSet with the correct number of cells", {

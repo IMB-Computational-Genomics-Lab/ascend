@@ -6,11 +6,6 @@
 \usage{
 ReplaceGeneInfo(object, gene.info)
 }
-\arguments{
-\item{object}{An \linkS4class{EMSet} object.}
-
-\item{gene.info}{A data frame containing cell information. The first column must comprise of gene identifiers that match the gene identifiers used in the expression matrix. The second column, while optional - should contain batch information.}
-}
 \description{
-Can be called by the user or by a filtering function. Updates Gene Information in a \linkS4class{EMSet} object, replacing the old data frame with a new one.
+Definition for \code{\link{ReplaceCellInfo}} function.
 }

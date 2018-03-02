@@ -7,10 +7,14 @@
 SCESet2EMSet(SCESet, EMSet)
 }
 \arguments{
-\item{SCESet}{A \linkS4class{SCESet} from \pkg{scater}}
+\item{SCESet}{A SCESet from \pkg{scater}.}
 
-\item{EMSet}{An \linkS4class{EMSet}}
+\item{EMSet}{An \code{\linkS4class{EMSet}} to load data from.}
+}
+\value{
+An \code{\linkS4class{EMSet}} with data retrieved from a SCESet.
 }
 \description{
-Loads data from an \linkS4class{SCESet} to a \linkS4class{EMSet} object.
+Loads data from a SCESet to a pre-existing 
+\linkS4class{EMSet} object.
 }

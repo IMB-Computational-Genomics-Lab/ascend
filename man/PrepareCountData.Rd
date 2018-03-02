@@ -6,6 +6,17 @@
 \usage{
 PrepareCountData(object, cells, ngenes)
 }
+\arguments{
+\item{object}{An \code{\linkS4class{EMSet}} to perform differential expression on.}
+
+\item{cells}{List of cells to extract from the \code{\linkS4class{EMSet}}.}
+
+\item{ngenes}{Number of cells to extract from the \code{\linkS4class{EMSet}}.}
+}
+\value{
+A list of chunks of the expression matrix.
+}
 \description{
-Called by RunDiffExpression. This chunks up the expression matrix to feed into DESeq.
+Called by \code{\link{RunDiffExpression}}. This chunks up the expression 
+matrix to feed into \pkg{DESeq}.
 }

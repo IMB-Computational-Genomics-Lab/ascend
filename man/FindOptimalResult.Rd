@@ -4,8 +4,22 @@
 \alias{FindOptimalResult}
 \title{FindOptimalResult}
 \usage{
-FindOptimalResult(key.stats, conservative = TRUE)
+FindOptimalResult(key.stats, conservative = TRUE, nres = 40)
+}
+\arguments{
+\item{key.stats}{A data frame containing clustering results across 40 res.}
+
+\item{conservative}{In the event of a scenario where there are more than one 
+equally stable results, choose to use the lower resolution result that 
+yields less clusters. If set to FALSE, the higher resolution that generates a 
+greater number of clusters will be used.}
+
+\item{nres}{Number of resolutions to test.}
+}
+\value{
+An integer.
 }
 \description{
-Finds the optimal result from trends in stability. Called by RunCORE.
+Finds the optimal resolution from trends in stability. Called by 
+\code{\link{RunCORE}}.
 }

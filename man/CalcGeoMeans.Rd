@@ -6,6 +6,13 @@
 \usage{
 CalcGeoMeans(x)
 }
+\arguments{
+\item{x}{Counts associated with a cell.}
+}
+\value{
+Geometric means associated with each cell.
+}
 \description{
-Calculate the geometric mean around a point.
+Calculate the geometric mean around a point. Called by 
+\code{\link{NormaliseByRLE}} function.
 }

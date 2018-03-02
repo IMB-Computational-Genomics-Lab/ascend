@@ -12,7 +12,16 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 ```{r Loadascend, message = FALSE, echo = FALSE}
-devtools::load_all("~/CodeRepositories/ascend-dev")
+# Load code from parent directory
+code_dir <- dirname(getwd())
+devtools::load_all(code_dir)
+library(BiocParallel)
+ncores <- parallel::detectCores() - 1
+if (ncores < 1){
+  ncores <- 1
+}
+register(MulticoreParam(workers = ncores, progressbar=TRUE), default = TRUE)
+load(url("https://github.com/IMB-Computational-Genomics-Lab/ascend-guide/blob/master/data/sample_data/RGC_scRNASeq.rdata?raw=true"))
 ```
 The `ascend` package provides a series of tools for the processing and analysis of single cell RNA-seq (scRNA-seq) in R. These tools perform tasks such as filtering, normalisation, clustering and differential expression.
 
@@ -23,10 +32,10 @@ You can read more about this dataset in the paper [Single Cell RNA Sequencing of
 
 ## Loading Data for use in ascend
 ### Preparing data manually
-The data for this vignette is included with the package. You can load the data by using the following command:
+The data for this vignette can be downloaded from the [ascend website repository](https://github.com/IMB-Computational-Genomics-Lab/ascend-guide). You can load the data with the following command:
 
-```{R LoadData}
-load(system.file("extdata", "RGC_scRNASeq.RData", package = "ascend"))
+```{R LoadData, eval = FALSE}
+load("RGC_scRNASeq.RData")
 ```
 
 These objects contain all the information we need to create an `EMSet` - the main data object of the ascend package. 
@@ -119,7 +128,7 @@ em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes,
 em.set
 ```
 
-### Load data from Cell Ranger into ascend automatically
+### SHORTCUT - Load data from Cell Ranger into ascend automatically
 If you are using Chromium data, you can also load the data into R with the `LoadCellRanger` function. This function loads the data into an EMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
 
 ```{r AutoLoading, eval = FALSE}
@@ -262,10 +271,10 @@ print(raw.qc.plots$Log2AverageGeneCount)
 print(raw.qc.plots$Log10AverageGeneCount)
 ```
 
-If we wanted to remove these genes, we can use `FilterByExpressedGenesPerCell`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
+If we wanted to remove these genes, we can use `FilterLowAbundanceGenes`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
 
-```{r FilterByExpressedGenesPerCell, eval = FALSE}
-em.set <- FilterByExpressedGenesPerCell(em.set, pct.value = 1)
+```{r FilterLowAbundanceGenes, eval = FALSE}
+em.set <- FilterLowAbundanceGenes(em.set, pct.value = 1)
 ```
 
 However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
@@ -427,20 +436,20 @@ Clustering can be done on the original expression matrix or the PCA-transformed 
 
 ```{r RunCOREfunctions, echo = FALSE, results = "asis"}
 library(knitr)
-kable(data.table(Argument = c("conservative", "windows", "remove_outlier"), 
-                 Description = c("Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE", "Range to perform cuts on the dendrogram Default: seq(0.025:1, by=0.025).", "Remove cells that weren't assigned a cluster with dynamicTreeCut. This is indicative of outlier cells within the sample. Default: TRUE")))
+kable(data.table(Argument = c("conservative", "nres", "remove_outlier"), 
+                 Description = c("Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE", "Number of resolutions to test Default: 40", "Remove cells that weren't assigned a cluster with dynamicTreeCut. This is indicative of outlier cells within the sample. Default: TRUE")))
 ```
 
-This function has only one argumenmt - `conservative`. This argument is only used when the algorithm detects more than one set of stable results. If set to TRUE, the function will choose the result that is the most stable but yields the least number of clusters. If set to FALSE, the function will choose the result that is the least stable, but yields the most number of clusters.
+The `RunCORE` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to the chosen number of resolutions values ranging from 0 (the bottom of the tree) to 1 (the top of the tree).
+
 
 ```{r RunCORE}
 clustered.set <- RunCORE(pca.set, 
                          conservative = TRUE, 
-                         windows = seq(0.025:1, by = 0.025), 
+                         nres = 40, 
                          remove_outlier = FALSE )
 ```
 
-The `RunCORE` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to 40 values ranging from 0.025 (the bottom of the tree) to 1 (the top of the tree). 
 
 The `PlotStabilityDendro` generates a plot that represents this part of the process. In addition to the dendrogram, it generates the distribution of clusters across the 40 cut heights.
 

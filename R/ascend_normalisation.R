@@ -1,23 +1,37 @@
 #' scranNormalise
 #'
-#' Normalise an \linkS4class{EMSet} with \pkg{scran}'s deconvolution method by Lun et al. 2016.
+#' Normalise an \code{\linkS4class{EMSet}} with \pkg{scran}'s deconvolution 
+#' method by Lun et al. 2016.
 #'
-#' @details Pooling method of cells is influenced by the size of the cell population.
-#' For datasets containing less than 20000 cells, this function will run \code{\link[scran]{computeSumFactors}}
-#' with preset sizes of 40, 60, 80 and 100.
-#' For datasets containing over 20000 cells, you have the option to use \code{\link[scran]{quickCluster}} to
-#' form pools of cells to feed into \code{\link[scran]{computeSumFactors}}. This method is slower and may fail
-#' with very large datasets containing over 40000 cells. If \code{\link[scran]{quickCluster}} is not selected,
-#' cells will be randomly assigned to a group.
+#' @details Pooling method of cells is influenced by the size of the cell 
+#' population.For datasets containing less than 20000 cells, this function will 
+#' run\code{\link[scran]{computeSumFactors}} with preset sizes of 40, 60, 80 and 
+#' 100.
+#' 
+#' For datasets containing over 20000 cells, you have the option to use 
+#' \code{\link[scran]{quickCluster}} to form pools of cells to feed into 
+#' \code{\link[scran]{computeSumFactors}}. This method is slower and may fail
+#' with very large datasets containing over 40000 cells. If 
+#' \code{\link[scran]{quickCluster}} is not selected, cells will be randomly 
+#' assigned to a group.
 #'
-#' @param object An \linkS4class{EMSet} that has not undergone normalisation.
-#' @param quickCluster TRUE: Use scran's quickCluster method FALSE: Use 
-#' randomly-assigned groups. Default: FALSE
+#' @param object An \code{\linkS4class{EMSet}} that has not undergone 
+#' normalisation.
+#' @param quickCluster Use scran's quickCluster method (TRUE) or  use randomly-
+#' assigned groups (FALSE, Default).
 #' @param min.mean Threshold for average counts. This argument is for the 
-#' \code{\link{computeSumFactors}} function from \pkg{scran}. The value of 1 is
-#' recommended for read count data, while the default value of 1e-5 is best for 
-#' UMI data. Default: 1e-5. This argument is only used for newer versions of 
+#' \code{\link[scran]{computeSumFactors}} function from \pkg{scran}. The value 
+#' of 1 is recommended for read count data, while the default value of 1e-5 is 
+#' best for UMI data. This argument is only used for newer versions of 
 #' \pkg{scran}.
+#' @return An \code{\linkS4class{EMSet}} with an expression matrix with counts 
+#' normalised by \code{\link[scater]{normalize}} function.
+#' @examples
+#' \dontrun{
+#' normalised_object <- scranNormalise(em.set, quickCluster = TRUE, 
+#' min.mean = 1e-5)
+#' }
+#' @importFrom utils packageVersion
 #' @export
 #'
 scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
@@ -43,6 +57,13 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
 #' NormWithinBatch
 #'
 #' Called by NormaliseBatches. Performs normalisation within a batch.
+#' 
+#' @param batch.id Batch identifier as stored in CellInformation.
+#' @param expression.matrix Expression matrix that has not been batch-normalised.
+#' @param cell.info Cell Information data frame.
+#' @return A list containing the normalisation factor and a batch-normalised 
+#' expression matrix in sparse format.
+#' @importFrom Matrix t rowSums
 #'
 NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL) {
     # Function called by NormaliseBatches
@@ -67,9 +88,16 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL
 #' experiments where data from batches of different samples are combined without
 #' undergoing library equalisation.
 #'
-#' This step must be done prior to any filtering and normalisation between cells.
+#' This step should be done prior to any filtering and normalisation between cells.
 #'
-#' @param object An \linkS4class{EMSet} object.
+#' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch.
+#' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values.
+#' @examples
+#' \dontrun{
+#' batch_normalised_object <- NormaliseBatches(em.set)
+#' }
+#' @importFrom BiocParallel bplapply
+#' @importFrom stats median
 #' @export
 #'
 NormaliseBatches <- function(object) {
@@ -106,7 +134,11 @@ NormaliseBatches <- function(object) {
 #' NormaliseLibSize
 #'
 #' Normalise library sizes by scaling.
-#' @param object A \linkS4class{EMSet} object. Please remove spike-ins from the expression matrix before normalising.
+#' @param object An \code{\linkS4class{EMSet}} object. Please remove spike-ins 
+#' from the expression matrix before normalising.
+#' @return An \code{\linkS4class{EMSet}} normalised by library size.
+#' @importFrom Matrix colSums t
+#' @importFrom stats median
 #' @export
 #'
 NormaliseLibSize <- function(object) {
@@ -127,8 +159,15 @@ NormaliseLibSize <- function(object) {
 ## SUBFUNCTIONS FOR NormaliseByRLE
 #' CalculateNormFactor
 #'
-#' Calculate the normalisation factor between all cells.
-#'
+#' Calculate the normalisation factor between all cells. This function is called
+#' by \code{\link{NormaliseByRLE}}.
+#' 
+#' @param x List of counts associated with a gene.
+#' @param geo.means Geometric mean associated with a cell as calculated by the
+#' \code{\link{CalcGeoMeans}} function.
+#' @return A list of normalisation factors.
+#' @importFrom stats median
+#' 
 CalcNormFactor <- function(x, geo.means) {
     x.geo.means <- cbind(x, geo.means)
     x.geo.means <- x.geo.means[(x.geo.means[, 1] > 0), ]
@@ -141,8 +180,12 @@ CalcNormFactor <- function(x, geo.means) {
 
 #' CalcGeoMeans
 #'
-#' Calculate the geometric mean around a point.
-#'
+#' Calculate the geometric mean around a point. Called by 
+#' \code{\link{NormaliseByRLE}} function.
+#' 
+#' @param x Counts associated with a cell.
+#' @return Geometric means associated with each cell.
+#' 
 CalcGeoMeans <- function(x) {
     x <- x[x > 0]
     x <- exp(mean(log(x)))
@@ -151,10 +194,19 @@ CalcGeoMeans <- function(x) {
 
 #' NormaliseByRLE
 #'
-#' Normalisation of expression between cells, by scaling to relative log expression.
-#' This method assumes all genes express a pseudo value higher than 0, and also assumes most genes
-#'are not differentially expressed. Only counts that are greater than zero are considered in this normalisation method.
-#' @param object A \linkS4class{EMSet} object that has undergone filtering. Please ensure spike-ins have been removed before using this function.
+#' Normalisation of expression between cells, by scaling to relative log 
+#' expression (RLE). This method assumes all genes express a pseudo value higher 
+#' than 0, and also assumes most genes are not differentially expressed. Only 
+#' counts that are greater than zero are considered in this normalisation method.
+#' 
+#' @param object An \code{\linkS4class{EMSet}} set that has undergone filtering. 
+#' Please ensure spike-ins have been removed before using this function.
+#' @return An \code{\linkS4class{EMSet}} with normalised expression values.
+#' @examples
+#' \dontrun{
+#' normalised_object <- NormaliseByRLE(em.set)
+#' }
+#' @importFrom Matrix t
 #' @export
 #'
 NormaliseByRLE <- function(object) {
