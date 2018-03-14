@@ -18,9 +18,7 @@
 RunDESeq <- function(data, condition.list = list(), 
                      condition.a = NULL, condition.b = NULL, 
                      fitType = NULL, method = NULL) {
-    suppressPackageStartupMessages({
-      require(locfit)
-    })
+    library(DESeq)
     count.dataset <- DESeq::newCountDataSet(data, condition.list)
     count.dataset <- DESeq::estimateSizeFactors(count.dataset)
     dispersions <- DESeq::estimateDispersions(count.dataset, method = method, fitType = fitType)
@@ -61,8 +59,14 @@ ProcessDEResults <- function(output.list) {
 #' @return A list of chunks of the expression matrix.
 #' @importFrom stats sd
 PrepareCountData <- function(object, cells, ngenes) {
+    # If ngenes aren't specified, use all of the expression matrix
     if (is.null(ngenes)){
       ngenes <- nrow(object@ExpressionMatrix)
+    } else{
+    # If not, check there are enough genes to chunk
+      if (ngenes > nrow(object@ExpressionMatrix)){
+        ngenes <- nrow(object@ExpressionMatrix)
+      }
     }
   
     # Retrieve information from EMSet
@@ -87,14 +91,10 @@ PrepareCountData <- function(object, cells, ngenes) {
 
     print("Chunking matrix...")
     # Check how many genes are present, before determining chunk size.
-    if (nrow(expression.matrix) > 1000){
-      chunk.size <- nrow(expression.matrix)/1000      
-    } else if (nrow(expression.matrix) < 100){
-      chunk.size <- nrow(expression.matrix)/10
-    } else{
-      chunk.size <- nrow(expression.matrix)/100
-    }
-
+    # Determine number of chunks by logging number of genes and adjusting for
+    # chunk size for that value
+    divisor <- 10^floor(log10(ngenes))/10
+    chunk.size <- nrow(expression.matrix)/divisor     
     chunked.matrix <- ChunkMatrix(expression.matrix, axis = 0, chunks = chunk.size)
     return(chunked.matrix)
 }

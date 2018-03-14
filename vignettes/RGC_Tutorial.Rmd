@@ -522,7 +522,8 @@ cluster.de.result <- RunDiffExpression(clustered.set,
                                        condition = "cluster", 
                                        fitType = "local", 
                                        method = "per-condition")
-cluster.de.result[1:10,]
+sig.de.result <- cluster.de.result[which(cluster.de.result$padj < 0.05), ]
+sig.de.result[order(-abs(sig.de.result$log2FoldChange)),]
 ```
 
 These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
