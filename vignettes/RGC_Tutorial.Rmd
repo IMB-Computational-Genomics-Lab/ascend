@@ -1,5 +1,5 @@
 ---
-title:  An introduction to ascend - Processing and analysis of retinal ganglion cells 
+title:  An introduction to 'ascend' - Processing and analysis of retinal ganglion cells 
 author: "Anne Senabouth"
 date: '`r Sys.Date()`'
 output:
@@ -7,15 +7,18 @@ output:
     keep_md: true
   pdf_document: default
 vignette: |
-  %\VignetteIndexEntry{An introduction to ascend - Processing and analysis of retinal ganglion cells} 
+  %\VignetteIndexEntry{An introduction to 'ascend' - Processing and analysis of retinal ganglion cells} 
   %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}
 ---
-```{r Loadascend, message = FALSE, echo = FALSE}
+```{r Loadascend, message = FALSE, echo = FALSE, include=FALSE}
 # Load code from parent directory
 code_dir <- dirname(getwd())
 devtools::load_all(code_dir)
+library(knitr)
 library(BiocParallel)
+library(ggplot2)
+library(gridExtra)
 ncores <- parallel::detectCores() - 1
 if (ncores < 1){
   ncores <- 1
@@ -30,15 +33,27 @@ This dataset comprises of 1272 human embryonic stem cell-derived retinal ganglio
 
 You can read more about this dataset in the paper [Single Cell RNA Sequencing of stem cell-derived retinal ganglion cells][1] by Daniszewski et al. 2017.
 
-## Loading Data for use in ascend
+## Loading data for use in 'ascend'
+### About the Expression and Metadata Set (EMSet)
+An `ascend` Expression and Metadata Set (EMSet) is a S4 object that stores information generated and used by the `ascend` package. You can read more about this object in the vignette "An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression".
+
+### SHORTCUT - Load data from Cell Ranger into ascend automatically
+If you are using Chromium data, you can load the data into R with the `LoadCellRanger` function. This function loads the data into an EMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
+
+```{r AutoLoading, eval = FALSE}
+em.set <- LoadCellRanger("RGC_scRNASeq/", "GRCh38")
+```
+
 ### Preparing data manually
-The data for this vignette can be downloaded from the [ascend website repository](https://github.com/IMB-Computational-Genomics-Lab/ascend-guide). You can load the data with the following command:
+This part of the vignette is for those who wish to prepare the data manually. The data for this vignette can be downloaded from the [ascend website repository](https://github.com/IMB-Computational-Genomics-Lab/ascend-guide). 
+
+You can load the data with the following command:
 
 ```{R LoadData, eval = FALSE}
 load("RGC_scRNASeq.RData")
 ```
 
-These objects contain all the information we need to create an `EMSet` - the main data object of the ascend package. 
+These objects contain all the information we need to create an `EMSet`.
 
 #### Expression matrix
 The main source of input is an expression matrix, or a gene-cell matrix where each row represents a transcript and each column represents a cell. Cell Ranger - the processing pipeline for the Chromium platform, has stored the expression matrix in a Market Exchange Format (MEX) file called `matrix.mtx`. This was read into R with the `readMM` function from the `Matrix` package.
@@ -47,7 +62,7 @@ Let's have a look at a small part of the matrix.
 
 ```{r ReadExpressionMatrix}
 matrix <- as.data.frame(as.matrix(matrix))
-matrix[1:5,1:5]
+matrix[1:5,1:3]
 ```
 
 `readMM` reads the data in as a sparse matrix, using less memory than data frames and matrices. The expression matrix can be kept in this format, but as we want to view the contents of the matrix for this tutorial – we have converted it into a data frame.  This data frame lacks row and column labels as Cell Ranger has stored them in the two other files - `barcodes.tsv` and `genes.tsv`.
@@ -62,7 +77,8 @@ barcodes[1:5,]
 Extract the batch numbers from the cell identifiers by splitting each string at the '-' symbol and retrieve the second part of the string.
 
 ```{r ProcessBatchID}
-batch.information <- unlist(as.numeric(lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)))
+batch.information <- unlist(as.numeric(
+  lapply(strsplit(as.character(barcodes$V1), "-"), `[`, 2)))
 batch.information[1:5]
 ```
 
@@ -95,7 +111,7 @@ For this tutorial, we will use gene names. As genes can be associated with more 
 genes <- genes[,c("gene_symbol", "ensembl_id")]
 gene.names <- make.unique(as.vector(genes$gene_symbol))
 rownames(matrix) <- gene.names
-matrix[1:5, 1:5]
+matrix[1:5, 1:3]
 ```
 
 Now that the gene names have been modified, the gene_names column in the `genes` data frame needs to be updated. This will link the information in this data frame with the rows of the expression matrix.
@@ -120,19 +136,21 @@ controls
 ```
 
 #### Building an EMSet
-We can now load all of this information into an `EMSet`, using the `NewEMSet` function. To view information about this object, enter the name of the object into the console.
+We can now load all of this information into an `EMSet`, using the `NewEMSet` function.
 
-```{r BuildEMSet}
+```{r BuildEMSet, include = FALSE}
 em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes, 
                    CellInformation = barcodes, Controls = controls)
-em.set
+```
+```{r BuildEMSetCode, eval = FALSE}
+em.set <- NewEMSet(ExpressionMatrix = matrix, GeneInformation = genes, 
+                   CellInformation = barcodes, Controls = controls)
 ```
 
-### SHORTCUT - Load data from Cell Ranger into ascend automatically
-If you are using Chromium data, you can also load the data into R with the `LoadCellRanger` function. This function loads the data into an EMSet, with the assumption that mitochondrial and ribosomal genes are controls for this experiment.
+To view information about this object, enter the name of the object into the console.
 
-```{r AutoLoading, eval = FALSE}
-em.set <- LoadCellRanger("RGC_scRNASeq/", "GRCh38")
+```{r ViewEMSet}
+em.set
 ```
 
 #### Adding additional metadata to the EMSet
@@ -189,10 +207,34 @@ The resulting plots are stored in a named list. You can use the `PlotPDF` functi
 raw.qc.plots <- PlotGeneralQC(em.set)
 ```
 
+```{r, PlotGeneralQCMsg, eval = FALSE}
+raw.qc.plots <- PlotGeneralQC(em.set)
+```
+
 ### Classifying cells by cell cycle
 To identify the stage of the cell cycle each cell is in, use `scranCellCycle`. This function is a wrapper for `scran`'s `cyclone` function. For more information on how this function works, refer to the `scran` [documentation][2]. The `scranCellCycle` and subsequently and `cyclone` function require a training dataset. In this case, we loaded the human dataset that comes packaged with `scran`. We also had to briefly convert the gene annotation used in the EMSet to ENSEMBL IDs, to match the training dataset. Fortunately, Cell Ranger has provided both identifiers in the `genes` data frame, so we can easily switch them with the `ConvertGeneAnnotation` function.
 
-```{r CellCycle}
+```{r CellCycle, include = FALSE}
+# Convert the EMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id 
+# column of the GeneInformation dataframe
+em.set <- ConvertGeneAnnotation(em.set, "gene_symbol", "ensembl_id")
+
+# Load scran's training dataset
+training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", 
+                                     package = "scran"))
+
+# Run scranCellCycle
+em.set <- scranCellCycle(em.set, training.data)
+
+# View cell information
+cell.info <- GetCellInfo(em.set)
+cell.info[1:5, ]
+
+# Convert annotation back to gene_symbol
+em.set <- ConvertGeneAnnotation(em.set, "ensembl_id", "gene_symbol")
+```
+
+```{r CellCycleShow, eval = FALSE}
 # Convert the EMSet's gene annotation to ENSEMBL IDs stored in the ensembl_id 
 # column of the GeneInformation dataframe
 em.set <- ConvertGeneAnnotation(em.set, "gene_symbol", "ensembl_id")
@@ -217,16 +259,20 @@ em.set <- ConvertGeneAnnotation(em.set, "ensembl_id", "gene_symbol")
 First, we will filter cells based on outliers in term of library size, number of non-control genes expressed and control genes expressed. 
 
 We can use the following plots to examine the distributions of these values.
-```{r, fig.align="center", fig.width = 4, fig.show = "hold"}
-print(raw.qc.plots$LibSize)
-print(raw.qc.plots$FeatureCountsPerCell)
-print(raw.qc.plots$ControlPercentageTotalCounts$Mt)
-print(raw.qc.plots$ControlPercentageTotalCounts$Rb)
+```{r, fig.align="center", fig.width = 8, fig.height = 6, fig.show = "asis"}
+grid.arrange(raw.qc.plots$LibSize, 
+             raw.qc.plots$FeatureCountsPerCell, 
+             raw.qc.plots$ControlPercentageTotalCounts$Mt,
+             raw.qc.plots$ControlPercentageTotalCounts$Rb, ncol = 2)
 ```
 
 The `FilterByOutliers` function will remove outliers based on these criteria. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required
 
-```{r FilterByOutliers}
+```{r FilterByOutliers, include = FALSE}
+em.set <- FilterByOutliers(em.set, cell.threshold = 3, control.threshold = 3)
+```
+
+```{r FilterByOutliersShow, eval = FALSE}
 em.set <- FilterByOutliers(em.set, cell.threshold = 3, control.threshold = 3)
 ```
 
@@ -235,9 +281,9 @@ We removed a significant number of cells in the previous step that were expressi
 
 The beehive plots below show the percentage of control genes in the transcriptomes of each cell, per sample.
 
-```{r ControlPercentagePlots, fig.width=4, fig.height=5.25, fig.align="center", fig.show = "hold"}
-print(raw.qc.plots$ControlPercentageSampleCounts$Mt)
-print(raw.qc.plots$ControlPercentageSampleCounts$Rb)
+```{r ControlPercentagePlots, fig.width=4, fig.height=6, fig.align="center", fig.show = "asis"}
+grid.arrange(raw.qc.plots$ControlPercentageSampleCounts$Mt, 
+             raw.qc.plots$ControlPercentageSampleCounts$Rb, ncol = 1)
 ```
 
 Review the control list by using `GetControls`. As you can see, we have stored the mitochondrial genes under "Mt" and ribosomal genes under "Rb."
@@ -248,7 +294,14 @@ print(GetControls(em.set))
 
 Use `FilterByCustomControl` to remove cells that are mostly expressing control genes. This function takes two arguments - the name of the list of control genes and the minimum percentage expression to filter by.
 
-```{r FilterByControl}
+```{r FilterByControl, include = FALSE}
+# Filter by mitochondrial genes
+em.set <- FilterByControl(control.name = "Mt", pct.threshold = 20, em.set)
+# Filter by ribosomal genes
+em.set <- FilterByControl(control.name = "Rb", pct.threshold = 50, em.set)
+```
+
+```{r FilterByControlShow, eval = FALSE}
 # Filter by mitochondrial genes
 em.set <- FilterByControl(control.name = "Mt", pct.threshold = 20, em.set)
 # Filter by ribosomal genes
@@ -257,33 +310,31 @@ em.set <- FilterByControl(control.name = "Rb", pct.threshold = 50, em.set)
 
 Some analyses will require the removal of these controls. This should not be done at this stage; it is best done after normalisation.
 
-#### Filtering by expression
-The final step of filtering is to remove low-abundance genes. The average expression of genes can be reviewed on the average transcript count plots.
+#### Removing low abundance genes
+The average expression of genes can be reviewed on the average transcript count plots.
 
-```{r AverageGeneCountPlots, fig.width=4, fig.align="center"}
-print(raw.qc.plots$AverageGeneCount)
+```{r AverageGeneCountLogPlots, fig.align="center", fig.show = "asis", fig.height = 5, fig.width = 6}
+grid.arrange(raw.qc.plots$AverageGeneCount,
+             raw.qc.plots$Log2AverageGeneCount,
+             raw.qc.plots$Log10AverageGeneCount,
+             ncol = 1)
 ```
 
 Due to the nature of single-cell RNASeq, many genes will have zero or near-zero expression. Have a closer look at the distribution with the Log2 and Log10 average transcript count plots. 
 
-```{r AverageGeneCountLogPlots, fig.align="center", fig.show = "hold", fig.width = 4}
-print(raw.qc.plots$Log2AverageGeneCount)
-print(raw.qc.plots$Log10AverageGeneCount)
-```
-
-If we wanted to remove these genes, we can use `FilterLowAbundanceGenes`. This function removes genes that are expressed in at most, a certain percentage of the cell population.
+If we wanted to remove genes that are only expressed in a small percentage of cells, we can use the `FilterLowAbundanceGenes` function. This will remove genes that are expressed in at most, a certain percentage of the cell population.
 
 ```{r FilterLowAbundanceGenes, eval = FALSE}
 em.set <- FilterLowAbundanceGenes(em.set, pct.value = 1)
 ```
 
-However, there are experiments where this is not ideal, such as this one. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
+There are experiments where this is not ideal, such as this one as we are trying to characterise cell populations by genes that may only be expressed in a small number of cells. For example, we are interested in transcripts from the BRN3 family but these transcripts are expressed in only a small proportion of the cells. 
 
 ```{r CheckGenesOfInterest}
 expression.matrix <- GetExpressionMatrix(em.set, "data.frame")
 brn3.transcripts <- c("POU4F1", "POU4F2", "POU4F3")
 expression.matrix[brn3.transcripts, 
-                  which(colSums(expression.matrix[brn3.transcripts,]) > 0)]
+                  which(colSums(expression.matrix[brn3.transcripts,]) > 0)[1:3]]
 ```
 
 Other genes that are involved in the differentiation of the stem cells into retinal ganglion cells may also be lowly expressed, so we will omit this filtering step.
@@ -299,27 +350,30 @@ You can also run `PlotGeneralQC` again to see how the filtering has altered the 
 
 ```{r CheckFiltering, fig.show = "hide", results="hide", include = FALSE}
 filtered.qc.plots <- PlotGeneralQC(em.set)
-print(filtered.qc.plots$LibSize)
-print(filtered.qc.plots$FeatureCountsPerCell)
+```
+
+```{r ShowFilteringQC, fig.width = 6, fig.height = 7}
+grid.arrange(filtered.qc.plots$LibSize, filtered.qc.plots$FeatureCountsPerCell,
+             ncol = 1)
 ```
 
 ### Normalisation
 Normalisation needs to be done at two levels - between batches and between cells.
 
-The ascend package contains the following normalisation functions:
+The `ascend` package provides the following normalisation functions:
 
 * NormaliseBatches: Normalise library sizes between batches.
 * NormaliseByRLE: Normalise library sizes between cells by Relative Log Expression (RLE).
 * scranNormalise: Normalise library sizes between cells using *scran*'s deconvolution method.
 
-How you use these functions depends on the dataset.
+When and how the functions are applied are dependant on the dataset.
 
 #### NormaliseBatches
 Normalisation between batches needs to be done prior to filtering.
 
 For this tutorial - we do not need to use the `NormaliseBatches` as this dataset was prepared with Cell Ranger's *aggr* pipeline. This pipeline uses a subsampling process to normalise between batches [(Zheng et al. 2017)][3].
 
-We do need to normalise between cells so we can use one of the following functions: `NormaliseByRLE` or `scranNormalise`.
+However, we do need to normalise between cells. This can be done with either the `NormaliseByRLE` or `scranNormalise` functions.
 
 #### NormaliseByRLE
 In this method, each cell is considered as one library and assumes that most genes are not differentially expressed. It uses gene expression values higher than 0 to calculate the geometric means of a gene. The geometric mean is the mean of the expression of the gene across all cells (for cells where the gene is detected). Each gene has one geometric mean value for all cell. For each cell, the gene expression values are divided by the geometric means to get one normalisation factor for a gene in that cell. The median of all the normalisation factors for all genes in that cell is the normalisation factor for the cell. Post RLE normalisation, a gene with 0 expression still has 0 expression. A gene with expression higher than 0 will have an expression value equal the raw expression divided by the calculated normalization factor for the cell. As spike-ins affect library size, they need to be removed prior to normalisation.
@@ -343,39 +397,48 @@ If the dataset contains less than 10,000 cells, `scranNormalise` will run `scran
 
 This method is computationally intensive; we do not recommend running datasets larger than 5000 cells on a desktop machine. Datasets larger than 10,000 cells should be run on a HPC.
 
-```{r scranNormalise}
+```{r scranNormalise, include = FALSE}
+norm.set <- scranNormalise(em.set, quickCluster = FALSE, min.mean = 1e-5)
+```
+
+```{r scranNormaliseShow, eval = FALSE}
 norm.set <- scranNormalise(em.set, quickCluster = FALSE, min.mean = 1e-5)
 ```
 
 #### Reviewing the normalisation process
 `PlotNormalisationQC` will generate a series of plots for the review of the normalisation process. This function can only be used if you have retained the un-normalised `EMSet`. You can also review the expression of genes you are interested in; in this case, we will look at the expression of GAPDH and MALAT1 as they are considered 'housekeeping' genes.
 
-```{r PlotNormalisationQC}
+```{r PlotNormalisationQC, echo = FALSE, message = FALSE, include = FALSE}
+norm.qc <- PlotNormalisationQC(original = em.set, normalised = norm.set, 
+                               gene.list = c("GAPDH", "MALAT1"))
+```
+
+```{r PlotNormalisationQCShow, eval = FALSE}
 norm.qc <- PlotNormalisationQC(original = em.set, normalised = norm.set, 
                                gene.list = c("GAPDH", "MALAT1"))
 ```
 
 The first set of graphs are library size histograms. The `scranNormalise` affects library size to a greater extent than the `NormaliseByRLE`.
 
-```{r NormLibsizePlot, fig.show = "hold", fig.align="center", fig.width = 4}
-print(norm.qc$Libsize$Original)
-print(norm.qc$Libsize$Normalised)
+```{r NormLibsizePlot, fig.show = "hold", fig.align="center", fig.width = 6, fig.height = 5}
+grid.arrange(norm.qc$Libsize$Original, norm.qc$Libsize$Normalised, ncol = 1)
 ```
 
 The gene scatter plots show how expression has changed on a gene level. Both genes are strongly expressed in this dataset, and normalisation has enabled us to make a clearer distinction between the expression level of these genes between each cell.
 
-```{r NormScatter, fig.show="hold", fig.align="center", fig.width = 4.5, warning = FALSE}
-print(norm.qc$GeneScatterPlots$GAPDH$Original)
-print(norm.qc$GeneScatterPlots$GAPDH$Normalised)
-print(norm.qc$GeneScatterPlots$MALAT1$Original)
-print(norm.qc$GeneScatterPlots$MALAT1$Normalised)
+```{r NormScatter, fig.show="asis", message = FALSE, fig.width = 6, fig.height = 6}
+grid.arrange(norm.qc$GeneScatterPlots$GAPDH$Original, 
+             norm.qc$GeneScatterPlots$GAPDH$Normalised,
+             norm.qc$GeneScatterPlots$MALAT1$Original,
+             norm.qc$GeneScatterPlots$MALAT1$Normalised,
+             ncol = 1)
 ```
 
 The changes to overall gene expression can also be reviewed on gene expression boxplots.
 
-```{r NormGenes, fig.show="hold", fig.align = "center", fig.width = 4.5, warning = FALSE}
-print(norm.qc$GeneExpressionBoxplot$Original)
-print(norm.qc$GeneExpressionBoxplot$Normalised)
+```{r NormGenes, fig.show="hold", fig.align = "center", fig.width = 6, warning = FALSE}
+grid.arrange(norm.qc$GeneExpressionBoxplot$Original,
+             norm.qc$GeneExpressionBoxplot$Normalised, ncol = 1)
 ```
 
 ### Control Removal
@@ -437,13 +500,13 @@ Clustering can be done on the original expression matrix or the PCA-transformed 
 ```{r RunCOREfunctions, echo = FALSE, results = "asis"}
 library(knitr)
 kable(data.table(Argument = c("conservative", "nres", "remove_outlier"), 
-                 Description = c("Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE", "Number of resolutions to test Default: 40", "Remove cells that weren't assigned a cluster with dynamicTreeCut. This is indicative of outlier cells within the sample. Default: TRUE")))
+                 Description = c("Use conservative (more stable) clustering result (TRUE or FALSE). Default: TRUE", "Number of resolutions to test Default: 40", "Remove cells that weren't assigned a cluster with dynamicTreeCut. \n This is indicative of outlier cells within the sample. Default: TRUE")))
 ```
 
 The `RunCORE` function generates a distance matrix based on the input and from this, builds a dendrogram. This dendrogram is then cut with the `DynamicTreeCut` algorithm to select clusters from the dendrogram based on the shape and size of the branches. This is repeated again, but this time with the tree-height parameter set to the chosen number of resolutions values ranging from 0 (the bottom of the tree) to 1 (the top of the tree).
 
 
-```{r RunCORE}
+```{r RunCORE, echo = FALSE, message = FALSE}
 clustered.set <- RunCORE(pca.set, 
                          conservative = TRUE, 
                          nres = 40, 
@@ -453,7 +516,7 @@ clustered.set <- RunCORE(pca.set,
 
 The `PlotStabilityDendro` generates a plot that represents this part of the process. In addition to the dendrogram, it generates the distribution of clusters across the 40 cut heights.
 
-```{r PlotStabilityDendro, fig.width=4, fig.height=5, fig.show="hold", fig.align="center"}
+```{r PlotStabilityDendro, fig.width=4, fig.height=6, fig.show="hold", fig.align="center"}
 PlotStabilityDendro(clustered.set)
 ```
 
@@ -471,7 +534,7 @@ You can review this information in tabular form by using `GetRandMatrix`.
 
 ```{r GetRandMatrix}
 rand.matrix <- GetRandMatrix(clustered.set)
-rand.matrix
+kable(rand.matrix, digits = 3)
 ```
 
 The `PlotDendrogram` function generates a dendrogram that depicts each cluster and its members.
@@ -488,59 +551,94 @@ cell.info[1:5,]
 ```
 
 ### Differential Expression
-This package uses `DESeq` to perform differential expression, and can be done with or without clustering. Each cell needs to be assigned one of two conditions; for this tutorial, we will use batch information and clustering information. This step is computationally intensive for larger datasets.
+This package uses `DESeq` to perform differential expression, and can be done with or without clustering. Each cell needs to be assigned one of two conditions; for this tutorial, we will use batch information and clustering information. As this step is computationally intensive for larger datasets, you can restrict analysis to a specified number of the most variable genes by using the `ngenes` argument.
 
-The `RunDiffExpression` calls `DESeq` to perform differential expression between two conditions. This function can be run with or without clustering, after PCA reduction. If this function is unable to fit your data, you may adjust the arguments `method` and `fitType`. These arguments are for `DESeq`'s `estimateDispersions` function.
+The `RunDiffExpression` calls `DESeq` to perform differential expression between two conditions. This function can be run with or without clustering, after PCA reduction. If this function is unable to fit your data, you may adjust the arguments `method` and `fitType`. These arguments are for `DESeq`'s `estimateDispersions` function. If your dataset is very small, you should also reduce the number of genes being analysed with the `ngenes` function.
  
 First, let's compare the expression of THY1-positive cells to THY1-negative cells.
 
-```{r THY1DE}
+```{r THY1DE, include = FALSE}
 thy1.de.result <- RunDiffExpression(clustered.set, 
                                     condition.a = "TRUE", 
                                     condition.b = "FALSE", 
                                     conditions = "THY1", 
                                     fitType = "local", 
-                                    method = "per-condition")
-thy1.de.result[1:10,]
+                                    method = "per-condition",
+                                    ngenes = NULL)
+```
+
+```{r THY1DEShow, eval = FALSE}
+thy1.de.result <- RunDiffExpression(clustered.set, 
+                                    condition.a = "TRUE", 
+                                    condition.b = "FALSE", 
+                                    conditions = "THY1", 
+                                    fitType = "local", 
+                                    method = "per-condition",
+                                    ngenes = NULL)
+```
+
+```{r Thy1Table}
+kable(thy1.de.result[1:10,], digits = 3)
 ```
 
 The results are sorted in ascending order, based on the p-value. The fold change values have been adjusted; they represent absolute fold change.
 
 We can view these results as a volcano plot with the `PlotDEVolcano` function.
 
-```{r THY1DEplot}
+```{r THY1DEplot, fig.width = 6, fig.height = 4}
 thy1.volcano.plot <- PlotDEVolcano(thy1.de.result, labels = FALSE)
 print(thy1.volcano.plot)
 ```
 
 Let's examine what genes are differentially expressed between clusters 1 and 2.
 
-```{r RunDiffExpression}
+```{r RunDiffExpression1, include = FALSE}
 cluster.de.result <- RunDiffExpression(clustered.set,
                                        condition.a = "1",
                                        condition.b = "2",
                                        condition = "cluster", 
                                        fitType = "local", 
                                        method = "per-condition")
+```
+
+```{r RunDiffExpression1Show, eval = FALSE}
+cluster.de.result <- RunDiffExpression(clustered.set,
+                                       condition.a = "1",
+                                       condition.b = "2",
+                                       condition = "cluster", 
+                                       fitType = "local", 
+                                       method = "per-condition")
+```
+
+```{r DEresult1}
 sig.de.result <- cluster.de.result[which(cluster.de.result$padj < 0.05), ]
-sig.de.result[order(-abs(sig.de.result$log2FoldChange)),]
+sig.de.result <- sig.de.result[order(-abs(sig.de.result$log2FoldChange)),]
+kable(sig.de.result[1:20, ], digits = 3)
 ```
 
 These results underwent further analysis, and revealed cells in cluster 2 were strongly expressing apoptopic genes. The cells in this cluster were deemed 'low quality' and removed from the dataset. To confirm that the remaining cells were good quality, the dataset re-clustered.
 
-```{r RemoveCluster, fig.width = 5, fig.height = 4}
+```{r RemoveCluster, include = FALSE}
 clean.set <- SubsetCluster(clustered.set, clusters = "1")
 clean.pca <- RunPCA(clean.set)
 clean.cluster <- RunCORE(clean.pca, conservative = TRUE)
-PlotDendrogram(clean.cluster)
 ```
 
+```{r Subcluster, eval = FALSE}
+clean.set <- SubsetCluster(clustered.set, clusters = "1")
+clean.pca <- RunPCA(clean.set)
+clean.cluster <- RunCORE(clean.pca, conservative = TRUE)
+```
+
+```{r Recluster, fig.width = 6, fig.height = 4}
+PlotDendrogram(clean.cluster)
+```
 Reclustering and differential expression revealed the remaining 1159 cells comprised of four subpopulations, each representing retinal ganglion cells at different stages of differentiation.
 
 #### Comparing each cluster against all other clusters
 The `RunDiffExpression` can be called to run multiple comparisons at once, using standard R functions such as `lapply` and `sapply`. The use of "Others" as condition.b tells the function to compare cells that have condition.a to all other cells that don't. If you need to do a lot of comparisons, you can even use BiocParallel's `bplapply` to run this function.
 
-```{r CleanDE, fig.width = 4, fig.height = 5}
+```{r CleanDE, include = FALSE}
 # List of clusters to compare
 cluster.list <- c("1", "2", "3", "4")
 
@@ -560,19 +658,90 @@ clean.cluster.de.results <- lapply(cluster.list, function(x)
   customFunction(x, clean.cluster))
 
 # Generate volcano plots
-cluster.de.1 <- PlotDEVolcano(clean.cluster.de.results[[1]], labels = FALSE)
-cluster.de.2 <- PlotDEVolcano(clean.cluster.de.results[[2]], labels = FALSE)
-cluster.de.3 <- PlotDEVolcano(clean.cluster.de.results[[3]], labels = FALSE)
-cluster.de.4 <- PlotDEVolcano(clean.cluster.de.results[[4]], labels = FALSE)
-print(cluster.de.1)
-print(cluster.de.2)
-print(cluster.de.3)
-print(cluster.de.4)
+cluster.de.1 <- clean.cluster.de.results[[1]]
+cluster.de.2 <- clean.cluster.de.results[[2]]
+cluster.de.3 <- clean.cluster.de.results[[3]]
+cluster.de.4 <- clean.cluster.de.results[[4]]
+
+# Format DE results
+cluster.de.1 <- cluster.de.1[which(cluster.de.1$padj < 0.05), ]
+cluster.de.1 <- cluster.de.1[order(-abs(cluster.de.1$log2FoldChange)),]
+
+cluster.de.2 <- cluster.de.2[which(cluster.de.2$padj < 0.05), ]
+cluster.de.2 <- cluster.de.2[order(-abs(cluster.de.2$log2FoldChange)),]
+
+cluster.de.3 <- cluster.de.3[which(cluster.de.3$padj < 0.05), ]
+cluster.de.3 <- cluster.de.3[order(-abs(cluster.de.3$log2FoldChange)),]
+
+cluster.de.4 <- cluster.de.4[which(cluster.de.4$padj < 0.05), ]
+cluster.de.4 <- cluster.de.4[order(-abs(cluster.de.4$log2FoldChange)),]
+
+```
+
+```{r CleanDEShow, eval = FALSE}
+# List of clusters to compare
+cluster.list <- c("1", "2", "3", "4")
+
+# Create a custom function to call RunDiffExpession
+customFunction <- function(x, clean.cluster){
+  # This is a standard RunDiffExpression call; The only difference is "x" will
+  # be inputted by the sapply function
+  de.result <- RunDiffExpression(clean.cluster, 
+                                 condition.a = x, 
+                                 condition.b = "Others",
+                                 conditions = "cluster")
+  # This will output the differential expression result as a list of dataframes
+  return (de.result)
+}
+
+clean.cluster.de.results <- lapply(cluster.list, function(x)
+  customFunction(x, clean.cluster))
+
+# Generate volcano plots
+cluster.de.1 <- clean.cluster.de.results[[1]]
+cluster.de.2 <- clean.cluster.de.results[[2]]
+cluster.de.3 <- clean.cluster.de.results[[3]]
+cluster.de.4 <- clean.cluster.de.results[[4]]
+
+# Format DE results
+cluster.de.1 <- cluster.de.1[which(cluster.de.1$padj < 0.05), ]
+cluster.de.1 <- cluster.de.1[order(-abs(cluster.de.1$log2FoldChange)),]
+
+cluster.de.2 <- cluster.de.2[which(cluster.de.2$padj < 0.05), ]
+cluster.de.2 <- cluster.de.2[order(-abs(cluster.de.2$log2FoldChange)),]
+
+cluster.de.3 <- cluster.de.3[which(cluster.de.3$padj < 0.05), ]
+cluster.de.3 <- cluster.de.3[order(-abs(cluster.de.3$log2FoldChange)),]
+
+cluster.de.4 <- cluster.de.4[which(cluster.de.4$padj < 0.05), ]
+cluster.de.4 <- cluster.de.4[order(-abs(cluster.de.4$log2FoldChange)),]
+
+```
+
+##### Cluster 1 vs Other Clusters
+```{r Cluster1vsOthers}
+kable(cluster.de.1[1:20,], digits = 3)
+```
+
+##### Cluster 2 vs Other Clusters
+```{r Cluster2vsOthers}
+kable(cluster.de.2[1:20,], digits = 3)
+```
+
+##### Cluster 3 vs Other Clusters
+```{r Cluster3vsOthers}
+kable(cluster.de.3[1:20,], digits = 3)
+```
+
+##### Cluster 4 vs Other Clusters
+```{r Cluster4vsOthers}
+kable(cluster.de.4[1:20,], digits = 3)
 ```
 
 #### Comparing pairs of clusters
 We can also compare pairs of clusters by setting conditions A and B in the `RunDiffExpression` function.
-```{r RunPairedDE}
+
+```{r RunPairedDE, include = FALSE}
 # Run differential expression on pairs
 c1c2.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
                                      condition.b = "2", conditions = "cluster")
@@ -587,20 +756,91 @@ c2c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "2",
 c3c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "3", 
                                      condition.b = "4", conditions = "cluster")
 
-# Plot differential expression results
-c1c2.plot <- PlotDEVolcano(c1c2.de.results, labels = FALSE)
-c1c3.plot <- PlotDEVolcano(c1c3.de.results, labels = FALSE)
-c1c4.plot <- PlotDEVolcano(c1c4.de.results, labels = FALSE)
-c2c3.plot <- PlotDEVolcano(c2c3.de.results, labels = FALSE)
-c2c4.plot <- PlotDEVolcano(c2c4.de.results, labels = FALSE)
-c3c4.plot <- PlotDEVolcano(c3c4.de.results, labels = FALSE)
+# Format DE results
+c1c2.de.results <- c1c2.de.results[which(c1c2.de.results$padj < 0.05), ]
+c1c2.de.results <- c1c2.de.results[order(-abs(c1c2.de.results$log2FoldChange)),]
 
-print(c1c2.plot)
-print(c1c3.plot)
-print(c1c4.plot)
-print(c2c3.plot)
-print(c2c4.plot)
-print(c3c4.plot)
+c1c3.de.results <- c1c3.de.results[which(c1c3.de.results$padj < 0.05), ]
+c1c3.de.results <- c1c3.de.results[order(-abs(c1c3.de.results$log2FoldChange)),]
+
+c1c4.de.results <- c1c4.de.results[which(c1c4.de.results$padj < 0.05), ]
+c1c4.de.results <- c1c4.de.results[order(-abs(c1c4.de.results$log2FoldChange)),]
+
+c2c3.de.results <- c2c3.de.results[which(c2c3.de.results$padj < 0.05), ]
+c2c3.de.results <- c2c3.de.results[order(-abs(c2c3.de.results$log2FoldChange)),]
+
+c2c4.de.results <- c2c4.de.results[which(c2c4.de.results$padj < 0.05), ]
+c2c4.de.results <- c2c4.de.results[order(-abs(c2c4.de.results$log2FoldChange)),]
+
+c3c4.de.results <- c3c4.de.results[which(c3c4.de.results$padj < 0.05), ]
+c3c4.de.results <- c3c4.de.results[order(-abs(c3c4.de.results$log2FoldChange)),]
+
+```
+
+```{r RunPairedDEShow, eval = FALSE}
+# Run differential expression on pairs
+c1c2.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "2", conditions = "cluster")
+c1c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "3", conditions = "cluster")
+c1c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "1", 
+                                     condition.b = "4", conditions = "cluster")
+c2c3.de.results <- RunDiffExpression(clean.cluster, condition.a = "2", 
+                                     condition.b = "3", conditions = "cluster")
+c2c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "2", 
+                                     condition.b = "4", conditions = "cluster")
+c3c4.de.results <- RunDiffExpression(clean.cluster, condition.a = "3", 
+                                     condition.b = "4", conditions = "cluster")
+
+# Format DE results
+c1c2.de.results <- c1c2.de.results[which(c1c2.de.results$padj < 0.05), ]
+c1c2.de.results <- c1c2.de.results[order(-abs(c1c2.de.results$log2FoldChange)),]
+
+c1c3.de.results <- c1c3.de.results[which(c1c3.de.results$padj < 0.05), ]
+c1c3.de.results <- c1c3.de.results[order(-abs(c1c3.de.results$log2FoldChange)),]
+
+c1c4.de.results <- c1c4.de.results[which(c1c4.de.results$padj < 0.05), ]
+c1c4.de.results <- c1c4.de.results[order(-abs(c1c4.de.results$log2FoldChange)),]
+
+c2c3.de.results <- c2c3.de.results[which(c2c3.de.results$padj < 0.05), ]
+c2c3.de.results <- c2c3.de.results[order(-abs(c2c3.de.results$log2FoldChange)),]
+
+c2c4.de.results <- c2c4.de.results[which(c2c4.de.results$padj < 0.05), ]
+c2c4.de.results <- c2c4.de.results[order(-abs(c2c4.de.results$log2FoldChange)),]
+
+c3c4.de.results <- c3c4.de.results[which(c3c4.de.results$padj < 0.05), ]
+c3c4.de.results <- c3c4.de.results[order(-abs(c3c4.de.results$log2FoldChange)),]
+
+```
+
+##### Cluster 1 vs Cluster 2
+```{r DisplayC1C2}
+kable(c1c2.de.results[1:20,], digits = 3)
+```
+
+##### Cluster 1 vs Cluster 3
+```{r DisplayC1C3}
+kable(c1c3.de.results[1:20,], digits = 3)
+```
+
+##### Cluster 1 vs Cluster 4
+```{r DisplayC1C4}
+kable(c1c4.de.results[1:20,], digits = 3)
+```
+
+##### Cluster 2 vs Cluster 3
+```{r DisplayC2C3}
+kable(c2c3.de.results[1:20,], digits = 3)
+```
+
+##### Cluster 2 vs Cluster 4
+```{r DisplayC2C4}
+kable(c2c4.de.results[1:20,], digits = 3)
+```
+
+##### Cluster 3 vs Cluster 4
+```{r DisplayC3C4}
+kable(c3c4.de.results[1:20,], digits = 3)
 ```
 
 ## References
