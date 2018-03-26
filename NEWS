@@ -1,16 +1,25 @@
-version 0.3.0 (2018-01-18)
-- Major update to RunCORE function; RunCORE now removes outlier cells identified
-by dynamicTreeCut prior to the generation of candidate clusters. Users can also
-specify sliding windows.
+version 0.3.4 (2018-03-26)
+- log2FoldChange is now reflective of Condition A rather than Condition B in 
+differential expression results
 
-version 0.2.7 (2018-01-11)
-- Added 'ngenes' argument to RunDiffExpression function, enabling users to run
-analysis on top n genes
+version 0.3.3 (2018-03-02)
+- PlotStability now works properly for all resolutions
+- Example datasets have been moved to another repository
+- Ready for testing on other systems
+
+version 0.2.9 (2018-01-31)
+- Fixed size factor replacement in the intermediate Single Cell Experiment object used for scranNormalisation function
+
+version 0.2.8 (2018-01-30)
+- RunDiffExpression was still bugged - addressed condition subsetting
+
+version 0.2.7 (2018-01-25)
+- Fixed bug associated with RunDiffExpression - subsets were selected incorrectly
 
 version 0.2.6 (2018-01-10)
 - Fixed SubsetCondition
 - Fixed RunDiffExpression for non-cluster differential expression function
-- Updated ascend general vignette on how to use SubsetCondition correctlyx
+- Updated ascend general vignette on how to use SubsetCondition correctly
 
 version 0.2.5 (2018-01-09)
 - Changed how RunDiffExpression compares datasets (subsetting of EMSets by user 
@@ -33,3 +42,4 @@ version 0.2.0 (2017-12-18)
 version 0.1.2 (2017-11-15)
 - Added DESeq's estimateDispersions arguments to RunDiffExpression function
 - Updated RGC_Tutorial.Rmd vignette to reflect updated functions.
+

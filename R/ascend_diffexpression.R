@@ -43,7 +43,7 @@ ProcessDEResults <- function(output.list) {
     adjusted.foldchange <- (de.result.df$baseMeanB - 1)/(de.result.df$baseMeanA - 1)
     log2.adjusted.foldchange <- log2(adjusted.foldchange)
     de.result.df$foldChange <- adjusted.foldchange
-    de.result.df$log2FoldChange <- log2.adjusted.foldchange
+    de.result.df$log2FoldChange <- -log2.adjusted.foldchange
     de.result.df <- de.result.df[order(de.result.df$pval, decreasing = F), ]
     return(de.result.df)
 }
