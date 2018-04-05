@@ -44,7 +44,7 @@ ProcessDEResults <- function(output.list) {
     log2.adjusted.foldchange <- log2(adjusted.foldchange)
     de.result.df$foldChange <- adjusted.foldchange
     de.result.df$log2FoldChange <- -log2.adjusted.foldchange
-    de.result.df <- de.result.df[order(de.result.df$pval, decreasing = F), ]
+    de.result.df <- de.result.df[order(de.result.df$pval, decreasing = FALSE), ]
     return(de.result.df)
 }
 

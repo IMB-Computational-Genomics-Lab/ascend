@@ -6,6 +6,12 @@
 \usage{
 GetExpressionMatrix(object, format)
 }
+\arguments{
+\item{object}{A \code{\linkS4class{EMSet}} to retrieve the expression matrix 
+from.}
+
+\item{format}{Format of the returned matrix - 'data.frame' or 'matrix'}
+}
 \description{
 Generic for \code{\link{GetExpressionMatrix}}.
 }

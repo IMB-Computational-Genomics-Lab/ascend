@@ -25,9 +25,10 @@ GenerateControlMetrics <- function(x, expression.matrix = NULL, control.list = N
 #' GenerateMetrics
 #' 
 #' Generic method for \code{\link{GenerateMetrics}}.
+#' @param x An EMSet
 #' @importFrom methods setGeneric
 #' @export
-setGeneric(name = "GenerateMetrics", def = function(object) {
+setGeneric(name = "GenerateMetrics", def = function(x) {
     standardGeneric("GenerateMetrics")
 })
 
@@ -52,15 +53,16 @@ setGeneric(name = "GenerateMetrics", def = function(object) {
 #' the new expression matrix. This function can also be called independantly, to 
 #' update the metrics for a \code{\linkS4class{EMSet}} object.
 #' 
+#' @param x An EMSet
 #' @include ascend_objects.R
 #' @importFrom BiocParallel bplapply
 #' @importFrom Matrix colSums rowSums rowMeans
 #' @importFrom methods setGeneric setMethod
 #' @export
-setMethod("GenerateMetrics", signature("EMSet"), function(object) {
+setMethod("GenerateMetrics", signature("EMSet"), function(x) {
     # Retrieve required objects from EMSet
-    expression.matrix <- object@ExpressionMatrix
-    control.list <- object@Controls
+    expression.matrix <- x@ExpressionMatrix
+    control.list <- x@Controls
     metrics.list <- list()
 
     ### Calculate library size per cell
@@ -99,7 +101,7 @@ setMethod("GenerateMetrics", signature("EMSet"), function(object) {
         metrics.list <- c(metrics.list, list(TotalFeatureCountsPerCell = total.features.counts.per.cell, ControlTranscriptCounts = control.transcript.counts.list,
             PercentageTotalCounts = percentage.lists.counts.list))
     } else {
-        object@Log$Controls <- FALSE
+        x@Log$Controls <- FALSE
     }
 
     counts.per.gene <- Matrix::rowSums(expression.matrix)
@@ -120,8 +122,8 @@ setMethod("GenerateMetrics", signature("EMSet"), function(object) {
     metrics.list <- c(metrics.list, list(TotalCounts = total.counts, TotalExpression = total.expression, TopGeneList = top.gene.list, TopGenesPercentage = top.genes.percentage,
         AverageCounts = average.counts, GenesPerCell = genes.per.cell, CellsPerGene = cells.per.gene, CountsPerGene = counts.per.gene, MeanGeneExpression = mean.gene.expression))
     remove(expression.matrix)
-    object@Metrics <- metrics.list
-    return(object)
+    x@Metrics <- metrics.list
+    return(x)
 })
 
 #' AddControlInfo
@@ -143,9 +145,12 @@ AddControlInfo <- function(gene.information, controls) {
 #' ConvertGeneAnnotation
 #' 
 #' Generic method for \code{\link{ConvertGeneAnnotation}}.
+#' @param x A \code{\linkS4class{EMSet}} object.
+#' @param old.annotation Name of the column containing the current gene annotations.
+#' @param new.annotation Name of the column you would like to convert the gene 
 #' @importFrom methods setGeneric
 #' @export
-setGeneric(name = "ConvertGeneAnnotation", def = function(object, old.annotation, new.annotation) {
+setGeneric(name = "ConvertGeneAnnotation", def = function(x, old.annotation, new.annotation) {
     standardGeneric("ConvertGeneAnnotation")
 })
 
@@ -155,7 +160,7 @@ setGeneric(name = "ConvertGeneAnnotation", def = function(object, old.annotation
 #' identifiers used in another column of a dataframe stored in the 
 #' GeneAnnotation slot.
 #'
-#' @param object A \code{\linkS4class{EMSet}} object.
+#' @param x A \code{\linkS4class{EMSet}} object.
 #' @param old.annotation Name of the column containing the current gene annotations.
 #' @param new.annotation Name of the column you would like to convert the gene 
 #' annotations to.
@@ -168,21 +173,21 @@ setGeneric(name = "ConvertGeneAnnotation", def = function(object, old.annotation
 #' @importFrom methods setGeneric setMethod
 #' @include ascend_objects.R
 #' @export
-setMethod("ConvertGeneAnnotation", signature("EMSet"), function(object, old.annotation, new.annotation) {
+setMethod("ConvertGeneAnnotation", signature("EMSet"), function(x, old.annotation, new.annotation) {
     # Get currently-used gene identifiers Load Gene Annotation
-    gene.annotation <- object@GeneInformation
+    gene.annotation <- x@GeneInformation
 
     ## From expression matrix
-    present.rownames <- rownames(object@ExpressionMatrix)
+    present.rownames <- rownames(x@ExpressionMatrix)
 
     ## From control lists
-    control.list <- object@Controls
+    control.list <- x@Controls
 
     # Retrieve new values
     new.identifiers <- gene.annotation[, new.annotation]
 
     ## Rename expression matrix
-    rownames(object@ExpressionMatrix) <- new.identifiers
+    rownames(x@ExpressionMatrix) <- new.identifiers
 
     # Convert control list
     if (length(control.list) > 0) {
@@ -190,25 +195,28 @@ setMethod("ConvertGeneAnnotation", signature("EMSet"), function(object, old.anno
         gene.annotation[, new.annotation][which(gene.annotation[, old.annotation] 
                                                 %in% control.list[[control.name]])]}, 
                                                 USE.NAMES = TRUE)
-      object@Controls <- updated.control.list
+      x@Controls <- updated.control.list
     }
 
     # Move new annotation to column 1
     updated.gene.info <- gene.annotation %>% dplyr::select(new.annotation, dplyr::everything())
-    object@GeneInformation <- updated.gene.info
+    x@GeneInformation <- updated.gene.info
     
     # Regenerate metrics
-    object <- GenerateMetrics(object)
+    x <- GenerateMetrics(x)
     
-    return(object)
+    return(x)
 })
 
 #' ExcludeControl
 #' 
 #' Generic method for \code{\link{ExcludeControl}}.
+#' @param x An \code{\linkS4class{EMSet}} object. It is recommended that 
+#' you run this step after this object has undergone filtering.
+#' @param control.name Name of the control set you want to remove from the dataset.
 #' @importFrom methods setGeneric
 #' @export
-setGeneric(name = "ExcludeControl", def = function(object, control.name) {
+setGeneric(name = "ExcludeControl", def = function(x, control.name) {
     standardGeneric("ExcludeControl")
 })
 
@@ -218,80 +226,82 @@ setGeneric(name = "ExcludeControl", def = function(object, control.name) {
 #' after normalisation, and prior to PCA reduction, clustering and differential
 #' expression analysis.
 #' 
-#' @param object An \code{\linkS4class{EMSet}} object. It is recommended that 
+#' @param x An \code{\linkS4class{EMSet}} object. It is recommended that 
 #' you run this step after this object has undergone filtering.
 #' @param control.name Name of the control set you want to remove from the dataset.
 #' @return An \code{\linkS4class{EMSet}} without controls in the expression matrix.
 #' @importFrom methods setGeneric setMethod
 #' @export
 #'
-setMethod("ExcludeControl", signature("EMSet"), function(object, control.name) {
+setMethod("ExcludeControl", signature("EMSet"), function(x, control.name) {
     # Identify indices of control genes in the current expression matrix 
     # Keep this matrix sparse for faster processing power
-    expression.matrix <- object@ExpressionMatrix
-    control.list <- object@Controls
+    expression.matrix <- x@ExpressionMatrix
+    control.list <- x@Controls
 
     # We can sync up the slots once we update the expression matrix 
     # Convert the control list into a boolean so we can remove rows from the
     # sparse matrix
-    control.list <- object@Controls[[control.name]]
+    control.list <- x@Controls[[control.name]]
     control.in.mtx <- rownames(expression.matrix) %in% control.list
 
     # Remove control genes from the matrix by identified matrices
     endogenous.exprs.mtx <- expression.matrix[!control.in.mtx, ]
 
     # Reload the expression matrix with the updated matrix
-    object@ExpressionMatrix <- endogenous.exprs.mtx
-    object <- SyncSlots(object)
+    x@ExpressionMatrix <- endogenous.exprs.mtx
+    x <- SyncSlots(x)
 
     # Update the log
     updated.log <- list()
     updated.log[[control.name]] <- TRUE
 
     # Update the controls
-    object@Controls[[control.name]] <- NULL
+    x@Controls[[control.name]] <- NULL
 
     # Update ExcludeControls
-    if (is.null(object@Log$ExcludeControls)) {
+    if (is.null(x@Log$ExcludeControls)) {
         remove.log <- updated.log
-        object@Log$ExcludeControls <- remove.log
+        x@Log$ExcludeControls <- remove.log
     } else {
-        object@Log$ExcludeControls <- c(object@Log$ExcludeControls, updated.log)
+        x@Log$ExcludeControls <- c(x@Log$ExcludeControls, updated.log)
     }
 
     # Update Controls
-    if (length(object@Controls) == 0) {
-        object@Log$Controls <- FALSE
+    if (length(x@Controls) == 0) {
+        x@Log$Controls <- FALSE
     }
 
     # Add removed genes to a list of removed genes
-    if (is.null(object@Log$RemovedGenes)) {
-        object@Log$RemovedGenes <- control.list
+    if (is.null(x@Log$RemovedGenes)) {
+        x@Log$RemovedGenes <- control.list
     } else {
-        object@Log$RemovedGenes <- c(object@Log$RemovedGenes, control.list)
+        x@Log$RemovedGenes <- c(x@Log$RemovedGenes, control.list)
     }
     # Regenerate metrics and return the updated object
-    object <- GenerateMetrics(object)
-    return(object)
+    x <- GenerateMetrics(x)
+    return(x)
 })
 
 #' DisplayLog
 #' 
 #' Generic for \code{\link{DisplayLog}} function.
+#' @param x An \linkS4class{EMSet}
 #' @importFrom methods setGeneric
 #' @export
-setGeneric(name = "DisplayLog", def = function(object) {
+setGeneric(name = "DisplayLog", def = function(x) {
     standardGeneric("DisplayLog")
 })
 
 #' DisplayLog
 #'
 #' Print out the log of an \code{\linkS4class{EMSet}}.
+#' @param x An \linkS4class{EMSet}
 #' @include ascend_objects.R
 #' @return A print-out of the log attached to an \code{\linkS4class{EMSet}}.
 #' @importFrom methods setGeneric setMethod
 #' @export
-setMethod("DisplayLog", signature("EMSet"), function(object) {
-    log <- object@Log
+setMethod("DisplayLog", signature("EMSet"), function(x) {
+    log <- x@Log
     print(log)
 })

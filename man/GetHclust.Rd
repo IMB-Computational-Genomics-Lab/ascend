@@ -6,6 +6,9 @@
 \usage{
 GetHclust(object)
 }
+\arguments{
+\item{object}{An \code{\linkS4class{EMSet}} object}
+}
 \description{
 Generic for \code{\link{GetHclust}}.
 }

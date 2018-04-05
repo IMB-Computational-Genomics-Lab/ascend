@@ -5,7 +5,10 @@
 \alias{GenerateMetrics,EMSet-method}
 \title{GenerateMetrics}
 \usage{
-\S4method{GenerateMetrics}{EMSet}(object)
+\S4method{GenerateMetrics}{EMSet}(x)
+}
+\arguments{
+\item{x}{An EMSet}
 }
 \description{
 This function generates the following set of values per cell:

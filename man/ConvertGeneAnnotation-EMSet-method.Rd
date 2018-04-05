@@ -5,10 +5,10 @@
 \alias{ConvertGeneAnnotation,EMSet-method}
 \title{ConvertGeneAnnotation}
 \usage{
-\S4method{ConvertGeneAnnotation}{EMSet}(object, old.annotation, new.annotation)
+\S4method{ConvertGeneAnnotation}{EMSet}(x, old.annotation, new.annotation)
 }
 \arguments{
-\item{object}{A \code{\linkS4class{EMSet}} object.}
+\item{x}{A \code{\linkS4class{EMSet}} object.}
 
 \item{old.annotation}{Name of the column containing the current gene annotations.}
 

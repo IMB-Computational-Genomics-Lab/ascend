@@ -6,6 +6,10 @@
 \usage{
 GetRandMatrix(object)
 }
+\arguments{
+\item{object}{An \code{\linkS4class{EMSet}} object that has undergone 
+clustering}
+}
 \description{
 Generic for \code{\link{GetRandMatrix}}.
 }

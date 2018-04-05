@@ -6,6 +6,9 @@
 \usage{
 SyncSlots(object)
 }
+\arguments{
+\item{object}{An \linkS4class{EMSet}}
+}
 \description{
 Generic for the \code{\link{SyncSlots}} function.
 }

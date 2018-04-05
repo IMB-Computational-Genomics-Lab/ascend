@@ -6,6 +6,11 @@
 \usage{
 GetBatchMatrix(object, batch.id)
 }
+\arguments{
+\item{object}{An \code{\linkS4class{EMSet}} object}
+
+\item{batch.id}{Batch identifier that you would like to retrieve}
+}
 \description{
 Generic for \code{\link{GetBatchMatrix}}.
 }

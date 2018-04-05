@@ -3,6 +3,12 @@
 #' 
 #' Generic for \code{\link{SubsetCondition}}.
 #' 
+#' @param object An \code{\linkS4class{EMSet}}
+#' @param condition Name of the condition/column you would like to subset the
+#' \code{\linkS4class{EMSet}} by
+#' @param subconditions List of subconditions that are stored in the condition
+#' column, that you would like to select
+#' 
 #' @importFrom methods setMethod
 #' @export
 setGeneric(name = "SubsetCondition", def = function(object, condition, subconditions) {
@@ -13,13 +19,15 @@ setGeneric(name = "SubsetCondition", def = function(object, condition, subcondit
 #'
 #' Subset cells of a specific condition(s) from an \code{\linkS4class{EMSet}}.
 #'
-#' @param object An \code{\linkS4class{EMSet}}.
+#' @param object An \code{\linkS4class{EMSet}}
 #' @param condition Name of the condition/column you would like to subset the
-#' \code{\linkS4class{EMSet}} by.
+#' \code{\linkS4class{EMSet}} by
 #' @param subconditions List of subconditions that are stored in the condition
-#' column, that you would like to select.
+#' column, that you would like to select
+#' 
 #' @return An \code{\linkS4class{EMSet}} containing cells that only have this 
 #' condition.
+#' 
 #' @examples
 #' \dontrun{
 #' happy_emset <- SubsetCondition(em.set, condition = "emotion", 
@@ -68,7 +76,8 @@ setMethod("SubsetCondition", signature("EMSet"), function(object, condition = NU
 #' SubsetBatch
 #' 
 #' Generic for \code{\link{SubsetBatch}}.
-#' 
+#' @param object An \code{\linkS4class{EMSet}}.
+#' @param batches Name or number of the batch(es) you would like to subset.
 #' @importFrom methods setMethod
 #' @export
 setGeneric(name = "SubsetBatch", def = function(object, batches) {
@@ -82,6 +91,7 @@ setGeneric(name = "SubsetBatch", def = function(object, batches) {
 #' @param object An \code{\linkS4class{EMSet}}.
 #' @param batches Name or number of the batch(es) you would like to subset.
 #' @return An \code{\linkS4class{EMSet}} containing only this batch.
+#'
 #' @examples
 #' \dontrun{
 #' sample1_emset <- SubsetBatch(em.set, batches = c("1", "2", "3"))
@@ -120,7 +130,8 @@ setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
 #' SubsetCluster
 #' 
 #' Generic for \code{\link{SubsetCluster}}.
-#' 
+#' @param object A \code{\linkS4class{EMSet}}.
+#' @param clusters Clusters to subset from the dataset.
 #' @importFrom methods setMethod
 #' @export
 setGeneric(name = "SubsetCluster", def = function(object, clusters) {
@@ -187,7 +198,8 @@ setMethod("SubsetCluster", signature("EMSet"), function(object, clusters = c()) 
 #' SubsetCells
 #' 
 #' Generic for \code{\link{SubsetCells}}.
-#' 
+#' @param object An \code{\linkS4class{EMSet}}.
+#' @param cell.barcodes A list of cell identifiers to subset from the 
 #' @importFrom methods setMethod
 #' @export
 setGeneric(name = "SubsetCells", def = function(object, cell.barcodes) {

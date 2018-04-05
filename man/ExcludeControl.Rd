@@ -4,7 +4,13 @@
 \alias{ExcludeControl}
 \title{ExcludeControl}
 \usage{
-ExcludeControl(object, control.name)
+ExcludeControl(x, control.name)
+}
+\arguments{
+\item{x}{An \code{\linkS4class{EMSet}} object. It is recommended that 
+you run this step after this object has undergone filtering.}
+
+\item{control.name}{Name of the control set you want to remove from the dataset.}
 }
 \description{
 Generic method for \code{\link{ExcludeControl}}.

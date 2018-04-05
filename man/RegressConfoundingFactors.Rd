@@ -7,11 +7,11 @@
 RegressConfoundingFactors(object, candidate.genes = list())
 }
 \arguments{
+\item{object}{Expression matrix in data frame format. You may load
+it from a EMSet object with the GetExpressionMatrix function.}
+
 \item{candidate.genes}{A list of genes you wish to regress from the dataset.
 Refer to the vignette on how to choose genes for regression.}
-
-\item{expression.matrix}{Expression matrix in data frame format. You may load
-it from a EMSet object with the GetExpressionMatrix function.}
 }
 \value{
 An \code{\linkS4class{EMSet}} with confounding factors regressed from the

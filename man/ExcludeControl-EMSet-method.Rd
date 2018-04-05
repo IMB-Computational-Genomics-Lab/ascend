@@ -5,10 +5,10 @@
 \alias{ExcludeControl,EMSet-method}
 \title{ExcludeControl}
 \usage{
-\S4method{ExcludeControl}{EMSet}(object, control.name)
+\S4method{ExcludeControl}{EMSet}(x, control.name)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} object. It is recommended that 
+\item{x}{An \code{\linkS4class{EMSet}} object. It is recommended that 
 you run this step after this object has undergone filtering.}
 
 \item{control.name}{Name of the control set you want to remove from the dataset.}

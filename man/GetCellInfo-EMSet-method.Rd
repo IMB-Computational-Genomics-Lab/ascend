@@ -7,6 +7,9 @@
 \usage{
 \S4method{GetCellInfo}{EMSet}(object)
 }
+\arguments{
+\item{object}{An \code{\linkS4class{EMSet}} object}
+}
 \value{
 A data frame with cell identifiers and associated information.
 }

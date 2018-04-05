@@ -4,7 +4,14 @@
 \alias{ConvertGeneAnnotation}
 \title{ConvertGeneAnnotation}
 \usage{
-ConvertGeneAnnotation(object, old.annotation, new.annotation)
+ConvertGeneAnnotation(x, old.annotation, new.annotation)
+}
+\arguments{
+\item{x}{A \code{\linkS4class{EMSet}} object.}
+
+\item{old.annotation}{Name of the column containing the current gene annotations.}
+
+\item{new.annotation}{Name of the column you would like to convert the gene}
 }
 \description{
 Generic method for \code{\link{ConvertGeneAnnotation}}.

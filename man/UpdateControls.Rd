@@ -6,6 +6,11 @@
 \usage{
 UpdateControls(object, controls)
 }
+\arguments{
+\item{object}{An \linkS4class{EMSet}}
+
+\item{controls}{Name of control group}
+}
 \description{
 Definition for the \code{\link{UpdateControls}} function.
 }

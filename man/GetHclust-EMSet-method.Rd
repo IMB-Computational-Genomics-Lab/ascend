@@ -8,7 +8,7 @@
 \S4method{GetHclust}{EMSet}(object)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} object.}
+\item{object}{An \code{\linkS4class{EMSet}} object}
 }
 \value{
 This function returns a hclust object.

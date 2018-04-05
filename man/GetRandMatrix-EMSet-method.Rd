@@ -9,7 +9,7 @@
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object that has undergone 
-clustering.}
+clustering}
 }
 \value{
 This function returns a data frame.

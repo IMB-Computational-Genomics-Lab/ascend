@@ -5,7 +5,10 @@
 \alias{DisplayLog,EMSet-method}
 \title{DisplayLog}
 \usage{
-\S4method{DisplayLog}{EMSet}(object)
+\S4method{DisplayLog}{EMSet}(x)
+}
+\arguments{
+\item{x}{An \linkS4class{EMSet}}
 }
 \value{
 A print-out of the log attached to an \code{\linkS4class{EMSet}}.

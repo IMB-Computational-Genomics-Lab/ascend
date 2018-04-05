@@ -47,11 +47,11 @@ SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
     }
     
     # Feed rough clusters into computeSumFactors
-    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, clusters = quick.cluster, positive = T)
+    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, clusters = quick.cluster, positive = TRUE)
   } else {
     print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.set)))
     preset.sizes <- c(40, 60, 80, 100)
-    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, sizes = preset.sizes, positive = T)
+    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, sizes = preset.sizes, positive = TRUE)
   }
   
   print("scran's computeSumFactors complete. Removing zero sum factors from dataset...")
@@ -129,11 +129,11 @@ SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5)
     }
     
     # Feed rough clusters into computeSumFactors
-    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, clusters = quick.cluster, min.mean = min.mean, positive = T)
+    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, clusters = quick.cluster, min.mean = min.mean, positive = TRUE)
   } else {
     print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.obj)))
     preset.sizes <- c(40, 60, 80, 100)
-    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, sizes = preset.sizes, positive = T, min.mean = min.mean)
+    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, sizes = preset.sizes, positive = TRUE, min.mean = min.mean)
   }
   
   print("scran's computeSumFactors complete. Removing zero sum factors from dataset...")

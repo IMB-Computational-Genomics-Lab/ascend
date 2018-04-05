@@ -6,6 +6,11 @@
 \usage{
 SubsetCluster(object, clusters)
 }
+\arguments{
+\item{object}{A \code{\linkS4class{EMSet}}.}
+
+\item{clusters}{Clusters to subset from the dataset.}
+}
 \description{
 Generic for \code{\link{SubsetCluster}}.
 }

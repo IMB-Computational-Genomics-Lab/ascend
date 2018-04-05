@@ -4,7 +4,10 @@
 \alias{DisplayLog}
 \title{DisplayLog}
 \usage{
-DisplayLog(object)
+DisplayLog(x)
+}
+\arguments{
+\item{x}{An \linkS4class{EMSet}}
 }
 \description{
 Generic for \code{\link{DisplayLog}} function.

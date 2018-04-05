@@ -6,6 +6,11 @@
 \usage{
 SubsetBatch(object, batches)
 }
+\arguments{
+\item{object}{An \code{\linkS4class{EMSet}}.}
+
+\item{batches}{Name or number of the batch(es) you would like to subset.}
+}
 \description{
 Generic for \code{\link{SubsetBatch}}.
 }

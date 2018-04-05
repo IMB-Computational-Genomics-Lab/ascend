@@ -32,7 +32,7 @@ RegressGene <- function(x, covariate.matrix = NULL, expression.matrix = NULL) {
 #'
 #' This function generates a scaled regression matrix based on candidate genes
 #' supplied by the user. This function is best used after normalisation.
-#' @param expression.matrix Expression matrix in data frame format. You may load
+#' @param object Expression matrix in data frame format. You may load
 #' it from a EMSet object with the GetExpressionMatrix function.
 #' @param candidate.genes A list of genes you wish to regress from the dataset.
 #' Refer to the vignette on how to choose genes for regression.
@@ -87,11 +87,11 @@ RegressConfoundingFactors <- function(object, candidate.genes = list()) {
   data.resid <- as.data.frame(data.resid)
 
   # Scale the data and filter out columns with NA values
-  scaled.resid.data <- scale(data.resid, center = T, scale = T)
+  scaled.resid.data <- scale(data.resid, center = TRUE, scale = TRUE)
 
   # Filter out columns with NA values
   scaled.resid.data.table <- data.table::as.data.table(scaled.resid.data)
-  filtered.table <- scaled.resid.data.table[, which(unlist(lapply(scaled.resid.data.table, function(x) !all(is.na(x))))), with = F]
+  filtered.table <- scaled.resid.data.table[, which(unlist(lapply(scaled.resid.data.table, function(x) !all(is.na(x))))), with = FALSE]
   filtered.table <- as.data.frame(t(filtered.table))
 
   # Replace cell barcodes

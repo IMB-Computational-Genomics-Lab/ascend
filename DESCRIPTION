@@ -1,7 +1,7 @@
 Package: ascend
 Type: Package
 Title: ascend - Analysis of Single Cell Expression, Normalisation, and Differential expression
-Version: 0.3.5
+Version: 0.3.6
 Author: c(person("Anne", "Senabouth", email = "a.senabouth@imb.uq.edu.au", rol = "aut, cre"), person("Quan", "Nguygen", email = "quan.nguyen@imb.uq.edu.au", rol = "aut"))
 Maintainer: Anne Senabouth <a.senabouth@imb.uq.edu.au>
 Description: Provides a series of tools for cleaning, normalisation and analysis of data produced by single cell experiments.
@@ -13,12 +13,15 @@ Imports: methods,
     stats,
     devtools,
     reshape2,
-    limSolve,
     ggplot2,
+    ggbeeswarm,
     Biobase,
     BiocParallel,
     Rtsne,
-    ggbeeswarm,
+    grDevices, 
+    graphics, 
+    utils,
+    gridExtra,
     dynamicTreeCut,
     dendextend,
     RColorBrewer,
@@ -38,6 +41,7 @@ Depends:
     data.table,
     Matrix
 Collate: 
+    'ascend.R'
     'ascend_cellranger.R'
     'ascend_clustering.R'
     'ascend_confoundingfactors.R'
@@ -52,3 +56,9 @@ Collate:
     'ascend_scran.R'
     'ascend_subsetmethods.R'
     'ascend_utilities.R'
+biocViews: Software, 
+    WorkflowStep, 
+    Preprocessing, 
+    QualityControl, 
+    Normalization,
+    BatchEffect

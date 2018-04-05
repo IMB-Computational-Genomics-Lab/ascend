@@ -8,17 +8,20 @@ output:
   pdf_document: default
 vignette: |
   %\VignetteIndexEntry{An introduction to 'ascend' - Processing and analysis of retinal ganglion cells} 
-  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEngine{knitr::multiformat}
   %\VignetteEncoding{UTF-8}
 ---
 ```{r Loadascend, message = FALSE, echo = FALSE, include=FALSE}
-# Load code from parent directory
-code_dir <- dirname(getwd())
-devtools::load_all(code_dir)
+library(devtools)
 library(knitr)
 library(BiocParallel)
 library(ggplot2)
 library(gridExtra)
+
+# Load code from parent directory
+code_dir <- dirname(getwd())
+load_all(code_dir)
+
 ncores <- parallel::detectCores() - 1
 if (ncores < 1){
   ncores <- 1

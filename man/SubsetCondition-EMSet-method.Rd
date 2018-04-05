@@ -9,13 +9,13 @@
   subconditions = c())
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}}.}
+\item{object}{An \code{\linkS4class{EMSet}}}
 
 \item{condition}{Name of the condition/column you would like to subset the
-\code{\linkS4class{EMSet}} by.}
+\code{\linkS4class{EMSet}} by}
 
 \item{subconditions}{List of subconditions that are stored in the condition
-column, that you would like to select.}
+column, that you would like to select}
 }
 \value{
 An \code{\linkS4class{EMSet}} containing cells that only have this 

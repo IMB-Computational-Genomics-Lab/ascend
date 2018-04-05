@@ -6,6 +6,14 @@
 \usage{
 ReplaceCellInfo(object, cell.info)
 }
+\arguments{
+\item{object}{An \linkS4class{EMSet} object.}
+
+\item{cell.info}{A data frame containing cell information. The first column 
+must contain cell identifiers that match the cell identifiers used in the 
+expression matrix. The second column, while optional - should contain batch 
+information.}
+}
 \description{
 Definition for the \code{\link{ReplaceCellInfo}} function.
 }

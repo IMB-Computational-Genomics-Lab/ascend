@@ -8,10 +8,10 @@ PlotClusterDendro(dendro, colors, groupLabels = NULL, rowText = NULL,
   rowTextAlignment = c("left", "center", "right"), rowTextIgnore = NULL,
   textPositions = NULL, setLayout = TRUE, autoColorHeight = TRUE,
   colorHeight = 0.2, rowWidths = NULL, dendroLabels = NULL,
-  addGuide = FALSE, guideAll = FALSE, guideCount = 50, guideHang = 0.2,
-  addTextGuide = FALSE, cex.colorLabels = 0.8, cex.dendroLabels = 0.9,
-  cex.rowText = 0.8, marAll = c(1, 5, 3, 1), saveMar = TRUE,
-  abHeight = NULL, abCol = "red", ...)
+  guideAll = FALSE, guideHang = 0.2, addTextGuide = FALSE,
+  cex.colorLabels = 0.8, cex.dendroLabels = 0.9, cex.rowText = 0.8,
+  marAll = c(1, 5, 3, 1), saveMar = TRUE, abHeight = NULL,
+  abCol = "red", ...)
 }
 \arguments{
 \item{dendro}{Hclust object generated from \code{\link{RunCORE}}.}
@@ -39,8 +39,6 @@ be equal to the number of resolutions.}
 
 \item{dendroLabels}{Labels on dendrogram.}
 
-\item{addGuide}{Add legend to image.}
-
 \item{guideAll}{Add guides to all.}
 
 \item{guideHang}{Hang guide off dendrogram (Default: 0.2).}
@@ -62,8 +60,6 @@ be equal to the number of resolutions.}
 \item{abCol}{Set to red (Default).}
 
 \item{...}{Additional parameters to feed into graphics function.}
-
-\item{guideCounts}{Number of guides (Default: 50).}
 }
 \description{
 This function was adapted from the plotDendroAndColors function by Steve 

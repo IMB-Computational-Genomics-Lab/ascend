@@ -16,9 +16,16 @@
 #' ggtitle("My Volcano Plot")
 #' }
 #' @importFrom ggplot2 ggplot geom_point scale_color_manual xlab ylab theme_bw geom_text aes
+#' @importFrom dplyr id
 #' @export
 #'
 PlotDEVolcano <- function(de.results, threshold = 5e-3, l2fc = 2, labels = FALSE, label.size = 5){
+  # To shut R Check up
+  log2FoldChange <- "Shhh"
+  padj <- "Shhh"
+  group <- "Shhh"
+  Percentage <- "Shhh"
+  
   # Check data frame contains required information
   required.cols <- c("id", "padj", "log2FoldChange")
   if (!is.data.frame(de.results)){
@@ -78,6 +85,7 @@ PlotDEVolcano <- function(de.results, threshold = 5e-3, l2fc = 2, labels = FALSE
 #' @importFrom stats as.dendrogram order.dendrogram
 #' @importFrom dendextend branches_attr_by_clusters set get_leaves_branches_col sort_levels_values colored_bars get_leaves_branches_attr
 #' @importFrom graphics legend
+#' @importFrom dendextend %>%
 #' @export
 #'
 PlotDendrogram <- function(object){
@@ -136,6 +144,11 @@ PlotDendrogram <- function(object){
 #' @export
 #'
 PlotStability <- function(object){
+  # To shut R Check up...
+  Height <- "Shhh"
+  value <- "Shhh"
+  variable <- "Shhh"
+  
   if(class(object) == "EMSet"){
     if (is.null(object@Clusters$KeyStats)){
       stop("Please make sure you have run RunCORE on this EMSet object before running this function.")
@@ -189,9 +202,7 @@ PlotStability <- function(object){
 #' @param colorHeight Height of colour bars.
 #' @param rowWidths Width of bars.
 #' @param dendroLabels Labels on dendrogram.
-#' @param addGuide Add legend to image.
 #' @param guideAll Add guides to all.
-#' @param guideCounts Number of guides (Default: 50).
 #' @param guideHang Hang guide off dendrogram (Default: 0.2).
 #' @param addTextGuide Set to FALSE (Default).
 #' @param cex.colorLabels Set to 0.8 (Default).
@@ -207,8 +218,7 @@ PlotStability <- function(object){
 PlotClusterDendro <- function (dendro, colors, groupLabels = NULL, rowText = NULL,
                                rowTextAlignment = c("left", "center", "right"), rowTextIgnore = NULL,
                                textPositions = NULL, setLayout = TRUE, autoColorHeight = TRUE,
-                               colorHeight = 0.2, rowWidths = NULL, dendroLabels = NULL,
-                               addGuide = FALSE, guideAll = FALSE, guideCount = 50, guideHang = 0.2,
+                               colorHeight = 0.2, rowWidths = NULL, dendroLabels = NULL, guideAll = FALSE, guideHang = 0.2,
                                addTextGuide = FALSE, cex.colorLabels = 0.8, cex.dendroLabels = 0.9,
                                cex.rowText = 0.8, marAll = c(1, 5, 3, 1), saveMar = TRUE,
                                abHeight = NULL, abCol = "red", ...)
@@ -232,10 +242,6 @@ PlotClusterDendro <- function (dendro, colors, groupLabels = NULL, rowText = NUL
   par(mar = c(0, marAll[2], marAll[3], marAll[4]))
   plot(dendro, labels = dendroLabels, cex = cex.dendroLabels,
        ...)
-  if (addGuide)
-    addGuideLines(dendro, count = if (guideAll)
-      length(dendro$height) + 1
-      else guideCount, hang = guideHang)
   if (!is.null(abHeight))
     abline(h = abHeight, col = abCol)
   par(mar = c(marAll[1], marAll[2], 0, marAll[4]))
@@ -309,6 +315,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
   # Create a colour ramp
   gradient_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))
   grDevices::palette(gradient_palette(max(colors)))
+  
   if (is.null(rowLabels) & (length(dimnames(colors)[[2]]) ==
                             dimC[2]))
     rowLabels = colnames(colors)
@@ -501,6 +508,10 @@ PlotStabilityDendro <- function(object){
 #' @export
 #'
 PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
+  # To shut R CMD CHECK up
+  Dim1 <- "Shhh"
+  Dim2 <- "Shhh"
+  
   if (class(object) != "EMSet"){
     stop("Please supply an EMSet object.")
   }
@@ -600,6 +611,10 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
 #'
 PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, 
                      perplexity = 30, theta = 0.5){
+  # To shut R CMD check up
+  X1 <- "Shhh"
+  X2 <- "Shhh"
+  
   # Input checks
   if (class(object) != "EMSet"){
     stop("Please supply an EMSet to this function.")
@@ -669,6 +684,9 @@ PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0,
 #' @export
 #'
 PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
+  x <- NULL
+  y <- NULL
+  
   if(length(object@PCA) == 0){
     stop("Please supply an object that has undergone PCA reduction.")
   }
@@ -725,7 +743,9 @@ PlotPCAVariance <- function(object, n = 100){
     stop("Please supply an object that has undergone PCA reduction.")
   }
 
-  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, geom="point", xlab="Principal Component (PC)", ylab="Variance", main="Percent Variance per PC")
+  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, 
+                            geom="point", xlab="Principal Component (PC)", 
+                            ylab="Variance", main="Percent Variance per PC")
   return(pca.obj)
 }
 
@@ -763,6 +783,12 @@ PlotPCAVariance <- function(object, n = 100){
 #' @export
 #'
 PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = list()) {
+  # To shut up R CMD check
+  Libsize <- NULL
+  Dataset <- NULL
+  ind <- NULL
+  values <- NULL
+  
   # Insert Check For Normalisation
   if(!is.null(original@Log$NormalisationMethod)){
     stop("Please supply an un-normalised EMSet object.")
@@ -863,8 +889,8 @@ PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = 
   print("Plotting gene expression box plots...")
   # Generate box plots
   print("Plotting gene expression box plots...")
-  ordered.1 <- matrix.1[order(rowSums(matrix.1), decreasing=T),]
-  ordered.2 <- matrix.2[order(rowSums(matrix.2), decreasing=T),]
+  ordered.1 <- matrix.1[order(rowSums(matrix.1), decreasing=TRUE),]
+  ordered.2 <- matrix.2[order(rowSums(matrix.2), decreasing=TRUE),]
 
   ordered.1 <- utils::stack(ordered.1[,1:100])
   ordered.2 <- utils::stack(ordered.2[,1:100])
@@ -938,6 +964,11 @@ z_theme <- function() {
 #' @export
 #'
 PlotTopGenesPerSample <- function(object){
+  # To shut up R CMD check
+  Percentage500 <- NULL
+  Percentage100 <- NULL
+  BatchInfo <- NULL
+  
   # Generate tidy data
   expression.matrix <- GetExpressionMatrix(object, "data.frame")
   cell.information <- object@CellInformation
@@ -984,6 +1015,10 @@ PlotTopGenesPerSample <- function(object){
 #' @export
 #'
 PlotLibrarySizesPerSample <- function(object){
+  BatchInfo <- NULL
+  TotalCounts <- NULL
+  FeatureCounts <- NULL
+  
   # Tidy data to feed into ggplot
   expression.matrix <- GetExpressionMatrix(object, "data.frame")
   cell.information <- object@CellInformation
@@ -1023,6 +1058,11 @@ PlotLibrarySizesPerSample <- function(object){
 #' @export
 #'
 PlotControlPercentagesPerSample <- function(object, control.name){
+  # To silence RCheck -.-
+  Percentages <- "Shhh"
+  Counts <- "Shhh"
+  BatchInfo <- "Shhh"
+  
   # Tidy data to feed into ggplot
   ## Load data from the object
   expression.matrix <- GetExpressionMatrix(object, "data.frame")
@@ -1075,6 +1115,9 @@ PlotControlPercentagesPerSample <- function(object, control.name){
 #' @export
 #'
 PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
+  value <- NULL
+  Var2 <- NULL
+  
   # Prep data to feed in
   if(!controls){
     control.list <- object@Controls
@@ -1155,7 +1198,9 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #' @export
 #'
 PlotGeneralQC <- function(object){
+  Percentage <- NULL
   output.list <- list()
+  
   # General Plots
   # 1. Plot library sizes and expressed gene histograms
   print("Plotting Total Count and Library Size...")

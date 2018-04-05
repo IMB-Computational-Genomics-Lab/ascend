@@ -4,7 +4,10 @@
 \alias{GenerateMetrics}
 \title{GenerateMetrics}
 \usage{
-GenerateMetrics(object)
+GenerateMetrics(x)
+}
+\arguments{
+\item{x}{An EMSet}
 }
 \description{
 Generic method for \code{\link{GenerateMetrics}}.

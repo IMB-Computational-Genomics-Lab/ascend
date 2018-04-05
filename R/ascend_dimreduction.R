@@ -39,7 +39,7 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
             }
         }
     } else {
-        if (!(is.matrix(expression.matrix) || is.data.frame(expression.matrix) || is(expression.matrix, "sparseMatrix"))) {
+        if (!(is.matrix(object) || is.data.frame(object) || is(object, "sparseMatrix"))) {
             stop("Please supply an EMSet, matrix or dataframe.")
         } else {
             x <- object

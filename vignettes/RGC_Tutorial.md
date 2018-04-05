@@ -1,14 +1,14 @@
 ---
 title:  An introduction to 'ascend' - Processing and analysis of retinal ganglion cells 
 author: "Anne Senabouth"
-date: '2018-03-26'
+date: '2018-04-05'
 output:
   html_document: 
     keep_md: true
   pdf_document: default
 vignette: |
   %\VignetteIndexEntry{An introduction to 'ascend' - Processing and analysis of retinal ganglion cells} 
-  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEngine{knitr::multiformat}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -417,7 +417,7 @@ grid.arrange(raw.qc.plots$LibSize,
              raw.qc.plots$ControlPercentageTotalCounts$Rb, ncol = 2)
 ```
 
-<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="RGC_Tutorial_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
 
 The `FilterByOutliers` function will remove outliers based on these criteria. The threshold arguments refer to the median absolute deviations (MADs) below the median. These are set to 3 by default, but you can adjust them if required
 
@@ -450,30 +450,35 @@ print(GetControls(em.set))
 
 ```
 ## $Mt
-##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3"  "MT-ND3" 
-##  [9] "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
+##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3" 
+##  [8] "MT-ND3"  "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
 ## 
 ## $Rb
-##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"           "RPL5"          
-##   [6] "RPS27"          "RPS6KC1"        "RPS7"           "RPS27A"         "RPL31"         
-##  [11] "RPL37A"         "RPL32"          "RPL15"          "RPSA"           "RPL14"         
-##  [16] "RPL29"          "RPL24"          "RPL22L1"        "RPL39L"         "RPL35A"        
-##  [21] "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"          "RPL37"         
-##  [26] "RPS23"          "RPS14"          "RPL26L1"        "RPS18"          "RPS10-NUDT3"   
-##  [31] "RPS10"          "RPL10A"         "RPL7L1"         "RPS12"          "RPS6KA2"       
-##  [36] "RPS6KA2-AS1"    "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"        
-##  [41] "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"          "RPL7"          
-##  [46] "RPL30"          "RPL8"           "RPS6"           "RPL35"          "RPL12"         
-##  [51] "RPL7A"          "RPLP2"          "RPL27A"         "RPS13"          "RPS6KA4"       
-##  [56] "RPS6KB2"        "RPS3"           "RPS25"          "RPS24"          "RPS26"         
-##  [61] "RPL41"          "RPL6"           "RPLP0"          "RPL21"          "RPL10L"        
-##  [66] "RPS29"          "RPL36AL"        "RPS6KL1"        "RPS6KA5"        "RPS27L"        
-##  [71] "RPL4"           "RPLP1"          "RPS17"          "RPL3L"          "RPS2"          
-##  [76] "RPS15A"         "RPL13"          "RPL26"          "RPL23A"         "RPL23"         
-##  [81] "RPL19"          "RPL27"          "RPS6KB1"        "RPL38"          "RPL17-C18orf32"
-##  [86] "RPL17"          "RPS21"          "RPS15"          "RPL36"          "RPS28"         
-##  [91] "RPL18A"         "RPS16"          "RPS19"          "RPL18"          "RPL13A"        
-##  [96] "RPS11"          "RPS9"           "RPL28"          "RPS5"           "RPS4Y1"        
+##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"          
+##   [5] "RPL5"           "RPS27"          "RPS6KC1"        "RPS7"          
+##   [9] "RPS27A"         "RPL31"          "RPL37A"         "RPL32"         
+##  [13] "RPL15"          "RPSA"           "RPL14"          "RPL29"         
+##  [17] "RPL24"          "RPL22L1"        "RPL39L"         "RPL35A"        
+##  [21] "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"         
+##  [25] "RPL37"          "RPS23"          "RPS14"          "RPL26L1"       
+##  [29] "RPS18"          "RPS10-NUDT3"    "RPS10"          "RPL10A"        
+##  [33] "RPL7L1"         "RPS12"          "RPS6KA2"        "RPS6KA2-AS1"   
+##  [37] "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"        
+##  [41] "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"         
+##  [45] "RPL7"           "RPL30"          "RPL8"           "RPS6"          
+##  [49] "RPL35"          "RPL12"          "RPL7A"          "RPLP2"         
+##  [53] "RPL27A"         "RPS13"          "RPS6KA4"        "RPS6KB2"       
+##  [57] "RPS3"           "RPS25"          "RPS24"          "RPS26"         
+##  [61] "RPL41"          "RPL6"           "RPLP0"          "RPL21"         
+##  [65] "RPL10L"         "RPS29"          "RPL36AL"        "RPS6KL1"       
+##  [69] "RPS6KA5"        "RPS27L"         "RPL4"           "RPLP1"         
+##  [73] "RPS17"          "RPL3L"          "RPS2"           "RPS15A"        
+##  [77] "RPL13"          "RPL26"          "RPL23A"         "RPL23"         
+##  [81] "RPL19"          "RPL27"          "RPS6KB1"        "RPL38"         
+##  [85] "RPL17-C18orf32" "RPL17"          "RPS21"          "RPS15"         
+##  [89] "RPL36"          "RPS28"          "RPL18A"         "RPS16"         
+##  [93] "RPS19"          "RPL18"          "RPL13A"         "RPS11"         
+##  [97] "RPS9"           "RPL28"          "RPS5"           "RPS4Y1"        
 ## [101] "RPS4Y2"         "RPL3"           "RPS19BP1"
 ```
 
@@ -549,47 +554,53 @@ DisplayLog(em.set)
 ## NULL
 ## 
 ## $FilterByOutliers$CellsFilteredByLowExpression
-##  [1] "AACTGGTTCATAAAGG-1" "AAGACCTAGACAATAC-1" "ACAGCCGGTCTCTCTG-1" "ACGATACGTCACACGC-1"
-##  [5] "ACTTGTTCAAGCGTAG-1" "AGCCTAACAGTAACGG-1" "AGTCTTTTCACCACCT-1" "AGTGTCAAGCCACTAT-1"
-##  [9] "ATAACGCGTCGACTAT-1" "ATCTACTCATTTGCTT-1" "ATTATCCTCCTTGACC-1" "CAGATCACAATAACGA-1"
-## [13] "CCTCTGAAGATGTGGC-1" "CCTCTGATCGCATGAT-1" "CGCTATCGTGGCTCCA-1" "CGTGTCTTCAATCACG-1"
-## [17] "CTCGTCATCAAACGGG-1" "CTTAACTCACCACGTG-1" "GACCAATGTTCAACCA-1" "GACTAACGTTTGCATG-1"
-## [21] "GGCGTGTTCCAAGTAC-1" "TAGACCAAGCTAACAA-1" "TAGCCGGCAGTCCTTC-1" "TCATTACAGGCAATTA-1"
+##  [1] "AACTGGTTCATAAAGG-1" "AAGACCTAGACAATAC-1" "ACAGCCGGTCTCTCTG-1"
+##  [4] "ACGATACGTCACACGC-1" "ACTTGTTCAAGCGTAG-1" "AGCCTAACAGTAACGG-1"
+##  [7] "AGTCTTTTCACCACCT-1" "AGTGTCAAGCCACTAT-1" "ATAACGCGTCGACTAT-1"
+## [10] "ATCTACTCATTTGCTT-1" "ATTATCCTCCTTGACC-1" "CAGATCACAATAACGA-1"
+## [13] "CCTCTGAAGATGTGGC-1" "CCTCTGATCGCATGAT-1" "CGCTATCGTGGCTCCA-1"
+## [16] "CGTGTCTTCAATCACG-1" "CTCGTCATCAAACGGG-1" "CTTAACTCACCACGTG-1"
+## [19] "GACCAATGTTCAACCA-1" "GACTAACGTTTGCATG-1" "GGCGTGTTCCAAGTAC-1"
+## [22] "TAGACCAAGCTAACAA-1" "TAGCCGGCAGTCCTTC-1" "TCATTACAGGCAATTA-1"
 ## [25] "TGACTAGCATCACGTA-1" "ACTGAGTGTTAAGTAG-2"
 ## 
 ## $FilterByOutliers$CellsFilteredByControls
 ## $FilterByOutliers$CellsFilteredByControls$Mt
-##  [1] "AACACGTAGTGGGTTG-1" "AACGTTGTCACGAAGG-1" "AAGACCTGTCTGGAGA-1" "ACGATGTTCCCATTTA-1"
-##  [5] "ACGGCCACACCAGCAC-1" "ACTTTCATCCTAAGTG-1" "AGATCTGGTCGACTGC-1" "CACAGGCCATGTTGAC-1"
-##  [9] "CATCGGGAGGCGCTCT-1" "CTCTACGCAATCCGAT-1" "CTGAAACAGCACAGGT-1" "CTGATAGGTAAACGCG-1"
-## [13] "GAAACTCGTTGGTAAA-1" "GAACCTAAGATATGGT-1" "GCACATATCTTCATGT-1" "GGACAAGCAACTGCGC-1"
-## [17] "GGACAAGTCCTGCCAT-1" "GTATCTTTCACCAGGC-1" "GTGAAGGTCTAACTTC-1" "GTTCTCGGTCGTTGTA-1"
-## [21] "TCATTTGGTCCGAACC-1" "TGGCTGGCATAGAAAC-1" "TGTGGTAGTGCAGTAG-1" "AAAGTAGGTTAGTGGG-2"
-## [25] "AAGGCAGAGCTAACAA-2" "ACTGAGTGTTAAGTAG-2" "AGCTCCTTCTCCAGGG-2" "ATGTGTGAGTCAAGCG-2"
-## [29] "CGCGTTTAGGTGATAT-2" "CTGTGCTCAGCGTTCG-2" "GACAGAGTCACAATGC-2" "GACGTTAGTACCCAAT-2"
-## [33] "GCGACCAGTTTGCATG-2" "GTGAAGGGTGCTAGCC-2" "TGAGCCGCACAAGACG-2" "TGTGGTAAGTACGCGA-2"
+##  [1] "AACACGTAGTGGGTTG-1" "AACGTTGTCACGAAGG-1" "AAGACCTGTCTGGAGA-1"
+##  [4] "ACGATGTTCCCATTTA-1" "ACGGCCACACCAGCAC-1" "ACTTTCATCCTAAGTG-1"
+##  [7] "AGATCTGGTCGACTGC-1" "CACAGGCCATGTTGAC-1" "CATCGGGAGGCGCTCT-1"
+## [10] "CTCTACGCAATCCGAT-1" "CTGAAACAGCACAGGT-1" "CTGATAGGTAAACGCG-1"
+## [13] "GAAACTCGTTGGTAAA-1" "GAACCTAAGATATGGT-1" "GCACATATCTTCATGT-1"
+## [16] "GGACAAGCAACTGCGC-1" "GGACAAGTCCTGCCAT-1" "GTATCTTTCACCAGGC-1"
+## [19] "GTGAAGGTCTAACTTC-1" "GTTCTCGGTCGTTGTA-1" "TCATTTGGTCCGAACC-1"
+## [22] "TGGCTGGCATAGAAAC-1" "TGTGGTAGTGCAGTAG-1" "AAAGTAGGTTAGTGGG-2"
+## [25] "AAGGCAGAGCTAACAA-2" "ACTGAGTGTTAAGTAG-2" "AGCTCCTTCTCCAGGG-2"
+## [28] "ATGTGTGAGTCAAGCG-2" "CGCGTTTAGGTGATAT-2" "CTGTGCTCAGCGTTCG-2"
+## [31] "GACAGAGTCACAATGC-2" "GACGTTAGTACCCAAT-2" "GCGACCAGTTTGCATG-2"
+## [34] "GTGAAGGGTGCTAGCC-2" "TGAGCCGCACAAGACG-2" "TGTGGTAAGTACGCGA-2"
 ## 
 ## $FilterByOutliers$CellsFilteredByControls$Rb
-## [1] "AACTGGTTCATAAAGG-1" "ACGATACGTCACACGC-1" "AGCCTAACAGTAACGG-1" "AGTCTTTTCACCACCT-1"
-## [5] "ATAACGCGTCGACTAT-1" "ATCTACTCATTTGCTT-1" "ATTATCCTCCTTGACC-1" "CTTAACTCACCACGTG-1"
-## [9] "TCATTACAGGCAATTA-1"
+## [1] "AACTGGTTCATAAAGG-1" "ACGATACGTCACACGC-1" "AGCCTAACAGTAACGG-1"
+## [4] "AGTCTTTTCACCACCT-1" "ATAACGCGTCGACTAT-1" "ATCTACTCATTTGCTT-1"
+## [7] "ATTATCCTCCTTGACC-1" "CTTAACTCACCACGTG-1" "TCATTACAGGCAATTA-1"
 ## 
 ## 
 ## 
 ## $FilteringLog
-##   CellsFilteredByLibSize CellsFilteredByExpression CellsFilteredByControls CellsFilteredByMt
-## 1                      0                        26                      45                 0
-##   CellsFilteredByRb
-## 1                11
+##   CellsFilteredByLibSize CellsFilteredByExpression CellsFilteredByControls
+## 1                      0                        26                      45
+##   CellsFilteredByMt CellsFilteredByRb
+## 1                 0                11
 ## 
 ## $FilterByControl
 ## $FilterByControl$Mt
 ## list()
 ## 
 ## $FilterByControl$Rb
-##  [1] "ACCAGTATCGGTTCGG-1" "CAGCGACAGCAGCGTA-1" "CGAATGTAGGCTCTTA-1" "CTTCTCTAGCACGCCT-1"
-##  [5] "GGGAGATGTAAAGGAG-1" "GTATTCTAGTCCATAC-1" "TCGCGTTAGCAGGTCA-1" "TGCCCTAGTCCAGTTA-1"
-##  [9] "TGGCTGGTCGAATCCA-1" "TTAGTTCAGTTACGGG-1" "TTCGGTCAGGATGGAA-1"
+##  [1] "ACCAGTATCGGTTCGG-1" "CAGCGACAGCAGCGTA-1" "CGAATGTAGGCTCTTA-1"
+##  [4] "CTTCTCTAGCACGCCT-1" "GGGAGATGTAAAGGAG-1" "GTATTCTAGTCCATAC-1"
+##  [7] "TCGCGTTAGCAGGTCA-1" "TGCCCTAGTCCAGTTA-1" "TGGCTGGTCGAATCCA-1"
+## [10] "TTAGTTCAGTTACGGG-1" "TTCGGTCAGGATGGAA-1"
 ```
 
 You can also run `PlotGeneralQC` again to see how the filtering has altered the dataset.
@@ -644,30 +655,35 @@ print(GetControls(em.set))
 
 ```
 ## $Mt
-##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3"  "MT-ND3" 
-##  [9] "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
+##  [1] "MT-ND1"  "MT-ND2"  "MT-CO1"  "MT-CO2"  "MT-ATP8" "MT-ATP6" "MT-CO3" 
+##  [8] "MT-ND3"  "MT-ND4L" "MT-ND4"  "MT-ND5"  "MT-ND6"  "MT-CYB" 
 ## 
 ## $Rb
-##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"           "RPL5"          
-##   [6] "RPS27"          "RPS6KC1"        "RPS7"           "RPS27A"         "RPL31"         
-##  [11] "RPL37A"         "RPL32"          "RPL15"          "RPSA"           "RPL14"         
-##  [16] "RPL29"          "RPL24"          "RPL22L1"        "RPL39L"         "RPL35A"        
-##  [21] "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"          "RPL37"         
-##  [26] "RPS23"          "RPS14"          "RPL26L1"        "RPS18"          "RPS10-NUDT3"   
-##  [31] "RPS10"          "RPL10A"         "RPL7L1"         "RPS12"          "RPS6KA2"       
-##  [36] "RPS6KA2-AS1"    "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"        
-##  [41] "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"          "RPL7"          
-##  [46] "RPL30"          "RPL8"           "RPS6"           "RPL35"          "RPL12"         
-##  [51] "RPL7A"          "RPLP2"          "RPL27A"         "RPS13"          "RPS6KA4"       
-##  [56] "RPS6KB2"        "RPS3"           "RPS25"          "RPS24"          "RPS26"         
-##  [61] "RPL41"          "RPL6"           "RPLP0"          "RPL21"          "RPL10L"        
-##  [66] "RPS29"          "RPL36AL"        "RPS6KL1"        "RPS6KA5"        "RPS27L"        
-##  [71] "RPL4"           "RPLP1"          "RPS17"          "RPL3L"          "RPS2"          
-##  [76] "RPS15A"         "RPL13"          "RPL26"          "RPL23A"         "RPL23"         
-##  [81] "RPL19"          "RPL27"          "RPS6KB1"        "RPL38"          "RPL17-C18orf32"
-##  [86] "RPL17"          "RPS21"          "RPS15"          "RPL36"          "RPS28"         
-##  [91] "RPL18A"         "RPS16"          "RPS19"          "RPL18"          "RPL13A"        
-##  [96] "RPS11"          "RPS9"           "RPL28"          "RPS5"           "RPS4Y1"        
+##   [1] "RPL22"          "RPL11"          "RPS6KA1"        "RPS8"          
+##   [5] "RPL5"           "RPS27"          "RPS6KC1"        "RPS7"          
+##   [9] "RPS27A"         "RPL31"          "RPL37A"         "RPL32"         
+##  [13] "RPL15"          "RPSA"           "RPL14"          "RPL29"         
+##  [17] "RPL24"          "RPL22L1"        "RPL39L"         "RPL35A"        
+##  [21] "RPL9"           "RPL34-AS1"      "RPL34"          "RPS3A"         
+##  [25] "RPL37"          "RPS23"          "RPS14"          "RPL26L1"       
+##  [29] "RPS18"          "RPS10-NUDT3"    "RPS10"          "RPL10A"        
+##  [33] "RPL7L1"         "RPS12"          "RPS6KA2"        "RPS6KA2-AS1"   
+##  [37] "RPS6KA3"        "RPS4X"          "RPS6KA6"        "RPL36A"        
+##  [41] "RPL36A-HNRNPH2" "RPL39"          "RPL10"          "RPS20"         
+##  [45] "RPL7"           "RPL30"          "RPL8"           "RPS6"          
+##  [49] "RPL35"          "RPL12"          "RPL7A"          "RPLP2"         
+##  [53] "RPL27A"         "RPS13"          "RPS6KA4"        "RPS6KB2"       
+##  [57] "RPS3"           "RPS25"          "RPS24"          "RPS26"         
+##  [61] "RPL41"          "RPL6"           "RPLP0"          "RPL21"         
+##  [65] "RPL10L"         "RPS29"          "RPL36AL"        "RPS6KL1"       
+##  [69] "RPS6KA5"        "RPS27L"         "RPL4"           "RPLP1"         
+##  [73] "RPS17"          "RPL3L"          "RPS2"           "RPS15A"        
+##  [77] "RPL13"          "RPL26"          "RPL23A"         "RPL23"         
+##  [81] "RPL19"          "RPL27"          "RPS6KB1"        "RPL38"         
+##  [85] "RPL17-C18orf32" "RPL17"          "RPS21"          "RPS15"         
+##  [89] "RPL36"          "RPS28"          "RPL18A"         "RPS16"         
+##  [93] "RPS19"          "RPL18"          "RPL13A"         "RPS11"         
+##  [97] "RPS9"           "RPL28"          "RPS5"           "RPS4Y1"        
 ## [101] "RPS4Y2"         "RPL3"           "RPS19BP1"
 ```
 
@@ -834,12 +850,12 @@ The `RunCORE` function generates a distance matrix based on the input and from t
 ```
 
 ```
-## Warning in split.default(windows, 1:nworkers): data length is not a multiple of split
-## variable
+## Warning in split.default(windows, 1:nworkers): data length is not a
+## multiple of split variable
 ```
 
 ```
-##   |                                                                                           |                                                                                   |   0%  |                                                                                           |============================                                                       |  33%  |                                                                                           |=======================================================                            |  67%  |                                                                                           |===================================================================================| 100%
+##   |                                                                         |                                                                 |   0%  |                                                                         |======================                                           |  33%  |                                                                         |===========================================                      |  67%  |                                                                         |=================================================================| 100%
 ## 
 ## [1] "Calculating rand indices..."
 ## [1] "Calculating stability values..."
@@ -937,8 +953,9 @@ PlotDendrogram(clustered.set)
 ```
 
 ```
-## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths of the new labels is
-## shorter than the number of leaves in the dendrogram - labels are recycled.
+## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths
+## of the new labels is shorter than the number of leaves in the dendrogram -
+## labels are recycled.
 ```
 
 <img src="RGC_Tutorial_files/figure-html/PlotDendrogram-1.png" style="display: block; margin: auto;" />
@@ -1071,8 +1088,9 @@ PlotDendrogram(clean.cluster)
 ```
 
 ```
-## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths of the new labels is
-## shorter than the number of leaves in the dendrogram - labels are recycled.
+## Warning in `labels<-.dendrogram`(dend, value = value, ...): The lengths
+## of the new labels is shorter than the number of leaves in the dendrogram -
+## labels are recycled.
 ```
 
 ![](RGC_Tutorial_files/figure-html/Recluster-1.png)<!-- -->

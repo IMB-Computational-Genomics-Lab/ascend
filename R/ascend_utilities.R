@@ -8,6 +8,7 @@
 #' @param filename Name of the file you would like to output to.
 #' @param width Width of the PDF.
 #' @param height Height of the PDF.
+#' @param ... Additional arguments to pass on to \code{\link{pdf}} function
 #' @examples
 #' \dontrun{
 #' qc.plots <- PlotGeneralQC(em.set)
@@ -98,7 +99,7 @@ ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
 
   # Generate a random list of numbers, this will make the order random
   set.seed(0)
-  random.list <- sample(1:nelements, nelements, replace = F)
+  random.list <- sample(1:nelements, nelements, replace = FALSE)
 
   for (x in 1:chunks){
     # Add on leftovers to original chunks
@@ -109,7 +110,7 @@ ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
 
     # Start generating a random list of numbers
     # Remove the indexes from the list if they have been selected
-    selected.list <- sample(random.list, chunk, replace = F)
+    selected.list <- sample(random.list, chunk, replace = FALSE)
     random.list <- random.list[! random.list %in% selected.list]
 
     if(axis == 0){

@@ -14,5 +14,5 @@
 This function returns a data frame.
 }
 \description{
-Retrieve gene information from an \code{\linkS4class{EMSet}} object.
+Retrieve gene information from an \code{\linkS4class{EMSet}}.
 }
