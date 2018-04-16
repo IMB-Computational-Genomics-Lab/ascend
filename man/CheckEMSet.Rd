@@ -7,7 +7,7 @@
 CheckEMSet(object)
 }
 \arguments{
-\item{object}{EMSet this function is checking.}
+\item{object}{\linkS4class{EMSet} this function is checking.}
 }
 \description{
 Validation function for the S4 class \linkS4class{EMSet}.

@@ -20,11 +20,17 @@ Replace the expression matrix in a \linkS4class{EMSet} with a new expression
 matrix and re-calculate its metrics.
 }
 \examples{
-\dontrun{
-# Create an EMSet with just expression data
-EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+# Load an example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+    
+# Load an example matrix
+new_matrix <- readRDS(system.file(package = "ascend", "extdata", "ExampleMatrix.rds"))
+
+# Subset cells from it
+subset_matrix <- new_matrix[ , 1:100]
+subset_matrix <- as.matrix(subset_matrix)
 
 # Replace it with another expression matrix
-updated_em_set <- ReplaceExpressionMatrix(EMSet, new_matrix)
-}
+UpdatedEMSet <- ReplaceExpressionMatrix(EMSet, subset_matrix)
+
 }

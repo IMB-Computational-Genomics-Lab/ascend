@@ -8,7 +8,7 @@
 \S4method{SyncSlots}{EMSet}(object)
 }
 \arguments{
-\item{object}{An EMSet to sync.}
+\item{object}{An \linkS4class{EMSet} to synchronise}
 }
 \value{
 Original \linkS4class{EMSet} with CellInformation, GeneInformation 
@@ -21,9 +21,4 @@ CellInformation, to ensure everything is up to date.
 \details{
 This is important as the object will undergo a series of changes during the 
 filtering and normalisation process.
-}
-\examples{
-\dontrun{
-synced_emset <- SyncSlots(unsynced_EMSet)
-}
 }

@@ -1,13 +1,12 @@
-# Validation checks Expression matrix check - COMPULSORY
-
 #' CheckExpressionMatrix
 #'
 #' Checks the expression matrix to ensure it is not empty, does not contain any
 #' NA values and does not have any duplicated column or row names.
 #' 
-#' @param object An EMSEt object.
+#' @param object An \linkS4class{EMSet}
 #' @param errors Vector to store error messages in. If the object is returned
-#' with values - the object will be declared invalid.
+#' with values - the object will be declared invalid
+#' 
 #' @export 
 CheckExpressionMatrix <- function(object, errors) {
     # Check expression matrix using plyr's empty function.
@@ -40,9 +39,9 @@ CheckExpressionMatrix <- function(object, errors) {
 #' Another check function for EMSets. This check is only run if controls are 
 #' present.
 #' 
-#' @param object An EMSEt object.
+#' @param object An \linkS4class{EMSet}
 #' @param errors Vector to store error messages in. If the object is returned
-#' with values - the object will be declared invalid.
+#' with values - the object will be declared invalid
 #' @export
 CheckControls <- function(object, errors) {
     # Control checks - verify presence of controls in the matrix.
@@ -63,9 +62,9 @@ CheckControls <- function(object, errors) {
 #' Checks the validity of cell information supplied by the user, to ensure it
 #' matches the information held in the expression matrix.
 #' 
-#' @param object An EMSEt object.
+#' @param object An \linkS4class{EMSet}
 #' @param errors Vector to store error messages in. If the object is returned
-#' with values - the object will be declared invalid.
+#' with values - the object will be declared invalid
 #' @export
 CheckCellInformation <- function(object, errors) {
     ## Check if number of batch identifiers match the number of columns in the expression matrix
@@ -89,7 +88,7 @@ CheckCellInformation <- function(object, errors) {
 #' ensure the gene information in the first column matches the information 
 #' stored in the expression matrix.
 #' 
-#' @param object An EMSEt object.
+#' @param object An \linkS4class{EMSet} object
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid.
 #' @export
@@ -115,7 +114,7 @@ CheckGeneInformation <- function(object, errors) {
 #'     \item{If supplied, verify batch information matches colnames in the expression matrix.}
 #'     \item{If supplied, verify gene identifiers match rownames in the expression matrix.}
 #' }
-#' @param object EMSet this function is checking.
+#' @param object \linkS4class{EMSet} this function is checking.
 #' @export
 #'
 CheckEMSet <- function(object) {
@@ -161,7 +160,7 @@ CheckEMSet <- function(object) {
 #' These gene identifiers must match the identifiers used in the expression 
 #' matrix.
 #' @slot PCA Objects related to dimension reduction, such as a PCA matrixand a 
-#' list of percentage variance values per principle component (PC). Populated by 
+#' list of percentage variance values per principal component (PC). Populated by 
 #' \code{\link{RunPCA}}.
 #' @slot Clusters Objects related to clustering, including a distance matrix, a 
 #' hclust object, cell identifiers and their associated cluster. Populated by 
@@ -251,11 +250,29 @@ setMethod("show", signature("EMSet"), function(object){
 #' @return This function generates an object belonging to the 
 #' \linkS4class{EMSet}.
 #' @examples
-#' \dontrun{
+#' #  Generate random datasets
+#' ## Define number of genes and cells
+#' ngenes <- 10000
+#' ncells <- 200
+#' 
+#' ## Generate gene and cell labels
+#' gene_list <- paste0("GENE-", 1:ngenes)
+#' cell_list <- paste0("CELL-", 1:ncells)
+#'
+#' ## Generate dataframes to input into EMSet
+#' gene_information <- data.frame(id = gene_list)
+#' cell_information <- data.frame(cell_barcode = cell_list, batch = rep(1, ncells))
+#' 
+#' ## Generate expression matrix - taken from scran vignette
+#' mu <- 2^runif(ngenes, -1, 5)
+#' expression_matrix <- matrix(rnbinom(ngenes*ncells, mu = mu, size = 10), nrow = ngenes)
+#' rownames(expression_matrix) <- gene_list
+#' colnames(expression_matrix) <- cell_list
+#' 
+#' # Create EMSet
 #' MyEMSet <- NewEMSet(ExpressionMatrix = expression_matrix, 
 #' GeneInformation = gene_information, CellInformation = cell_information, 
 #' Controls = list())
-#' }
 #' @name EMSet
 #' @rdname EMSet-class
 #' @importFrom methods is new setGeneric setMethod
@@ -316,8 +333,16 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
 
 #' SyncSlots (Generic)
 #' 
-#' Generic for the \code{\link{SyncSlots}} function.
-#' @param object An \linkS4class{EMSet}
+#' Synchronises the data frames ExpressionMatrix, GeneInformation and 
+#' CellInformation, to ensure everything is up to date.
+#' 
+#' This is important as the object will undergo a series of changes during the 
+#' filtering and normalisation process.
+#'
+#' @param object An \linkS4class{EMSet} to synchronise
+#' 
+#' @return Original \linkS4class{EMSet} with CellInformation, GeneInformation 
+#' and ExpressionMatrix slots syncronised together.
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "SyncSlots", def = function(object) {
@@ -325,22 +350,18 @@ setGeneric(name = "SyncSlots", def = function(object) {
 })
 
 #' SyncSlots
-#'
+#' 
 #' Synchronises the data frames ExpressionMatrix, GeneInformation and 
 #' CellInformation, to ensure everything is up to date.
 #' 
 #' This is important as the object will undergo a series of changes during the 
 #' filtering and normalisation process.
 #'
-#' @param object An EMSet to sync.
+#' @param object An \linkS4class{EMSet} to synchronise
 #' 
 #' @return Original \linkS4class{EMSet} with CellInformation, GeneInformation 
 #' and ExpressionMatrix slots syncronised together.
 #' 
-#' @examples
-#' \dontrun{
-#' synced_emset <- SyncSlots(unsynced_EMSet)
-#' }
 #' @importFrom methods setMethod
 #' @export
 setMethod("SyncSlots", signature("EMSet"), function(object) {
@@ -380,19 +401,6 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
 
 #' UpdateControls (Generic)
 #' 
-#' Definition for the \code{\link{UpdateControls}} function.
-#'
-#' @param object An \linkS4class{EMSet}
-#' @param controls Name of control group
-#' 
-#' @importFrom methods setGeneric
-#' @export
-setGeneric(name = "UpdateControls", def = function(object, controls) {
-    standardGeneric("UpdateControls")
-})
-
-#' UpdateControls
-#'
 #' Replaces the control list in a \linkS4class{EMSet} object with a new control 
 #' list. This also recalculates the metrics associated with the 
 #' \linkS4class{EMSet} object.
@@ -408,17 +416,49 @@ setGeneric(name = "UpdateControls", def = function(object, controls) {
 #' @return This function returns an \linkS4class{EMSet} with the updated controls.
 #' 
 #' @examples
-#' \dontrun{
-#' # Create an EMSet with no controls
-#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
 #' 
 #' # List of controls to add
-#' control_list <- list(Mt = c("MT-TF", "MT-RNR1", "MT-TV"), 
-#' Rb = c("RPL9", "RPL19", "RPS20"))
+#' control_list <- list(Mt = c("MT-ATP8", "MT-ND4L", "MT-CO3"), 
+#' Rb = c("RPL4", "RPS14", "RPS21"))
 #' 
 #' # Add controls to EMSet
-#' control_EMSet <- UpdateControls(EMSet, control_list)
-#' }
+#' UpdatedEMSet <- UpdateControls(EMSet, control_list)
+#' 
+#' @importFrom methods setGeneric
+#' @export
+setGeneric(name = "UpdateControls", def = function(object, controls) {
+    standardGeneric("UpdateControls")
+})
+
+#' UpdateControls
+#' 
+#' Replaces the control list in a \linkS4class{EMSet} object with a new control 
+#' list. This also recalculates the metrics associated with the 
+#' \linkS4class{EMSet} object.
+#' 
+#' For best results, define your controls before you attempt any filtering. You 
+#' can also use this function to change an EMSet into a control-less dataset.
+#'
+#' @param object An \linkS4class{EMSet} object.
+#' @param controls A named list containing the gene identifiers. These 
+#' identifiers must match the identifiers used in the expression matrix. This 
+#' list will replace any pre-existing controls.
+#' 
+#' @return This function returns an \linkS4class{EMSet} with the updated controls.
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # List of controls to add
+#' control_list <- list(Mt = c("MT-ATP8", "MT-ND4L", "MT-CO3"), 
+#' Rb = c("RPL4", "RPS14", "RPS21"))
+#' 
+#' # Add controls to EMSet
+#' UpdatedEMSet <- UpdateControls(EMSet, control_list)
+#' 
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
@@ -452,21 +492,6 @@ setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
 
 #' ReplaceCellInfo
 #' 
-#' Definition for the \code{\link{ReplaceCellInfo}} function.
-#' 
-#' @param object An \linkS4class{EMSet} object.
-#' @param cell.info A data frame containing cell information. The first column 
-#' must contain cell identifiers that match the cell identifiers used in the 
-#' expression matrix. The second column, while optional - should contain batch 
-#' information.
-#' 
-#' @importFrom methods setGeneric
-setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
-    standardGeneric("ReplaceCellInfo")
-})
-
-#' ReplaceCellInfo
-#'
 #' Can be called by the user or by a filtering function. Updates Cell 
 #' Information in a \linkS4class{EMSet} object, replacing the old data frame 
 #' with a new one.
@@ -480,18 +505,51 @@ setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
 #' @return An \linkS4class{EMSet} with updated cell information.
 #' 
 #' @examples
-#' \dontrun{
-#' # Create an EMSet with just expression data
-#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
-#'
-#' # Define Cell Information
-#' cell_info <- data.frame(cell_barcode = c("Cell1", "Cell2", "Cell3"),
-#' batch = c("1", "1", "2")
-#' )
+#' # Load an EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve "Cell Information" dataframe from EMSet
+#' old_cell_info <- GetCellInfo(EMSet)
+#' 
+#' # Update cell labels
+#' new_cell_info <- old_cell_info
+#' new_cell_info$cells <- TRUE
 #' 
 #' # Replace Cell Information
-#' updated_em_set <- ReplaceCellInfo(EMSet, cell_info)
-#' }
+#' updatedEMSet <- ReplaceCellInfo(EMSet, new_cell_info)
+#' 
+#' @importFrom methods setGeneric
+setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
+    standardGeneric("ReplaceCellInfo")
+})
+
+#' ReplaceCellInfo
+#' 
+#' Can be called by the user or by a filtering function. Updates Cell 
+#' Information in a \linkS4class{EMSet} object, replacing the old data frame 
+#' with a new one.
+#'
+#' @param object An \linkS4class{EMSet} object.
+#' @param cell.info A data frame containing cell information. The first column 
+#' must contain cell identifiers that match the cell identifiers used in the 
+#' expression matrix. The second column, while optional - should contain batch 
+#' information.
+#' 
+#' @return An \linkS4class{EMSet} with updated cell information.
+#' 
+#' @examples
+#' # Load an EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve "Cell Information" dataframe from EMSet
+#' old_cell_info <- GetCellInfo(EMSet)
+#' 
+#' # Update cell labels
+#' new_cell_info <- old_cell_info
+#' new_cell_info$cells <- TRUE
+#' 
+#' # Replace Cell Information
+#' updatedEMSet <- ReplaceCellInfo(EMSet, new_cell_info)
 #' 
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -512,22 +570,6 @@ setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
 
 #' ReplaceGeneInfo
 #' 
-#' Definition for \code{\link{ReplaceCellInfo}} function.
-#' 
-#' @importFrom methods setGeneric
-#' 
-#' @param object An \linkS4class{EMSet} object.
-#' @param gene.info A data frame containing cell information. The first column 
-#' must comprise of gene identifiers that match the gene identifiers used in the 
-#' expression matrix. The remaining columns can contain anything.
-#' 
-#' @export
-setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
-    standardGeneric("ReplaceGeneInfo")
-})
-
-#' ReplaceGeneInfo
-#'
 #' Can be called by the user or by a filtering function. Updates Gene 
 #' Information in a \linkS4class{EMSet} object, replacing the old data frame 
 #' with a new one.
@@ -540,19 +582,53 @@ setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
 #' @return An \linkS4class{EMSet} with updated gene information.
 #' 
 #' @examples
-#' \dontrun{
-#' # Create an EMSet with just expression data
-#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
-#'
-#' # Define Gene Information
-#' gene_info <- data.frame(gene_id = c("Gene1", "Gene2", "Gene3"),
-#' group = c("Control", "Feature", "Feature")
-#' )
+#' # Load an EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#'     
+#' # Retrieve "Gene Information" dataframe from EMSet
+#' old_gene_info <- GetGeneInfo(EMSet)
 #' 
-#' # Replace Gene Information
-#' updated_em_set <- ReplaceGeneInfo(EMSet, gene_info)
-#' }
+#' # Update gene information
+#' new_gene_info <- old_gene_info
+#' new_gene_info$updated <- TRUE
+#' 
+#' # Replace Cell Information
+#' updatedEMSet <- ReplaceGeneInfo(EMSet, new_gene_info)
+#' 
+#' @export
+setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
+    standardGeneric("ReplaceGeneInfo")
+})
+
+#' ReplaceGeneInfo
+#' 
+#' Can be called by the user or by a filtering function. Updates Gene 
+#' Information in a \linkS4class{EMSet} object, replacing the old data frame 
+#' with a new one.
+#'
+#' @param object An \linkS4class{EMSet} object.
+#' @param gene.info A data frame containing cell information. The first column 
+#' must comprise of gene identifiers that match the gene identifiers used in the 
+#' expression matrix. The remaining columns can contain anything.
+#'
+#' @return An \linkS4class{EMSet} with updated gene information.
+#' 
+#' @examples
+#' # Load an EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#'     
+#' # Retrieve "Gene Information" dataframe from EMSet
+#' old_gene_info <- GetGeneInfo(EMSet)
+#' 
+#' # Update gene information
+#' new_gene_info <- old_gene_info
+#' new_gene_info$updated <- TRUE
+#' 
+#' # Replace Cell Information
+#' updatedEMSet <- ReplaceGeneInfo(EMSet, new_gene_info)
+#' 
 #' @importFrom methods setGeneric setMethod
+#' 
 #' @export
 setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
     # Check replacement is valid.
@@ -567,19 +643,8 @@ setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
     }
 })
 
-#' ReplaceExpressionMatrix
+#' ReplaceExpressionMatrix (Method)
 #' 
-#' Definition for \code{\link{ReplaceExpressionMatrix}} function.
-#' @param object The \linkS4class{EMSet} you would like to update.
-#' @param expression.matrix Expression matrix in matrix form
-#' @importFrom methods setGeneric
-#' @export
-setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
-    standardGeneric("ReplaceExpressionMatrix")
-})
-
-#' ReplaceExpressionMatrix
-#'
 #' Replace the expression matrix in a \linkS4class{EMSet} with a new expression 
 #' matrix and re-calculate its metrics.
 #'
@@ -588,14 +653,51 @@ setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.m
 #' @return An \linkS4class{EMSet} with an updated expression matrix
 #' 
 #' @examples
-#' \dontrun{
-#' # Create an EMSet with just expression data
-#' EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
-#'
+#' # Load an example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#'     
+#' # Load an example matrix
+#' new_matrix <- readRDS(system.file(package = "ascend", "extdata", "ExampleMatrix.rds"))
+#' 
+#' # Subset cells from it
+#' subset_matrix <- new_matrix[ , 1:100]
+#' subset_matrix <- as.matrix(subset_matrix)
+#' 
 #' # Replace it with another expression matrix
-#' updated_em_set <- ReplaceExpressionMatrix(EMSet, new_matrix)
-#' }
+#' UpdatedEMSet <- ReplaceExpressionMatrix(EMSet, subset_matrix)
+#' 
+#' @importFrom methods setGeneric
+#' 
+#' @export
+setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
+    standardGeneric("ReplaceExpressionMatrix")
+})
+
+#' ReplaceExpressionMatrix
+#' 
+#' Replace the expression matrix in a \linkS4class{EMSet} with a new expression 
+#' matrix and re-calculate its metrics.
+#'
+#' @param object The \linkS4class{EMSet} you would like to update.
+#' @param expression.matrix Expression matrix in matrix form
+#' @return An \linkS4class{EMSet} with an updated expression matrix
+#' 
+#' @examples
+#' # Load an example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#'     
+#' # Load an example matrix
+#' new_matrix <- readRDS(system.file(package = "ascend", "extdata", "ExampleMatrix.rds"))
+#' 
+#' # Subset cells from it
+#' subset_matrix <- new_matrix[ , 1:100]
+#' subset_matrix <- as.matrix(subset_matrix)
+#' 
+#' # Replace it with another expression matrix
+#' UpdatedEMSet <- ReplaceExpressionMatrix(EMSet, subset_matrix)
+#' 
 #' @importFrom methods setGeneric setMethod
+#'
 #' @export
 setMethod("ReplaceExpressionMatrix", signature("EMSet"), function(object, expression.matrix) {
     # Replace the matrix

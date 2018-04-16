@@ -13,6 +13,26 @@ ReplaceGeneInfo(object, gene.info)
 must comprise of gene identifiers that match the gene identifiers used in the 
 expression matrix. The remaining columns can contain anything.}
 }
+\value{
+An \linkS4class{EMSet} with updated gene information.
+}
 \description{
-Definition for \code{\link{ReplaceCellInfo}} function.
+Can be called by the user or by a filtering function. Updates Gene 
+Information in a \linkS4class{EMSet} object, replacing the old data frame 
+with a new one.
+}
+\examples{
+# Load an EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+    
+# Retrieve "Gene Information" dataframe from EMSet
+old_gene_info <- GetGeneInfo(EMSet)
+
+# Update gene information
+new_gene_info <- old_gene_info
+new_gene_info$updated <- TRUE
+
+# Replace Cell Information
+updatedEMSet <- ReplaceGeneInfo(EMSet, new_gene_info)
+
 }

@@ -14,6 +14,26 @@ must contain cell identifiers that match the cell identifiers used in the
 expression matrix. The second column, while optional - should contain batch 
 information.}
 }
+\value{
+An \linkS4class{EMSet} with updated cell information.
+}
 \description{
-Definition for the \code{\link{ReplaceCellInfo}} function.
+Can be called by the user or by a filtering function. Updates Cell 
+Information in a \linkS4class{EMSet} object, replacing the old data frame 
+with a new one.
+}
+\examples{
+# Load an EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Retrieve "Cell Information" dataframe from EMSet
+old_cell_info <- GetCellInfo(EMSet)
+
+# Update cell labels
+new_cell_info <- old_cell_info
+new_cell_info$cells <- TRUE
+
+# Replace Cell Information
+updatedEMSet <- ReplaceCellInfo(EMSet, new_cell_info)
+
 }

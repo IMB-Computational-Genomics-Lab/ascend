@@ -7,10 +7,10 @@
 CheckCellInformation(object, errors)
 }
 \arguments{
-\item{object}{An EMSEt object.}
+\item{object}{An \linkS4class{EMSet}}
 
 \item{errors}{Vector to store error messages in. If the object is returned
-with values - the object will be declared invalid.}
+with values - the object will be declared invalid}
 }
 \description{
 Checks the validity of cell information supplied by the user, to ensure it

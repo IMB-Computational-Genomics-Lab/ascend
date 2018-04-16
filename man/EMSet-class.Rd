@@ -66,7 +66,7 @@ These gene identifiers must match the identifiers used in the expression
 matrix.}
 
 \item{\code{PCA}}{Objects related to dimension reduction, such as a PCA matrixand a 
-list of percentage variance values per principle component (PC). Populated by 
+list of percentage variance values per principal component (PC). Populated by 
 \code{\link{RunPCA}}.}
 
 \item{\code{Clusters}}{Objects related to clustering, including a distance matrix, a 
@@ -80,11 +80,29 @@ function.}
 }}
 
 \examples{
-\dontrun{
+#  Generate random datasets
+## Define number of genes and cells
+ngenes <- 10000
+ncells <- 200
+
+## Generate gene and cell labels
+gene_list <- paste0("GENE-", 1:ngenes)
+cell_list <- paste0("CELL-", 1:ncells)
+
+## Generate dataframes to input into EMSet
+gene_information <- data.frame(id = gene_list)
+cell_information <- data.frame(cell_barcode = cell_list, batch = rep(1, ncells))
+
+## Generate expression matrix - taken from scran vignette
+mu <- 2^runif(ngenes, -1, 5)
+expression_matrix <- matrix(rnbinom(ngenes*ncells, mu = mu, size = 10), nrow = ngenes)
+rownames(expression_matrix) <- gene_list
+colnames(expression_matrix) <- cell_list
+
+# Create EMSet
 MyEMSet <- NewEMSet(ExpressionMatrix = expression_matrix, 
 GeneInformation = gene_information, CellInformation = cell_information, 
 Controls = list())
-}
 }
 \seealso{
 \linkS4class{EMSet}

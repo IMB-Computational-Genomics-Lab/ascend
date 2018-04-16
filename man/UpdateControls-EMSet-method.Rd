@@ -27,15 +27,14 @@ For best results, define your controls before you attempt any filtering. You
 can also use this function to change an EMSet into a control-less dataset.
 }
 \examples{
-\dontrun{
-# Create an EMSet with no controls
-EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
 
 # List of controls to add
-control_list <- list(Mt = c("MT-TF", "MT-RNR1", "MT-TV"), 
-Rb = c("RPL9", "RPL19", "RPS20"))
+control_list <- list(Mt = c("MT-ATP8", "MT-ND4L", "MT-CO3"), 
+Rb = c("RPL4", "RPS14", "RPS21"))
 
 # Add controls to EMSet
-control_EMSet <- UpdateControls(EMSet, control_list)
-}
+UpdatedEMSet <- UpdateControls(EMSet, control_list)
+
 }

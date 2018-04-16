@@ -23,16 +23,17 @@ Information in a \linkS4class{EMSet} object, replacing the old data frame
 with a new one.
 }
 \examples{
-\dontrun{
-# Create an EMSet with just expression data
-EMSet <- NewEMSet(ExpressionMatrix = expression_matrix)
+# Load an EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+    
+# Retrieve "Gene Information" dataframe from EMSet
+old_gene_info <- GetGeneInfo(EMSet)
 
-# Define Gene Information
-gene_info <- data.frame(gene_id = c("Gene1", "Gene2", "Gene3"),
-group = c("Control", "Feature", "Feature")
-)
+# Update gene information
+new_gene_info <- old_gene_info
+new_gene_info$updated <- TRUE
 
-# Replace Gene Information
-updated_em_set <- ReplaceGeneInfo(EMSet, gene_info)
-}
+# Replace Cell Information
+updatedEMSet <- ReplaceGeneInfo(EMSet, new_gene_info)
+
 }

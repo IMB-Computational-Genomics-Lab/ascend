@@ -7,8 +7,17 @@
 SyncSlots(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet}}
+\item{object}{An \linkS4class{EMSet} to synchronise}
+}
+\value{
+Original \linkS4class{EMSet} with CellInformation, GeneInformation 
+and ExpressionMatrix slots syncronised together.
 }
 \description{
-Generic for the \code{\link{SyncSlots}} function.
+Synchronises the data frames ExpressionMatrix, GeneInformation and 
+CellInformation, to ensure everything is up to date.
+}
+\details{
+This is important as the object will undergo a series of changes during the 
+filtering and normalisation process.
 }

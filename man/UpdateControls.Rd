@@ -7,10 +7,33 @@
 UpdateControls(object, controls)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet}}
+\item{object}{An \linkS4class{EMSet} object.}
 
-\item{controls}{Name of control group}
+\item{controls}{A named list containing the gene identifiers. These 
+identifiers must match the identifiers used in the expression matrix. This 
+list will replace any pre-existing controls.}
+}
+\value{
+This function returns an \linkS4class{EMSet} with the updated controls.
 }
 \description{
-Definition for the \code{\link{UpdateControls}} function.
+Replaces the control list in a \linkS4class{EMSet} object with a new control 
+list. This also recalculates the metrics associated with the 
+\linkS4class{EMSet} object.
+}
+\details{
+For best results, define your controls before you attempt any filtering. You 
+can also use this function to change an EMSet into a control-less dataset.
+}
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# List of controls to add
+control_list <- list(Mt = c("MT-ATP8", "MT-ND4L", "MT-CO3"), 
+Rb = c("RPL4", "RPS14", "RPS21"))
+
+# Add controls to EMSet
+UpdatedEMSet <- UpdateControls(EMSet, control_list)
+
 }
