@@ -21,7 +21,6 @@ undergoing library equalisation.
 This step should be done prior to any filtering and normalisation between cells.
 }
 \examples{
-\dontrun{
-batch_normalised_object <- NormaliseBatches(em.set)
-}
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+BatchNormalisedEMSet <- NormaliseBatches(EMSet)
 }

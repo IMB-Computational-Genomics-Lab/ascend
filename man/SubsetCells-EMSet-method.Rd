@@ -20,8 +20,15 @@ An \code{\linkS4class{EMSet}}.
 Subset cells in the supplied list from an \code{\linkS4class{EMSet}}.
 }
 \examples{
-\dontrun{
-barcode_list <- c("Barcode1", "Barcode2", "Barcode3")
-subset_emset <- SubsetCells(em.set, cell.barcodes = barcode_list)
-}
+# Load example EMSet
+em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Randomly subsample cells from EMSet by choosing random barcodes from the EMSet
+cell.info <- GetCellInfo(em.set)
+barcode_list <- cell.info[, 1]
+random_barcodes <- sample(barcode_list, 50, replace = FALSE)
+
+# Retrieve cells from EMSet by cell barcodes
+subset_set <- SubsetCells(em.set, cell.barcodes = random_barcodes)
+
 }

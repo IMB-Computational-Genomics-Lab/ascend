@@ -18,7 +18,13 @@ scran's deconvolution method. This converts the log2 values + 1 pseudocount
 values back into transcript count values.
 }
 \examples{
-\dontrun{
-unlogged.matrix <- Unlog2Matrix(expression.matrix)
-}
+# Randomly populate a matrix with 0s and 1s
+normal_matrix <- matrix(sample(0:1,10*10, replace=TRUE), 10 , 10)
+
+# Log2 + 1 values in normal_matrix
+logged_matrix <- log2(normal_matrix) + 1 
+
+# Return values to normal
+unlogged_matrix <- UnLog2Matrix(logged_matrix)
+
 }

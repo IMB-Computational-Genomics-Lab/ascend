@@ -25,7 +25,15 @@ This data is already normalised, but if you wish to recluster the data, you
 will need to use the RunPCA function again.
 }
 \examples{
-\dontrun{
-cluster1_object <- SubsetCluster(em.set, clusters = c("1", "2", "3"))
-}
+# Load example EMSet
+em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Add cluster information to EMSet
+cell.info <- GetCellInfo(em.set)
+cell.info$cluster <- sample(1:6, ncol(em.set@ExpressionMatrix), replace = TRUE)
+em.set <- ReplaceCellInfo(em.set, cell.info)
+
+# Subset clusters 3 and 5 from the dataset
+subclusters <- SubsetCluster(em.set, clusters = c(3, 5))
+
 }

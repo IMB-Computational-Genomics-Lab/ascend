@@ -11,6 +11,28 @@ SubsetCluster(object, clusters)
 
 \item{clusters}{Clusters to subset from the dataset.}
 }
+\value{
+Returns an \code{\linkS4class{EMSet}} containing only the selected 
+clusters.
+}
 \description{
-Generic for \code{\link{SubsetCluster}}.
+Subset an\code{\linkS4class{EMSet}} by cluster. Please make sure you have clustered 
+with \code{\link{RunCORE}} before using this function.
+}
+\details{
+This data is already normalised, but if you wish to recluster the data, you 
+will need to use the RunPCA function again.
+}
+\examples{
+# Load example EMSet
+em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Add cluster information to EMSet
+cell.info <- GetCellInfo(em.set)
+cell.info$cluster <- sample(1:6, ncol(em.set@ExpressionMatrix), replace = TRUE)
+em.set <- ReplaceCellInfo(em.set, cell.info)
+
+# Subset clusters 3 and 5 from the dataset
+subclusters <- SubsetCluster(em.set, clusters = c(3, 5))
+
 }

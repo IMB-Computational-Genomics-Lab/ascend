@@ -19,8 +19,31 @@ A single expression matrix in your chosen format.
 Merge a list of expression matrices into one large matrix.
 }
 \examples{
-\dontrun{
-matrix_list <- c(matrix1, matrix2, matrix3)
+# Randomly generate matrices to combine
+matrix1 <- matrix(sample(0:100,10*10, replace=TRUE), 10 , 10)
+matrix2 <- matrix(sample(0:100,10*10, replace=TRUE), 10 , 10)
+matrix3 <- matrix(sample(0:100,10*10, replace=TRUE), 10 , 10)
+
+# Generate pool of gene labels
+genes <- paste0("Gene-", 1:1000)
+
+# Add labels to matrices to mimic scRNASeq data
+## Label Matrix 1
+colnames(matrix1) <- paste0("Cell-A", 1:ncol(matrix1))
+rownames(matrix1) <- sample(genes, nrow(matrix1), replace = FALSE)
+
+## Label Matrix 2
+colnames(matrix2) <- paste0("Cell-B", 1:ncol(matrix2))
+rownames(matrix2) <- sample(genes, nrow(matrix2), replace = FALSE)
+
+## Label Matrix 3
+colnames(matrix3) <- paste0("Cell-C", 1:ncol(matrix3))
+rownames(matrix3) <- sample(genes, nrow(matrix3), replace = FALSE)
+
+## Place matrices into a list
+matrix_list <- list(matrix1, matrix2, matrix3)
+
+## Join matrices
 joined_matrix <- JoinMatrices(matrix_list, format = "data.frame")
-}
+
 }

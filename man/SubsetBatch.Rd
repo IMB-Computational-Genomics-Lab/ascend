@@ -11,6 +11,17 @@ SubsetBatch(object, batches)
 
 \item{batches}{Name or number of the batch(es) you would like to subset.}
 }
+\value{
+An \code{\linkS4class{EMSet}} containing only this batch.
+}
 \description{
-Generic for \code{\link{SubsetBatch}}.
+Subset a specific batch from an \code{\linkS4class{EMSet}}.
+}
+\examples{
+# Load a pre-existing EMSet
+em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Subset batch 1 from EMSet
+batch1.set <- SubsetBatch(em.set, batches = 1)
+
 }

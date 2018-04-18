@@ -19,7 +19,10 @@ An \code{\linkS4class{EMSet}} containing only this batch.
 Subset a specific batch from an \code{\linkS4class{EMSet}}.
 }
 \examples{
-\dontrun{
-sample1_emset <- SubsetBatch(em.set, batches = c("1", "2", "3"))
-}
+# Load a pre-existing EMSet
+em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Subset batch 1 from EMSet
+batch1.set <- SubsetBatch(em.set, batches = 1)
+
 }

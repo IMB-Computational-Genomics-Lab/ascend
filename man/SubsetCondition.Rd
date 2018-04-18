@@ -15,6 +15,25 @@ SubsetCondition(object, condition, subconditions)
 \item{subconditions}{List of subconditions that are stored in the condition
 column, that you would like to select}
 }
+\value{
+An \code{\linkS4class{EMSet}} containing cells that only have this 
+condition.
+}
 \description{
-Generic for \code{\link{SubsetCondition}}.
+Subset cells of a specific condition(s) from an \code{\linkS4class{EMSet}}.
+}
+\examples{
+# Load a pre-existing EMSet
+em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Assign conditions to each cell
+cell.info <- GetCellInfo(em.set)
+cell.info$condition <- sample(c(1, 2, 3), ncol(em.set@ExpressionMatrix), replace = TRUE)
+
+# Replace cell information
+em.set <- ReplaceCellInfo(em.set, cell.info)
+
+# Subset cells where condition is 2 and 3
+subset.set <- SubsetCondition(em.set, condition = "condition", subconditions = c(2, 3))
+
 }

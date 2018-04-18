@@ -93,9 +93,8 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL
 #' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch.
 #' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values.
 #' @examples
-#' \dontrun{
-#' batch_normalised_object <- NormaliseBatches(em.set)
-#' }
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' BatchNormalisedEMSet <- NormaliseBatches(EMSet)
 #' @importFrom BiocParallel bplapply
 #' @importFrom stats median
 #' @export
@@ -203,9 +202,8 @@ CalcGeoMeans <- function(x) {
 #' Please ensure spike-ins have been removed before using this function.
 #' @return An \code{\linkS4class{EMSet}} with normalised expression values.
 #' @examples
-#' \dontrun{
-#' normalised_object <- NormaliseByRLE(em.set)
-#' }
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' NormalisedEMSet <- NormaliseByRLE(EMSet)
 #' @importFrom Matrix t
 #' @export
 #'

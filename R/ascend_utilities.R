@@ -50,9 +50,15 @@ PlotPDF <- function(plot.list, filename = NULL, width = 11, height = 8.5, ...){
 #' @param expression.matrix An expression.matrix.
 #' @return The expression matrix in dense matrix format.
 #' @examples
-#' \dontrun{
-#' unlogged.matrix <- Unlog2Matrix(expression.matrix)
-#' }
+#' # Randomly populate a matrix with 0s and 1s
+#' normal_matrix <- matrix(sample(0:1,10*10, replace=TRUE), 10 , 10)
+#' 
+#' # Log2 + 1 values in normal_matrix
+#' logged_matrix <- log2(normal_matrix) + 1 
+#' 
+#' # Return values to normal
+#' unlogged_matrix <- UnLog2Matrix(logged_matrix)
+#' 
 #' @importFrom Matrix t
 #' @export
 UnLog2Matrix <- function(expression.matrix){
@@ -146,10 +152,33 @@ ChunkMatrix <- function(expression.matrix, axis=0, chunks = 1){
 #' data.frame (Default), matrix or sparseMatrix.
 #' @return A single expression matrix in your chosen format.
 #' @examples
-#' \dontrun{
-#' matrix_list <- c(matrix1, matrix2, matrix3)
+#' # Randomly generate matrices to combine
+#' matrix1 <- matrix(sample(0:100,10*10, replace=TRUE), 10 , 10)
+#' matrix2 <- matrix(sample(0:100,10*10, replace=TRUE), 10 , 10)
+#' matrix3 <- matrix(sample(0:100,10*10, replace=TRUE), 10 , 10)
+#' 
+#' # Generate pool of gene labels
+#' genes <- paste0("Gene-", 1:1000)
+#' 
+#' # Add labels to matrices to mimic scRNASeq data
+#' ## Label Matrix 1
+#' colnames(matrix1) <- paste0("Cell-A", 1:ncol(matrix1))
+#' rownames(matrix1) <- sample(genes, nrow(matrix1), replace = FALSE)
+#'
+#' ## Label Matrix 2
+#' colnames(matrix2) <- paste0("Cell-B", 1:ncol(matrix2))
+#' rownames(matrix2) <- sample(genes, nrow(matrix2), replace = FALSE)
+#'
+#' ## Label Matrix 3
+#' colnames(matrix3) <- paste0("Cell-C", 1:ncol(matrix3))
+#' rownames(matrix3) <- sample(genes, nrow(matrix3), replace = FALSE)
+#'
+#' ## Place matrices into a list
+#' matrix_list <- list(matrix1, matrix2, matrix3)
+#'
+#' ## Join matrices
 #' joined_matrix <- JoinMatrices(matrix_list, format = "data.frame")
-#' }
+#' 
 #' @importFrom methods is
 #' @importFrom Matrix summary sparseMatrix
 #' @export
