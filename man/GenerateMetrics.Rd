@@ -9,6 +9,9 @@ GenerateMetrics(x)
 \arguments{
 \item{x}{An EMSet}
 }
+\value{
+A list of metrics attached to \code{x}
+}
 \description{
 Generic method for \code{\link{GenerateMetrics}}.
 }

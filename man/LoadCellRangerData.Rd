@@ -11,6 +11,9 @@ LoadCellRangerData(working.dir, genome.name)
 
 \item{genome.name}{Name of reference inputted by the user.}
 }
+\value{
+A list of loaded data from \code{working.dir}.
+}
 \description{
 Called by \code{\link{LoadCellRanger}}. This function detects which folder
 to use in the 'outs' directory of the Cell Ranger output folder.

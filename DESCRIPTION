@@ -2,8 +2,8 @@ Package: ascend
 Type: Package
 Title: ascend - Analysis of Single Cell Expression, Normalisation, and Differential expression
 Version: 0.4.0
-Author: c(person("Anne", "Senabouth", email = "a.senabouth@imb.uq.edu.au", rol = "aut, cre"), person("Quan", "Nguygen", email = "quan.nguyen@imb.uq.edu.au", rol = "aut"))
-Maintainer: Anne Senabouth <a.senabouth@imb.uq.edu.au>
+Author: c(person("Anne", "Senabouth", email = "a.senabouth@uq.edu.au", rol = "aut, cre"), person("Quan", "Nguygen", email = "quan.nguyen@imb.uq.edu.au", rol = "aut"))
+Maintainer: Anne Senabouth <a.senabouth@uq.edu.au>
 Description: Provides a series of tools for cleaning, normalisation and analysis of data produced by single cell experiments.
 License: GPL-3
 Encoding: UTF-8
@@ -61,4 +61,7 @@ biocViews: Software,
     Preprocessing, 
     QualityControl, 
     Normalization,
-    BatchEffect
+    BatchEffect,
+    GeneExpression,
+    SingleCell,
+    DifferentialExpression

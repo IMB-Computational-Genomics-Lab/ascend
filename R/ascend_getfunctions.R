@@ -6,6 +6,8 @@
 #' @param object A \code{\linkS4class{EMSet}} to retrieve the expression matrix 
 #' from.
 #' @param format Format of the returned matrix - 'data.frame' or 'matrix'
+#' @return Returns the expression matrix in the chosen format (data.frame or 
+#' matrix).
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
@@ -22,6 +24,7 @@ setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
 #' @param format Format of the returned matrix - 'data.frame' or 'matrix'
 #' @return Returns the expression matrix in the chosen format (data.frame or 
 #' matrix).
+#' 
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -38,6 +41,7 @@ setMethod("GetExpressionMatrix", signature("EMSet"), function(object, format = c
 #' 
 #' Generic for \code{\link{GetControls}}.
 #' @param object An \code{\linkS4class{EMSet}} object
+#' @return This function returns a list of controls defined by the user.s
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetControls", def = function(object) {
@@ -84,6 +88,8 @@ setMethod("GetCellInfo", signature("EMSet"), function(object) {
 #' 
 #' Generic for \code{\link{GetGeneInfo}}.
 #' @param object An \code{\linkS4class{EMSet}} object
+#' @return This function returns a data frame containing information about 
+#' the genes in \code{object}.
 #' @importFrom methods setGeneric
 setGeneric(name = "GetGeneInfo", def = function(object) {
     standardGeneric("GetGeneInfo")
@@ -93,7 +99,9 @@ setGeneric(name = "GetGeneInfo", def = function(object) {
 #'
 #' Retrieve gene information from an \code{\linkS4class{EMSet}}.
 #' @param object A \code{\linkS4class{EMSet}} object.
-#' @return This function returns a data frame.
+#' @return This function returns a data frame containing information about 
+#' the genes in \code{object}.
+#' 
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -107,6 +115,8 @@ setMethod("GetGeneInfo", signature("EMSet"), function(object) {
 #' Generic for \code{\link{GetBatchMatrix}}.
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @param batch.id Batch identifier that you would like to retrieve
+#' @return Gene/transcript counts for cells in \code{batch.id}
+#' 
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetBatchMatrix", def = function(object, batch.id) {
@@ -118,6 +128,8 @@ setGeneric(name = "GetBatchMatrix", def = function(object, batch.id) {
 #' Retrieve a portion of the matrix by batch label
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @param batch.id Batch identifier that you would like to retrieve
+#' @return Gene/transcript counts for cells in \code{batch.id}
+#' 
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("GetBatchMatrix", signature("EMSet"), function(object, batch.id) {
@@ -134,6 +146,10 @@ setMethod("GetBatchMatrix", signature("EMSet"), function(object, batch.id) {
 #' Generic for \code{\link{GetRandMatrix}}.
 #' @param object An \code{\linkS4class{EMSet}} object that has undergone 
 #' clustering
+#' 
+#' @return This function returns a data frame containing cluster stability 
+#' information.
+#' 
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetRandMatrix", def = function(object) {
@@ -147,7 +163,9 @@ setGeneric(name = "GetRandMatrix", def = function(object) {
 #' 
 #' @param object An \code{\linkS4class{EMSet}} object that has undergone 
 #' clustering
-#' @return This function returns a data frame.
+#' @return This function returns a data frame containing cluster stability 
+#' information.
+#' 
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -160,6 +178,7 @@ setMethod("GetRandMatrix", signature("EMSet"), function(object) {
 #' 
 #' Generic for \code{\link{GetPCA}}.
 #' @param object An \code{\linkS4class{EMSet}} object
+#' @return PCA matrix stored in \code{object}
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetPCA", def = function(object) {
@@ -171,7 +190,7 @@ setGeneric(name = "GetPCA", def = function(object) {
 #' Retrieve the PCA matrix from an \code{\linkS4class{EMSet}} object that has 
 #' undergone PCA reduction.
 #' @param object An \code{\linkS4class{EMSet}} object
-#' @return This function returns a data frame.
+#' @return PCA matrix stored in \code{object}
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -189,6 +208,7 @@ setMethod("GetPCA", signature = "EMSet", function(object) {
 #' Generic for \code{\link{GetDistanceMatrix}}.
 #' @importFrom methods setGeneric
 #' @param object An \code{\linkS4class{EMSet}} object
+#' @return Distance matrix stored in \code{object}
 #' @export
 setGeneric(name = "GetDistanceMatrix", def = function(object) {
     standardGeneric("GetDistanceMatrix")
@@ -200,7 +220,7 @@ setGeneric(name = "GetDistanceMatrix", def = function(object) {
 #' has undergone clustering.
 #' 
 #' @param object An \code{\linkS4class{EMSet}} object
-#' @return This function returns a distance matrix.
+#' @return Distance matrix stored in \code{object}
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -217,6 +237,7 @@ setMethod("GetDistanceMatrix", signature = "EMSet", function(object) {
 #' 
 #' Generic for \code{\link{GetHclust}}.
 #' @param object An \code{\linkS4class{EMSet}} object
+#' @return This function returns the hclust object stored in \code{object}.
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetHclust", def = function(object) {
@@ -228,7 +249,7 @@ setGeneric(name = "GetHclust", def = function(object) {
 #' Retrieve the Hclust object from an \code{\linkS4class{EMSet}} object that has 
 #' undergone clustering.
 #' @param object An \code{\linkS4class{EMSet}} object
-#' @return This function returns a hclust object.
+#' @return This function returns the hclust object stored in \code{object}.
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export

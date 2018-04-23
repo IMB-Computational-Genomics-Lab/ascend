@@ -11,7 +11,7 @@
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
 \value{
-This function returns a hclust object.
+This function returns the hclust object stored in \code{object}.
 }
 \description{
 Retrieve the Hclust object from an \code{\linkS4class{EMSet}} object that has 

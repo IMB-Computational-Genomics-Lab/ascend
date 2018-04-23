@@ -11,6 +11,10 @@ GenerateStabilityValues(rand.idx.matrix = NULL, nres = 40)
 
 \item{nres}{Number of resolutions}
 }
+\value{
+A vector of values that indicate the stability of a set of rand 
+indices
+}
 \description{
 Generates a series of stability values based on rand matrix result
 }

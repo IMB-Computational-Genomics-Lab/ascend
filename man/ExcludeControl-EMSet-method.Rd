@@ -11,10 +11,12 @@
 \item{x}{An \code{\linkS4class{EMSet}} object. It is recommended that 
 you run this step after this object has undergone filtering.}
 
-\item{control.name}{Name of the control set you want to remove from the dataset.}
+\item{control.name}{Name of the control set you want to remove from the 
+dataset.}
 }
 \value{
-An \code{\linkS4class{EMSet}} without controls in the expression matrix.
+\code{x} without the \code{control.name} set of controls in the 
+expression matrix.
 }
 \description{
 Removes the specified control from the expression matrix. This should be used

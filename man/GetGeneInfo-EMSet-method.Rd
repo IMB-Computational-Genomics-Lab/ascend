@@ -11,7 +11,8 @@
 \item{object}{A \code{\linkS4class{EMSet}} object.}
 }
 \value{
-This function returns a data frame.
+This function returns a data frame containing information about 
+the genes in \code{object}.
 }
 \description{
 Retrieve gene information from an \code{\linkS4class{EMSet}}.

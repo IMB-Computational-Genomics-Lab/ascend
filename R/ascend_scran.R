@@ -178,6 +178,7 @@ SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5)
 #'
 #' @param object An \code{\linkS4class{EMSet}} object.
 #' @param training.set A training dataset containing pairs of marker genes.
+#' @return \code{object} with cell cycle information loaded into CellInformation
 #' @importFrom scran cyclone
 #' @importFrom BiocParallel bpparam
 #' @export

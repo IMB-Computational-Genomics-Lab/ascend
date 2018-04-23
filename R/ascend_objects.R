@@ -6,33 +6,34 @@
 #' @param object An \linkS4class{EMSet}
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid
+#' @return Collected error messages stored in the \code{errors} list
 #' 
 #' @export 
 CheckExpressionMatrix <- function(object, errors) {
-    # Check expression matrix using plyr's empty function.
-    if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
-        msg <- "The expression matrix is empty. Please load an expression matrix."
-        errors <- c(errors, msg)
-    }
-
-    # Check if there are any NA values in the expression matrix
-    if (any(is.na(object@ExpressionMatrix))) {
-        msg <- "There are NA values in the expression matrix. Please remove these values from the matrix."
-        errors <- c(errors, msg)
-    }
-
-    # Check there are no duplicates in the colnames and rownames of the expression matrix
-    if (any(duplicated(colnames(object@ExpressionMatrix)))) {
-        msg <- "Duplicate column names are present. Please check the expression matrix."
-        errors <- c(errors, msg)
-    }
-
-    if (any(duplicated(rownames(object@ExpressionMatrix)))) {
-        msg <- "Duplicate row names are present. Please check the expression matrix."
-        errors <- c(errors, msg)
-    }
-
-    return(errors)
+  # Check expression matrix using plyr's empty function.
+  if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
+    msg <- "The expression matrix is empty. Please load an expression matrix."
+    errors <- c(errors, msg)
+  }
+  
+  # Check if there are any NA values in the expression matrix
+  if (any(is.na(object@ExpressionMatrix))) {
+    msg <- "There are NA values in the expression matrix. Please remove these values from the matrix."
+    errors <- c(errors, msg)
+  }
+  
+  # Check there are no duplicates in the colnames and rownames of the expression matrix
+  if (any(duplicated(colnames(object@ExpressionMatrix)))) {
+    msg <- "Duplicate column names are present. Please check the expression matrix."
+    errors <- c(errors, msg)
+  }
+  
+  if (any(duplicated(rownames(object@ExpressionMatrix)))) {
+    msg <- "Duplicate row names are present. Please check the expression matrix."
+    errors <- c(errors, msg)
+  }
+  
+  return(errors)
 }
 
 #' CheckControls
@@ -42,20 +43,21 @@ CheckExpressionMatrix <- function(object, errors) {
 #' @param object An \linkS4class{EMSet}
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid
+#' @return Collected error messages stored in the \code{errors} list
 #' @export
 CheckControls <- function(object, errors) {
-    # Control checks - verify presence of controls in the matrix.
-    if (length(object@Controls) > 0) {
-        ## Verify listed controls are present in the expression matrix
-        check.controls <- unlist(object@Controls) %in% rownames(object@ExpressionMatrix)
-        if (!any(check.controls)) {
-            msg <- "Please make sure the gene identifiers you have listed in your
+  # Control checks - verify presence of controls in the matrix.
+  if (length(object@Controls) > 0) {
+    ## Verify listed controls are present in the expression matrix
+    check.controls <- unlist(object@Controls) %in% rownames(object@ExpressionMatrix)
+    if (!any(check.controls)) {
+      msg <- "Please make sure the gene identifiers you have listed in your
       control list matches those used in the expression matrix."
-            errors <- c(errors, msg)
-        }
+      errors <- c(errors, msg)
     }
-    return(errors)
-}
+  }
+  return(errors)
+  }
 
 #' CheckCellInformation
 #'
@@ -65,22 +67,24 @@ CheckControls <- function(object, errors) {
 #' @param object An \linkS4class{EMSet}
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid
+#' @return Collected error messages stored in the \code{errors} list
+#' 
 #' @export
 CheckCellInformation <- function(object, errors) {
-    ## Check if number of batch identifiers match the number of columns in the expression matrix
-    if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
-        msg <- "Please check your batch information. Number of batch labels does
+  ## Check if number of batch identifiers match the number of columns in the expression matrix
+  if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
+    msg <- "Please check your batch information. Number of batch labels does
     not match the number of cells listed in the expression matrix."
-    } else {
-        ## Check if the cell identifiers are linked to cell barcodes in the expression matrix
-        if (!all(colnames(object@ExpressionMatrix) %in% object@CellInformation[, 1])) {
-            msg <- "Please make sure cell identifiers in column 1 of the Cell
+  } else {
+    ## Check if the cell identifiers are linked to cell barcodes in the expression matrix
+    if (!all(colnames(object@ExpressionMatrix) %in% object@CellInformation[, 1])) {
+      msg <- "Please make sure cell identifiers in column 1 of the Cell
       Information data frame matches the cell identifiers used in the expression
       matrix."
-        }
     }
-    return(errors)
-}
+    }
+  return(errors)
+    }
 
 #' CheckGeneInformation
 #'
@@ -91,14 +95,15 @@ CheckCellInformation <- function(object, errors) {
 #' @param object An \linkS4class{EMSet} object
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid.
+#' @return Collected error messages stored in the \code{errors} list
 #' @export
 CheckGeneInformation <- function(object, errors) {
-    if (!all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[, 1])) {
-        msg <- "Please make sure gene identifiers in column 1 of the Gene Information
+  if (!all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[, 1])) {
+    msg <- "Please make sure gene identifiers in column 1 of the Gene Information
     data frame matches the gene identifiers used in the expression matrix."
-    }
-    return(errors)
-}
+  }
+  return(errors)
+  }
 
 #' CheckEMSet
 #'
@@ -115,32 +120,33 @@ CheckGeneInformation <- function(object, errors) {
 #'     \item{If supplied, verify gene identifiers match rownames in the expression matrix.}
 #' }
 #' @param object \linkS4class{EMSet} this function is checking.
+#' @return Does the object have any errors? \code{TRUE} or \code{FALSE} 
 #' @export
 #'
 CheckEMSet <- function(object) {
-    # Error message container This variable is only populated if an error is encountered.
-    errors <- character()
-
-    # Compulsory checks
-    errors <- CheckExpressionMatrix(object, errors)
-    errors <- CheckControls(object, errors)
-
-    # Optional checks Batch label check This step is optional
-    if (nrow(object@CellInformation) > 0) {
-        errors <- CheckCellInformation(object, errors)
-    }
-
-    # Check if the annotation data matches rownames in the expression matrix
-    if (nrow(object@GeneInformation) > 0) {
-        errors <- CheckGeneInformation(object, errors)
-    }
-
-    # If all is well, object is valid. If not, it's invalid.
-    if (length(errors) == 0) {
-        TRUE
-    } else {
-        errors
-    }
+  # Error message container This variable is only populated if an error is encountered.
+  errors <- character()
+  
+  # Compulsory checks
+  errors <- CheckExpressionMatrix(object, errors)
+  errors <- CheckControls(object, errors)
+  
+  # Optional checks Batch label check This step is optional
+  if (nrow(object@CellInformation) > 0) {
+    errors <- CheckCellInformation(object, errors)
+  }
+  
+  # Check if the annotation data matches rownames in the expression matrix
+  if (nrow(object@GeneInformation) > 0) {
+    errors <- CheckGeneInformation(object, errors)
+  }
+  
+  # If all is well, object is valid. If not, it's invalid.
+  if (length(errors) == 0) {
+    TRUE
+  } else {
+    errors
+  }
 }
 
 # Expression and Metadata Set Class Definition
@@ -175,50 +181,51 @@ CheckEMSet <- function(object) {
 #' @importFrom Matrix Matrix
 #' @exportClass EMSet
 setClass("EMSet", representation(ExpressionMatrix = "Matrix", GeneInformation = "data.frame", CellInformation = "data.frame", Controls = "list", PCA = "list",
-    Clusters = "list", Metrics = "list", Log = "list"), prototype(ExpressionMatrix = Matrix::Matrix(0, nrow = 0, ncol = 0, sparse = TRUE), GeneInformation = data.frame(matrix(nr = 0,
-    nc = 0)), CellInformation = data.frame(matrix(nr = 0, nc = 0)), Controls = list(), PCA = list(), Clusters = list(), Metrics = list(), Log = list()), validity = CheckEMSet)
+                                 Clusters = "list", Metrics = "list", Log = "list"), prototype(ExpressionMatrix = Matrix::Matrix(0, nrow = 0, ncol = 0, sparse = TRUE), GeneInformation = data.frame(matrix(nr = 0,
+                                                                                                                                                                                                            nc = 0)), CellInformation = data.frame(matrix(nr = 0, nc = 0)), Controls = list(), PCA = list(), Clusters = list(), Metrics = list(), Log = list()), validity = CheckEMSet)
 
 #' show
 #' 
 #' Generic display function for \linkS4class{EMSet}s. Displays summary of the
 #' object.
 #' @param object An \linkS4class{EMSet}
+#' @return A summary of the \linkS4class{EMSet}
 #' @importFrom methods setMethod
 setMethod("show", signature("EMSet"), function(object){
-    # Rethink this slot Get number of genes and cells from the expression matrix dimensions
-    print("ascend Object - EMSet")
-    n.genes <- nrow(object@ExpressionMatrix)
-    n.cells <- ncol(object@ExpressionMatrix)
-    print(sprintf("Expression Matrix: %i genes and %i cells", n.genes, n.cells))
-
-    # If defined, show controls
-    if (length(object@Controls) > 0) {
-        print("Controls:")
-        print(object@Controls)
-    }
-
-    # If defined, show filtering log.
-    if (!is.null(object@Log$FilteringLog)) {
-        print("Filtering Log:")
-        print(object@Log$FilteringLog)
-    }
-
-    # If normalised, show normalisation
-    if (!is.null(object@Log$NormalisationMethod)) {
-        print(sprintf("Normalisation method: %s", object@Log$NormalisationMethod))
-    }
-
-    # If clustered, show PCA
-    if (!is.null(object@Log$PCA)) {
-        print(sprintf("PCA: %i dimensions", ncol(object@PCA$PCA)))
-    }
-
-    # If defined, show clustering information
-    if (!is.null(object@Clusters$NumberOfClusters)) {
-        print(sprintf("Optimal tree-cut height: %f", object@Clusters$OptimalTreeHeight))
-        print(sprintf("Number of Clusters: %i", object@Clusters$NumberOfClusters))
-    }
-
+  # Rethink this slot Get number of genes and cells from the expression matrix dimensions
+  print("ascend Object - EMSet")
+  n.genes <- nrow(object@ExpressionMatrix)
+  n.cells <- ncol(object@ExpressionMatrix)
+  print(sprintf("Expression Matrix: %i genes and %i cells", n.genes, n.cells))
+  
+  # If defined, show controls
+  if (length(object@Controls) > 0) {
+    print("Controls:")
+    print(object@Controls)
+  }
+  
+  # If defined, show filtering log.
+  if (!is.null(object@Log$FilteringLog)) {
+    print("Filtering Log:")
+    print(object@Log$FilteringLog)
+  }
+  
+  # If normalised, show normalisation
+  if (!is.null(object@Log$NormalisationMethod)) {
+    print(sprintf("Normalisation method: %s", object@Log$NormalisationMethod))
+  }
+  
+  # If clustered, show PCA
+  if (!is.null(object@Log$PCA)) {
+    print(sprintf("PCA: %i dimensions", ncol(object@PCA$PCA)))
+  }
+  
+  # If defined, show clustering information
+  if (!is.null(object@Clusters$NumberOfClusters)) {
+    print(sprintf("Optimal tree-cut height: %f", object@Clusters$OptimalTreeHeight))
+    print(sprintf("Number of Clusters: %i", object@Clusters$NumberOfClusters))
+  }
+  
 })
 
 # Constructor function for EMSet
@@ -247,8 +254,7 @@ setMethod("show", signature("EMSet"), function(object){
 #' This is an optional field, and it best used for experiments that contain data 
 #' from multiple samples. This data frame can also hold additional information 
 #' supplied by the user.
-#' @return This function generates an object belonging to the 
-#' \linkS4class{EMSet}.
+#' @return This function generates a new \linkS4class{EMSet} object.
 #' @examples
 #' #  Generate random datasets
 #' ## Define number of genes and cells
@@ -279,56 +285,56 @@ setMethod("show", signature("EMSet"), function(object){
 #' @seealso \linkS4class{EMSet}
 #' @export
 NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInformation = NULL, Controls = list()) {
-    # Check that we have the essential arguments - an expression matrix
-    arg.check <- list(ExpressionMatrix = missing(ExpressionMatrix))
-    if (any(arg.check == TRUE)) {
-        missing.args <- names(which(arg.check == TRUE))
-        msg <- sprintf("Please check that you have supplied the following arguments: %s\n", as.character(unlist(missing.args)))
-        stop(msg)
-    }
-
-    # Automatically generate batch labels if it's not defined.
-    if (is.null(CellInformation)) {
-        CellInformation <- data.frame(cell_barcode = colnames(ExpressionMatrix), batch = rep(1, ncol(ExpressionMatrix)))
-    }
-
-    # Automatically generate a gene annotation data frame if one hasn't been supplied.
-    if (is.null(GeneInformation)) {
-        GeneInformation <- data.frame(gene_symbol = rownames(ExpressionMatrix))
-    }
-
-    # Convert the data.frame input into a sparse matrix
-    if (is.data.frame(ExpressionMatrix) | is.matrix(ExpressionMatrix)) {
-        sparse.matrix <- ConvertMatrix(ExpressionMatrix, format = "sparseMatrix")
-    } else if (is(ExpressionMatrix, "sparseMatrix")) {
-        sparse.matrix <- ExpressionMatrix
-    } else {
-        stop("Please supply an expression matrix in one of the following formats: data.frame, dgCmatrix or matrix")
-    }
-
-    # If the user has defined controls, add this information to the GeneInformation data frame.
-    if (length(Controls) > 0) {
-        GeneInformation <- AddControlInfo(GeneInformation, Controls)
-    }
-
-    # Create a new EMSet object.
-    em.set <- new("EMSet", ExpressionMatrix = sparse.matrix, GeneInformation = GeneInformation, CellInformation = CellInformation, Controls = Controls)
-
-    # Generate metrics
-    em.set <- GenerateMetrics(em.set)
-
-    # Sync all the information
-    em.set <- SyncSlots(em.set)
-
-    # If controls
-    if (length(Controls) > 0) {
-        em.set@Log$Controls <- TRUE
-    } else {
-        em.set@Log$Controls <- FALSE
-    }
-
-    # All clear, return the object
-    return(em.set)
+  # Check that we have the essential arguments - an expression matrix
+  arg.check <- list(ExpressionMatrix = missing(ExpressionMatrix))
+  if (any(arg.check == TRUE)) {
+    missing.args <- names(which(arg.check == TRUE))
+    msg <- sprintf("Please check that you have supplied the following arguments: %s\n", as.character(unlist(missing.args)))
+    stop(msg)
+  }
+  
+  # Automatically generate batch labels if it's not defined.
+  if (is.null(CellInformation)) {
+    CellInformation <- data.frame(cell_barcode = colnames(ExpressionMatrix), batch = rep(1, ncol(ExpressionMatrix)))
+  }
+  
+  # Automatically generate a gene annotation data frame if one hasn't been supplied.
+  if (is.null(GeneInformation)) {
+    GeneInformation <- data.frame(gene_symbol = rownames(ExpressionMatrix))
+  }
+  
+  # Convert the data.frame input into a sparse matrix
+  if (is.data.frame(ExpressionMatrix) | is.matrix(ExpressionMatrix)) {
+    sparse.matrix <- ConvertMatrix(ExpressionMatrix, format = "sparseMatrix")
+  } else if (is(ExpressionMatrix, "sparseMatrix")) {
+    sparse.matrix <- ExpressionMatrix
+  } else {
+    stop("Please supply an expression matrix in one of the following formats: data.frame, dgCmatrix or matrix")
+  }
+  
+  # If the user has defined controls, add this information to the GeneInformation data frame.
+  if (length(Controls) > 0) {
+    GeneInformation <- AddControlInfo(GeneInformation, Controls)
+  }
+  
+  # Create a new EMSet object.
+  em.set <- new("EMSet", ExpressionMatrix = sparse.matrix, GeneInformation = GeneInformation, CellInformation = CellInformation, Controls = Controls)
+  
+  # Generate metrics
+  em.set <- GenerateMetrics(em.set)
+  
+  # Sync all the information
+  em.set <- SyncSlots(em.set)
+  
+  # If controls
+  if (length(Controls) > 0) {
+    em.set@Log$Controls <- TRUE
+  } else {
+    em.set@Log$Controls <- FALSE
+  }
+  
+  # All clear, return the object
+  return(em.set)
 }
 
 #' SyncSlots (Generic)
@@ -346,7 +352,7 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "SyncSlots", def = function(object) {
-    standardGeneric("SyncSlots")
+  standardGeneric("SyncSlots")
 })
 
 #' SyncSlots
@@ -365,38 +371,38 @@ setGeneric(name = "SyncSlots", def = function(object) {
 #' @importFrom methods setMethod
 #' @export
 setMethod("SyncSlots", signature("EMSet"), function(object) {
-    # Get data frames
-    expression.matrix <- object@ExpressionMatrix
-    gene.information <- object@GeneInformation
-    cell.information <- object@CellInformation
-    
-    gene.cols <- colnames(gene.information)
-    cell.cols <- colnames(cell.information)
-    
-    # Expression matrix serves as the basis for updating all the other information
-    present.cells <- colnames(expression.matrix)
-    present.genes <- rownames(expression.matrix)
-
-    # Get data frames based on this info
-    gene.information <- gene.information[gene.information[, 1] %in% present.genes, ]
-    cell.information <- cell.information[cell.information[, 1] %in% present.cells, ]
-    
-    # Check in case it's not a dataframe
-    if (!is.data.frame(gene.information)){
-      gene.information <- data.frame(gene.information)
-      colnames(gene.information) <- gene.cols
-    }
-    
-    if (!is.data.frame(cell.information)){
-      cell.information <- data.frame(cell.information)
-      colnames(cell.information) <- cell.cols
-    }
-    
-    # Put back into the slots
-    object@GeneInformation <- gene.information
-    object@CellInformation <- cell.information
-
-    return(object)
+  # Get data frames
+  expression.matrix <- object@ExpressionMatrix
+  gene.information <- object@GeneInformation
+  cell.information <- object@CellInformation
+  
+  gene.cols <- colnames(gene.information)
+  cell.cols <- colnames(cell.information)
+  
+  # Expression matrix serves as the basis for updating all the other information
+  present.cells <- colnames(expression.matrix)
+  present.genes <- rownames(expression.matrix)
+  
+  # Get data frames based on this info
+  gene.information <- gene.information[gene.information[, 1] %in% present.genes, ]
+  cell.information <- cell.information[cell.information[, 1] %in% present.cells, ]
+  
+  # Check in case it's not a dataframe
+  if (!is.data.frame(gene.information)){
+    gene.information <- data.frame(gene.information)
+    colnames(gene.information) <- gene.cols
+  }
+  
+  if (!is.data.frame(cell.information)){
+    cell.information <- data.frame(cell.information)
+    colnames(cell.information) <- cell.cols
+  }
+  
+  # Put back into the slots
+  object@GeneInformation <- gene.information
+  object@CellInformation <- cell.information
+  
+  return(object)
 })
 
 #' UpdateControls (Generic)
@@ -429,7 +435,7 @@ setMethod("SyncSlots", signature("EMSet"), function(object) {
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "UpdateControls", def = function(object, controls) {
-    standardGeneric("UpdateControls")
+  standardGeneric("UpdateControls")
 })
 
 #' UpdateControls
@@ -462,32 +468,32 @@ setGeneric(name = "UpdateControls", def = function(object, controls) {
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
-    errors <- character()
-
-    # If user has supplied a list of controls
+  errors <- character()
+  
+  # If user has supplied a list of controls
+  if (length(controls) > 0) {
+    check.controls <- unlist(controls) %in% rownames(object@ExpressionMatrix)
+    if (!TRUE %in% check.controls) {
+      msg <- "Please make sure the gene identifiers you have listed in your control list matches those used in the expression matrix."
+      errors <- c(errors, msg)
+    }
+  }
+  
+  if (length(errors) > 0) {
+    errors
+  } else {
+    object@Controls <- controls
     if (length(controls) > 0) {
-        check.controls <- unlist(controls) %in% rownames(object@ExpressionMatrix)
-        if (!TRUE %in% check.controls) {
-            msg <- "Please make sure the gene identifiers you have listed in your control list matches those used in the expression matrix."
-            errors <- c(errors, msg)
-        }
-    }
-
-    if (length(errors) > 0) {
-        errors
+      GeneInformation <- object@GeneInformation
+      GeneInformation <- AddControlInfo(GeneInformation, controls)
+      object@GeneInformation <- GeneInformation
+      object@Log$Controls <- TRUE
     } else {
-        object@Controls <- controls
-        if (length(controls) > 0) {
-            GeneInformation <- object@GeneInformation
-            GeneInformation <- AddControlInfo(GeneInformation, controls)
-            object@GeneInformation <- GeneInformation
-            object@Log$Controls <- TRUE
-        } else {
-            object@Log$Controls <- FALSE
-        }
-        object <- GenerateMetrics(object)
-        return(object)
+      object@Log$Controls <- FALSE
     }
+    object <- GenerateMetrics(object)
+    return(object)
+  }
 })
 
 #' ReplaceCellInfo
@@ -520,7 +526,7 @@ setMethod("UpdateControls", signature("EMSet"), function(object, controls) {
 #' 
 #' @importFrom methods setGeneric
 setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
-    standardGeneric("ReplaceCellInfo")
+  standardGeneric("ReplaceCellInfo")
 })
 
 #' ReplaceCellInfo
@@ -554,18 +560,18 @@ setGeneric(name = "ReplaceCellInfo", def = function(object, cell.info) {
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
-    # Check replacement is valid.
-    replacement <- object
-    replacement@CellInformation <- cell.info
-
-    errors <- c()
-    errors <- CheckCellInformation(replacement, errors)
-
-    if (length(errors) > 0) {
-        stop("New Cell Information is invalid. Please check your data frame and try again.")
-    } else {
-        return(replacement)
-    }
+  # Check replacement is valid.
+  replacement <- object
+  replacement@CellInformation <- cell.info
+  
+  errors <- c()
+  errors <- CheckCellInformation(replacement, errors)
+  
+  if (length(errors) > 0) {
+    stop("New Cell Information is invalid. Please check your data frame and try again.")
+  } else {
+    return(replacement)
+  }
 })
 
 #' ReplaceGeneInfo
@@ -597,7 +603,7 @@ setMethod("ReplaceCellInfo", signature("EMSet"), function(object, cell.info) {
 #' 
 #' @export
 setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
-    standardGeneric("ReplaceGeneInfo")
+  standardGeneric("ReplaceGeneInfo")
 })
 
 #' ReplaceGeneInfo
@@ -631,16 +637,16 @@ setGeneric(name = "ReplaceGeneInfo", def = function(object, gene.info) {
 #' 
 #' @export
 setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
-    # Check replacement is valid.
-    replacement <- object
-    replacement@GeneInformation <- gene.info
-    errors <- c()
-    errors <- CheckGeneInformation(replacement, errors)
-    if (length(errors) > 0) {
-        stop("New Gene Information is invalid. Please check your data frame and try again.")
-    } else {
-        return(replacement)
-    }
+  # Check replacement is valid.
+  replacement <- object
+  replacement@GeneInformation <- gene.info
+  errors <- c()
+  errors <- CheckGeneInformation(replacement, errors)
+  if (length(errors) > 0) {
+    stop("New Gene Information is invalid. Please check your data frame and try again.")
+  } else {
+    return(replacement)
+  }
 })
 
 #' ReplaceExpressionMatrix (Method)
@@ -670,7 +676,7 @@ setMethod("ReplaceGeneInfo", signature("EMSet"), function(object, gene.info) {
 #' 
 #' @export
 setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.matrix) {
-    standardGeneric("ReplaceExpressionMatrix")
+  standardGeneric("ReplaceExpressionMatrix")
 })
 
 #' ReplaceExpressionMatrix
@@ -700,18 +706,18 @@ setGeneric(name = "ReplaceExpressionMatrix", def = function(object, expression.m
 #'
 #' @export
 setMethod("ReplaceExpressionMatrix", signature("EMSet"), function(object, expression.matrix) {
-    # Replace the matrix
-    object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format = "sparseMatrix")
-
-    # Check that it's okay before replacing.
-    errors <- c()
-    errors <- CheckExpressionMatrix(object, errors)
-
-    if (length(errors) > 0) {
-        stop("Please check your expression matrix.")
-    } else {
-        object <- GenerateMetrics(object)
-        object <- SyncSlots(object)
-        return(object)
-    }
+  # Replace the matrix
+  object@ExpressionMatrix <- ConvertMatrix(expression.matrix, format = "sparseMatrix")
+  
+  # Check that it's okay before replacing.
+  errors <- c()
+  errors <- CheckExpressionMatrix(object, errors)
+  
+  if (length(errors) > 0) {
+    stop("Please check your expression matrix.")
+  } else {
+    object <- GenerateMetrics(object)
+    object <- SyncSlots(object)
+    return(object)
+  }
 })

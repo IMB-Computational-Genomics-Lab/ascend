@@ -11,7 +11,7 @@
 \item{x}{An \linkS4class{EMSet}}
 }
 \value{
-A print-out of the log attached to an \code{\linkS4class{EMSet}}.
+A print-out of the log attached to an \code{x}.
 }
 \description{
 Print out the log of an \code{\linkS4class{EMSet}}.

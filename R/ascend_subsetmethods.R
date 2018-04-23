@@ -183,7 +183,7 @@ setMethod("SubsetBatch", signature("EMSet"), function(object, batches = c()) {
 #' 
 #' # Add cluster information to EMSet
 #' cell.info <- GetCellInfo(em.set)
-#' cell.info$cluster <- sample(1:6, ncol(em.set@ExpressionMatrix), replace = TRUE)
+#' cell.info$cluster <- sample(1:6, nrow(cell.info), replace = TRUE)
 #' em.set <- ReplaceCellInfo(em.set, cell.info)
 #' 
 #' # Subset clusters 3 and 5 from the dataset
@@ -213,7 +213,7 @@ setGeneric(name = "SubsetCluster", def = function(object, clusters) {
 #' 
 #' # Add cluster information to EMSet
 #' cell.info <- GetCellInfo(em.set)
-#' cell.info$cluster <- sample(1:6, ncol(em.set@ExpressionMatrix), replace = TRUE)
+#' cell.info$cluster <- sample(1:6, nrow(cell.info), replace = TRUE)
 #' em.set <- ReplaceCellInfo(em.set, cell.info)
 #' 
 #' # Subset clusters 3 and 5 from the dataset

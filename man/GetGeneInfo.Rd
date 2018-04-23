@@ -9,6 +9,10 @@ GetGeneInfo(object)
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
+\value{
+This function returns a data frame containing information about 
+the genes in \code{object}.
+}
 \description{
 Generic for \code{\link{GetGeneInfo}}.
 }

@@ -12,6 +12,10 @@ from.}
 
 \item{format}{Format of the returned matrix - 'data.frame' or 'matrix'}
 }
+\value{
+Returns the expression matrix in the chosen format (data.frame or 
+matrix).
+}
 \description{
 Generic for \code{\link{GetExpressionMatrix}}.
 }

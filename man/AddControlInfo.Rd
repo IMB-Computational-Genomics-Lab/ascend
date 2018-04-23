@@ -15,6 +15,10 @@ column.}
 \item{controls}{List of controls supplied by the user. They must match the
 gene identifiers used in the expression matrix.}
 }
+\value{
+A dataframe (\code{gene.information}) that specifies if a gene is a 
+\code{control}.
+}
 \description{
 AddControlInfo
 Called by ascend object creation. Adds the control information to the dataframe.

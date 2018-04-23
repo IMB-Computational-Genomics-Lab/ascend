@@ -10,6 +10,9 @@
 \arguments{
 \item{x}{An EMSet}
 }
+\value{
+A list of metrics attached to \code{x}
+}
 \description{
 This function generates the following set of values per cell:
 \itemize{

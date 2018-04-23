@@ -117,6 +117,7 @@ PrepareCountData <- function(object, cells, ngenes) {
 #' Options: parametric, local (Default).
 #' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
 #' Options: pooled, pooled-CR, per-condition (Default), blind.
+#' @return A dataframe containing \pkg{DESeq} results
 #' @examples
 #' \dontrun{
 #' de.result <- RunDiffExpression(em.set, conditions = "cluster", 

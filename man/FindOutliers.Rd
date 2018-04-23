@@ -16,6 +16,10 @@ FindOutliers(values, nmads = 3, type = c("both", "lower", "upper"),
 
 \item{na.rm}{Remove NA values if present (Default: False).}
 }
+\value{
+A boolean of values that fall between the ranges set by \code{nmads} 
+and \code{type}.
+}
 \description{
 Adapted from \code{\link[scater]{isOutlier}}. Determines outliers based on 
 Mean Absolute Deviation (MAD) value.

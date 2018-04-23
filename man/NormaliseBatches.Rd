@@ -21,6 +21,10 @@ undergoing library equalisation.
 This step should be done prior to any filtering and normalisation between cells.
 }
 \examples{
+# Load EMSet that contains multiple batches
 EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Normalise expression by batches with NormaliseBatches
 BatchNormalisedEMSet <- NormaliseBatches(EMSet)
+
 }

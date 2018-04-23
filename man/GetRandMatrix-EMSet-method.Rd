@@ -12,7 +12,8 @@
 clustering}
 }
 \value{
-This function returns a data frame.
+This function returns a data frame containing cluster stability 
+information.
 }
 \description{
 Retrieve the rand matrix used to determine clusters from an 

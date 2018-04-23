@@ -9,6 +9,9 @@ PlotLibrarySizesPerSample(object)
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object.}
 }
+\value{
+A ggplot2 object containing a violin-beeswarm plot
+}
 \description{
 Generates a violin-beeswarm plot of library sizes per sample. This is called 
 by the \code{\link{PlotGeneralQC}} function.

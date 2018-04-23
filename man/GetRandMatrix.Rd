@@ -10,6 +10,10 @@ GetRandMatrix(object)
 \item{object}{An \code{\linkS4class{EMSet}} object that has undergone 
 clustering}
 }
+\value{
+This function returns a data frame containing cluster stability 
+information.
+}
 \description{
 Generic for \code{\link{GetRandMatrix}}.
 }

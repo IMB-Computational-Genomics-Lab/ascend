@@ -12,6 +12,9 @@ CheckExpressionMatrix(object, errors)
 \item{errors}{Vector to store error messages in. If the object is returned
 with values - the object will be declared invalid}
 }
+\value{
+Collected error messages stored in the \code{errors} list
+}
 \description{
 Checks the expression matrix to ensure it is not empty, does not contain any
 NA values and does not have any duplicated column or row names.

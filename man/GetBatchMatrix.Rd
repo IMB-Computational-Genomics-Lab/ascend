@@ -11,6 +11,9 @@ GetBatchMatrix(object, batch.id)
 
 \item{batch.id}{Batch identifier that you would like to retrieve}
 }
+\value{
+Gene/transcript counts for cells in \code{batch.id}
+}
 \description{
 Generic for \code{\link{GetBatchMatrix}}.
 }

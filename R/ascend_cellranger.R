@@ -165,6 +165,7 @@ CheckCellRangerDirs <- function(target.dir, cellranger.dir) {
 #'
 #' @param working.dir Path inputted by user.
 #' @param genome.name Name of reference inputted by the user.
+#' @return A list of loaded data from \code{working.dir}.
 #' 
 LoadCellRangerData <- function(working.dir, genome.name) {
     cellranger.dir <- c("filtered_gene_bc_matrices", "filtered_gene_bc_matrices_mex")

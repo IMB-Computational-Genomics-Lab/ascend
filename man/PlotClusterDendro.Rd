@@ -61,6 +61,9 @@ be equal to the number of resolutions.}
 
 \item{...}{Additional parameters to feed into graphics function.}
 }
+\value{
+Plots a dendrogram via R base graphics
+}
 \description{
 This function was adapted from the plotDendroAndColors function by Steve 
 Horvarth, Peter Langelder, and Tal Galili (\pkg{WGCNA}).

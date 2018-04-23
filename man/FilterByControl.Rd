@@ -25,9 +25,11 @@ This function should be used AFTER the cells have undergone general filtering
 with the \code{\link{FilterByOutliers}} function.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Filter out cells where mitochondrial genes account for at least 20\% of expression
 filtered_EMSet <- FilterByControl(control.name = "Mt", pct.threshold = 20,
-em.set
-)
-}
+EMSet)
+
 }

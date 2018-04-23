@@ -10,6 +10,9 @@
 \arguments{
 \item{object}{An \linkS4class{EMSet}}
 }
+\value{
+A summary of the \linkS4class{EMSet}
+}
 \description{
 Generic display function for \linkS4class{EMSet}s. Displays summary of the
 object.

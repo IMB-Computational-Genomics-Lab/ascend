@@ -41,8 +41,10 @@ with very large datasets containing over 40000 cells. If
 assigned to a group.
 }
 \examples{
-\dontrun{
-normalised_object <- scranNormalise(em.set, quickCluster = TRUE, 
-min.mean = 1e-5)
-}
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Normalise expression with scranNormalise
+NormalEMSet <- scranNormalise(EMSet, quickCluster = FALSE, min.mean = 1e-5)
+
 }

@@ -23,7 +23,10 @@ normalisation. As this step may remove rare transcripts, this filtering step
 is optional.
 }
 \examples{
-\dontrun{
-filtered_EMSet <- FilterLowAbundanceGenes(em.set, pct.value = 1)
-}
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Filter out low abundance genes
+filtered_EMSet <- FilterLowAbundanceGenes(EMSet, pct.value = 1)
+
 }

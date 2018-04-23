@@ -30,6 +30,9 @@ Options: pooled, pooled-CR, per-condition (Default), blind.}
 \item{ngenes}{Perform differential expression analysis using top number of genes.
 If omitted, this function will run analysis on ALL genes.}
 }
+\value{
+A dataframe containing \pkg{DESeq} results
+}
 \description{
 Compare the differential expression of genes between cells of different conditions.
 }

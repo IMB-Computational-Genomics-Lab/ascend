@@ -9,6 +9,9 @@ CheckEMSet(object)
 \arguments{
 \item{object}{\linkS4class{EMSet} this function is checking.}
 }
+\value{
+Does the object have any errors? \code{TRUE} or \code{FALSE}
+}
 \description{
 Validation function for the S4 class \linkS4class{EMSet}.
 }

@@ -9,6 +9,9 @@ GetHclust(object)
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
+\value{
+This function returns the hclust object stored in \code{object}.
+}
 \description{
 Generic for \code{\link{GetHclust}}.
 }

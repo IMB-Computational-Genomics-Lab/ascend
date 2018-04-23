@@ -11,7 +11,7 @@
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
 \value{
-This function returns a distance matrix.
+Distance matrix stored in \code{object}
 }
 \description{
 Retrieve the distance matrix from an \code{\linkS4class{EMSet}} object that 

@@ -14,6 +14,9 @@ CheckControls(object, errors)
 \item{errors}{Vector to store error messages in. If the object is returned
 with values - the object will be declared invalid}
 }
+\value{
+Collected error messages stored in the \code{errors} list
+}
 \description{
 CheckControls
 Another check function for EMSets. This check is only run if controls are 

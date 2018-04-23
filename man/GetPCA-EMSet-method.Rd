@@ -11,7 +11,7 @@
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
 \value{
-This function returns a data frame.
+PCA matrix stored in \code{object}
 }
 \description{
 Retrieve the PCA matrix from an \code{\linkS4class{EMSet}} object that has 

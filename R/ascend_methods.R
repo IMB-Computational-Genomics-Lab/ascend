@@ -25,7 +25,10 @@ GenerateControlMetrics <- function(x, expression.matrix = NULL, control.list = N
 #' GenerateMetrics
 #' 
 #' Generic method for \code{\link{GenerateMetrics}}.
+#' 
 #' @param x An EMSet
+#' @return A list of metrics attached to \code{x}
+#' 
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GenerateMetrics", def = function(x) {
@@ -55,6 +58,8 @@ setGeneric(name = "GenerateMetrics", def = function(x) {
 #' 
 #' @param x An EMSet
 #' @include ascend_objects.R
+#' @return A list of metrics attached to \code{x}
+#' 
 #' @importFrom BiocParallel bplapply
 #' @importFrom Matrix colSums rowSums rowMeans
 #' @importFrom methods setGeneric setMethod
@@ -134,6 +139,8 @@ setMethod("GenerateMetrics", signature("EMSet"), function(x) {
 #' column.
 #' @param controls List of controls supplied by the user. They must match the
 #' gene identifiers used in the expression matrix.
+#' @return A dataframe (\code{gene.information}) that specifies if a gene is a 
+#' \code{control}.
 #' @export
 AddControlInfo <- function(gene.information, controls) {
     # Verify controls are in the cell information data frame
@@ -148,6 +155,11 @@ AddControlInfo <- function(gene.information, controls) {
 #' @param x A \code{\linkS4class{EMSet}} object.
 #' @param old.annotation Name of the column containing the current gene annotations.
 #' @param new.annotation Name of the column you would like to convert the gene 
+#' 
+#' @return An EMSet with the row names in the expression matrix switched to the
+#' values in the new annotation column, and controls converted to their 
+#' corresponding identifier in the new annotation.
+#' 
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "ConvertGeneAnnotation", def = function(x, old.annotation, new.annotation) {
@@ -214,6 +226,8 @@ setMethod("ConvertGeneAnnotation", signature("EMSet"), function(x, old.annotatio
 #' @param x An \code{\linkS4class{EMSet}} object. It is recommended that 
 #' you run this step after this object has undergone filtering.
 #' @param control.name Name of the control set you want to remove from the dataset.
+#' @return \code{x} without the \code{control.name} set of controls in the 
+#' expression matrix.
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "ExcludeControl", def = function(x, control.name) {
@@ -228,8 +242,10 @@ setGeneric(name = "ExcludeControl", def = function(x, control.name) {
 #' 
 #' @param x An \code{\linkS4class{EMSet}} object. It is recommended that 
 #' you run this step after this object has undergone filtering.
-#' @param control.name Name of the control set you want to remove from the dataset.
-#' @return An \code{\linkS4class{EMSet}} without controls in the expression matrix.
+#' @param control.name Name of the control set you want to remove from the 
+#' dataset.
+#' @return \code{x} without the \code{control.name} set of controls in the 
+#' expression matrix.
 #' @importFrom methods setGeneric setMethod
 #' @export
 #'
@@ -298,7 +314,7 @@ setGeneric(name = "DisplayLog", def = function(x) {
 #' Print out the log of an \code{\linkS4class{EMSet}}.
 #' @param x An \linkS4class{EMSet}
 #' @include ascend_objects.R
-#' @return A print-out of the log attached to an \code{\linkS4class{EMSet}}.
+#' @return A print-out of the log attached to an \code{x}.
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("DisplayLog", signature("EMSet"), function(x) {

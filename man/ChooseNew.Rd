@@ -11,6 +11,10 @@ ChooseNew(n = NULL, k = NULL)
 
 \item{k}{Second clustering result.}
 }
+\value{
+An integer representing a consecutive or non-consecutive clustering 
+result
+}
 \description{
 Function to calculate rand index. Adapted from function by Steve Horvarth and
 Luohua Jiang (UCLA, 2003).

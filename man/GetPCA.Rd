@@ -9,6 +9,9 @@ GetPCA(object)
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
+\value{
+PCA matrix stored in \code{object}
+}
 \description{
 Generic for \code{\link{GetPCA}}.
 }

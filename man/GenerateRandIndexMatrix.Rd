@@ -14,6 +14,10 @@ cutting the hclust object at 40 resolutions.}
 
 \item{cluster.list}{A list of clustering results to unpack.}
 }
+\value{
+The Key Stats dataframe containing information collated from 
+\code{cluster.matrix}, \code{original.clusters} and \code{cluster.list}
+}
 \description{
 Generates columns in KeyStats data frame related to rand index calculations.
 }

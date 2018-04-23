@@ -27,10 +27,12 @@
 #' @return An \code{\linkS4class{EMSet}} with an expression matrix with counts 
 #' normalised by \code{\link[scater]{normalize}} function.
 #' @examples
-#' \dontrun{
-#' normalised_object <- scranNormalise(em.set, quickCluster = TRUE, 
-#' min.mean = 1e-5)
-#' }
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Normalise expression with scranNormalise
+#' NormalEMSet <- scranNormalise(EMSet, quickCluster = FALSE, min.mean = 1e-5)
+#' 
 #' @importFrom utils packageVersion
 #' @export
 #'
@@ -50,7 +52,7 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
     sce.obj <- ConvertToSCE(object, control.list = object@Controls)
     normalised.obj <- SCEnormalise(sce.obj, object, quickCluster = quickCluster, min.mean = min.mean)
   }
-
+  
   return(normalised.obj)
 }
 
@@ -66,20 +68,20 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
 #' @importFrom Matrix t rowSums
 #'
 NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL) {
-    # Function called by NormaliseBatches
-    barcodes <- cell.info[, 1][which(cell.info[, 2] == batch.id)]
-    sub.mtx <- expression.matrix[, barcodes]
-    
-    # Collapse all cells into one cell
-    collapsed.mtx <- rowSums(sub.mtx)
-    norm.factor <- sum(collapsed.mtx)
-    
-    ## Scale sub-matrix to normalisation factor
-    cpm.mtx <- Matrix::t(Matrix::t(sub.mtx)/norm.factor)
-    
-    # Output to list for further calculations
-    output.list <- list(NormalisationFactor = norm.factor, CpmMatrix = cpm.mtx)
-    return(output.list)
+  # Function called by NormaliseBatches
+  barcodes <- cell.info[, 1][which(cell.info[, 2] == batch.id)]
+  sub.mtx <- expression.matrix[, barcodes]
+  
+  # Collapse all cells into one cell
+  collapsed.mtx <- rowSums(sub.mtx)
+  norm.factor <- sum(collapsed.mtx)
+  
+  ## Scale sub-matrix to normalisation factor
+  cpm.mtx <- Matrix::t(Matrix::t(sub.mtx)/norm.factor)
+  
+  # Output to list for further calculations
+  output.list <- list(NormalisationFactor = norm.factor, CpmMatrix = cpm.mtx)
+  return(output.list)
 }
 
 #' NormaliseBatches
@@ -93,41 +95,45 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL
 #' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch.
 #' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values.
 #' @examples
+#' # Load EMSet that contains multiple batches
 #' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Normalise expression by batches with NormaliseBatches
 #' BatchNormalisedEMSet <- NormaliseBatches(EMSet)
+#' 
 #' @importFrom BiocParallel bplapply
 #' @importFrom stats median
 #' @export
 #'
 NormaliseBatches <- function(object) {
-    if (!is.null(object@Log$NormaliseBatches)) {
-        stop("This data is already normalised.")
-    }
-    
-    # Retrieve variables from EMSet object
-    exprs.mtx <- GetExpressionMatrix(object, "matrix")
-    cell.info <- GetCellInfo(object)
-    unique.batch.identifiers <- unique(cell.info[, 2])
-    
-    # Loop to get batch-specific data PARALLEL
-    print("Retrieving batch-specific data...")
-    batch.data <- BiocParallel::bplapply(unique.batch.identifiers, NormWithinBatch, expression.matrix = exprs.mtx, cell.info = cell.info)
-    
-    # Unpacking results
-    print("Scaling data...")
-    norm.factors <- unlist(lapply(batch.data, function(x) x$NormalisationFactor))
-    median.size <- median(norm.factors)
-    sub.matrix.list <- lapply(batch.data, function(x) x$CpmMatrix)
-    cpm.matrix <- data.frame(sub.matrix.list)
-    scaled.matrix <- cpm.matrix * median.size
-    
-    # Load back into EMSet and write metrics
-    print("Returning object...")
-    colnames(scaled.matrix) <- cell.info[, 1]
-    object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparseMatrix")
-    object@Log$NormaliseBatches <- TRUE
-    updated.object <- GenerateMetrics(object)
-    return(updated.object)
+  if (!is.null(object@Log$NormaliseBatches)) {
+    stop("This data is already normalised.")
+  }
+  
+  # Retrieve variables from EMSet object
+  exprs.mtx <- GetExpressionMatrix(object, "matrix")
+  cell.info <- GetCellInfo(object)
+  unique.batch.identifiers <- unique(cell.info[, 2])
+  
+  # Loop to get batch-specific data PARALLEL
+  print("Retrieving batch-specific data...")
+  batch.data <- BiocParallel::bplapply(unique.batch.identifiers, NormWithinBatch, expression.matrix = exprs.mtx, cell.info = cell.info)
+  
+  # Unpacking results
+  print("Scaling data...")
+  norm.factors <- unlist(lapply(batch.data, function(x) x$NormalisationFactor))
+  median.size <- median(norm.factors)
+  sub.matrix.list <- lapply(batch.data, function(x) x$CpmMatrix)
+  cpm.matrix <- data.frame(sub.matrix.list)
+  scaled.matrix <- cpm.matrix * median.size
+  
+  # Load back into EMSet and write metrics
+  print("Returning object...")
+  colnames(scaled.matrix) <- cell.info[, 1]
+  object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparseMatrix")
+  object@Log$NormaliseBatches <- TRUE
+  updated.object <- GenerateMetrics(object)
+  return(updated.object)
 }
 
 #' NormaliseLibSize
@@ -141,17 +147,17 @@ NormaliseBatches <- function(object) {
 #' @export
 #'
 NormaliseLibSize <- function(object) {
-    expression.matrix <- as.matrix(object@ExpressionMatrix)
-    norm.factor <- colSums(expression.matrix)
-    median.size <- median(norm.factor)
-    
-    unscaled.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
-    normalised.exprs.mtx <- unscaled.matrix * median.size
-    object@Log <- c(object@Log, list(NormaliseLibSize = TRUE))
-    object@ExpressionMatrix <- ConvertMatrix(normalised.exprs.mtx, format = "sparseMatrix")
-    new.object <- GenerateMetrics(object)
-    new.object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseLibSize"))
-    return(new.object)
+  expression.matrix <- as.matrix(object@ExpressionMatrix)
+  norm.factor <- colSums(expression.matrix)
+  median.size <- median(norm.factor)
+  
+  unscaled.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
+  normalised.exprs.mtx <- unscaled.matrix * median.size
+  object@Log <- c(object@Log, list(NormaliseLibSize = TRUE))
+  object@ExpressionMatrix <- ConvertMatrix(normalised.exprs.mtx, format = "sparseMatrix")
+  new.object <- GenerateMetrics(object)
+  new.object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseLibSize"))
+  return(new.object)
 }
 
 
@@ -168,13 +174,13 @@ NormaliseLibSize <- function(object) {
 #' @importFrom stats median
 #' 
 CalcNormFactor <- function(x, geo.means) {
-    x.geo.means <- cbind(x, geo.means)
-    x.geo.means <- x.geo.means[(x.geo.means[, 1] > 0), ]
-    non.zero.median <- median(apply(x.geo.means, 1, function(y) {
-        y <- as.vector(y)
-        y[1]/y[2]
-    }))
-    return(non.zero.median)
+  x.geo.means <- cbind(x, geo.means)
+  x.geo.means <- x.geo.means[(x.geo.means[, 1] > 0), ]
+  non.zero.median <- median(apply(x.geo.means, 1, function(y) {
+    y <- as.vector(y)
+    y[1]/y[2]
+  }))
+  return(non.zero.median)
 }
 
 #' CalcGeoMeans
@@ -186,9 +192,9 @@ CalcNormFactor <- function(x, geo.means) {
 #' @return Geometric means associated with each cell.
 #' 
 CalcGeoMeans <- function(x) {
-    x <- x[x > 0]
-    x <- exp(mean(log(x)))
-    return(x)
+  x <- x[x > 0]
+  x <- exp(mean(log(x)))
+  return(x)
 }
 
 #' NormaliseByRLE
@@ -202,26 +208,29 @@ CalcGeoMeans <- function(x) {
 #' Please ensure spike-ins have been removed before using this function.
 #' @return An \code{\linkS4class{EMSet}} with normalised expression values.
 #' @examples
+#' # Load EMSet
 #' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Normalise expression between cells using Relative Log Expression (RLE)
 #' NormalisedEMSet <- NormaliseByRLE(EMSet)
 #' @importFrom Matrix t
 #' @export
 #'
 NormaliseByRLE <- function(object) {
-    if (!is.null(object@Log$NormalisationMethod)) {
-        stop("This data is already normalised.")
-    }
-    expression.matrix <- GetExpressionMatrix(object, format = "matrix")
-    
-    print("Calculating geometric means...")
-    geo.means <- apply(expression.matrix, 1, CalcGeoMeans)
-    
-    print("Calculating normalisation factors...")
-    norm.factor <- apply(expression.matrix, 2, function(x) CalcNormFactor(x, geo.means))
-    
-    print("Normalising data...")
-    normalised.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
-    object@ExpressionMatrix <- ConvertMatrix(normalised.matrix, "sparseMatrix")
-    object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseByRLE"))
-    return(object)
+  if (!is.null(object@Log$NormalisationMethod)) {
+    stop("This data is already normalised.")
+  }
+  expression.matrix <- GetExpressionMatrix(object, format = "matrix")
+  
+  print("Calculating geometric means...")
+  geo.means <- apply(expression.matrix, 1, CalcGeoMeans)
+  
+  print("Calculating normalisation factors...")
+  norm.factor <- apply(expression.matrix, 2, function(x) CalcNormFactor(x, geo.means))
+  
+  print("Normalising data...")
+  normalised.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
+  object@ExpressionMatrix <- ConvertMatrix(normalised.matrix, "sparseMatrix")
+  object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseByRLE"))
+  return(object)
 }

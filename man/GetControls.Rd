@@ -9,6 +9,9 @@ GetControls(object)
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
+\value{
+This function returns a list of controls defined by the user.s
+}
 \description{
 Generic for \code{\link{GetControls}}.
 }

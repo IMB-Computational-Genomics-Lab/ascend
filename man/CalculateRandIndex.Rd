@@ -11,6 +11,9 @@ CalculateRandIndex(x, adjust = TRUE)
 
 \item{adjust}{TRUE or FALSE.}
 }
+\value{
+A matrix of rand indices based on \code{x}
+}
 \description{
 Calculates rand matrix based on clustering results
 }

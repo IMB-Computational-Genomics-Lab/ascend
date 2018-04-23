@@ -35,8 +35,7 @@ used in the expression matrix. This information is required for some
 functions.}
 }
 \value{
-This function generates an object belonging to the 
-\linkS4class{EMSet}.
+This function generates a new \linkS4class{EMSet} object.
 }
 \description{
 An \code{EMSet} is a S4 class that stores data in a format `ascend`` can 

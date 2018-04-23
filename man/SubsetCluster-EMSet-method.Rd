@@ -30,7 +30,7 @@ em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds")
 
 # Add cluster information to EMSet
 cell.info <- GetCellInfo(em.set)
-cell.info$cluster <- sample(1:6, ncol(em.set@ExpressionMatrix), replace = TRUE)
+cell.info$cluster <- sample(1:6, nrow(cell.info), replace = TRUE)
 em.set <- ReplaceCellInfo(em.set, cell.info)
 
 # Subset clusters 3 and 5 from the dataset

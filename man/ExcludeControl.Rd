@@ -12,6 +12,10 @@ you run this step after this object has undergone filtering.}
 
 \item{control.name}{Name of the control set you want to remove from the dataset.}
 }
+\value{
+\code{x} without the \code{control.name} set of controls in the 
+expression matrix.
+}
 \description{
 Generic method for \code{\link{ExcludeControl}}.
 }

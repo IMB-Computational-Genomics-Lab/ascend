@@ -4,7 +4,7 @@
 \alias{RegressConfoundingFactors}
 \title{RegressConfoundingFactors}
 \usage{
-RegressConfoundingFactors(object, candidate.genes = list())
+RegressConfoundingFactors(object, candidate.genes = c())
 }
 \arguments{
 \item{object}{Expression matrix in data frame format. You may load
@@ -23,7 +23,12 @@ supplied by the user. This function is best used after normalisation.
 }
 \examples{
 \dontrun{
-regressed_object <- RegressConfoundingFactors(em.set, 
-candidate.genes = c("Gene1", "Gene2", "Gene3"))
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Define genes to regress
+confoundingGenes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2")
+regressedSet <- RegressConfoundingFactors(EMSet, 
+candidate.genes = confoundingGenes)
 }
 }

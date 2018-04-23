@@ -11,6 +11,9 @@ scranCellCycle(object, training.set)
 
 \item{training.set}{A training dataset containing pairs of marker genes.}
 }
+\value{
+\code{object} with cell cycle information loaded into CellInformation
+}
 \description{
 Wrapper for \pkg{scran}'s cell cycle functions. Please ensure you are using
 *ensembl_id* as your rownames in this dataset. Also ensure you are using

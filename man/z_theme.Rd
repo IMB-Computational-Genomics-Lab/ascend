@@ -6,6 +6,9 @@
 \usage{
 z_theme()
 }
+\value{
+A ggplot2 theme to use with ggplots
+}
 \description{
 From perceptions - https://github.com/zonination/perceptions. This function 
 sets the colour themes for use with the \code{\link{PlotTopGeneExpression}} 

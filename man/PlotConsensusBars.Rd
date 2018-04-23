@@ -34,6 +34,9 @@ PlotConsensusBars(dendro, colors, rowLabels = NULL, rowWidths = NULL,
 
 \item{...}{Additional arguments to pass onto function.}
 }
+\value{
+Draws bars underneath dendrogram
+}
 \description{
 Adapted from plotColorUnderTree found in the \pkg{WGCNA} package. This is
 called by \code{\link{PlotStabilityDendro}} to generate the consensus bars

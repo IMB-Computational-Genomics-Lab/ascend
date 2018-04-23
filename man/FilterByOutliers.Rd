@@ -31,8 +31,11 @@ These values are then used to filter out cells based on the following criteria:
 This function then loads the filtered expression matrix into the EMSet object.
 }
 \examples{
-\dontrun{
-filtered_emset <- FilterByOutliers(em.set, cell.threshold = 3, 
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Filter outliers for cells and controls by 3 MAD
+filtered_EMSet <- FilterByOutliers(EMSet, cell.threshold = 3, 
 control.threshold = 3)
-}
+
 }

@@ -13,6 +13,11 @@ ConvertGeneAnnotation(x, old.annotation, new.annotation)
 
 \item{new.annotation}{Name of the column you would like to convert the gene}
 }
+\value{
+An EMSet with the row names in the expression matrix switched to the
+values in the new annotation column, and controls converted to their 
+corresponding identifier in the new annotation.
+}
 \description{
 Generic method for \code{\link{ConvertGeneAnnotation}}.
 }
