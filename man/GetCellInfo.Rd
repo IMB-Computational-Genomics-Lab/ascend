@@ -12,3 +12,12 @@ GetCellInfo(object)
 \description{
 Generic for \code{\link{GetCellInfo}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Retrieve data frame containing cell information from the object
+cell.info <- GetCellInfo(EMSet)
+
+}

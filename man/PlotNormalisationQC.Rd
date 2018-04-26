@@ -29,16 +29,16 @@ Generates a series of plots comparing an un-normalised and a normalised
 \code{\linkS4class{EMSet}}.
 }
 \examples{
-\dontrun{
-# Normalise dataset using relative log expression (RLE)
-norm_set <- NormaliseByRLE(em.set)
+# Load un-normalised EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Load normalised EMSet
+NormalisedEMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
 
 # Generate QC plots for normalisation
-norm_plots <- PlotNormalisationQC(original = em.set, normalised = norm_set,
-gene.list = c("MALAT1", "GAPDH")
-)
+norm_qc <- PlotNormalisationQC(original = EMSet, normalised = NormalisedEMSet, 
+gene.list = "MALAT1")
 
-# Output plots to PDF
-PlotPDF(norm_plots, "NormQC.pdf")
-}
 }

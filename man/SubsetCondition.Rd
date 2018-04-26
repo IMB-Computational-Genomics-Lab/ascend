@@ -24,16 +24,19 @@ Subset cells of a specific condition(s) from an \code{\linkS4class{EMSet}}.
 }
 \examples{
 # Load a pre-existing EMSet
-em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+em.set <- readRDS(system.file(package = "ascend", 
+"extdata", "ExampleEMSet.rds"))
 
 # Assign conditions to each cell
 cell.info <- GetCellInfo(em.set)
-cell.info$condition <- sample(c(1, 2, 3), ncol(em.set@ExpressionMatrix), replace = TRUE)
+cell.info$condition <- sample(c(1, 2, 3), 
+nrow(cell.info), replace = TRUE)
 
 # Replace cell information
 em.set <- ReplaceCellInfo(em.set, cell.info)
 
 # Subset cells where condition is 2 and 3
-subset.set <- SubsetCondition(em.set, condition = "condition", subconditions = c(2, 3))
+subset.set <- SubsetCondition(em.set, condition = "condition", 
+subconditions = c(2, 3))
 
 }

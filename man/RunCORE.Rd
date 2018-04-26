@@ -41,8 +41,11 @@ This will return an EMSet with the following objects:
 }
 }
 \examples{
-\dontrun{
-clustered_set <- RunCORE(em.set, conservative = TRUE, 
-windows = 40, remove_outlier = TRUE)
-}
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
+
+# Cluster with CORE
+clustered_set <- RunCORE(EMSet, conservative = TRUE, 
+nres = 40, remove_outlier = TRUE)
+
 }

@@ -17,3 +17,11 @@ the genes in \code{object}.
 \description{
 Retrieve gene information from an \code{\linkS4class{EMSet}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Retrieve data frame containing gene information from the object
+gene.info <- GetGeneInfo(EMSet)
+
+}

@@ -16,3 +16,12 @@ This function returns a list of controls defined by the user.
 \description{
 Retrieve list of controls from \code{\linkS4class{EMSet}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Retrieve controls from the object
+controls <- GetControls(EMSet)
+
+}

@@ -10,8 +10,17 @@ GetControls(object)
 \item{object}{An \code{\linkS4class{EMSet}} object}
 }
 \value{
-This function returns a list of controls defined by the user.s
+This function returns a list of controls defined by the user.
 }
 \description{
 Generic for \code{\link{GetControls}}.
+}
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Retrieve controls from the object
+controls <- GetControls(EMSet)
+
 }

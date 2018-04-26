@@ -9,16 +9,27 @@
   "matrix", "sparseMatrix"))
 }
 \arguments{
-\item{object}{A \code{\linkS4class{EMSet}} to retrieve the expression matrix 
-from.}
+\item{object}{An \linkS4class{EMSet}}
 
-\item{format}{Format of the returned matrix - 'data.frame' or 'matrix'}
+\item{format}{Format of the returned matrix ("data.frame", "matrix")}
 }
 \value{
 Returns the expression matrix in the chosen format (data.frame or 
-matrix).
+matrix)
 }
 \description{
 Returns a data frame containing the expression matrix from an 
-\code{\linkS4class{EMSet}} object.
+\linkS4class{EMSet} object.
+}
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", 
+"extdata", "ExampleEMSet.rds"))
+
+# Retrieve expression matrix as a data frame
+data_frame <- GetExpressionMatrix(EMSet, "data.frame")
+
+# Retrieve expression matrix as a matrix
+matrix <- GetExpressionMatrix(EMSet, "matrix")
+
 }

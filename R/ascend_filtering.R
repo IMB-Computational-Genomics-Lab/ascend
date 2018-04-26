@@ -10,6 +10,7 @@
 #' @param pct.value Percentage threshold as a whole number. Default: 1.
 #' @return An \code{\linkS4class{EMSet}} with low abundance genes removed from 
 #' the dataset.
+#' 
 #' @examples
 #' # Load EMSet
 #' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
@@ -75,6 +76,7 @@ FilterLowAbundanceGenes <- function(object, pct.value = 1){
 #' number. Default: 20.
 #' @param object An \code{\linkS4class{EMSet}}.
 #' @return An \code{\linkS4class{EMSet}} with filtered controls.
+#' 
 #' @examples
 #' # Load EMSet
 #' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
@@ -162,8 +164,6 @@ FilterByControl <- function(control.name = NULL, pct.threshold = 20, object){
 #' @param expression.matrix An expression matrix.
 #' @return Percentage expression of controls per cell.
 #' @importFrom Matrix colSums
-#' @export
-#'
 FilterControl <- function(control.group, total.counts, expression.matrix ){
   # Get transcript counts for the controls
   control.bool <- rownames(expression.matrix) %in% control.group
@@ -184,8 +184,6 @@ FilterControl <- function(control.group, total.counts, expression.matrix ){
 #' @return A boolean of values that fall between the ranges set by \code{nmads} 
 #' and \code{type}. 
 #' @importFrom stats median mad
-#' @export
-#'
 FindOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), na.rm = FALSE) {
   med.val <- median(values, na.rm = na.rm)
   mad.val <- mad(values, center = med.val, na.rm = na.rm)

@@ -119,11 +119,14 @@ PrepareCountData <- function(object, cells, ngenes) {
 #' Options: pooled, pooled-CR, per-condition (Default), blind.
 #' @return A dataframe containing \pkg{DESeq} results
 #' @examples
-#' \dontrun{
-#' de.result <- RunDiffExpression(em.set, conditions = "cluster", 
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
+#' 
+#' # Compare cluster 1 vs cluster 2
+#' de_result <- RunDiffExpression(EMSet, conditions = "cluster", 
 #' condition.a = "1", condition.b = "2", fitType = "local", 
-#' method = "per-condition", ngenes = 1500)
-#' }
+#' method = "per-condition", ngenes = 1000)
+#' 
 #' @importFrom BiocParallel bplapply
 #' @export
 #'

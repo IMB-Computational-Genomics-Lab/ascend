@@ -19,3 +19,12 @@ information.
 Retrieve the rand matrix used to determine clusters from an 
 \code{\linkS4class{EMSet}} object.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Retrieve rand matrix from the object
+randMatrix <- GetRandMatrix(EMSet)
+
+}

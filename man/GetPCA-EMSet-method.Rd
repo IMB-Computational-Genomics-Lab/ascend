@@ -17,3 +17,12 @@ PCA matrix stored in \code{object}
 Retrieve the PCA matrix from an \code{\linkS4class{EMSet}} object that has 
 undergone PCA reduction.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Retrieve PCA matrix from the object
+PCA <- GetPCA(EMSet)
+
+}

@@ -15,3 +15,12 @@ Distance matrix stored in \code{object}
 \description{
 Generic for \code{\link{GetDistanceMatrix}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Retrieve distance matrix from the object
+distanceMatrix <- GetDistanceMatrix(EMSet)
+
+}

@@ -15,3 +15,12 @@ PCA matrix stored in \code{object}
 \description{
 Generic for \code{\link{GetPCA}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Retrieve PCA matrix from the object
+PCA <- GetPCA(EMSet)
+
+}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ascend_dimreduction.R
 \name{ReduceDimensions}
 \alias{ReduceDimensions}
-\title{GetReducedDimensions}
+\title{ReduceDimensions}
 \usage{
 ReduceDimensions(object, n = 10)
 }
@@ -17,18 +17,12 @@ An \code{\linkS4class{EMSet}} with a PCA matrix of dimensions ncells by
 ndimensions.
 }
 \description{
-GetReducedDimensions
+ReduceDimensions
 }
 \examples{
-\dontrun{
-# Reduce a dataset with RunPCA
-pca_set <- RunPCA(em.set)
+# Load PCA-reduced EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
 
-# View scree plot
-print(PlotPCAVariance(pca_set))
-
-# Reduce number of Principle Components stored in EMSet
-reduced_pca <- ReduceDimensions(pca_set, n = 10)
-
-}
+# Reduce to 10 PCs
+ReducedEMSet <- ReduceDimensions(EMSet, n = 10)
 }

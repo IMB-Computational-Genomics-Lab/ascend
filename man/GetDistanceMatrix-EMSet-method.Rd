@@ -17,3 +17,12 @@ Distance matrix stored in \code{object}
 Retrieve the distance matrix from an \code{\linkS4class{EMSet}} object that 
 has undergone clustering.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Retrieve distance matrix from the object
+distanceMatrix <- GetDistanceMatrix(EMSet)
+
+}

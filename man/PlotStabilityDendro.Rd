@@ -20,7 +20,7 @@ in the \pkg{WGCNA} package.
 \examples{
 \dontrun{
 pdf("MyStabilityDendrogram.pdf")
-PlotStabilityDendro(em.set)
+PlotStabilityDendro(EMSet)
 dev.off()
 }
 }

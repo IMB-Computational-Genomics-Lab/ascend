@@ -17,3 +17,11 @@ Gene/transcript counts for cells in \code{batch.id}
 \description{
 Generic for \code{\link{GetBatchMatrix}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Retrieve data frame containing gene information from the object
+matrix1 <- GetBatchMatrix(EMSet, 1)
+
+}

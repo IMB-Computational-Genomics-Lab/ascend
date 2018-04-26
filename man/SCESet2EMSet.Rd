@@ -18,3 +18,10 @@ An \code{\linkS4class{EMSet}} with data retrieved from a SCESet.
 Loads data from a SCESet to a pre-existing 
 \linkS4class{EMSet} object.
 }
+\examples{
+\dontrun{
+# Update original EMSet with count data from SCESet
+UpdatedEMSet <- SCESet2EMSet(SCESet, OldEMSet)
+}
+
+}

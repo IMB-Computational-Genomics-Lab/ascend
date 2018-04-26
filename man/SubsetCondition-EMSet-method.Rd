@@ -30,7 +30,7 @@ em.set <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds")
 
 # Assign conditions to each cell
 cell.info <- GetCellInfo(em.set)
-cell.info$condition <- sample(c(1, 2, 3), ncol(em.set@ExpressionMatrix), replace = TRUE)
+cell.info$condition <- sample(c(1, 2, 3), nrow(cell.info), replace = TRUE)
 
 # Replace cell information
 em.set <- ReplaceCellInfo(em.set, cell.info)

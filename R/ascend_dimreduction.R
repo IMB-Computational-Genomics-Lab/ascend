@@ -18,11 +18,15 @@
 #' function.
 #' @return A dataframe containing expression data for each cell reduced to 
 #' selected number of dimensions.
+#' 
 #' @examples
-#' \dontrun{
-#' tsne_matrix <- RunTSNE(em.set, PCA = TRUE, dimensions = 2, seed = 1, 
+#' # Load PCA-reduced EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
+#' 
+#' # Generate TSNE matrix from PCA matrix
+#' tsne_matrix <- RunTSNE(EMSet, PCA = TRUE, dimensions = 2, seed = 1, 
 #' perplexity = 30, theta = 0.5)
-#' }
+#' 
 #' @importFrom methods is
 #' @importFrom Rtsne Rtsne
 #' @export
@@ -30,7 +34,7 @@
 RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5, ...) {
     if (class(object) == "EMSet") {
         if (PCA) {
-            if (is.null(object@PCA$PCA)) {
+            if (!is.null(object@PCA$PCA)) {
                 x <- object@PCA$PCA
                 PCA <- TRUE
             } else {
@@ -68,7 +72,7 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
     return(tsne.mtx)
 }
 
-#' GetReducedDimensions
+#' ReduceDimensions
 #'
 #' @param object An \code{\linkS4class{EMSet}} object that has undergone PCA reduction.
 #' @param n The number of PC dimensions you would like to select. Refer to
@@ -76,17 +80,11 @@ RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 
 #' @return An \code{\linkS4class{EMSet}} with a PCA matrix of dimensions ncells by 
 #' ndimensions.
 #' @examples
-#' \dontrun{
-#' # Reduce a dataset with RunPCA
-#' pca_set <- RunPCA(em.set)
+#' # Load PCA-reduced EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
 #' 
-#' # View scree plot
-#' print(PlotPCAVariance(pca_set))
-#' 
-#' # Reduce number of Principle Components stored in EMSet
-#' reduced_pca <- ReduceDimensions(pca_set, n = 10)
-#' 
-#' }
+#' # Reduce to 10 PCs
+#' ReducedEMSet <- ReduceDimensions(EMSet, n = 10)
 #' @export
 #'
 ReduceDimensions <- function(object, n = 10) {
@@ -139,9 +137,12 @@ CalcRowVariance <- function(x) {
 #' @return An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @examples
-#' \dontrun{
-#' pca_set <- RunPCA(em.set)
-#' }
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Run PCA
+#' pca_set <- RunPCA(EMSet)
+#' 
 #' @importFrom stats prcomp
 #' @export
 #'

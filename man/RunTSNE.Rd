@@ -37,8 +37,11 @@ directly or call it through the \code{\link{PlotTSNE}} function and also pass
 additional arguments related to the \code{\link[Rtsne]{Rtsne}} function.
 }
 \examples{
-\dontrun{
-tsne_matrix <- RunTSNE(em.set, PCA = TRUE, dimensions = 2, seed = 1, 
+# Load PCA-reduced EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
+
+# Generate TSNE matrix from PCA matrix
+tsne_matrix <- RunTSNE(EMSet, PCA = TRUE, dimensions = 2, seed = 1, 
 perplexity = 30, theta = 0.5)
-}
+
 }

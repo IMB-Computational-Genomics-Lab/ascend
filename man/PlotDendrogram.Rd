@@ -16,3 +16,16 @@ A dendrogram plotted by base R graphics
 Generates a colour-labelled dendrogram to the device, using a clustered
 \code{\linkS4class{EMSet}}.
 }
+\examples{
+\dontrun{
+# Open PDF file to output dendrogram to
+pdf("Dendrogram.pdf", width= 4, height = 4)
+
+# Plot dendrogram
+PlotDendrogram(EMSet)
+
+# Close PDF file
+dev.off()
+}
+
+}

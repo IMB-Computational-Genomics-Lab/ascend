@@ -37,9 +37,12 @@ A dataframe containing \pkg{DESeq} results
 Compare the differential expression of genes between cells of different conditions.
 }
 \examples{
-\dontrun{
-de.result <- RunDiffExpression(em.set, conditions = "cluster", 
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
+
+# Compare cluster 1 vs cluster 2
+de_result <- RunDiffExpression(EMSet, conditions = "cluster", 
 condition.a = "1", condition.b = "2", fitType = "local", 
-method = "per-condition", ngenes = 1500)
-}
+method = "per-condition", ngenes = 1000)
+
 }

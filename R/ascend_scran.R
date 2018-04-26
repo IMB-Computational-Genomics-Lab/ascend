@@ -179,6 +179,26 @@ SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5)
 #' @param object An \code{\linkS4class{EMSet}} object.
 #' @param training.set A training dataset containing pairs of marker genes.
 #' @return \code{object} with cell cycle information loaded into CellInformation
+#' 
+#' @examples
+#' \dontrun{
+#' # Load EMSet that hasn't been filtered or normalised
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Convert annotation to ENSEMBL
+#' EMSet <- ConvertGeneAnnotation(EMSet, "gene_id", "ensembl_id")
+#' 
+#' # Load scran's human training dataset
+#' training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", 
+#' package = "scran"))
+#' 
+#' # Run scran's cyclone function using scranCellCycle wrapper
+#' cycledEMSet <- scranCellCycle(EMSet, training.data)
+#' 
+#' # Convert annotation back to gene ids
+#' cycledEMSet <- ConvertGeneAnnotation(EMSet, "ensembl_id", "gene_id")
+#' }
 #' @importFrom scran cyclone
 #' @importFrom BiocParallel bpparam
 #' @export
@@ -267,6 +287,7 @@ ConvertToSCESet <- function(object, control.list = list()) {
 #' ))}
 #' @export
 #' @importFrom scater calculateQCMetrics
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #'
 ConvertToSCE <- function(object, control.list = list()) {
     # Prepare control list
@@ -316,6 +337,14 @@ ConvertToSCE <- function(object, control.list = list()) {
 #' @param SCESet A SCESet from \pkg{scater}.
 #' @param EMSet An \code{\linkS4class{EMSet}} to load data from.
 #' @return An \code{\linkS4class{EMSet}} with data retrieved from a SCESet.
+#' 
+#' @examples
+#' \dontrun{
+#' # Update original EMSet with count data from SCESet
+#' UpdatedEMSet <- SCESet2EMSet(SCESet, OldEMSet)
+#' }
+#' 
+#' @importFrom BiocGenerics counts
 #' @export
 #'
 SCESet2EMSet <- function(SCESet, EMSet) {

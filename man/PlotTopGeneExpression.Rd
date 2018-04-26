@@ -22,7 +22,9 @@ Generates a boxplot using \link[ggplot2]{geom_boxplot} of the most expressed
 genes in the dataset, in a range defined by the user.
 }
 \examples{
-\dontrun{
-top_gene_expression <- PlotTopGeneExpression(em.set, n = 20, controls = FALSE)
-}
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Plot top 5 genes
+top_gene_expression <- PlotTopGeneExpression(EMSet, n = 5, controls = FALSE)
 }

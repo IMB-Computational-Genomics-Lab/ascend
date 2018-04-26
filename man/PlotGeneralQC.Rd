@@ -45,13 +45,11 @@ expression.}
 }
 \examples{
 \dontrun{
-# Create a new EMSet
-em.set <- NewEMSet(ExpressionMatrix = my_matrix)
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
 
 # Assess quality of data by generating plots with PlotGeneralQC
-raw.qc.plots <- PlotGeneralQC(em.set)
-
-# Print QC plots out to a PDF file
-PlotPDF(raw.qc.plots, "GeneralQCPlots.pdf")
+qc_plots <- PlotGeneralQC(EMSet)
+ 
 }
 }

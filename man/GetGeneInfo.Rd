@@ -16,3 +16,11 @@ the genes in \code{object}.
 \description{
 Generic for \code{\link{GetGeneInfo}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Retrieve data frame containing gene information from the object
+gene.info <- GetGeneInfo(EMSet)
+
+}

@@ -25,7 +25,10 @@ Reduce the dimensions of an expression matrix stored in an
 \code{\linkS4class{EMSet}}. This should be used prior to clustering.
 }
 \examples{
-\dontrun{
-pca_set <- RunPCA(em.set)
-}
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Run PCA
+pca_set <- RunPCA(EMSet)
+
 }

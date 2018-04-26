@@ -17,3 +17,12 @@ information.
 \description{
 Generic for \code{\link{GetRandMatrix}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Retrieve controls from the object
+randMatrix <- GetRandMatrix(EMSet)
+
+}

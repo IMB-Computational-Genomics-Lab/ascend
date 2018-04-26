@@ -1,13 +1,25 @@
-# Functions for retrieving functions from EMSets
-
 #' GetExpressionMatrix
 #' 
-#' Generic for \code{\link{GetExpressionMatrix}}.
-#' @param object A \code{\linkS4class{EMSet}} to retrieve the expression matrix 
-#' from.
-#' @param format Format of the returned matrix - 'data.frame' or 'matrix'
+#' Returns a data frame containing the expression matrix from an 
+#' \linkS4class{EMSet}.
+#'
+#' @param object An \linkS4class{EMSet}
+#' @param format Format of the returned matrix ("data.frame", "matrix")
 #' @return Returns the expression matrix in the chosen format (data.frame or 
-#' matrix).
+#' matrix)
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", 
+#' "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve expression matrix as a data frame
+#' data_frame <- GetExpressionMatrix(EMSet, "data.frame")
+#' 
+#' # Retrieve expression matrix as a matrix
+#' matrix <- GetExpressionMatrix(EMSet, "matrix")
+#' 
+#' @include ascend_objects.R
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
@@ -17,18 +29,29 @@ setGeneric(name = "GetExpressionMatrix", def = function(object, format) {
 #' GetExpressionMatrix
 #'
 #' Returns a data frame containing the expression matrix from an 
-#' \code{\linkS4class{EMSet}} object.
+#' \linkS4class{EMSet} object.
 #'
-#' @param object A \code{\linkS4class{EMSet}} to retrieve the expression matrix 
-#' from.
-#' @param format Format of the returned matrix - 'data.frame' or 'matrix'
+#' @param object An \linkS4class{EMSet}
+#' @param format Format of the returned matrix ("data.frame", "matrix")
 #' @return Returns the expression matrix in the chosen format (data.frame or 
-#' matrix).
+#' matrix)
+#'
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", 
+#' "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve expression matrix as a data frame
+#' data_frame <- GetExpressionMatrix(EMSet, "data.frame")
+#' 
+#' # Retrieve expression matrix as a matrix
+#' matrix <- GetExpressionMatrix(EMSet, "matrix")
 #' 
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
-setMethod("GetExpressionMatrix", signature("EMSet"), function(object, format = c("data.frame", "matrix", "sparseMatrix")) {
+setMethod("GetExpressionMatrix", signature("EMSet"), 
+          function(object, format = c("data.frame", "matrix", "sparseMatrix")) {
     if (missing(format)) {
         format <- "data.frame"
     }
@@ -41,7 +64,16 @@ setMethod("GetExpressionMatrix", signature("EMSet"), function(object, format = c
 #' 
 #' Generic for \code{\link{GetControls}}.
 #' @param object An \code{\linkS4class{EMSet}} object
-#' @return This function returns a list of controls defined by the user.s
+#' @return This function returns a list of controls defined by the user.
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Retrieve controls from the object
+#' controls <- GetControls(EMSet)
+#'
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetControls", def = function(object) {
@@ -54,6 +86,15 @@ setGeneric(name = "GetControls", def = function(object) {
 #'
 #' @param object An \code{\linkS4class{EMSet}} object.
 #' @return This function returns a list of controls defined by the user.
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Retrieve controls from the object
+#' controls <- GetControls(EMSet)
+#'
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -67,6 +108,15 @@ setMethod("GetControls", signature("EMSet"), function(object) {
 #' Generic for \code{\link{GetCellInfo}}.
 #' @importFrom methods setGeneric
 #' @param object An \code{\linkS4class{EMSet}} object
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Retrieve data frame containing cell information from the object
+#' cell.info <- GetCellInfo(EMSet)
+#'
 #' @export
 setGeneric(name = "GetCellInfo", def = function(object) {
     standardGeneric("GetCellInfo")
@@ -77,6 +127,14 @@ setGeneric(name = "GetCellInfo", def = function(object) {
 #' Retrieve cell information from an \code{\linkS4class{EMSet}}.
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @return A data frame with cell identifiers and associated information.
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve data frame containing cell information from the object
+#' cell.info <- GetCellInfo(EMSet)
+#'
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -90,6 +148,14 @@ setMethod("GetCellInfo", signature("EMSet"), function(object) {
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @return This function returns a data frame containing information about 
 #' the genes in \code{object}.
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve data frame containing gene information from the object
+#' gene.info <- GetGeneInfo(EMSet)
+#'
 #' @importFrom methods setGeneric
 setGeneric(name = "GetGeneInfo", def = function(object) {
     standardGeneric("GetGeneInfo")
@@ -102,6 +168,13 @@ setGeneric(name = "GetGeneInfo", def = function(object) {
 #' @return This function returns a data frame containing information about 
 #' the genes in \code{object}.
 #' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve data frame containing gene information from the object
+#' gene.info <- GetGeneInfo(EMSet)
+#'
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -117,6 +190,13 @@ setMethod("GetGeneInfo", signature("EMSet"), function(object) {
 #' @param batch.id Batch identifier that you would like to retrieve
 #' @return Gene/transcript counts for cells in \code{batch.id}
 #' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve data frame containing gene information from the object
+#' matrix1 <- GetBatchMatrix(EMSet, 1)
+#'
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetBatchMatrix", def = function(object, batch.id) {
@@ -130,13 +210,20 @@ setGeneric(name = "GetBatchMatrix", def = function(object, batch.id) {
 #' @param batch.id Batch identifier that you would like to retrieve
 #' @return Gene/transcript counts for cells in \code{batch.id}
 #' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' 
+#' # Retrieve data frame containing gene information from the object
+#' matrix1 <- GetBatchMatrix(EMSet, 1)
+#'
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("GetBatchMatrix", signature("EMSet"), function(object, batch.id) {
     expression.matrix <- GetExpressionMatrix(object, "matrix")
     cell.info <- GetCellInfo(object)
     batch.list <- cell.info[, 2]
-    barcodes <- names(batch.list[batch.list == batch.id])
+    barcodes <- cell.info[,1][which(batch.list == batch.id)]
     batch.matrix <- expression.matrix[, barcodes]
     return(batch.matrix)
 })
@@ -150,6 +237,14 @@ setMethod("GetBatchMatrix", signature("EMSet"), function(object, batch.id) {
 #' @return This function returns a data frame containing cluster stability 
 #' information.
 #' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve controls from the object
+#' randMatrix <- GetRandMatrix(EMSet)
+#'
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetRandMatrix", def = function(object) {
@@ -166,6 +261,14 @@ setGeneric(name = "GetRandMatrix", def = function(object) {
 #' @return This function returns a data frame containing cluster stability 
 #' information.
 #' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve rand matrix from the object
+#' randMatrix <- GetRandMatrix(EMSet)
+#'
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -179,6 +282,15 @@ setMethod("GetRandMatrix", signature("EMSet"), function(object) {
 #' Generic for \code{\link{GetPCA}}.
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @return PCA matrix stored in \code{object}
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve PCA matrix from the object
+#' PCA <- GetPCA(EMSet)
+#'
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetPCA", def = function(object) {
@@ -191,6 +303,15 @@ setGeneric(name = "GetPCA", def = function(object) {
 #' undergone PCA reduction.
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @return PCA matrix stored in \code{object}
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve PCA matrix from the object
+#' PCA <- GetPCA(EMSet)
+#'
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -209,6 +330,15 @@ setMethod("GetPCA", signature = "EMSet", function(object) {
 #' @importFrom methods setGeneric
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @return Distance matrix stored in \code{object}
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve distance matrix from the object
+#' distanceMatrix <- GetDistanceMatrix(EMSet)
+#'
 #' @export
 setGeneric(name = "GetDistanceMatrix", def = function(object) {
     standardGeneric("GetDistanceMatrix")
@@ -221,6 +351,15 @@ setGeneric(name = "GetDistanceMatrix", def = function(object) {
 #' 
 #' @param object An \code{\linkS4class{EMSet}} object
 #' @return Distance matrix stored in \code{object}
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve distance matrix from the object
+#' distanceMatrix <- GetDistanceMatrix(EMSet)
+#'
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export
@@ -237,7 +376,16 @@ setMethod("GetDistanceMatrix", signature = "EMSet", function(object) {
 #' 
 #' Generic for \code{\link{GetHclust}}.
 #' @param object An \code{\linkS4class{EMSet}} object
-#' @return This function returns the hclust object stored in \code{object}.
+#' @return This function returns the hclust object stored in \code{object}
+#' 
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve hclust from the object
+#' hClust <- GetHclust(EMSet)
+#'
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "GetHclust", def = function(object) {
@@ -249,7 +397,16 @@ setGeneric(name = "GetHclust", def = function(object) {
 #' Retrieve the Hclust object from an \code{\linkS4class{EMSet}} object that has 
 #' undergone clustering.
 #' @param object An \code{\linkS4class{EMSet}} object
-#' @return This function returns the hclust object stored in \code{object}.
+#' @return This function returns the hclust object stored in \code{object}
+#'
+#' @examples
+#' # Load EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Retrieve hclust from the object
+#' hClust <- GetHclust(EMSet)
+#'
 #' @include ascend_objects.R
 #' @importFrom methods setGeneric setMethod
 #' @export

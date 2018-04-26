@@ -22,3 +22,12 @@ CellInformation, to ensure everything is up to date.
 This is important as the object will undergo a series of changes during the 
 filtering and normalisation process.
 }
+\examples{
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Sync slots in EMSet
+SyncedEMSet <- SyncSlots(EMSet)
+
+}

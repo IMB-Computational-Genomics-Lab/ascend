@@ -25,9 +25,15 @@ more closely to the distance between points and therefore is good to use
 to review the effectiveness of clustering by the CORE algorithm.
 }
 \examples{
-\dontrun{
+# Load clustered EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Load ggplot2 to add elements to PCA plot
 library(ggplot2)
-my_pca_plot <- PlotPCA(em.set, dim1 = 1, dim2 = 2,  condition = "cluster")  
+
+# Plot PCA and add title to it
+my_pca_plot <- PlotPCA(EMSet, dim1 = 1, dim2 = 2,  condition = "cluster")  
 my_pca_plot <- my_pca_plot + ggtitle("My PCA Plot")
-}
+
 }

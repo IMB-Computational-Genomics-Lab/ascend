@@ -16,3 +16,11 @@ A data frame with cell identifiers and associated information.
 \description{
 Retrieve cell information from an \code{\linkS4class{EMSet}}.
 }
+\examples{
+# Load EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+
+# Retrieve data frame containing cell information from the object
+cell.info <- GetCellInfo(EMSet)
+
+}

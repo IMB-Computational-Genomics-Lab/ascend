@@ -8,7 +8,6 @@
 #' with values - the object will be declared invalid
 #' @return Collected error messages stored in the \code{errors} list
 #' 
-#' @export 
 CheckExpressionMatrix <- function(object, errors) {
   # Check expression matrix using plyr's empty function.
   if (any(nrow(object@ExpressionMatrix) == 0, ncol(object@ExpressionMatrix) == 0)) {
@@ -44,7 +43,7 @@ CheckExpressionMatrix <- function(object, errors) {
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid
 #' @return Collected error messages stored in the \code{errors} list
-#' @export
+#' 
 CheckControls <- function(object, errors) {
   # Control checks - verify presence of controls in the matrix.
   if (length(object@Controls) > 0) {
@@ -69,7 +68,6 @@ CheckControls <- function(object, errors) {
 #' with values - the object will be declared invalid
 #' @return Collected error messages stored in the \code{errors} list
 #' 
-#' @export
 CheckCellInformation <- function(object, errors) {
   ## Check if number of batch identifiers match the number of columns in the expression matrix
   if (nrow(object@CellInformation) != ncol(object@ExpressionMatrix)) {
@@ -96,7 +94,7 @@ CheckCellInformation <- function(object, errors) {
 #' @param errors Vector to store error messages in. If the object is returned
 #' with values - the object will be declared invalid.
 #' @return Collected error messages stored in the \code{errors} list
-#' @export
+#' 
 CheckGeneInformation <- function(object, errors) {
   if (!all(rownames(object@ExpressionMatrix) %in% object@GeneInformation[, 1])) {
     msg <- "Please make sure gene identifiers in column 1 of the Gene Information
@@ -120,9 +118,8 @@ CheckGeneInformation <- function(object, errors) {
 #'     \item{If supplied, verify gene identifiers match rownames in the expression matrix.}
 #' }
 #' @param object \linkS4class{EMSet} this function is checking.
-#' @return Does the object have any errors? \code{TRUE} or \code{FALSE} 
-#' @export
-#'
+#' @return Does the object have any errors? \code{TRUE} or \code{FALSE}
+#' 
 CheckEMSet <- function(object) {
   # Error message container This variable is only populated if an error is encountered.
   errors <- character()
@@ -179,7 +176,9 @@ CheckEMSet <- function(object) {
 #' @rdname EMSet-class
 #' @importFrom methods setClass setMethod
 #' @importFrom Matrix Matrix
+#' @export
 #' @exportClass EMSet
+#' 
 setClass("EMSet", representation(ExpressionMatrix = "Matrix", GeneInformation = "data.frame", CellInformation = "data.frame", Controls = "list", PCA = "list",
                                  Clusters = "list", Metrics = "list", Log = "list"), prototype(ExpressionMatrix = Matrix::Matrix(0, nrow = 0, ncol = 0, sparse = TRUE), GeneInformation = data.frame(matrix(nr = 0,
                                                                                                                                                                                                             nc = 0)), CellInformation = data.frame(matrix(nr = 0, nc = 0)), Controls = list(), PCA = list(), Clusters = list(), Metrics = list(), Log = list()), validity = CheckEMSet)
@@ -191,6 +190,7 @@ setClass("EMSet", representation(ExpressionMatrix = "Matrix", GeneInformation = 
 #' @param object An \linkS4class{EMSet}
 #' @return A summary of the \linkS4class{EMSet}
 #' @importFrom methods setMethod
+#' 
 setMethod("show", signature("EMSet"), function(object){
   # Rethink this slot Get number of genes and cells from the expression matrix dimensions
   print("ascend Object - EMSet")
@@ -284,6 +284,7 @@ setMethod("show", signature("EMSet"), function(object){
 #' @importFrom methods is new setGeneric setMethod
 #' @seealso \linkS4class{EMSet}
 #' @export
+#' 
 NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInformation = NULL, Controls = list()) {
   # Check that we have the essential arguments - an expression matrix
   arg.check <- list(ExpressionMatrix = missing(ExpressionMatrix))
@@ -349,8 +350,18 @@ NewEMSet <- function(ExpressionMatrix = NULL, GeneInformation = NULL, CellInform
 #' 
 #' @return Original \linkS4class{EMSet} with CellInformation, GeneInformation 
 #' and ExpressionMatrix slots syncronised together.
+#' 
+#' @examples
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Sync slots in EMSet
+#' SyncedEMSet <- SyncSlots(EMSet)
+#' 
 #' @importFrom methods setGeneric
 #' @export
+#' 
 setGeneric(name = "SyncSlots", def = function(object) {
   standardGeneric("SyncSlots")
 })
@@ -367,6 +378,14 @@ setGeneric(name = "SyncSlots", def = function(object) {
 #' 
 #' @return Original \linkS4class{EMSet} with CellInformation, GeneInformation 
 #' and ExpressionMatrix slots syncronised together.
+#' 
+#' @examples
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Sync slots in EMSet
+#' SyncedEMSet <- SyncSlots(EMSet)
 #' 
 #' @importFrom methods setMethod
 #' @export

@@ -136,31 +136,6 @@ NormaliseBatches <- function(object) {
   return(updated.object)
 }
 
-#' NormaliseLibSize
-#'
-#' Normalise library sizes by scaling.
-#' @param object An \code{\linkS4class{EMSet}} object. Please remove spike-ins 
-#' from the expression matrix before normalising.
-#' @return An \code{\linkS4class{EMSet}} normalised by library size.
-#' @importFrom Matrix colSums t
-#' @importFrom stats median
-#' @export
-#'
-NormaliseLibSize <- function(object) {
-  expression.matrix <- as.matrix(object@ExpressionMatrix)
-  norm.factor <- colSums(expression.matrix)
-  median.size <- median(norm.factor)
-  
-  unscaled.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
-  normalised.exprs.mtx <- unscaled.matrix * median.size
-  object@Log <- c(object@Log, list(NormaliseLibSize = TRUE))
-  object@ExpressionMatrix <- ConvertMatrix(normalised.exprs.mtx, format = "sparseMatrix")
-  new.object <- GenerateMetrics(object)
-  new.object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseLibSize"))
-  return(new.object)
-}
-
-
 ## SUBFUNCTIONS FOR NormaliseByRLE
 #' CalculateNormFactor
 #'

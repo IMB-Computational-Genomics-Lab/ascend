@@ -28,13 +28,13 @@ Imports: methods,
     scater,
     scran,
     locfit,
-    DESeq
+    DESeq,
+    BiocGenerics,
+    SummarizedExperiment,
+    SingleCellExperiment
 Suggests: knitr,
     rmarkdown,
     testthat
-Enhances: BiocGenerics,
-    SummarizedExperiment,
-    SingleCellExperiment
 VignetteBuilder: knitr
 Depends:
     dplyr,
