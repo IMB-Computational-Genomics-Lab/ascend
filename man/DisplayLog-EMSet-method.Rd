@@ -11,8 +11,16 @@
 \item{x}{An \linkS4class{EMSet}}
 }
 \value{
-A print-out of the log attached to an \code{x}.
+A print-out of the log attached to an \code{x}
 }
 \description{
 Print out the log of an \code{\linkS4class{EMSet}}.
+}
+\examples{
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+DisplayLog(EMSet)
+
 }

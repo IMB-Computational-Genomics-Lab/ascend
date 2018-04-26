@@ -17,15 +17,11 @@ Generates a colour-labelled dendrogram to the device, using a clustered
 \code{\linkS4class{EMSet}}.
 }
 \examples{
-\dontrun{
-# Open PDF file to output dendrogram to
-pdf("Dendrogram.pdf", width= 4, height = 4)
+# Load clustered EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
 
 # Plot dendrogram
 PlotDendrogram(EMSet)
-
-# Close PDF file
-dev.off()
-}
 
 }

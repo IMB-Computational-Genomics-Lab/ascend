@@ -9,7 +9,6 @@
 #' RemoveConfoundingFactors.
 #' @return List of values generated from regression
 #' @importFrom stats as.formula formula lm
-#' @export
 RegressGene <- function(x, covariate.matrix = NULL, expression.matrix = NULL) {
   regress.mtx <- cbind(covariate.matrix, expression.matrix[, x])
   

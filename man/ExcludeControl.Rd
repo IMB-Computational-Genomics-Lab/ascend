@@ -19,3 +19,12 @@ expression matrix.
 \description{
 Generic method for \code{\link{ExcludeControl}}.
 }
+\examples{
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Exclude "Mt" group of controls
+EMSet <- ExcludeControl(EMSet, "Mt")
+
+}

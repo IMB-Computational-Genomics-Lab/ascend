@@ -25,3 +25,12 @@ Convert gene identifiers used in this \code{\linkS4class{EMSet}} to
 identifiers used in another column of a dataframe stored in the 
 GeneAnnotation slot.
 }
+\examples{
+# Load EMSet that hasn't been filtered or normalised
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Convert annotation to ENSEMBL
+EMSet <- ConvertGeneAnnotation(EMSet, "gene_id", "ensembl_id")
+
+}

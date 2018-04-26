@@ -157,6 +157,14 @@ AddControlInfo <- function(gene.information, controls) {
 #' @return An EMSet with the row names in the expression matrix switched to the
 #' values in the new annotation column, and controls converted to their 
 #' corresponding identifier in the new annotation.
+#'
+#' @examples
+#' # Load EMSet that hasn't been filtered or normalised
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Convert annotation to ENSEMBL
+#' EMSet <- ConvertGeneAnnotation(EMSet, "gene_id", "ensembl_id")
 #' 
 #' @importFrom methods setGeneric
 #' @export
@@ -179,6 +187,14 @@ setGeneric(name = "ConvertGeneAnnotation", def = function(x, old.annotation, new
 #' @return An EMSet with the row names in the expression matrix switched to the
 #' values in the new annotation column, and controls converted to their 
 #' corresponding identifier in the new annotation.
+#' 
+#' @examples
+#' # Load EMSet that hasn't been filtered or normalised
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Convert annotation to ENSEMBL
+#' EMSet <- ConvertGeneAnnotation(EMSet, "gene_id", "ensembl_id")
 #' 
 #' @importFrom dplyr select everything
 #' @importFrom methods setGeneric setMethod
@@ -228,6 +244,15 @@ setMethod("ConvertGeneAnnotation", signature("EMSet"), function(x, old.annotatio
 #' @param control.name Name of the control set you want to remove from the dataset.
 #' @return \code{x} without the \code{control.name} set of controls in the 
 #' expression matrix.
+#' 
+#' @examples
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Exclude "Mt" group of controls
+#' EMSet <- ExcludeControl(EMSet, "Mt")
+#' 
 #' @importFrom methods setGeneric
 #' @export
 #' 
@@ -247,6 +272,15 @@ setGeneric(name = "ExcludeControl", def = function(x, control.name) {
 #' dataset.
 #' @return \code{x} without the \code{control.name} set of controls in the 
 #' expression matrix.
+#' 
+#' @examples
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleEMSet.rds"))
+#' 
+#' # Exclude "Mt" group of controls
+#' EMSet <- ExcludeControl(EMSet, "Mt")
+#' 
 #' @importFrom methods setGeneric setMethod
 #' @export
 #'
@@ -302,8 +336,18 @@ setMethod("ExcludeControl", signature("EMSet"), function(x, control.name) {
 
 #' DisplayLog
 #' 
-#' Generic for \code{\link{DisplayLog}} function.
+#' Print out the log of an \code{\linkS4class{EMSet}}.
 #' @param x An \linkS4class{EMSet}
+#' @include ascend_objects.R
+#' @return A print-out of the log attached to an \code{x}
+#' 
+#' @examples
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' DisplayLog(EMSet)
+#' 
 #' @importFrom methods setGeneric
 #' @export
 setGeneric(name = "DisplayLog", def = function(x) {
@@ -315,7 +359,15 @@ setGeneric(name = "DisplayLog", def = function(x) {
 #' Print out the log of an \code{\linkS4class{EMSet}}.
 #' @param x An \linkS4class{EMSet}
 #' @include ascend_objects.R
-#' @return A print-out of the log attached to an \code{x}.
+#' @return A print-out of the log attached to an \code{x}
+#' 
+#' @examples
+#' # Load example EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' DisplayLog(EMSet)
+#' 
 #' @importFrom methods setGeneric setMethod
 #' @export
 setMethod("DisplayLog", signature("EMSet"), function(x) {

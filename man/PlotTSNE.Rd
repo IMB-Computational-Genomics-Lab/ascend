@@ -35,9 +35,15 @@ If you just require a TSNE matrix, you can generate this with the
 \code{\link{RunTSNE}} function.
 }
 \examples{
-\dontrun{
+# Load clustered EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Load ggplot to add title to MDS plot
 library(ggplot2)
-my_tsne_plot <- PlotTSNE(em.set, PCA = TRUE, condition = "cluster", seed = 1)  
-my_tsne_plot <- my_tsne_plot + ggtitle("My TSNE Plot")
-}
+
+# Plot TSNE
+my_tsne_plot <- PlotTSNE(EMSet, PCA = TRUE, condition = "cluster", seed = 1,
+perplexity = 30, theta = 0.5) + ggtitle("My TSNE Plot")
+
 }

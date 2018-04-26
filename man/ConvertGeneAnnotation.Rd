@@ -21,3 +21,12 @@ corresponding identifier in the new annotation.
 \description{
 Generic method for \code{\link{ConvertGeneAnnotation}}.
 }
+\examples{
+# Load EMSet that hasn't been filtered or normalised
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Convert annotation to ENSEMBL
+EMSet <- ConvertGeneAnnotation(EMSet, "gene_id", "ensembl_id")
+
+}

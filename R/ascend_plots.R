@@ -87,16 +87,12 @@ PlotDEVolcano <- function(de.results, threshold = 5e-3, l2fc = 2, labels = FALSE
 #' @return A dendrogram plotted by base R graphics
 #' 
 #' @examples
-#' \dontrun{
-#' # Open PDF file to output dendrogram to
-#' pdf("Dendrogram.pdf", width= 4, height = 4)
+#' # Load clustered EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
 #' 
 #' # Plot dendrogram
 #' PlotDendrogram(EMSet)
-#' 
-#' # Close PDF file
-#' dev.off()
-#' }
 #' 
 #' @importFrom stats as.dendrogram order.dendrogram
 #' @importFrom dendextend branches_attr_by_clusters set get_leaves_branches_col sort_levels_values colored_bars get_leaves_branches_attr
@@ -528,12 +524,19 @@ PlotStabilityDendro <- function(object){
 #' @param condition (Optional) Name of the condition in Cell Identifiers that 
 #' describe a set of conditions you would like to colour cells by.
 #' @return A ggplot glob that contains a scatter plot.
+#' 
 #' @examples
-#'  \dontrun{
-#'  library(ggplot2)
-#'  my_mds_plot <- PlotMDS(em.set, PCA = TRUE, dim1 = 3, dim2 = 4, 
-#'  condition = "cluster") + ggtitle("My MDS Plot")
-#'  }
+#' # Load clustered EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Load ggplot to add title to MDS plot
+#' library(ggplot2)
+#' 
+#' # Plot MDS
+#' my_mds_plot <- PlotMDS(EMSet, PCA = TRUE, dim1 = 3, dim2 = 4, 
+#' condition = "cluster") + ggtitle("My MDS Plot")
+#'
 #' @importFrom stats dist cmdscale
 #' @importFrom ggplot2 ggplot aes geom_point labs
 #' @export
@@ -632,11 +635,17 @@ PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
 #' accuracy).
 #' @return A ggplot glob that contains a scatter plot.
 #' @examples
-#' \dontrun{
+#' # Load clustered EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Load ggplot to add title to MDS plot
 #' library(ggplot2)
-#' my_tsne_plot <- PlotTSNE(em.set, PCA = TRUE, condition = "cluster", seed = 1)  
-#' my_tsne_plot <- my_tsne_plot + ggtitle("My TSNE Plot")
-#' }
+#' 
+#' # Plot TSNE
+#' my_tsne_plot <- PlotTSNE(EMSet, PCA = TRUE, condition = "cluster", seed = 1,
+#' perplexity = 30, theta = 0.5) + ggtitle("My TSNE Plot")
+#'
 #' @importFrom ggplot2 ggplot aes geom_point labs
 #' @export
 #'

@@ -23,3 +23,12 @@ Removes the specified control from the expression matrix. This should be used
 after normalisation, and prior to PCA reduction, clustering and differential
 expression analysis.
 }
+\examples{
+# Load example EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleEMSet.rds"))
+
+# Exclude "Mt" group of controls
+EMSet <- ExcludeControl(EMSet, "Mt")
+
+}

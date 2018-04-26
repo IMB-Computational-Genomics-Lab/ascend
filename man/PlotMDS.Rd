@@ -26,9 +26,15 @@ A ggplot glob that contains a scatter plot.
 Generates a Multi-Dimensional Scaling (MDS) plot.
 }
 \examples{
- \dontrun{
- library(ggplot2)
- my_mds_plot <- PlotMDS(em.set, PCA = TRUE, dim1 = 3, dim2 = 4, 
- condition = "cluster") + ggtitle("My MDS Plot")
- }
+# Load clustered EMSet
+EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+"ExampleClusteredEMSet.rds"))
+
+# Load ggplot to add title to MDS plot
+library(ggplot2)
+
+# Plot MDS
+my_mds_plot <- PlotMDS(EMSet, PCA = TRUE, dim1 = 3, dim2 = 4, 
+condition = "cluster") + ggtitle("My MDS Plot")
+
 }
