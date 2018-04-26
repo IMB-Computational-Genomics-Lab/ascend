@@ -492,7 +492,14 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
 #' @examples
 #' \dontrun{
 #' pdf("MyStabilityDendrogram.pdf")
+#' }
+#' #' # Load clustered EMSet
+#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
+#' "ExampleClusteredEMSet.rds"))
+#' 
+#' # Plot stability dendrogram
 #' PlotStabilityDendro(EMSet)
+#' \dontrun{
 #' dev.off()
 #' }
 #' @export
