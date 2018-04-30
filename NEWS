@@ -1,3 +1,7 @@
+version 0.5 (2018-04-30)
+- Upgraded for compatibility with Bioconductor 3.7
+- Removed functions related to the use of SCESets
+
 version 0.3.5 (2018-04-05)
 - Resolved R CMD check documentation warnings
 - Changed Rmarkdown engine to multiformat
@@ -46,4 +50,3 @@ version 0.2.0 (2017-12-18)
 version 0.1.2 (2017-11-15)
 - Added DESeq's estimateDispersions arguments to RunDiffExpression function
 - Updated RGC_Tutorial.Rmd vignette to reflect updated functions.
-
