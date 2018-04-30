@@ -1,3 +1,7 @@
+version 0.5 (2018-04-30)
+- Upgraded for compatibility with Bioconductor 3.7
+- Removed functions related to the use of SCESets
+
 version 0.3.5 (2018-04-05)
 - Resolved R CMD check documentation warnings
 - Changed Rmarkdown engine to multiformat
