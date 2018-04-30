@@ -43,16 +43,10 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
   }
   
   # Check version of scran - this is to ensure we are using the right object
-  if (packageVersion("scater") < "1.6.1"){
-    print("Converting EMSet to SCESet...")
-    sce.obj <- ConvertToSCESet(object, control.list = object@Controls)
-    normalised.obj <- SCESetnormalise(sce.obj, object, quickCluster = quickCluster)
-  } else{
-    print("Converting EMSet to SingleCellExperiment...")
-    sce.obj <- ConvertToSCE(object, control.list = object@Controls)
-    normalised.obj <- SCEnormalise(sce.obj, object, quickCluster = quickCluster, min.mean = min.mean)
-  }
-  
+  # scater 1.6.1 is depreciated, so removed SCESet
+  print("Converting EMSet to SingleCellExperiment...")
+  sce.obj <- ConvertToSCE(object, control.list = object@Controls)
+  normalised.obj <- SCEnormalise(sce.obj, object, quickCluster = quickCluster, min.mean = min.mean)
   return(normalised.obj)
 }
 

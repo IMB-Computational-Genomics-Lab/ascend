@@ -8,7 +8,7 @@ output:
   pdf_document: default
 vignette: |
   %\VignetteIndexEntry{An introduction to 'ascend' - Processing and analysis of retinal ganglion cells} 
-  %\VignetteEngine{knitr::multiformat}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 ```{r Loadascend, message = FALSE, echo = FALSE, include=FALSE}

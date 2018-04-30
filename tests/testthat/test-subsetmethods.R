@@ -54,14 +54,14 @@ test_that("Check if SubsetCells subsets the right set of cells", {
   test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   batch.1.length <- ncol(test.matrix) - 70
   batch.2.length <- 70
-  cell.ids.1 <- sapply(1:batch.1.length, function(x) paste0("Cell", x, "-1"))
-  cell.ids.2 <- sapply(1:batch.2.length, function(x) paste0("Cell", x, "-2"))
+  cell.ids.1 <- paste0("Cell", 1:batch.1.length, "-1")
+  cell.ids.2 <- paste0("Cell", 1:batch.2.length, "-2")
   cell.ids <- c(cell.ids.1, cell.ids.2)
   batches <- unlist(as.numeric(lapply(strsplit(as.character(cell.ids), "-"), `[`, 2)))
-  gene.ids <- sapply(1:nrow(test.matrix), function(x) paste0("Gene", x))
+  gene.ids <- paste0("Gene", 1:nrow(test.matrix))
   colnames(test.matrix) <- cell.ids
   rownames(test.matrix) <- gene.ids
-  select.list <- sample(cell.ids, 10, replace = TRUE)
+  select.list <- sample(cell.ids, 10, replace = FALSE)
   
   # Define Cell Information
   cell.information <- data.frame(cell_barcode = cell.ids, batch = batches)

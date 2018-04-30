@@ -10,7 +10,7 @@ output:
 vignette: |
   %\VignetteIndexEntry{An introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression} 
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::multiformat}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ## Before you begin

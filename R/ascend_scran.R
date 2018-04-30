@@ -94,6 +94,7 @@ SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
 #' \code{\link[scran]{computeSumFactors}} from \pkg{scran} Default: 1e-5.
 #' @return A normalised \code{\linkS4class{EMSet}}.
 #' 
+#' @importFrom BiocGenerics sizeFactors
 #' @importFrom scran quickCluster computeSumFactors
 #' @importFrom scater normalize
 #' 
@@ -215,57 +216,6 @@ scranCellCycle <- function(object, training.set) {
 
   object <- ReplaceCellInfo(object, cell.info)
   return(object)
-}
-
-#' ConvertToSCESet
-#'
-#' Convert a \code{\linkS4class{EMSet}} object into a \pkg{scater} SCESet for 
-#' use with older versions of \pkg{scater} and \pkg{scran}. In order to use this 
-#' function, you must have mitochondrial and ribosomal genes in your expression 
-#' data.
-#'
-#' @param object An \code{\linkS4class{EMSet}} object.
-#' @param control.list Optional - a named list containing mitochondrial and 
-#' ribosomal genes.
-#' @return A SCESet
-#' @examples
-#' \dontrun{
-#' sce_set <- ConvertToSCESet(em.set, 
-#' control.list = list(Mt = mt.genes, Rb = rb.genes))
-#' }
-#' @importFrom scater newSCESet calculateQCMetrics
-#' @export
-#'
-ConvertToSCESet <- function(object, control.list = list()) {
-  # Prepare control list
-  control.names <- c("Mt", "Rb")
-  
-  # Retrieve controls from EMSet object if user hasn't supplied a list
-  if (length(control.list) == 0) {
-    control.list <- object@Controls
-  }
-  
-  if (length(control.list) == 0) {
-    # Verify Mt and Rb are names in supplied list
-    if (!all(control.names %in% names(control.list))) {
-      stop("Please make sure you have supplied mitochondrial and ribosomal gene identifiers in a named list.")
-    }
-    
-    # Verify genes are present in the list
-    if (!all(sapply(control.list, function(x) length(x) > 0))) {
-      stop("Please make sure you have supplied genes to the mitochondrial and ribosomal gene lists.")
-    }
-    
-    expression.matrix <- GetExpressionMatrix(object, "data.frame")
-    sce.obj <- scater::newSCESet(countData = expression.matrix)
-    sce.obj <- scater::calculateQCMetrics(sce.obj, feature_controls = control.list)
-  } else {
-    expression.matrix <- GetExpressionMatrix(object, "data.frame")
-    sce.obj <- scater::newSCESet(countData = expression.matrix)
-  }
-  
-  # Convert EMSet to SCESet
-  return(sce.obj)
 }
 
 #' ConvertToSCE
