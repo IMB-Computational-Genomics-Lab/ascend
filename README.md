@@ -18,6 +18,7 @@
 * [RColorBrewer](https://cran.r-project.org/web/packages/RColorBrewer)
 
 ##### Bioconductor
+Please install the latest version of Bioconductor (3.7).
 * [Biobase](http://bioconductor.org/packages/release/bioc/html/Biobase.html)
 * [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html)
 * [scater](http://bioconductor.org/packages/release/bioc/html/scater.html)
@@ -107,7 +108,7 @@ You must provide a list of gene identifiers linked to controls, if you would lik
 Controls should be organised into a named list, and identifiers used should be present in the expression matrix.
 
 #### Loading the data into ascend
-Follow the vignettes [Introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression](vignettes/ascend_Tutorial.pdf) and [Retina Ganglion Cells - A step-by-step ascend guide](vignettes/RGC_Tutorial.md) to learn about how to load your prepared data for use with ascend.
+Follow the vignettes [Introduction to ascend - Analysis of Single Cell Expression, Normalisation and Differential expression](inst/docs/ascend_Tutorial.pdf) and [Retina Ganglion Cells - A step-by-step ascend guide](inst/docs/RGC_Tutorial.md) to learn about how to load your prepared data for use with ascend.
 
 #### Contact
 Please report any bugs on the Issues tracker of this repository. Feel free to send any other queries to a.senabouth@imb.uq.edu.au.
