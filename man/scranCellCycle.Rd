@@ -4,7 +4,7 @@
 \alias{scranCellCycle}
 \title{scranCellCycle}
 \usage{
-scranCellCycle(object, training.set)
+scranCellCycle(object, training_set = NULL)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object.}
@@ -38,4 +38,5 @@ cycledEMSet <- scranCellCycle(EMSet, training.data)
 # Convert annotation back to gene ids
 cycledEMSet <- ConvertGeneAnnotation(EMSet, "ensembl_id", "gene_id")
 }
+
 }

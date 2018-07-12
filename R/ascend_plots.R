@@ -1,4 +1,11 @@
-#' PlotDEVolcano
+################################################################################
+#
+# ascend_plots.R
+# description: Functions related to the plotting of data
+#
+################################################################################
+
+#' plotVolcano
 #'
 #' Produces a volcano plot featuring differential expression results.
 #'
@@ -8,6 +15,7 @@
 #' @param l2fc Threshold to determine significant Log2FoldChange by (Default: 2).
 #' @param labels Display names of significant results on plot (Default: FALSE).
 #' @param label.size Size of label text (Default: 5).
+#' @param check.overlap If labels = TRUE, remove overlapping labels
 #' @return A scatter plot rendered by ggplot2's geom_point.
 #' 
 #' @examples
@@ -21,64 +29,70 @@
 #' @importFrom dplyr id
 #' @export
 #'
-PlotDEVolcano <- function(de.results, threshold = 5e-3, l2fc = 2, labels = FALSE, label.size = 5){
-  # To shut R Check up
-  log2FoldChange <- "Shhh"
-  padj <- "Shhh"
-  group <- "Shhh"
-  Percentage <- "Shhh"
-  
-  # Check data frame contains required information
-  required.cols <- c("id", "padj", "log2FoldChange")
-  if (!is.data.frame(de.results)){
+plotVolcano <- function(x, threshold = 5e-3,
+                        l2fc = 2,
+                        labels = FALSE,
+                        label.size = 5,
+                        check.overlap = TRUE){
+  required_columns <- c("id", "padj", "log2FoldChange")
+  if (!is.data.frame(x)){
     stop("Please supply a data frame.")
   } else{
-   if(!any(required.cols %in% colnames(de.results))){
-    stop("Please make sure your dataframe has the following columns: id, padj, log2FoldChange")
-   }
+    if (!any(required_columns %in% colnames(x))){
+      stop("Please ensure your dataframe has the following columns: id, padj and log2FoldChange")
+    }
   }
-
-  # Convert adjusted p-values to log10
-  de.results$padj <- -log10(de.results$padj)
-
-  # Find significant limits
-  padj.limit <- -log10(threshold)
-  fc.limit.up <- l2fc
-  fc.limit.down <- -l2fc
-
-  # Add groups to DF ("normal" and "significant")
-  de.results$group <- rep("Normal", nrow(de.results))
-  sig.upregulated <- de.results$log2FoldChange > fc.limit.up & de.results$padj > padj.limit
-  sig.downregulated <- de.results$log2FoldChange < fc.limit.down & de.results$padj > padj.limit
-
-  if (any(sig.upregulated)){
-    de.results[sig.upregulated, ]$group <- "Significant"
+  
+  # Convert padj to log10
+  x$padj <- -log10(x$padj)
+  
+  # Identify significant limits
+  padj_limit <- -log10(threshold)
+  fc_limit1 <- l2fc
+  fc_limit2 <- -l2fc
+  
+  # Label groups
+  x$group <- "Normal"
+  sig_upregulated <- x$log2FoldChange > fc_limit1 & x$padj > padj_limit
+  sig_downregulated <- x$log2FoldChange < fc_limit2 & x$padj > padj_limit
+  
+  if (any(sig_upregulated)){
+    x[sig_upregulated, "group"] <- "Significant"
   }
-
-  if (any(sig.downregulated)){
-    de.results[sig.downregulated, ]$group <- "Significant"
+  
+  if (any(sig_downregulated)){
+    x[sig_downregulated, "group"] <- "Significant"
   }
-
-  # Generate volcano plot
-  volcano.plot <- ggplot2::ggplot(de.results, ggplot2::aes(log2FoldChange, padj)) +
-    ggplot2::geom_point(ggplot2::aes(colour = group)) +
-    ggplot2::scale_colour_manual(name = "", values = c("Normal"="#323234", "Significant"="#014abb")) +
+  
+  x$group <- factor(x$group, levels = c("Normal", "Significant"))
+  
+  volcano_plot <- ggplot2::ggplot(x, ggplot2::aes(log2FoldChange, padj)) + 
+    ggplot2::geom_point(ggplot2::aes(colour = group)) + 
+    ggplot2::scale_colour_manual(name = "", values = c("Normal" = "#474747", "Significant" = "#ff5000")) + 
+    ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + 
     ggplot2::xlab('log2 Fold Change') +
-    ggplot2::ylab('-log10 adjusted P-value') +
-    ggplot2::theme_bw()
-
+    ggplot2::ylab('-log10 adjusted P-value') 
+  
   if(labels){
-    if (any(sig.upregulated)){
-      volcano.plot <- volcano.plot + ggplot2::geom_text(data = subset(de.results, padj > padj.limit & log2FoldChange > fc.limit.up), ggplot2::aes(log2FoldChange, padj, label = id), size = label.size, vjust = 0, nudge_y = 2.5)
+    if (any(sig_upregulated)){
+      volcano_plot <- volcano_plot + ggplot2::geom_text(data = 
+                                                          subset(x, padj > padj_limit & log2FoldChange > fc_limit1), 
+                                                        ggplot2::aes(log2FoldChange, padj, label = id), 
+                                                        size = label.size, vjust = 0, nudge_y = 2.5, 
+                                                        check_overlap = check.overlap)
     }
-    if (any(sig.downregulated)){
-      volcano.plot <- volcano.plot + ggplot2::geom_text(data = subset(de.results, padj > padj.limit & log2FoldChange < fc.limit.down), ggplot2::aes(log2FoldChange, padj, label = id), size = label.size, vjust = 0, nudge_y = 2.5)
+    if (any(sig_downregulated)){
+      volcano_plot <- volcano_plot + ggplot2::geom_text(data = subset(x, padj > padj_limit & log2FoldChange < fc_limit2), 
+                                                        ggplot2::aes(log2FoldChange, padj, label = id), 
+                                                        size = label.size, vjust = 0, nudge_y = 2.5, 
+                                                        check_overlap = check.overlap)
     }
   }
-  return(volcano.plot)
+  
+  return(volcano_plot)
 }
 
-#' PlotDendrogram
+#' plotDendrogram
 #' 
 #' Generates a colour-labelled dendrogram to the device, using a clustered
 #' \code{\linkS4class{EMSet}}.
@@ -87,65 +101,57 @@ PlotDEVolcano <- function(de.results, threshold = 5e-3, l2fc = 2, labels = FALSE
 #' @return A dendrogram plotted by base R graphics
 #' 
 #' @examples
-#' # Load clustered EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleClusteredEMSet.rds"))
-#' 
-#' # Plot dendrogram
-#' PlotDendrogram(EMSet)
-#' 
+#'
 #' @importFrom stats as.dendrogram order.dendrogram
 #' @importFrom dendextend branches_attr_by_clusters set get_leaves_branches_col sort_levels_values colored_bars get_leaves_branches_attr
 #' @importFrom graphics legend
 #' @importFrom dendextend %>%
 #' @export
 #'
-PlotDendrogram <- function(object){
+plotDendrogram <- function(object){
   # Input Checks
-  if(class(object) == "EMSet"){
-    if(is.null(object@Clusters$Hclust)){
-      stop("Please make sure you have run RunCORE on this EMSet object before using this function.")
-    }
-  } else{
-    stop("Please supply a EMSet object to this function.")
+  if(length(clusterAnalysis(object)) == 0){
+    stop("Please cluster the data in your EMSet with runCORE before using this function.")
   }
-
+  
+  # Retrieve data
+  cluster_analysis <- clusterAnalysis(object)
   # Extract required values from the object
-  hclust.obj <- object@Clusters$Hclust
-  optimal.height <- object@Clusters$OptimalTreeHeight
-  nclusters <- object@Clusters$NumberOfClusters
-  cluster.list <- object@Clusters$Clusters
+  hclust_obj <- cluster_analysis$hClust
+  optimal_height <- cluster_analysis$optimalTreeHeight
+  nclusters <- cluster_analysis$nClusters
+  cluster_list <- cluster_analysis$clusters
   
   # Count table
-  cluster.df <- as.data.frame(table(cluster.list))
-  dendro.obj <- as.dendrogram(hclust.obj)
+  cluster_df <- as.data.frame(table(cluster_list))
+  dendro_obj <- as.dendrogram(hclust_obj)
   
   # Reorder count table to match dendrogram order
-  cluster.order <- order.dendrogram(dendro.obj)
-  ordered.clusters <- as.vector(cluster.list)[cluster.order]
-  cluster.df <- cluster.df[match(unique(ordered.clusters), cluster.df$cluster.list), ]
+  cluster_order <- order.dendrogram(dendro_obj)
+  ordered_clusters <- as.vector(cluster_list)[cluster_order]
+  cluster_df <- cluster_df[match(unique(ordered_clusters), cluster_df$cluster_list), ]
   
   # Generate coloured plot
-  coloured.dendro <- dendextend::branches_attr_by_clusters(dendro.obj, clusters = ordered.clusters, attr = 'col')
-  coloured.dendro <- dendextend::set(coloured.dendro, "labels", "")
-  plot(coloured.dendro)
+  coloured_dendro <- dendextend::branches_attr_by_clusters(dendro_obj, clusters = ordered_clusters, attr = 'col')
+  coloured_dendro <- dendextend::set(coloured_dendro, "labels", "")
+  plot(coloured_dendro)
   
   # Generate cluster bar underneath
-  dendro.colours <- unique(dendextend::get_leaves_branches_col(coloured.dendro))
-  coloured.order <- cluster.order
-  sorted.levels <- dendextend::sort_levels_values(as.vector(cluster.list)[coloured.order])
-  sorted.levels <- sorted.levels[match(seq_along(coloured.order), coloured.order)]
-  dendextend::colored_bars(dendro.colours[sorted.levels], coloured.dendro, rowLabels = "Cluster")
+  dendro_colours <- unique(dendextend::get_leaves_branches_col(coloured_dendro))
+  coloured_order <- cluster_order
+  sorted_levels <- dendextend::sort_levels_values(as.vector(cluster_list)[coloured_order])
+  sorted_levels <- sorted_levels[match(seq_along(coloured_order), coloured_order)]
+  dendextend::colored_bars(dendro_colours[sorted_levels], coloured_dendro, rowLabels = "Cluster")
   
   # Get branch colours
-  colour.order <- unique(coloured.dendro %>% dendextend::get_leaves_branches_attr("col"))
+  colour_order <- unique(coloured_dendro %>% dendextend::get_leaves_branches_attr("col"))
   
   # Generate legend labels
-  legend.labels <- sapply(1:nrow(cluster.df), function(x) paste0("Cluster ", cluster.df$cluster.list[x], ": ", cluster.df$Freq[x]))
-  legend("topright", legend = c(legend.labels), fill = colour.order, border = colour.order, bty = "n", title = "Cluster Populations")
+  legend_labels <- sapply(1:nrow(cluster_df), function(x) paste0("Cluster ", cluster_df$cluster_list[x], ": ", cluster_df$Freq[x]))
+  legend("topright", legend = c(legend_labels), fill = colour_order, border = colour_order, bty = "n", title = "Cluster Populations")
 }
 
-#' PlotStability
+#' plotStability
 #'
 #' Plots Stability, Consecutive RI and Rand Index. This can be used to determine
 #' the optimal resolution of the clustering results.
@@ -154,56 +160,41 @@ PlotDendrogram <- function(object){
 #' @return A line graph generated by ggplot2's geom_line function
 #' 
 #' @examples
-#' # Load clustered EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleClusteredEMSet.rds"))
-#' 
-#' # Plot stability
-#' stability_plot <- PlotStability(EMSet)
 #'
 #' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot geom_line theme_bw theme element_text aes xlab ylab
 #' @export
 #'
-PlotStability <- function(object){
+plotStability <- function(object){
   # To shut R Check up...
   Height <- "Shhh"
   value <- "Shhh"
   variable <- "Shhh"
   
-  if(class(object) == "EMSet"){
-    if (is.null(object@Clusters$KeyStats)){
-      stop("Please make sure you have run RunCORE on this EMSet object before running this function.")
-    }
-    key.stats.df <- object@Clusters$KeyStats
-    nres <- object@Log$Clustering$nres
-  } else {
-    if(!is.data.frame(object)){
-      stop("Please supply a data frame.")
-    }
-    # Matrix must have the following column headers
-    rand.colnames <- c("Height", "Stability", "RandIndex", "ConsecutiveRI", "ClusterCount")
-    if (!all.equal(rand.colnames, colnames(object@Clusters$KeyStats))){
-      stop("Please use the rand index matrix generated by RunCORE for this function.")
-    }
-    key.stats.df <- object
+  if(length(clusterAnalysis(object)) == 0){
+    stop("Please cluster the data in your EMSet with runCORE before using this function.")
   }
   
-  key.stats.df$ClusterCount <- key.stats.df$ClusterCount/10
-  colnames(key.stats.df) <-c('Height', 'Stability', 'RandIndex', 'ConsecutiveRI', 'ClusterCount/10')
-  key.stats.df$Height <-as.character(key.stats.df$Height)
-  key.stats.tidy <- reshape2::melt(key.stats.df, id='Height')
-  key.stats.tidy$Height <-as.numeric(key.stats.tidy$Height)
+  # Grab info
+  log <- progressLog(object)
+  cluster_analysis <- clusterAnalysis(object)
+  key_stats_df <- cluster_analysis$keyStats
+  nres <- log$clustering$nres
+  
+  key_stats_df$ClusterCount <- key_stats_df$ClusterCount/10
+  colnames(key_stats_df) <-c('Height', 'Stability', 'RandIndex', 'ConsecutiveRI', 'ClusterCount/10')
+  key_stats_df$Height <-as.character(key_stats_df$Height)
+  key_stats_df <- reshape2::melt(key_stats_df, id='Height')
+  key_stats_df$Height <-as.numeric(key_stats_df$Height)
   step <- signif(1/nres, digits = 2)
-  diagnostic.plot <- ggplot2::ggplot(key.stats.tidy)
-  diagnostic.plot <- diagnostic.plot + 
+  diagnostic_plot <- ggplot2::ggplot(key_stats_df)
+  diagnostic_plot <- diagnostic_plot + 
     ggplot2::geom_line(ggplot2::aes(x=Height, y=value,  colour=variable)) + 
     ggplot2::theme_bw() + ggplot2::theme(axis.text = ggplot2::element_text(size=11), axis.title = ggplot2::element_text(size=11)) + 
     ggplot2::theme(legend.text = ggplot2::element_text(size=11)) + 
     ggplot2::theme(legend.title = ggplot2::element_blank()) + 
     ggplot2::xlab(sprintf('Parameter from %g to 1', step)) + ggplot2::ylab('Scores')
-
-  return(diagnostic.plot)
+  return(diagnostic_plot)
 }
 
 #' PlotClusterDendro
@@ -247,7 +238,7 @@ PlotClusterDendro <- function (dendro, colors, groupLabels = NULL, rowText = NUL
                                abHeight = NULL, abCol = "red", ...)
 {
   dendro$labels <- rep('', length(dendro$labels))
-
+  
   oldMar = par("mar")
   if (!is.null(dim(colors))) {
     nRows = dim(colors)[2]
@@ -337,7 +328,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
                                cex.rowLabels = 1, cex.rowText = 0.8, startAt = 0, ...) {
   colors = as.matrix(colors)
   dimC = dim(colors)
-
+  
   # Create a colour ramp
   gradient_palette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))
   grDevices::palette(gradient_palette(max(colors)))
@@ -354,7 +345,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
   C = colors[order, , drop = FALSE]
   step = 1/(dimC[1] - 1 + 2 * startAt)
   graphics::barplot(height = 1, col = "white", border = FALSE, space = 0,
-          axes = FALSE)
+                    axes = FALSE)
   charWidth = strwidth("W")/2
   if (!is.null(rowText)) {
     if (is.null(textPositions))
@@ -448,7 +439,6 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
     yb = rep(yBottom[jj], dimC[1])
     yt = rep(yTop[jj], dimC[1])
     if (is.null(dim(C))) {
-      print(as.character(C))
       rect(xl, yb, xr, yt, col = as.character(C), border = as.character(C))
     }
     else {
@@ -481,7 +471,7 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
                                               y = c(yBottom[j + 1], yBottom[j + 1]))
 }
 
-#' PlotStabilityDendro
+#' plotStabilityDendro
 #'
 #' Generate a dendrogram with coloured bars representing each clustering result
 #' below. This function is derived from the plotDendroAndColors function found
@@ -504,274 +494,252 @@ PlotOrderedColors <- function (order, colors, rowLabels = NULL, rowWidths = NULL
 #' }
 #' @export
 #'
-PlotStabilityDendro <- function(object){
+plotStabilityDendro <- function(object){
   # Check that the user has done the required steps.
-  if (length(object@Clusters) == 0){
+  if (length(clusterAnalysis(object)) == 0){
     stop("Please run RunCORE on this object before using this function.")
   }
-
+  
   # Get the variables
-  dendro <- object@Clusters$Hclust
-  colours <- object@Clusters$ClusteringMatrix
-
+  cluster_analysis <- clusterAnalysis(object)
+  dendro <- cluster_analysis$hClust
+  colours <- cluster_analysis$clusteringMatrix
+  colnames(colours) <- c(1:40, "REF")
   # Plotting function
   print(PlotClusterDendro(dendro, colours))
 }
 
 
-#' PlotMDS
+#' plotMDS
 #'
-#' Generates a Multi-Dimensional Scaling (MDS) plot.
-#'
-#' @param object An \code{\linkS4class{EMSet}} that has undergone clustering with 
-#' \code{\link{RunCORE}}.
-#' @param PCA If true, use PCA-reduced matrix to generate MDS plot.
-#' @param dim1 Which dimension to plot on the x-axis.
-#' @param dim2 Which dimension to plot on the y-axis.
-#' @param condition (Optional) Name of the condition in Cell Identifiers that 
-#' describe a set of conditions you would like to colour cells by.
-#' @return A ggplot glob that contains a scatter plot.
+#' Generates a 2D MDS plot that can use the following inputs stored in an
+#' EMSet:
 #' 
-#' @examples
-#' # Load clustered EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleClusteredEMSet.rds"))
-#' 
-#' # Load ggplot to add title to MDS plot
-#' library(ggplot2)
-#' 
-#' # Plot MDS
-#' my_mds_plot <- PlotMDS(EMSet, PCA = TRUE, dim1 = 3, dim2 = 4, 
-#' condition = "cluster") + ggtitle("My MDS Plot")
-#'
-#' @importFrom stats dist cmdscale
-#' @importFrom ggplot2 ggplot aes geom_point labs
-#' @export
-#'
-PlotMDS <- function(object, PCA = FALSE, dim1 = 1, dim2 = 2, condition = NULL){
-  # To shut R CMD CHECK up
-  Dim1 <- "Shhh"
-  Dim2 <- "Shhh"
-  
-  if (class(object) != "EMSet"){
-    stop("Please supply an EMSet object.")
-  }
-
-  # Check the column has been defined
-  if (!is.null(condition)){
-    if (is.null(object@CellInformation[ ,condition])){
-      stop("Please ensure your specified condition exists.")
-    } else{
-      condition.list <- object@CellInformation[, condition]
-      names(condition.list) <- object@CellInformation[,1]
-    }
-  } else{
-    condition.list <- NULL
-  }
-
-  # Retrieve distance matrix
-  if (PCA){
-    # Stop if user hasn't run PCA.
-    if (length(object@PCA) == 0){
-      stop("Please use RunPCA on this object before using the PCA argument for this function.")
-    }
-
-    # Retrieve distance matrix
-    if (length(object@Clusters) > 0){
-      distance.matrix <- object@Clusters$DistanceMatrix
-    } else{
-      pca.matrix <- object@PCA$PCA
-      if (ncol(pca.matrix) >= 20){
-        n <- 20
-        pca.matrix <- pca.matrix[,1:n]
-      } else{
-        n <- ncol(pca.matrix)
-      }
-      print(sprintf("Calculating distance matrix from top %s PCAs..."), n)
-      distance.matrix <- stats::dist(pca.matrix)
-    }
-  } else{
-    print("Calculating distance matrix from expression data...")
-    expression.matrix <- GetExpressionMatrix(object, "matrix")
-    gene.variance <- CalcRowVariance(expression.matrix)
-    names(gene.variance) <- rownames(expression.matrix)
-    sorted.gene.variance <- gene.variance[order(unlist(gene.variance), decreasing = TRUE)]
-    top.genes <- sorted.gene.variance[1:1000]
-
-    # Subsetting matrix
-    subset.matrix <- expression.matrix[names(top.genes), ]
-    subset.matrix <- Matrix::t(subset.matrix)
-    # Create distance matrix
-    distance.matrix <- stats::dist(subset.matrix)
-  }
-
-  # Scale matrix
-  print("Running cmdscale...")
-  mds.matrix <-stats::cmdscale(distance.matrix, k = 2, eig = FALSE, add = FALSE, x.ret = FALSE)
-  print("Cmdscale complete! Processing scaled data...")
-  mds.matrix <- as.data.frame(mds.matrix)
-  colnames(mds.matrix) <- c("Dim1", "Dim2")
-
-  print("Generating MDS plot...")
-  if (!is.null(condition.list) && length(condition.list) > 0){
-    mds.matrix$condition <- unlist(condition.list)
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2, col=factor(condition))) + ggplot2::geom_point(alpha = 0.5) + ggplot2::labs(colour = condition)
-  } else{
-    mds.plot <- ggplot2::ggplot(mds.matrix, ggplot2::aes(Dim1,Dim2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
-  }
-
-  return(mds.plot)
-}
-
-#' PlotTSNE
-#'
-#' Generates a 2D TSNE plot. As this function requires the reduction of the
-#' expression matrix by TSNE, it takes longer to run in comparison to the other
-#' reduced dimension plots.
-#' 
-#' If you just require a TSNE matrix, you can generate this with the
-#' \code{\link{RunTSNE}} function.
-#' 
+#' 1. Distance matrix generated by \code{\link{runCORE}}.
+#' 2. PCA matrix generated by \code{\link{runPCA}}.
+#' 3. Normalised, log-transformed count matrix stored in logcounts.
+#'   
 #' @param object An \code{\linkS4class{EMSet}}.
-#' @param PCA Set to FALSE to not use PCA-reduced values.
-#' @param condition (Optional) Name of the column in CellIdentifiers that 
+#' @param Dim1 Dimension to plot on the x-axis.
+#' @param Dim2 Dimension to plot on the y-axis.
+#' @param group (Optional) Name of the column in colInfo that 
 #' describe a set of conditions you would like to colour cells by.
-#' @param seed (Optional) Set to a specific value for reproducible TSNE plots.
-#' @param perplexity (Optional) Numeric; perplexity parameter.
-#' @param theta (Optional) Numeric; Speed/accuracy trade-off (increase for less 
-#' accuracy).
 #' @return A ggplot glob that contains a scatter plot.
 #' @examples
-#' # Load clustered EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleClusteredEMSet.rds"))
 #' 
-#' # Load ggplot to add title to MDS plot
-#' library(ggplot2)
-#' 
-#' # Plot TSNE
-#' my_tsne_plot <- PlotTSNE(EMSet, PCA = TRUE, condition = "cluster", seed = 1,
-#' perplexity = 30, theta = 0.5) + ggtitle("My TSNE Plot")
-#'
-#' @importFrom ggplot2 ggplot aes geom_point labs
+#' @importFrom stats dist cmdscale
+#' @importFrom SingleCellExperiment reducedDimNames reducedDim
+#' @importFrom ggplot2 ggplot aes geom_point labs ggtitle scale_alpha theme_bw
 #' @export
 #'
-PlotTSNE <- function(object, PCA = TRUE, condition = NULL, seed = 0, 
-                     perplexity = 30, theta = 0.5){
-  # To shut R CMD check up
-  X1 <- "Shhh"
-  X2 <- "Shhh"
+plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
+  # Load data from EMSet
+  col_info <- colInfo(object)
   
-  # Input checks
-  if (class(object) != "EMSet"){
-    stop("Please supply an EMSet to this function.")
-  }
-
   # Check the column has been defined
-  if (!is.null(condition)){
-    if (is.null(object@CellInformation[ , condition])){
-      stop("Please ensure your specified condition exists.")
+  if (!is.null(group)){
+    if (!(group %in% colnames(col_info))){
+      stop("Please ensure your specified column exists.")
     } else{
-      condition.list <- object@CellInformation[, condition]
-      names(condition.list) <- object@CellInformation[,1]
+      condition_list <- col_info[, group]
+      names(condition_list) <- col_info$cell_barcode
     }
   } else{
-    condition.list <- NULL
+    condition_list <- NULL
   }
-
-  if(PCA){
-    if (!(length(object@PCA) > 0)){
-      stop("Please reduce this dataset with RunPCA before using this function.")
-    } else{
-      pca.barcodes <- rownames(object@PCA$PCA)
-      condition.list <- condition.list[pca.barcodes]
-      if (!(length(condition.list) > 0)){
-        stop("Please ensure all cell identifiers specified in the condition list are in the EMSet.")
+  
+  # If clustering has been run...
+  if (length(clusterAnalysis(object)) > 0){
+    print("EMSet has undergone clustering. Retrieving distance matrix...")
+    cluster_analysis <- clusterAnalysis(object)
+    distance_matrix <- cluster_analysis$distanceMatrix
+  } else{
+    # If user has specified PCA
+    if(PCA){
+      # Check if the user has run PCA
+      if (!("PCA" %in% SingleCellExperiment::reducedDimNames(object))){
+        stop("Please use runPCA on this object before using the PCA argument for this function.")
+      } else{
+        print("Using PCA-reduced matrix to generate distance matrix...")
+        pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
+        pca_matrix <- as.matrix(pca_matrix[ ,1:20])
+        distance_matrix <- stats::dist(pca_matrix[ , 1:20])
       }
-    }
-  } else{
-    if (!all(names(condition.list) %in% object@ExpressionMatrix)){
-      stop("Please ensure all cell identifiers specified in the condition list are in the EMSet.")
-    }
+    } else{
+      print("Using expression matrix to generate distance matrix...")
+      expression_matrix <- as.matrix(SingleCellExperiment::logcounts(object))
+      
+      # Identify most variable genes to decrease scope of distance matrix
+      gene_variance <- calcVariance(expression_matrix, axis = "row")
+      names(gene_variance) <- rownames(expression_matrix)
+      sorted_gene_variance <- gene_variance[order(unlist(gene_variance), decreasing = TRUE)]
+      top_genes <- sorted_gene_variance[1:1000]
+      
+      expression_matrix <- expression_matrix[names(top_genes), ]
+      expression_matrix <- Matrix::t(expression_matrix)
+      distance_matrix <- stats::dist(expression_matrix)
+    }  
   }
-
-  # Run TSNE in 2D
-  tsne.df <- RunTSNE(object, PCA = PCA, dimensions = 2, seed = seed, perplexity = perplexity, theta = theta)
-
-  # Generate Plots
-  if (!is.null(condition.list) && length(condition.list) > 0){
-    tsne.df$conditions <- as.factor(unlist(condition.list))
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = condition)
+  
+  # We finally have a distance matrix
+  print("Running cmdscale...")
+  mds_matrix <-stats::cmdscale(distance_matrix, k = 2, eig = FALSE, add = FALSE, x.ret = FALSE)
+  
+  print("Cmdscale complete! Processing scaled data...")
+  mds_matrix <- as.data.frame(as.matrix(mds_matrix))
+  colnames(mds_matrix) <- c("Dim1", "Dim2")
+  mds_matrix$density <- fields::interp.surface(MASS::kde2d(mds_matrix$Dim1, mds_matrix$Dim2), mds_matrix[, c("Dim1", "Dim2")])
+  
+  print("Generating MDS plot...")
+  if(!is.null(condition_list) && length(condition_list) > 0){
+    mds_matrix <- as.data.frame(cbind(mds_matrix, group = factor(condition_list, levels = unique(condition_list))))
+    mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+      ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+      ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+      ggplot2::scale_alpha(range = c(0.3, 1), guide ="none") + 
+      ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
   } else{
-    tsne.plot <- ggplot2::ggplot(tsne.df, ggplot2::aes(X1, X2)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
+    mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+      ggplot2::geom_point() + ggplot2::theme_bw() + 
+      ggplot2::scale_alpha(range = c(0.3, 1), guide ="none") + 
+      ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
   }
-
-  return(tsne.plot)
+  
+  return(mds_plot)
 }
 
-#' PlotPCA
+#' plotTSNE
+#'
+#' Generates a 2D TSNE plot using a TSNE matrix generated by the 
+#' \code{\link{runTSNE}} function.
+#' 
+#' @param object An \code{\linkS4class{EMSet}} object that has undergone PCA.
+#' @param Dim1 Dimension to plot on the x-axis.
+#' @param Dim2 Dimension to plot on the y-axis.
+#' @param group (Optional) Name of the column in colInfo that 
+#' describe a set of conditions you would like to colour cells by.
+#' @return A ggplot glob that contains a scatter plot.
+#' @examples
+#' 
+#' @importFrom ggplot2 ggplot aes geom_point labs ggtitle scale_alpha theme_bw
+#' @export
+#'
+plotTSNE <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
+  if(!("TSNE" %in% SingleCellExperiment::reducedDimNames(object))){
+    stop("Please supply an object that has undergone t-SNE.")
+  }
+  
+  # Load data from EMSet
+  col_info <- colInfo(object)
+  
+  # Check the column has been defined
+  if (!is.null(group)){
+    if (!(group %in% colnames(col_info))){
+      stop("Please ensure your specified column exists.")
+    } else{
+      condition_list <- col_info[, group]
+      names(condition_list) <- col_info$cell_barcode
+    }
+  } else{
+    condition_list <- NULL
+  }
+  
+  # Extract dimensions to plot
+  pca_matrix <- reducedDim(object, "TSNE")
+  plot_df <- as.data.frame(as.matrix(pca_matrix[, c(Dim1, Dim2)]))
+  colnames(plot_df) <- c("Dim1", "Dim2")
+  plot_df < as.data.frame(plot_df)
+  
+  # Adjust alpha by adding bivariate density for each point
+  plot_df$density <- fields::interp.surface(MASS::kde2d(plot_df$Dim1, plot_df$Dim2), plot_df[, c("Dim1", "Dim2")])
+  
+  if (!is.null(condition_list) && length(condition_list) > 0){
+    plot_df <- cbind(plot_df, group = condition_list)
+    plot_df <- as.data.frame(plot_df)
+    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+      ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+      ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+      ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
+      ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+  } else{
+    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+      ggplot2::geom_point() +
+      ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
+      ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+  }
+  
+  return(pca_plot)
+}
+
+
+#' plotPCA
 #'
 #' Plot two principal components (PCs) on a scatter plot. This plot corresponds
 #' more closely to the distance between points and therefore is good to use
 #' to review the effectiveness of clustering by the CORE algorithm.
 #'
 #' @param object An \code{\linkS4class{EMSet}} object that has undergone PCA.
-#' @param dim1 Principal component to plot on the x-axis.
-#' @param dim2 Principal component to plot on the y-axis.
-#' @param condition (Optional) Name of the column in CellIdentifiers that 
+#' @param PCX Principal component to plot on the x-axis.
+#' @param PCY Principal component to plot on the y-axis.
+#' @param group (Optional) Name of the column in colInfo that 
 #' describe a set of conditions you would like to colour cells by.
 #' @return A ggplot glob that contains a scatter plot.
 #' @examples
-#' # Load clustered EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleClusteredEMSet.rds"))
 #' 
-#' # Load ggplot2 to add elements to PCA plot
-#' library(ggplot2)
-#' 
-#' # Plot PCA and add title to it
-#' my_pca_plot <- PlotPCA(EMSet, dim1 = 1, dim2 = 2,  condition = "cluster")  
-#' my_pca_plot <- my_pca_plot + ggtitle("My PCA Plot")
-#' 
-#' @importFrom ggplot2 ggplot aes geom_point labs
+#' @importFrom ggplot2 ggplot aes geom_point labs ggtitle scale_alpha theme_bw
+#' @importFrom fields interp.surface
+#' @importFrom MASS kde2d
 #' @export
 #'
-PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
-  x <- NULL
-  y <- NULL
-  
-  if(length(object@PCA) == 0){
+plotPCA <- function(object, PCX = 1, PCY = 2, group = NULL){
+  if(!("PCA" %in% SingleCellExperiment::reducedDimNames(object))){
     stop("Please supply an object that has undergone PCA reduction.")
   }
-
+  
+  # Load data from EMSet
+  col_info <- colInfo(object)
+  
   # Check the column has been defined
-  if (!is.null(condition)){
-    if (is.null(object@CellInformation[ , condition])){
+  if (!is.null(group)){
+    if (!(group %in% colnames(col_info))){
       stop("Please ensure your specified column exists.")
     } else{
-      condition.list <- object@CellInformation[, condition]
-      names(condition.list) <- object@CellInformation[,1]
+      condition_list <- col_info[, group]
+      names(condition_list) <- col_info$cell_barcode
     }
   } else{
-    condition.list <- NULL
+    condition_list <- NULL
   }
-
+  
   # Extract dimensions to plot
-  pca.matrix <- object@PCA$PCA
-  plot.matrix <- pca.matrix[, c(dim1, dim2)]
-  colnames(plot.matrix) <- c("x", "y")
-
-  if (!is.null(condition.list) && length(condition.list) > 0){
-    plot.matrix$conditions <- as.factor(unlist(condition.list))
-    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(ggplot2::aes(colour = factor(conditions)), alpha = 0.5) + ggplot2::labs(colour = condition)
+  pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
+  plot_df <- pca_matrix[, c(PCX, PCY)]
+  plot_df <- as.data.frame(as.matrix(plot_df))
+  colnames(plot_df) <- c("PCX", "PCY")
+  plot_df < as.data.frame(plot_df)
+  
+  # Adjust alpha by adding bivariate density for each point
+  plot_df$density <- fields::interp.surface(MASS::kde2d(plot_df$PCX, plot_df$PCY), plot_df[, c("PCX", "PCY")])
+  
+  if (!is.null(condition_list) && length(condition_list) > 0){
+    plot_df <- cbind(plot_df, group = condition_list)
+    plot_df <- as.data.frame(plot_df)
+    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY, alpha = 1/density)) + 
+      ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+      ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+      ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
+      ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
   } else{
-    pca.plot <- ggplot2::ggplot(plot.matrix, ggplot2::aes(x, y)) + ggplot2::geom_point(show.legend = FALSE, alpha = 0.5)
+    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY, alpha = 1/density)) + 
+      ggplot2::geom_point() +
+      ggplot2::theme_bw() + ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") +
+      ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
   }
-
-  return(pca.plot)
+  
+  return(pca_plot)
 }
 
-#' PlotPCAVariance
+#' plotPCAVariance
 #'
 #' Generates a scree plot. The principal components (PCs) are sorted from 
 #' largest percent variance to the smallest percent variance. This plot is
@@ -781,191 +749,474 @@ PlotPCA <- function(object, dim1 = 1, dim2 = 2, condition = NULL){
 #' @param n Number of PCs to view on the plot.
 #' @return A ggplot2 glob that contains a scatter qplot.
 #' @examples
-#' # Load clustered EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleClusteredEMSet.rds"))
-#' 
-#' # Plot PCA Variance
-#' pca_variance <- PlotPCAVariance(EMSet, n = 20)
-#' 
-#' @importFrom ggplot2 qplot
+#' @importFrom ggplot2 aes geom_point geom_segment ggtitle xlab ylab
 #' @export
 #'
-PlotPCAVariance <- function(object, n = 100){
-  if(is.null(object@PCA$PCAPercentVariance)){
+plotPCAVariance <- function(object, n = 100){
+  # Generate scree plot
+  if(is.null(progressLog(object)$PCAVariance)){
     stop("Please supply an object that has undergone PCA reduction.")
   }
-
-  pca.obj <- ggplot2::qplot(y=object@PCA$PCAPercentVariance[1:n], x=1:n, 
-                            geom="point", xlab="Principal Component (PC)", 
-                            ylab="Variance", main="Percent Variance per PC")
-  return(pca.obj)
+  
+  # Data frame
+  pca_df <- data.frame(PC = 1:length(progressLog(object)$PCAVariance), 
+                       Variance = progressLog(object)$PCAVariance)
+  pca_df <- pca_df[1:n, ]
+  pca_plot <- ggplot2::ggplot(pca_df, ggplot2::aes(x = PC, y = Variance)) + 
+    ggplot2::geom_point(size = 3) + ggplot2::geom_segment(ggplot2::aes(x = PC,
+                                                                       xend = PC,
+                                                                       y = 0,
+                                                                       yend = Variance))
+  pca_plot <- pca_plot + ggplot2::ggtitle("Percent Variance per PC")
+  pca_plot <- pca_plot + ggplot2::xlab("Principal Component (PC)")
+  pca_plot <- pca_plot + ggplot2::ylab("Variance") + ggplot2::theme_bw()
+  
+  return(pca_plot)
 }
 
-#' PlotNormalisationQC
+plotNormGeneCounts <- function(gene, object = NULL, count_matrix = NULL, norm_matrix = NULL){
+  print(sprintf("Plotting %s expression...", gene))
+  gene_count_df <- data.frame(counts = count_matrix[gene, ], normcounts = norm_matrix[gene, ])
+  ylim_max <- max(c(gene_count_df$counts, gene_count_df$normcounts))
+  gene_count_df$cell_barcode <- factor(rownames(gene_count_df), levels = rownames(gene_count_df))
+  scatter_count <- ggplot2::ggplot(gene_count_df, ggplot2::aes(x = cell_barcode, y = counts)) + ggplot2::geom_point() + ggplot2::ylim(c(0, ylim_max*1.1))
+  scatter_normcount <- ggplot2::ggplot(gene_count_df, ggplot2::aes(x = cell_barcode, y = normcounts)) + ggplot2::geom_point() + ggplot2::ylim(c(0, ylim_max*1.1))
+  scatter_count <- scatter_count + ggplot2::ggtitle(sprintf("Pre-normalised counts for %s", gene)) + ggplot2::xlab("Cell") + ggplot2::ylab("Count") + ggplot2::theme(axis.text.x=ggplot2::element_blank(), axis.ticks.x=ggplot2::element_blank())
+  scatter_normcount <- scatter_normcount + ggplot2::ggtitle(sprintf("Normalised counts for %s", gene), subtitle = sprintf("Normalised via %s", progressLog(object)$NormalisationMethod)) + ggplot2::xlab("Cell") + ggplot2::ylab("Normalised count") + ggplot2::theme(axis.text.x=ggplot2::element_blank(), axis.ticks.x=ggplot2::element_blank())
+  return(list(counts = scatter_count, normcounts = scatter_normcount))
+}
+
+#' plotNormQC
 #'
 #' Generates a series of plots comparing an un-normalised and a normalised 
 #' \code{\linkS4class{EMSet}}.
 #'
-#' @param original An un-normalised \code{\linkS4class{EMSet}}.
-#' @param normalised A normalised \code{\linkS4class{EMSet}}.
-#' @param gene.list OPTIONAL: A list of genes to plot expression levels for. 
-#' If not defined, \pkg{ascend} will choose a gene at random. Good candidates
-#' are MALAT1 and GAPDH.
+#' @param object A normalised \code{\linkS4class{EMSet}}.
+#' @param gene_list OPTIONAL: A list of genes to plot expression levels for. 
+#' If not defined, \pkg{ascend} will select GAPDH and MALAT1, or choose two 
+#' genes at random.
+#' 
 #' @return A list containing the following plots:
 #' \itemize{
 #' \item{Library size histograms.}
 #' \item{Scatter boxplots for selected genes.}
 #' \item{Scatter boxplots for each gene.}
 #' }
+#' 
 #' @examples
-#' # Load un-normalised EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleEMSet.rds"))
-#' 
-#' # Load normalised EMSet
-#' NormalisedEMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleClusteredEMSet.rds"))
-#' 
-#' # Generate QC plots for normalisation
-#' norm_qc <- PlotNormalisationQC(original = EMSet, normalised = NormalisedEMSet, 
-#' gene.list = "MALAT1")
 #' 
 #' @importFrom ggplot2 aes geom_histogram xlab ylab ggtitle ggplot_build qplot geom_boxplot scale_y_continuous labs theme element_blank
-#' @importFrom utils stack
+#' @importFrom tidyr gather
 #' @export
 #'
-PlotNormalisationQC <- function(original = NULL, normalised = NULL, gene.list = list()) {
-  # To shut up R CMD check
-  Libsize <- NULL
-  Dataset <- NULL
-  ind <- NULL
-  values <- NULL
+plotNormQC <- function(object, gene_list = list()){
+  # Check if the data has been normalised.
+  if (is.null(progressLog(object)$NormalisationMethod)){
+    stop("Please specify a normalised EMSet.")
+  }
   
-  # Insert Check For Normalisation
-  if(!is.null(original@Log$NormalisationMethod)){
-    stop("Please supply an un-normalised EMSet object.")
-  }
-
-  if(is.null(normalised@Log$NormalisationMethod)){
-    stop("Please supply a normalised EMSet object.")
-  }
-
-  # Set output
-  output.list <- list()
-
-  # Get metrics we need from old and new object
-  print("Retrieving data from EMSets...")
-  matrix.1 <- GetExpressionMatrix(original, "data.frame")
-  matrix.2 <- GetExpressionMatrix(normalised, "data.frame")
-
-  # As normalisation removes cells and genes, trim original matrix.
-  common.rows <- intersect(rownames(matrix.1), rownames(matrix.2))
-  common.cols <- intersect(colnames(matrix.1), colnames(matrix.1))
-  matrix.1 <- matrix.1[common.rows, common.cols]
-
-  # Retrieve library sizes
-  libsize.1 <- original@Metrics$TotalCounts
-  libsize.2 <- normalised@Metrics$TotalCounts
-
-  # Retrieve feature counts
-  cells.per.gene.1 <- original@Metrics$CellsPerGene
-  cells.per.gene.2 <- normalised@Metrics$CellsPerGene
-
-  # Generate histogram
-  print("Plotting libsize histograms...")
-  # Combine libsizes
-  libsize.df.1 <- data.frame(Libsize = libsize.1, Dataset=rep("Original", length(libsize.1)))
-  libsize.df.2 <- data.frame(Libsize = libsize.2, Dataset=rep("Normalised", length(libsize.2)))
-
-  # Get largest library size
-  max.libsize <- max(c(libsize.1, libsize.2))
-  libsize.df <- rbind(libsize.df.1, libsize.df.2)
-  libsize.hist <- ggplot2::ggplot(libsize.df, ggplot2::aes(Libsize, fill = Dataset)) + ggplot2::geom_histogram(alpha = 0.5, position = "identity", binwidth = 1000) + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::ggtitle("Library sizes across cells")
-  max.counts <- max(ggplot2::ggplot_build(libsize.hist)$data[[1]]$count)
-
-  libsize.hist.1 <- ggplot2::qplot(libsize.1, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.1), main = "Before normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
-  libsize.hist.2 <- ggplot2::qplot(libsize.2, xlim = c(0, max.libsize * 1.1), ylim = c(0, max.counts * 1.1), main = "After normalisation", xlab = "Library size", ylab = "Number of cells", binwidth = 1000)
-
-  #output.libsize.hist <- gridExtra::grid.arrange(libsize.hist.1, libsize.hist.2, ncol = 2)
-  output.list <- c(output.list, list(Libsize=list(Original = libsize.hist.1, Normalised = libsize.hist.2)))
-
-  # Remove zero counts
-  matrix.1 <- matrix.1[which(rowSums(matrix.1) > 0),]
-  matrix.2 <- matrix.2[which(rowSums(matrix.2) > 0),]
-
-  # Plot scatter for housekeeping genes
-  if(length(gene.list) > 0){
-    gene.scatter.list <- list()
-    for (gene in gene.list){
-      # Check if there are any counts
-      gene.counts.1 <- matrix.1[gene, ][which(matrix.1[gene, ] > 0)]
-      gene.counts.2 <- matrix.2[gene, ][which(matrix.2[gene, ] > 0)]
-
-      if((length(gene.counts.1) > 0) && (length(gene.counts.2) > 0)){
-        print(sprintf("Plotting %s expression...", gene))
-
-        # Get ylim
-        ylim.1 <- max(gene.counts.1)
-        ylim.2 <- max(gene.counts.2)
-        ylim.max <- (max(ylim.1, ylim.2)) * 1.1
-
-        gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main=sprintf('Expression of %s (Before normalisation)', gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
-        gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main=sprintf('Expression of %s (After normalisation)', gene), xlab="Cells", ylab="Gene expression", ylim = c(0, ylim.max))
-        gene.scatter.list[[gene]] <- list(Original = gene.scatter.1, Normalised = gene.scatter.2)
-      }
+  # Create a list to output results to
+  output_list <- list()
+  
+  # Get information from EMSet
+  col_info <- colInfo(object)
+  col_data <- SummarizedExperiment::colData(object)
+  cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
+  count_matrix <- SingleCellExperiment::counts(object)
+  norm_matrix <- SingleCellExperiment::normcounts(object)
+  
+  # 1. Libsize histograms
+  qc_normcount <- colSums(norm_matrix[, cell_info$cell_barcode])
+  wide_df <- data.frame(cell_barcode = cell_info$cell_barcode, libsize_count = cell_info$qc_libsize, libsize_normcount = qc_normcount)
+  wide_df$cell_barcode <- factor(wide_df$cell_barcode, levels = wide_df$cell_barcode)
+  
+  min_lim <- min(min(wide_df$libsize_count), min(wide_df$libsize_normcount))
+  max_lim <- max(max(wide_df$libsize_count), max(wide_df$libsize_normcount))
+  breaks <- seq(min_lim, max_lim, by = 10^(min(round(abs(log10(min_lim))), round(abs(log10(max_lim))))))
+  
+  # Build un-normalised histogram
+  libsize_count_hist <- ggplot2::ggplot(wide_df, ggplot2::aes(libsize_count)) +
+    ggplot2::geom_histogram(breaks = breaks, fill = "#000000")
+  
+  # Build normalised histogram
+  libsize_normcount_hist <- ggplot2::ggplot(wide_df, ggplot2::aes(libsize_normcount)) +
+    ggplot2::geom_histogram(breaks = breaks, fill = "#000000")
+  
+  # Find common max
+  count_max <- max(ggplot2::ggplot_build(libsize_count_hist)$data[[1]]$count)
+  normcount_max <- max(ggplot2::ggplot_build(libsize_normcount_hist)$data[[1]]$count)
+  y_max <- max(count_max, normcount_max)
+  
+  # Add to plots
+  libsize_count_hist <- libsize_count_hist + ggplot2::scale_y_continuous(limits = c(0, y_max*1.1))
+  libsize_normcount_hist <- libsize_normcount_hist + ggplot2::scale_y_continuous(limits = c(0, y_max*1.1))
+  
+  # Add labels
+  libsize_count_hist <- libsize_count_hist + ggplot2::ggtitle("Pre-normalised library sizes")
+  libsize_count_hist <- libsize_count_hist + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::theme_bw()
+  
+  libsize_normcount_hist <- libsize_normcount_hist + ggplot2::ggtitle("Normalised library sizes", 
+                                                                      subtitle = sprintf("Normalised via %s", progressLog(object)$NormalisationMethod))
+  libsize_normcount_hist <- libsize_normcount_hist + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::theme_bw()
+  output_list[["libsize_histograms"]] <- list(count = libsize_count_hist, normcount = libsize_normcount_hist)
+  
+  # Plot scatters of specific gene
+  # Validate user-supplied genes
+  if (length(gene_list) > 0){
+    # Check if gene list is in the matrix
+    if (any(gene_list %in% rownames(object))){
+      gene_list <- gene_list[which(gene_list %in% rownames(object))]
     }
-    output.list <- c(output.list, list(GeneScatterPlots=gene.scatter.list))}
-  else{
-    # While loop - look for a suitable gene
-    success <- FALSE
-    while (!success){
-      gene <- sample(rownames(matrix.2), 1)
-      gene.counts.1 <- matrix.1[gene,][which(matrix.1[gene, ] > 0)]
-      gene.counts.2 <- matrix.2[gene,][which(matrix.2[gene, ] > 0)]
-      success <- (length(gene.counts.1) > 10) && (length(gene.counts.2) > 10)
-    }
-
-    # Found a gene!
-    print(sprintf("Plotting %s expression...", gene))
-    # Get ylim
-    ylim.1 <- max(gene.counts.1)
-    ylim.2<- max(gene.counts.2)
-    ylim.max <- max(ylim.1, ylim.2) * 1.1
-
-    gene.scatter.1 <- ggplot2::qplot(x = 1:length(gene.counts.1), y = unlist(gene.counts.1), geom="point", alpha=0.2, main = sprintf("Expression of %s (Before normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
-    gene.scatter.2 <- ggplot2::qplot(x = 1:length(gene.counts.2), y = unlist(gene.counts.2), geom="point", alpha=0.2, main = sprintf("Expression of %s (After normalisation)", gene), xlab="Cells" , ylab="Gene expression", ylim = c(0, ylim.max))
-    output.list <- c(output.list, list(GeneScatterPlots = list(Original = gene.scatter.1, Normalised = gene.scatter.2)))
   }
-
-  # Generate box plots
+  
+  # If users haven't supplied one, use house-keeping genes instead
+  if (length(gene_list) == 0){
+    gene_list <- c(grep("GAPDH", rownames(object), ignore.case = TRUE, value = TRUE), grep("MALAT1", rownames(object), ignore.case = TRUE, value = TRUE))
+    
+    # If house-keeping genes aren't present, choose genes by random
+    if (length(gene_list) == 1){
+      gene_list <- gene_list[which(!(sapply(gene_list, is.null)))]
+    } else if (length(gene_list) == 0){
+      # Sample random counts from transcrips that are in at least 50% of cells
+      row_data <- rowData(object)
+      gene_list <- sample(row_data[which(row_data$qc_ncells  > ncol(object) * 0.5), "gene_id"], 2)
+    }
+  }
+  
+  norm_genecounts <- BiocParallel::bplapply(gene_list, plotNormGeneCounts, object = object, count_matrix = count_matrix, norm_matrix = norm_matrix)
+  names(norm_genecounts) <- gene_list
+  output_list[["sampled_genes"]] <- norm_genecounts
+  
   print("Plotting gene expression box plots...")
-  # Generate box plots
-  print("Plotting gene expression box plots...")
-  ordered.1 <- matrix.1[order(rowSums(matrix.1), decreasing=TRUE),]
-  ordered.2 <- matrix.2[order(rowSums(matrix.2), decreasing=TRUE),]
-
-  ordered.1 <- utils::stack(ordered.1[,1:100])
-  ordered.2 <- utils::stack(ordered.2[,1:100])
-
-  ylim <- max(ordered.1$values[1], ordered.2$values[1])
-
-  boxplot.1 <- ggplot2::ggplot(ordered.1, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.1))
-  boxplot.2 <- ggplot2::ggplot(ordered.2, ggplot2::aes(x=ind, y=values)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.1))
-
-  boxplot.1 <- boxplot.1 + ggplot2::labs(title='Gene expression (Before normalisation)',  y='Gene expression', x='Cells')
-  boxplot.2 <- boxplot.2 + ggplot2::labs(title='Gene expression (After normalisation)',  y='Gene expression', x='Cells')
-
-  boxplot.1 <- boxplot.1 + ggplot2::theme(axis.text.x = ggplot2::element_blank())
-  boxplot.2 <- boxplot.2 + ggplot2::theme(axis.text.x = ggplot2::element_blank())
-
-  print("Plots complete!")
-
-  # Return a list of output
-  output.list <- c(output.list, list(GeneExpressionBoxplot = list(Original = boxplot.1, Normalised = boxplot.2)))
-  return(output.list)
+  ordered_counts <- count_matrix[order(rowSums(count_matrix), decreasing=TRUE),]
+  ordered_normcounts <- norm_matrix[order(rowSums(norm_matrix), decreasing=TRUE),]
+  ordered_counts <- as.data.frame(ordered_counts)
+  ordered_normcounts <- as.data.frame(ordered_normcounts)
+  ordered_counts <- cbind(gene_id = rownames(ordered_counts), ordered_counts)
+  ordered_normcounts <- cbind(gene_id = rownames(ordered_normcounts), ordered_normcounts)
+  
+  ordered_counts <- tidyr::gather(ordered_counts[,1:101], gene, count, -gene_id)
+  ordered_normcounts <- tidyr::gather(ordered_normcounts[,1:101], gene, count, -gene_id)
+  
+  ylim <- max(ordered_counts$count, ordered_normcounts$count)
+  
+  counts_boxplot <- ggplot2::ggplot(ordered_counts, ggplot2::aes(x=gene, y=count)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.1))
+  normcounts_boxplot <- ggplot2::ggplot(ordered_normcounts, ggplot2::aes(x=gene, y=count)) + ggplot2::geom_boxplot() + ggplot2::scale_y_continuous(limits = c(0, ylim*1.1))
+  
+  counts_boxplot <- counts_boxplot + ggplot2::labs(x='Gene', y='Counts') + ggplot2::ggtitle('Gene expression (Sampled from 100 cells)', subtitle = "Before normalisation")
+  normcounts_boxplot <- normcounts_boxplot + ggplot2::labs( x='Gene', y='Counts') + ggplot2::ggtitle('Gene expression (Sampled from 100 cells)', subtitle = sprintf("After normalisation via %s", progressLog(object)$NormalisationMethod))
+  
+  counts_boxplot <- counts_boxplot + ggplot2::theme(axis.text.x = ggplot2::element_blank())
+  normcounts_boxplot <- normcounts_boxplot + ggplot2::theme(axis.text.x = ggplot2::element_blank())
+  
+  output_list[["sampled_cell_gene_expression"]] <- list(counts = counts_boxplot, normcounts = normcounts_boxplot)
+  return(output_list)
 }
 
+#' plotControlHist
+#' 
+#' Generates a histogram of percentage of control per samples.
+#' 
+#' @param object An \linkS4class{EMSet} object.
+#' @param control Name of control group to plot.
+#' 
+#' @export
+#' @importFrom dplyr left_join
+#' @return A ggplot2 glob containing the histogram.
+#' 
+plotControlHist <- function(object, control = NULL){
+  # User must specify a control group
+  if (is.null(control)){
+    stop("Please specify a control group to plot.")
+  }
+  
+  # Control group must be specified in the EMSet
+  if (!(control %in% rowInfo(object)$control_group)){
+    stop("Please check that your control group has been defined in the object.")
+  }
+  
+  # Get metrics
+  metrics_df <- as.data.frame(colData(object))
+  
+  # Get cell info
+  cell_info <- as.data.frame(object@colInfo)
+  
+  # Combine data
+  metrics_df <- dplyr::left_join(cell_info, metrics_df, by = "cell_barcode")
+  metrics_df <- metrics_df[, c("cell_barcode", "batch", sprintf("qc_%s_pct_counts", control))]
+  colnames(metrics_df) <- c("cell_barcode", "batch", "percentage")
+  pct_hist <- ggplot2::ggplot(metrics_df, ggplot2::aes(percentage))
+  pct_hist <- pct_hist + ggplot2::geom_histogram(binwidth = 2, fill = "#000000")
+  pct_hist <- pct_hist + ggplot2::ggtitle(sprintf("Proportion of control: %s", control))
+  pct_hist <- pct_hist + ggplot2::xlab("% control") + ggplot2::ylab("Number of cells") + ggplot2::theme_bw()
+  return(pct_hist)
+}  
+
+#' plotFeatureHist
+#' 
+#' Generates a histogram of all cell feature counts.
+#' 
+#' @param object An \linkS4class{EMSet} object.
+#' 
+#' @export
+#' @importFrom dplyr left_join
+#' @return A ggplot2 glob containing the histogram.
+#' 
+plotFeatureHist <- function(object){
+  # Get metrics
+  metrics_df <- as.data.frame(colData(object))
+  
+  # Get cell info
+  cell_info <- as.data.frame(object@colInfo)
+  
+  # Combine data
+  metrics_df <- dplyr::left_join(cell_info, metrics_df, by = "cell_barcode")
+  metrics_df <- metrics_df[, c("cell_barcode", "batch", "qc_nfeaturecounts")]
+  feature_hist <- ggplot2::ggplot(metrics_df, ggplot2::aes(qc_nfeaturecounts))
+  feature_hist <- feature_hist + ggplot2::geom_histogram(breaks = seq(min(metrics_df$qc_nfeaturecounts), 
+                                                                      max(metrics_df$qc_nfeaturecounts), 
+                                                                      by = 1000), fill = "#000000")
+  feature_hist <- feature_hist + ggplot2::ggtitle("Distribution of feature counts for all cells")
+  feature_hist <- feature_hist + ggplot2::xlab("Feature counts") + ggplot2::ylab("Number of cells") + ggplot2::theme_bw()
+  return(feature_hist)
+}
+
+#' plotTopGenesPerSample
+#'
+#' Generates a violin-beeswarm plot of top gene counts and contribution to to 
+#' a cell's total expression.
+#' 
+#' @param object An \code{\linkS4class{EMSet}} object.
+#' @return A ggplot2 object containing a violin-beeswarm plot
+#' 
+#' @export
+#' @importFrom dplyr left_join
+#' @importFrom ggbeeswarm geom_quasirandom 
+#'
+plotTopGenesPerSample <- function(object){
+  # Check if control has been added
+  col_info <- as.data.frame(colInfo(object))
+  col_data <- as.data.frame(SummarizedExperiment::colData(object))
+  row_info <- as.data.frame(rowInfo(object))
+  row_data <- as.data.frame(SummarizedExperiment::rowData(object))
+  
+  cell_info <- dplyr::left_join(col_info, col_data, by = "cell_barcode")
+  batch_names <- unique(cell_info$batch)
+  
+  # What information do we want?
+  # Most expressed genes
+  expression_matrix <- counts(object)
+  ordered_row_data <- row_data[order(row_data$qc_topgeneranking), ]
+  top_500_counts <- expression_matrix[ordered_row_data$gene_id[1:500], ]
+  top_100_counts <- expression_matrix[ordered_row_data$gene_id[1:100], ]
+  top_500_pct <- 100 * (colSums(top_500_counts)/colSums(expression_matrix))
+  top_100_pct <- 100 * (colSums(top_100_counts)/colSums(expression_matrix))
+  
+  # Volcano plots for control and sample
+  plot_dataframe <- cell_info[ , c("cell_barcode", "batch")]
+  plot_dataframe$top_500_pct <- as.vector(top_500_pct)
+  plot_dataframe$top_100_pct <- as.vector(top_100_pct)
+  plot_dataframe$batch <- factor(plot_dataframe$batch, levels = batch_names)
+  
+  gradient_ramp <- ggplot2::scale_colour_gradient(name = "% Top 100 gene expression", low="#001b7f", high="#f1d351")
+  plot_title <- "% Top gene expression to total cell expression"
+  
+  violin_plot <- ggplot2::ggplot(plot_dataframe, ggplot2::aes(x = batch, y = top_500_pct, colour = top_100_pct))
+  violin_plot <- violin_plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
+  violin_plot <- violin_plot + gradient_ramp + ggplot2::scale_x_discrete(name = "Sample", limits = unique(plot_dataframe$batch)) + ggplot2::xlab("Sample") + ggplot2::ylab("% Top 500 gene expression")  + ggplot2::ggtitle(plot_title)
+  return(violin_plot)
+}
+
+
+#' plotLibsizePerSample
+#'
+#' Generates a violin-beeswarm plot of library sizes per sample.
+#' 
+#' @param object An \code{\linkS4class{EMSet}} object.
+#' @return A ggplot2 object containing a violin-beeswarm plot
+#' 
+#' @export
+#' @importFrom dplyr left_join
+#' @importFrom ggbeeswarm geom_quasirandom 
+#'
+plotLibsizePerSample <- function(object){
+  # Check if control has been added
+  col_info <- as.data.frame(colInfo(object))
+  col_data <- as.data.frame(SummarizedExperiment::colData(object))
+  row_info <- as.data.frame(rowInfo(object))
+  row_data <- as.data.frame(SummarizedExperiment::rowData(object))
+  
+  cell_info <- dplyr::left_join(col_info, col_data, by = "cell_barcode")
+  
+  # What information do we want?
+  # Volcano plots for control and sample
+  plot_dataframe <- cell_info[ , c("cell_barcode", "batch", "qc_libsize", "qc_nfeaturecounts")]
+  colnames(plot_dataframe) <- c("cell_barcode", "batch", "total_counts", "feature_counts")
+  plot_dataframe$batch <- factor(plot_dataframe$batch, levels = unique(plot_dataframe$batch)) 
+  
+  gradient_ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
+  plot_title <- sprintf("Total library size and feature counts per sample")
+  
+  violin_plot <- ggplot2::ggplot(plot_dataframe, ggplot2::aes(x = factor(batch), y = total_counts, colour = feature_counts))
+  violin_plot <- violin_plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
+  violin_plot <- violin_plot + gradient_ramp + ggplot2::scale_x_discrete(name = "Feature Counts", limits = unique(plot_dataframe$batch)) + ggplot2::xlab("Sample") + ggplot2::ylab("Total counts")  + ggplot2::ggtitle(plot_title)
+  return(violin_plot)
+}
+
+
+#' plotControlPctPerSample
+#'
+#' Generates a violin/beeswarm plot of percentage of control expression per 
+#' sample. Called by \code{\link{PlotGeneralQC}}.
+#' 
+#' @param object An \code{\linkS4class{EMSet}} object.
+#' @param control.name Name of the control you would like to plot.
+#' @return A ggplot2 object containing a violin-beeswarm plot
+#' @export
+#' @importFrom dplyr left_join
+#' @importFrom ggbeeswarm geom_quasirandom 
+#'
+plotControlPctPerSample<- function(object, control = NULL){
+  # Check if control has been added
+  col_info <- as.data.frame(colInfo(object))
+  col_data <- as.data.frame(SummarizedExperiment::colData(object))
+  row_info <- as.data.frame(rowInfo(object))
+  row_data <- as.data.frame(SummarizedExperiment::rowData(object))
+
+  if (! control %in% row_info[ , "control_group"]){
+    stop("Please check that you have defined this control in your dataset.")
+  }
+    
+  cell_info <- dplyr::left_join(col_info, col_data, by = "cell_barcode")
+  
+  # What information do we want?
+  # Volcano plots for control and sample
+  plot_dataframe <- cell_info[ , c("cell_barcode", "batch", sprintf("qc_%s_pct_counts", control), sprintf("qc_%s_ncounts", control))]
+  colnames(plot_dataframe) <- c("cell_barcode", "batch", "percentage", "counts")
+  plot_dataframe$batch <- factor(plot_dataframe$batch, levels = unique(plot_dataframe$batch)) 
+  
+  gradient_ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
+  plot_title <- sprintf("Percentage of reads mapped to %s genes", control)
+  
+  violin_plot <- ggplot2::ggplot(plot_dataframe, ggplot2::aes(x = factor(batch), y = percentage, colour = counts))
+  violin_plot <- violin_plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
+  violin_plot <- violin_plot + gradient_ramp + ggplot2::scale_x_discrete(limits = unique(plot_dataframe$batch)) + ggplot2::xlab("Sample") + ggplot2::ylab("% Reads")  + ggplot2::ggtitle(plot_title)
+  return(violin_plot)
+}
+
+#' plotLibsizeBarplot
+#' 
+#' Generates a barplot of each cell's library size, and arranges them in 
+#' descending order.
+#' 
+#' @param object An \linkS4class{EMSet} object.
+#' @export
+#' @importFrom dplyr left_join
+#' @importFrom stats reorder
+#' @return A ggplot2 glob containing the barplot.
+#' 
+plotLibsizeBarplot <- function(object){
+  # Get metrics
+  metrics_df <- as.data.frame(SummarizedExperiment::colData(object))
+  
+  # Get cell info
+  cell_info <- as.data.frame(colInfo(object))
+  
+  # Need to marry the information as we have separated the stats and 
+  # metadata
+  
+  # Combine data
+  metrics_df <- dplyr::left_join(cell_info, metrics_df, by = "cell_barcode")
+  metrics_df <- metrics_df[, c("cell_barcode", "batch", "qc_libsize")]
+  metrics_df$batch <- factor(metrics_df$batch, levels = unique(metrics_df$batch))
+  metrics_df$cell_barcode <- 1:nrow(metrics_df)
+  
+  libsize_barplot <- ggplot2::ggplot(metrics_df, 
+                                     ggplot2::aes(x = reorder(cell_barcode, -qc_libsize), 
+                                                  y = qc_libsize, 
+                                                  fill = batch))
+  libsize_barplot <- libsize_barplot + ggplot2::geom_bar(stat = "identity")
+  libsize_barplot <- libsize_barplot + ggplot2::ggtitle("Library size per cell")
+  libsize_barplot <- libsize_barplot + ggplot2::scale_y_continuous(breaks = seq(0, max(metrics_df$qc_libsize), by = 1e4))
+  libsize_barplot <- libsize_barplot + ggplot2::theme(legend.position = "bottom")
+  libsize_barplot <- libsize_barplot + ggplot2::scale_x_discrete(breaks = NULL, name = "Cell")
+  libsize_barplot <- libsize_barplot + ggplot2::scale_fill_brewer(name = "Batch", type = "qual")
+  libsize_barplot <- libsize_barplot + ggplot2::ylab("Library size") + ggplot2::theme_bw()
+  return(libsize_barplot)
+}
+
+#' plotLibsizeHist
+#' 
+#' Generates a histogram of all cell library sizes.
+#' 
+#' @param object An \linkS4class{EMSet} object.
+#' @export
+#' @importFrom dplyr left_join
+#' @return A ggplot2 glob containing the histogram.
+#' 
+plotLibsizeHist <- function(object){
+  # Get metrics
+  metrics_df <- as.data.frame(colData(object))
+  
+  # Get cell info
+  cell_info <- as.data.frame(object@colInfo)
+  
+  # Combine data
+  metrics_df <- dplyr::left_join(cell_info, metrics_df, by = "cell_barcode")
+  metrics_df <- metrics_df[, c("cell_barcode", "batch", "qc_libsize")]
+  libsize_hist <- ggplot2::ggplot(metrics_df, ggplot2::aes(qc_libsize))
+  libsize_hist <- libsize_hist + ggplot2::geom_histogram(breaks = seq(min(metrics_df$qc_libsize), 
+                                                                      max(metrics_df$qc_libsize), 
+                                                                      by = 1000), fill = "#000000")
+  libsize_hist <- libsize_hist + ggplot2::ggtitle("Distribution of library sizes for all cells")
+  libsize_hist <- libsize_hist + ggplot2::xlab("Library size") + ggplot2::ylab("Number of cells") + ggplot2::theme_bw()
+  return(libsize_hist)
+}
+
+#' plotAverageGeneCount
+#' 
+#' Generates a histogram of average counts for each gene.
+#' 
+#' @param object An \linkS4class{EMSet} object.
+#' @param metric Scale to plot data by - average (DEFAULT), log2 or log10.
+#' @export
+#' @importFrom dplyr left_join
+#' @return A ggplot2 glob containing the histogram.
+#' 
+plotAverageGeneCount <- function(object, metric = c("average", "log2", "log10")){
+  if (is.null(metric)){
+    metric <- "average"
+  }
+  
+  # Get metrics
+  metrics_df <- as.data.frame(rowData(object))
+  metrics_df <- metrics_df[ , c("gene_id", "qc_meancounts")]
+  
+  if (metric == "log2"){
+    label <- Log[2]~"Average Count"
+    metrics_df$count <- log2(metrics_df$qc_meancounts)
+    metrics_df <- metrics_df[which(!(is.infinite(metrics_df$count))), ]
+    break_width <- max(abs(metrics_df$count))*0.1
+  }
+  if (metric == "log10"){
+    label <- Log[10]~"Average Count"
+    metrics_df$count <- log10(metrics_df$qc_meancounts)
+    metrics_df <- metrics_df[which(!(is.infinite(metrics_df$count))), ]
+    break_width <- max(abs(metrics_df$count))*0.1
+  } else{
+    label <- "Average Count"
+    metrics_df$count <- metrics_df$qc_meancounts
+    break_width <- max(abs(metrics_df$count))*0.1
+  }
+  
+  ac_hist <- ggplot2::ggplot(metrics_df, ggplot2::aes(count))
+  ac_hist <- ac_hist + ggplot2::geom_histogram(breaks = seq(min(metrics_df$count), 
+                                                            max(metrics_df$count), 
+                                                            by = break_width), fill = "#000000")
+  ac_hist <- ac_hist + ggplot2::ggtitle(label)
+  ac_hist <- ac_hist + ggplot2::xlab(label) + ggplot2::ylab("Number of genes") + ggplot2::theme_bw()
+  return(ac_hist)
+}
 
 #' z_theme
 #' 
@@ -1007,152 +1258,7 @@ z_theme <- function() {
     ggplot2::theme(axis.title.y = ggplot2::element_text(size=16, color=color.axis.title, vjust=1.25))
 }
 
-#' PlotTopGenesPerSample
-#'
-#' Generates a violin/beeswarm plot of top genes per sample. This is called by
-#' the \code{\link{PlotGeneralQC}} function.
-#'
-#' @param object An \code{\linkS4class{EMSet}} object.
-#' @return A ggplot2 object containing a violin-beeswarm plot
-#' 
-#' @importFrom Matrix colSums
-#' @importFrom ggplot2 ggplot scale_colour_gradient aes geom_violin scale_x_discrete xlab ylab ggtitle
-#' @importFrom ggbeeswarm geom_quasirandom 
-#'
-PlotTopGenesPerSample <- function(object){
-  # To shut up R CMD check
-  Percentage500 <- NULL
-  Percentage100 <- NULL
-  BatchInfo <- NULL
-  
-  # Generate tidy data
-  expression.matrix <- GetExpressionMatrix(object, "data.frame")
-  cell.information <- object@CellInformation
-  present.barcodes <- colnames(expression.matrix)
-  top.gene.list <- object@Metrics$TopGeneList
-  metrics <- object@Metrics
-
-  present.batches <- unlist(cell.information[,2][cell.information[,1] %in% present.barcodes])
-  batch.names <- unique(present.batches)
-
-  # Prepare Top 500
-  top.500.gene.list <- top.gene.list[1:500]
-  subset.500.mtx <- expression.matrix[top.500.gene.list,]
-  top.500.percentage <- 100 * colSums(subset.500.mtx)/colSums(expression.matrix)
-
-  # Prepare Top 100
-  top.100.gene.list <- top.gene.list[1:100]
-  subset.100.mtx <- expression.matrix[top.100.gene.list,]
-  top.100.percentage <- 100 * colSums(subset.100.mtx)/colSums(expression.matrix)
-
-  ## Tidy dataframe
-  combined.data <- list(Percentage500 = top.500.percentage, Percentage100 = top.100.percentage, BatchInfo = present.batches)
-  combined.df <- as.data.frame(combined.data)
-
-  # ggplot
-  gradient.ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
-  control.plot <- ggplot2::ggplot(combined.df, ggplot2::aes(x = factor(BatchInfo), y = Percentage500, colour = Percentage100))
-  control.plot <- control.plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
-  control.plot <- control.plot + gradient.ramp + ggplot2::scale_x_discrete(limits = batch.names) + ggplot2::xlab("Sample") + ggplot2::ylab("Total mapped reads per cell")
-  control.plot <- control.plot + ggplot2::ggtitle("Total mapped reads and genes per sample")
-
-  remove(expression.matrix)
-  return(control.plot)
-}
-
-#' PlotLibrarySizesPerSample
-#'
-#' Generates a violin-beeswarm plot of library sizes per sample. This is called 
-#' by the \code{\link{PlotGeneralQC}} function.
-#'
-#' @param object An \code{\linkS4class{EMSet}} object.
-#' @return A ggplot2 object containing a violin-beeswarm plot
-#' 
-#' @importFrom ggplot2 ggplot scale_colour_gradient aes geom_violin scale_x_discrete xlab ylab ggtitle
-#' @importFrom ggbeeswarm geom_quasirandom 
-#'
-PlotLibrarySizesPerSample <- function(object){
-  BatchInfo <- NULL
-  TotalCounts <- NULL
-  FeatureCounts <- NULL
-  
-  # Tidy data to feed into ggplot
-  expression.matrix <- GetExpressionMatrix(object, "data.frame")
-  cell.information <- object@CellInformation
-  present.barcodes <- colnames(expression.matrix)
-  metrics <- object@Metrics
-
-  ## Subset the data
-  present.batches <- unlist(cell.information[,2][cell.information[,1] %in% present.barcodes])
-  total.counts <- metrics$TotalCounts[present.barcodes]
-  total.features <- metrics$TotalFeatureCountsPerCell[present.barcodes]
-  batch.names <- unique(present.batches)
-
-  ## Tidy dataframe
-  combined.data <- list(TotalCounts = total.counts, FeatureCounts = total.features, BatchInfo = present.batches)
-  combined.df <- as.data.frame(combined.data)
-
-  # ggplot
-  gradient.ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
-  control.plot <- ggplot2::ggplot(combined.df, ggplot2::aes(x = factor(BatchInfo), y = TotalCounts, colour = FeatureCounts))
-  control.plot <- control.plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
-  control.plot <- control.plot + gradient.ramp + ggplot2::scale_x_discrete(limits = batch.names) + ggplot2::xlab("Sample") + ggplot2::ylab("Total mapped reads per cell")
-  control.plot <- control.plot + ggplot2::ggtitle("Total mapped reads and genes per sample")
-
-  remove(expression.matrix)
-  return(control.plot)
-}
-
-#' PlotControlPercentagesPerSample
-#'
-#' Generates a violin/beeswarm plot of percentage of control expression per 
-#' sample. Called by \code{\link{PlotGeneralQC}}.
-#' 
-#' @param object An \code{\linkS4class{EMSet}} object.
-#' @param control.name Name of the control you would like to plot.
-#' @return A ggplot2 object containing a violin-beeswarm plot
-#' @importFrom ggplot2 ggplot scale_colour_gradient aes geom_violin scale_x_discrete xlab ylab ggtitle
-#' @importFrom ggbeeswarm geom_quasirandom 
-#'
-PlotControlPercentagesPerSample <- function(object, control.name){
-  # To silence RCheck -.-
-  Percentages <- "Shhh"
-  Counts <- "Shhh"
-  BatchInfo <- "Shhh"
-  
-  # Tidy data to feed into ggplot
-  ## Load data from the object
-  expression.matrix <- GetExpressionMatrix(object, "data.frame")
-  cell.information <- object@CellInformation
-  present.barcodes <- colnames(expression.matrix)
-  metrics <- object@Metrics
-
-  ## Subset the data
-  present.batches <- unlist(cell.information[,2][cell.information[,1] %in% present.barcodes])
-  subset.control.percentages <- metrics$PercentageTotalCounts[[control.name]][present.barcodes]
-  subset.counts <- metrics$ControlTranscriptCounts[[control.name]][present.barcodes]
-  batch.names <- unique(present.batches)
-
-  ## Combine into a tidy dataframe
-  combined.data <- list(Percentages = subset.control.percentages, Counts = subset.counts, BatchInfo = present.batches)
-  combined.df <- as.data.frame(combined.data)
-
-  # Use ggplot to generate a violin/beeswarm plot
-  ## Colour palette
-  gradient.ramp <- ggplot2::scale_colour_gradient(low="#001b7f", high="#f1d351")
-  plot.title <- sprintf("Percentage of reads mapped to %s genes", control.name)
-
-  ## ggplot call
-  control.plot <- ggplot2::ggplot(combined.df, ggplot2::aes(x = factor(BatchInfo), y = Percentages, colour = Counts))
-  control.plot <- control.plot + ggplot2::geom_violin(size = 1, scale = "width", colour = NA) + ggbeeswarm::geom_quasirandom(shape = 16, size=5, alpha=0.5, dodge.width=0.5)
-  control.plot <- control.plot + gradient.ramp + ggplot2::scale_x_discrete(limits = batch.names) + ggplot2::xlab("Sample") + ggplot2::ylab("% Reads")  + ggplot2::ggtitle(plot.title)
-
-  remove(expression.matrix)
-  return(control.plot)
-}
-
-
-#' PlotTopGeneExpression
+#' plotTopGenesBoxplot
 #'
 #' Generates a boxplot using \link[ggplot2]{geom_boxplot} of the most expressed 
 #' genes in the dataset, in a range defined by the user.
@@ -1163,58 +1269,93 @@ PlotControlPercentagesPerSample <- function(object, control.name){
 #' 
 #' @return A ggplot glob containing a box scatter plot that represents the 
 #' expression of the most highly expressed genes.
+
 #' @examples
 #' # Load example EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
-#' 
-#' # Plot top 5 genes
-#' top_gene_expression <- PlotTopGeneExpression(EMSet, n = 5, controls = FALSE)
-
-#' @importFrom reshape2 melt
-#' @importFrom ggplot2 ggplot aes geom_boxplot coord_flip xlab ylab ggtitle
+#' @importFrom tidyr gather
 #' @export
-#'
-PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
-  value <- NULL
-  Var2 <- NULL
+plotTopGenesBoxplot <- function(object, n = 20, controls = TRUE){
+  # Prep the data to feed into the function
+  row_info <- rowInfo(object)
   
-  # Prep data to feed in
   if(!controls){
-    control.list <- object@Controls
-    if(all(names(control.list) %in% c("Mt", "Rb"))){
-      object <- ExcludeControl(object, "Mt")
-      object <- ExcludeControl(object, "Rb")
+    # Check if controls are excluded
+    if (progressLog(object)$controls){
+      all_controls <- unique(row_info$control_group[which(!is.na(row_info$control_group))])
+      em_set <- excludeControl(object, control = all_controls)      
+    } else{
+      em_set <- object
     }
+  } else{
+    em_set <- object
   }
-
-  plot.title <- sprintf("Top %i Expressed Genes", n)
-  expression.matrix <- GetExpressionMatrix(object, "data.frame")
-  counts.per.gene <- object@Metrics$CountsPerGene
-  total.expression <- object@Metrics$TotalExpression
-  top.gene.list <- object@Metrics$TopGeneList[1:n]
-
-  subset.exprs.mtx <- expression.matrix[top.gene.list,]
-  sorted.counts.per.gene <- sort(counts.per.gene, decreasing = TRUE)
-  top.genes.percentage <- 100 * sum(sorted.counts.per.gene[1:n])/total.expression
-  top.gene.expression.per.cell <- (100 * subset.exprs.mtx)/colSums(expression.matrix)
-
-  transposed.gene.expression <- t(top.gene.expression.per.cell)
-  melted.gene.expression <- reshape2::melt(as.matrix(transposed.gene.expression))
-  melted.gene.expression$Var2 <- factor(melted.gene.expression$Var2, levels = (rev(top.gene.list)))
-  ggplot.obj <- ggplot2::ggplot(melted.gene.expression, ggplot2::aes(y = value,x = Var2)) + ggplot2::geom_boxplot(ggplot2::aes(fill=Var2), alpha=.5, outlier.colour = NULL)
-  ggplot.obj <- ggplot.obj + ggplot2::coord_flip() + z_theme() + ggplot2::xlab("Gene") + ggplot2::ylab("% Expression") + ggplot2::ggtitle(plot.title)
-
-  remove(expression.matrix)
-  return(ggplot.obj)
+  
+  # Extract required data
+  plot_title <- sprintf("Top %i expressed genes", n)
+  expression_matrix <- SingleCellExperiment::counts(em_set)
+  row_info <- rowInfo(em_set)
+  row_data <- SummarizedExperiment::rowData(em_set)
+  
+  # Sort genes by rank
+  row_data <- row_data[order(row_data$qc_topgeneranking), ]
+  
+  # Subset n amount of genes and get related information
+  plot_data <- row_data[1:n, ]
+  top_gene_list <- plot_data$gene_id
+  pct_exprs_per_cell <- t(100*(expression_matrix[top_gene_list, ]/colSums(expression_matrix)))
+  
+  # Arrange data so it is nice
+  pct_exprs_per_cell <- as.data.frame(pct_exprs_per_cell)
+  pct_exprs_per_cell$cell_barcode <- rownames(pct_exprs_per_cell)
+  gathered_pct_exprs_per_cell <- tidyr::gather(pct_exprs_per_cell, key = gene, value = pct_expression, -cell_barcode)
+  gathered_pct_exprs_per_cell$gene <- factor(gathered_pct_exprs_per_cell$gene, levels = rev(top_gene_list))
+  
+  boxplot <- ggplot2::ggplot(gathered_pct_exprs_per_cell, ggplot2::aes(x = gene, y = pct_expression)) + ggplot2::geom_boxplot(ggplot2::aes(fill=gene), alpha=.5, outlier.colour = NULL)
+  boxplot <- boxplot + ggplot2::coord_flip() + z_theme() + ggplot2::xlab("Gene") + ggplot2::ylab("% Expression") + ggplot2::ggtitle(plot_title)
+  return(boxplot)
 }
 
-#' PlotGeneralQC
+#' plotSmoothScatter
+#' 
+#' Generates a smooth scatter of of average counts for each gene per cell.
+#' 
+#' @param object An \linkS4class{EMSet} object.
+#' 
+#' @importFrom graphics smoothScatter
+#' @return A ggplot2 glob containing the histogram.
+#' 
+plotSmoothScatter <- function(object){
+  metrics_df <- rowData(object)
+  smooth_plot <- smoothScatter(log10(metrics_df$qc_meancounts), 
+                               metrics_df$qc_ncells, 
+                               xlab=expression(Log[10]~"Average Count"),
+                               ylab="Number of expressing cells", 
+                               main = expression(Log[10]~" Average gene expression across cells"))
+  return(smooth_plot)
+}
+
+
+#' plotGeneNumber
+#' 
+#' @importFrom SummarizedExperiment colData
+#' @export
+plotGeneNumber <- function(object){
+  metrics_df <- as.data.frame(SummarizedExperiment::colData(object))
+  plot <- ggplot2::ggplot(metrics_df, aes(qc_ngenes))
+  plot <- plot + ggplot2::geom_histogram(binwidth = 100)
+  plot <- plot + ggplot2::ggtitle("Number of genes per cell") + ggplot2::xlab("Number of genes") + ggplot2::ylab("Number of cells")
+  return(plot)
+}
+
+#' plotGeneralQC
 #'
 #' This function generates a series of plots that can be used to assess the
 #' present quality of an EMSet.
 #' 
 #' The plots are as follows:
 #' \itemize{
+#' \item{\strong{Library Size per Cell}: A series of barplots depicting the 
+#' library size of each cell in descending order.}
 #' \item{\strong{Library Size}: A histogram depicting the distribution of 
 #' library sizes across the dataset.}
 #' \item{\strong{Average Gene Count}: A histogram depicting number of cells vs 
@@ -1226,8 +1367,8 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #' \item{\strong{Log 10 Average Gene Count (Smooth Scatter)}: Smooth scatter 
 #' plot of number of cells vs Log10 mean gene expression.}
 #' \item{\strong{Top Genes Per Sample}: Violin/beehive plots depicting 
-#' proportion of top genes per sample.}
-#' \item{\strong{Top Gene Expression}: Boxplots depicting top 50 genes in terms 
+#' proportion of top genes to total cell expression per sample.}
+#' \item{\strong{Top Gene Expression}: Boxplots depicting top 25 genes in terms 
 #' of expression.}
 #' }
 
@@ -1241,89 +1382,50 @@ PlotTopGeneExpression <- function(object, n = 50, controls = TRUE){
 #' }
 #' 
 #' @param object An \code{\linkS4class{EMSet}} object.
-#' @return A list of ggplot globs
-#' 
-#' @examples
-#' \dontrun{
-#' # Load example EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
-#' 
-#' # Assess quality of data by generating plots with PlotGeneralQC
-#' qc_plots <- PlotGeneralQC(EMSet)
-#'  
-#' }
-#' @importFrom ggplot2 ggplot qplot aes theme_bw geom_histogram ggtitle xlab ylab ggtitle
-#' @importFrom graphics smoothScatter
+#' @importFrom gridExtra grid.arrange
 #' @export
-#'
-PlotGeneralQC <- function(object){
-  Percentage <- NULL
-  output.list <- list()
+#' @return A list of plot objects.
+#' 
+plotGeneralQC <- function(object){
+  # Collect plots here!
+  output_list <- list()
   
-  # General Plots
-  # 1. Plot library sizes and expressed gene histograms
-  print("Plotting Total Count and Library Size...")
-  libsize.plot <- ggplot2::qplot(object@Metrics$TotalCounts, geom="histogram", main="Distribution of library sizes across dataset", xlab="Library size", ylab="Number of cells", binwidth=1000) + ggplot2::theme_bw()
-  output.list[["LibSize"]] <- libsize.plot
-
-  print("Plotting Average Counts...")
-  smooth.scatter <- graphics::smoothScatter(log10(object@Metrics$AverageCounts), object@Metrics$CellsPerGene, xlab=expression(Log[10]~"Average Count"),ylab="Number of expressing cells", main = "Log 10 Average gene expression across cells")
-  average.gene.count <- ggplot2::qplot(object@Metrics$AverageCounts, xlab="Average Transcript Count", ylab="Number of genes", main="Average Transcript Count of Genes", binwidth = 10) + ggplot2::theme_bw()
-  log2.average.count <- ggplot2::qplot(log2(object@Metrics$AverageCounts)[!is.infinite(log2(object@Metrics$AverageCounts))], geom="histogram", xlab=Log[2]~"Average Transcript Count", ylab="Number of genes", main="Average Transcript Count of Genes", binwidth = 1) + ggplot2::theme_bw()
-  log10.average.gene.count <- ggplot2::qplot(log10(object@Metrics$AverageCounts)[!is.infinite(log10(object@Metrics$AverageCounts))], geom="histogram", xlab=Log[10]~"Average Transcript Count", ylab="Number of genes", main="Average Transcript Count of Genes", binwidth = 0.1) + ggplot2::theme_bw()
+  print("Plotting library size plots...")
+  # 1. Libsize barplot
+  output_list[["libsize_barplot"]] <- plotLibsizeBarplot(object)
   
-  output.list[["AverageGeneCount"]] <- average.gene.count
-  output.list[["Log2AverageGeneCount"]] <- log2.average.count
-  output.list[["Log10AverageGeneCount"]] <- log10.average.gene.count
-  output.list[["AverageCountSmoothScatter"]] <- smooth.scatter
+  # 2. Libsize histogram
+  output_list[["libsize_histogram"]] <- plotLibsizeHist(object)
   
-  # 2. Average Counts
-  if (object@Log$Controls){
-    # Plots that need controls
-    # 1. Plot library sizes and expressed gene histograms
-    feature.counts.per.cell <- ggplot2::qplot(object@Metrics$TotalFeatureCountsPerCell, geom="histogram", xlab="Number of expressed genes", main="Number of expressed genes across cells", ylab="Number of cells", binwidth = 250) + ggplot2::theme_bw()
-    output.list[["FeatureCountsPerCell"]] <- feature.counts.per.cell
+  print("Plotting average count plots...")
+  # 3. Average count histograms
+  output_list[["averagecount_histogram"]] <- plotAverageGeneCount(object, metric = "average")
+  output_list[["averagecount_log2"]] <- plotAverageGeneCount(object, metric = "log2")
+  output_list[["averagecount_log10"]] <- plotAverageGeneCount(object, metric = "log10")
+  output_list[["averagecount_smoothScatter"]] <- plotSmoothScatter(object)
+  
+  # 4. Top gene expression
+  print("Plotting top gene expression...")
+  output_list[["topgenes_boxplot"]] <- plotTopGenesBoxplot(object, n = 25, controls = TRUE)
+  output_list[["topgenes_violin"]] <- plotTopGenesPerSample(object)
 
-    # 2. Proportion of Controls
-    print("Plotting Proportion of Control Histograms...")
-    percentage.total.plots <- list()
-    for (control.name in names(object@Metrics$PercentageTotalCounts)){
-      xlab.string <- paste0("%", sprintf("%s proportion ", control.name))
-      title.string <- sprintf("Proportion of control: %s", control.name)
-      percentage.total.counts <- as.data.frame(object@Metrics$PercentageTotalCounts[[control.name]])
-      colnames(percentage.total.counts) <- c("Percentage")
-      pct.hist <- ggplot2::ggplot(percentage.total.counts, ggplot2::aes(Percentage)) + ggplot2::geom_histogram(binwidth = 1) + ggplot2::ggtitle(title.string) + ggplot2::theme_bw()
-      pct.hist <- pct.hist + ggplot2::xlab(xlab.string) + ggplot2::ylab("Number of cells") + ggplot2::ggtitle(title.string)
-      percentage.total.plots[[control.name]] <- pct.hist
-    }
-
-    # 6. Plot Controls Per Sample
-    print("Using ggplot2 to plot Control Percentages...")
-    percentage.sample.list <- list()
-    for (control.name in names(object@Controls)){
-      control.pct.plot <- PlotControlPercentagesPerSample(object, control.name)
-      percentage.sample.list[[control.name]] <- control.pct.plot
-    }
-
-    output.list[["ControlPercentageTotalCounts"]] <- percentage.total.plots
-    output.list[["ControlPercentageSampleCounts"]] <- percentage.sample.list
-
-    # 4. Plot Library Sizes per Sample
-    print("Using ggplot2 to plot Library Sizes Per Sample...")
-    library.size.plot <- PlotLibrarySizesPerSample(object)
-    output.list[["LibSizePerSample"]] <- library.size.plot
-
+    # If controls present...
+  if (progressLog(object)$controls){
+    print("Controls detected. Plotting control-specific plots...")
+    
+    # 1. Plot feature count histogram
+    output_list[["featurecount_hist"]] <- plotFeatureHist(object)
+    output_list[["ngenes_hist"]] <- plotGeneNumber(object)
+    
+    # 2. Proportion of controls
+    control_hists <- lapply(names(progressLog(object)$set_controls), function(x) plotControlHist(object, control = x))
+    names(control_hists) <- names(progressLog(object)$set_controls)
+    control_violins <- lapply(names(progressLog(object)$set_controls), function(x) plotControlPctPerSample(object, control = x))
+    names(control_violins) <- names(progressLog(object)$set_controls)
+    output_list[["control_hists"]] <- control_hists
+    output_list[["control_violins"]] <- control_violins
   }
-
-
-  # 5. Plot Genes per Sample
-  print("Using ggplot2 to plot Top Genes Per Sample...")
-  genes.per.sample.plot <- PlotTopGenesPerSample(object)
-  output.list[["TopGenesPerSample"]] <- genes.per.sample.plot
-
-  # 7. Plot Top Genes
-  print("Using ggplot2 to plot Top Gene Expression...")
-  top.genes.plot <- PlotTopGeneExpression(object)
-  output.list[["TopGenes"]] <- top.genes.plot
-  return(output.list)
+  
+  print("General QC plots complete!")
+  return(output_list)
 }

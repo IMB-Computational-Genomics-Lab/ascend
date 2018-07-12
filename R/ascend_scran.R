@@ -1,175 +1,9 @@
-#' SCESetnormalise
-#' 
-#' Called by \code{\link{scranNormalise}} - runs normalisation on a 
-#' \pkg{SingleCellExperiment} object and converts it back to an 
-#' \linkS4class{EMSet}.
-#' 
-#' @param sce.set A \pkg{SingleCellExperiment} object.
-#' @param em.set The \code{\linkS4class{EMSet}} to load the SCESet into.
-#' @param quickCluster Whether or not to use quickCluster (Default: FALSE).
-#' @return A normalised \code{\linkS4class{EMSet}} object.
-#' @importFrom scran quickCluster computeSumFactors
-#' @importFrom scater normalize
-#' 
-SCESetnormalise <- function(sce.set, em.set, quickCluster = FALSE){
-  # Remove controls from SCESet object
-  present.mt <- which(rownames(sce.set) %in% em.set@Controls$Mt)
-  present.rb <- which(rownames(sce.set) %in% em.set@Controls$Rb)
-  
-  remove.idx <- c(present.mt, present.rb)
-  
-  # Remove ERCC sequences if in dataset
-  ercc.idx <- grep("^ercc-", ignore.case = TRUE, rownames(em.set@ExpressionMatrix))
-  if (length(ercc.idx) > 0) {
-    remove.idx <- c(remove.idx, ercc.idx)
-  }
-  
-  # Remove these items
-  sce.set_rmMtRb <- sce.set[-remove.idx, ]
-  
-  # Run computeSumFactors based on number of samples If we have more than 10,000 samples, we will run quickCluster Otherwise we supply a set list of sizes
-  if (ncol(sce.set_rmMtRb) > 10000) {
-    if (quickCluster) {
-      print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.set)))
-      quick.cluster <- scran::quickCluster(sce.set_rmMtRb, method = "hclust")
-    } else {
-      print(sprintf("%i cells detected. Randomly grouping cells to feed into computeSumFactors...", ncol(sce.set)))
-      cell.identifiers <- colnames(sce.set_rmMtRb)
-      
-      # Assign pseudocluster
-      chunked.idx <- split(sample(1:length(cell.identifiers)), 1:10)
-      quick.cluster <- cell.identifiers
-      
-      for (cluster.id in names(chunked.idx)) {
-        cell.idx <- chunked.idx[[cluster.id]]
-        quick.cluster[cell.idx] <- cluster.id
-      }
-    }
-    
-    # Feed rough clusters into computeSumFactors
-    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, clusters = quick.cluster, positive = TRUE)
-  } else {
-    print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.set)))
-    preset.sizes <- c(40, 60, 80, 100)
-    factored.sce.set <- scran::computeSumFactors(sce.set_rmMtRb, sizes = preset.sizes, positive = TRUE)
-  }
-  
-  print("scran's computeSumFactors complete. Removing zero sum factors from dataset...")
-  zero.size.factors <- which(factored.sce.set@phenoData@data$size_factor == 0)
-  if (any(zero.size.factors)) {
-    min.size.factor <- min(factored.sce.set@phenoData@data$size_factor[-zero.size.factors])
-    factored.sce.set@phenoData@data$size_factor[zero.size.factors] <- min.size.factor
-  }
-  
-  print("Running scater's normalize method...")
-  dcvl.sce.set <- scater::normalize(factored.sce.set)
-  
-  # Convert log-transformed results back into counts
-  print("Normalisation complete. Converting SCESet back to EMSet...")
-  dcvl.matrix <- as.matrix(scater::norm_exprs(dcvl.sce.set))
-  unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
-  
-  # Replace the em.set
-  normalised.obj <- ReplaceExpressionMatrix(em.set, unlog.dcvl.matrix)
-  normalised.obj <- SyncSlots(normalised.obj)
-  normalised.obj@Log$NormalisationMethod <- "scranNormalise"
-  normalised.obj@Log$Controls <- FALSE
-  normalised.obj@Log$ExcludeControls <- list(Mt = TRUE, Rb = TRUE)
-  
-  remove(sce.set)
-  return(normalised.obj)
-}
-
-
-#' SCEnormalise
-#' 
-#' Called by \code{\link{scranNormalise}} - runs normalisation on a 
-#' \pkg{SingleCellExperiment} object and converts it back to an 
-#' \linkS4class{EMSet}.
-#' 
-#' @param sce.obj A \pkg{SingleCellExperiment} object.
-#' @param em.set An \code{\linkS4class{EMSet}} that the sce.set originated from.
-#' @param quickCluster Normalise with quickCluster Default: FALSE.
-#' @param min.mean Argument to pass on to
-#' \code{\link[scran]{computeSumFactors}} from \pkg{scran} Default: 1e-5.
-#' @return A normalised \code{\linkS4class{EMSet}}.
-#' 
-#' @importFrom BiocGenerics sizeFactors
-#' @importFrom scran quickCluster computeSumFactors
-#' @importFrom scater normalize
-#' 
-SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5){
-  # Remove controls from SCE object
-  present.mt <- which(rownames(sce.obj) %in% em.set@Controls$Mt)
-  present.rb <- which(rownames(sce.obj) %in% em.set@Controls$Rb)
-  
-  remove.idx <- c(present.mt, present.rb)
-  ercc.idx <- grep("^ercc-", ignore.case = TRUE, rownames(em.set@ExpressionMatrix))
-  if (length(ercc.idx) > 0) {
-    remove.idx <- c(remove.idx, ercc.idx)
-  } 
-  
-  sce.obj_rmMtRb <- sce.obj[-remove.idx, ]
-  
-  if (ncol(sce.obj_rmMtRb) > 10000) {
-    if (quickCluster) {
-      print(sprintf("%i cells detected. Running quickCluster to feed into computeSumFactors...", ncol(sce.obj)))
-      quick.cluster <- scran::quickCluster(sce.obj_rmMtRb, method = "hclust")
-    } else {
-      print(sprintf("%i cells detected. Randomly grouping cells to feed into computeSumFactors...", ncol(sce.obj)))
-      cell.identifiers <- colnames(sce.obj_rmMtRb)
-      
-      # Assign pseudocluster
-      chunked.idx <- split(sample(1:length(cell.identifiers)), 1:10)
-      quick.cluster <- cell.identifiers
-      
-      for (cluster.id in names(chunked.idx)) {
-        cell.idx <- chunked.idx[[cluster.id]]
-        quick.cluster[cell.idx] <- cluster.id
-      }
-    }
-    
-    # Feed rough clusters into computeSumFactors
-    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, clusters = quick.cluster, min.mean = min.mean, positive = TRUE)
-  } else {
-    print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncol(sce.obj)))
-    preset.sizes <- c(40, 60, 80, 100)
-    factored.sce.obj <- scran::computeSumFactors(sce.obj_rmMtRb, sizes = preset.sizes, positive = TRUE, min.mean = min.mean)
-  }
-  
-  print("scran's computeSumFactors complete. Removing zero sum factors from dataset...")
-  
-  # Get Size Factors
-  size.factors <- BiocGenerics::sizeFactors(factored.sce.obj)
-  zero.size.factors <- which(size.factors == 0)
-  
-  # Adjust zero size factors to smallest size factor and replace current size factor
-  if (length(zero.size.factors) > 0) {
-    min.size.factor <- min(size.factors[-zero.size.factors])
-    
-    # Replace zero size factors
-    size.factors[zero.size.factors] <- min.size.factor
-    BiocGenerics::sizeFactors(factored.sce.obj) <- size.factors
-  }
-  
-  print("Running scater's normalize method...")
-  dcvl.sce.obj <- scater::normalize(factored.sce.obj)
-  
-  # Convert log-transformed results back into counts
-  print("Normalisation complete. Converting SingleCellExperiment back to EMSet...")
-  dcvl.matrix <- as.matrix(SingleCellExperiment::logcounts(dcvl.sce.obj))
-  unlog.dcvl.matrix <- UnLog2Matrix(dcvl.matrix)
-  
-  # Replace the em.set
-  normalised.obj <- ReplaceExpressionMatrix(em.set, unlog.dcvl.matrix)
-  normalised.obj <- SyncSlots(normalised.obj)
-  normalised.obj@Log$NormalisationMethod <- "scranNormalise"
-  normalised.obj@Log$Controls <- FALSE
-  normalised.obj@Log$ExcludeControls <- list(Mt = TRUE, Rb = TRUE)
-  
-  remove(sce.obj)
-  return(normalised.obj)
-}
+################################################################################
+#
+# ascend_scran.R
+# description: Wrappers for scran
+#
+################################################################################
 
 #' scranCellCycle
 #'
@@ -200,113 +34,156 @@ SCEnormalise <- function(sce.obj, em.set, quickCluster = FALSE, min.mean = 1e-5)
 #' # Convert annotation back to gene ids
 #' cycledEMSet <- ConvertGeneAnnotation(EMSet, "ensembl_id", "gene_id")
 #' }
+#' 
+#' @importFrom S4Vectors DataFrame
+#' @importFrom SummarizedExperiment colData
+#' @importFrom SingleCellExperiment counts
 #' @importFrom scran cyclone
 #' @importFrom BiocParallel bpparam
 #' @export
 #'
-scranCellCycle <- function(object, training.set) {
-  # Cell Cycle Testing
-  expression.matrix <- GetExpressionMatrix(object, format = "matrix")
-
+scranCellCycle <- function(object, training_set = NULL) {
+  if(is.null(training_set)){
+    stop("Please specify a cyclone training set.")
+  }
+  
+  expression_matrix <- SingleCellExperiment::counts(object)
+  row_info <- rowInfo(object)
+  
   # Run cyclone with cell cycle assignments as a vector
-  cc.assignments <- scran::cyclone(expression.matrix, pairs = training.set, rownames(expression.matrix), BPPARAM = BiocParallel::bpparam())
-
-  cell.info <- GetCellInfo(object)
-  cell.info$phase <- cc.assignments$phases
-
-  object <- ReplaceCellInfo(object, cell.info)
+  print("Running cyclone from scran...")
+  cc_assignments <- scran::cyclone(expression_matrix, pairs = training_set, rownames(expression_matrix), BPPARAM = BiocParallel::bpparam())
+  col_info <- as.data.frame(colInfo(object))
+  col_data <- as.data.frame(SummarizedExperiment::colData(object))
+  cc_assignments <- as.data.frame(cc_assignments)
+  col_info$phase <- cc_assignments$phases
+  col_data <- S4Vectors::DataFrame(cbind(col_data), cc_assignments[ ,2:ncol(cc_assignments)])
+  colInfo(object) <- S4Vectors::DataFrame(col_info)
+  SummarizedExperiment::colData(object) <- col_data
   return(object)
 }
 
-#' ConvertToSCE
+#' scranNormalise
 #'
-#' Convert a \code{\linkS4class{EMSet}} object into a SingleCellExperiment object for 
-#' use with \pkg{scater}, \pkg{scran} and other Bioconductor packages.
+#' Normalise an \code{\linkS4class{EMSet}} with \pkg{scran}'s deconvolution 
+#' method by Lun et al. 2016.
+#'
+#' @details Users may choose to run computeSumFactors using either preset 
+#' group sizes (40,60, 80 and 100) or quickCluster. For datasets with over
+#' 20,000 cells - it is recommended you use quickCluster.
 #' 
-#' In order to use this function, you must have mitochondrial and ribosomal 
-#' genes in your expression data.
-#'
-#' @param object An \code{\linkS4class{EMSet}} object.
-#' @param control.list Optional - a named list containing mitochondrial and 
-#' ribosomal genes.
-#' @return A SingleCellExperiment object
+#' @param object An \code{\linkS4class{EMSet}} that has not undergone 
+#' normalisation.
+#' @param quickCluster Use scran's quickCluster method (TRUE) or  use randomly-
+#' assigned groups (FALSE, Default).
+#' @param min_mean Threshold for average counts. This argument is for the 
+#' \code{\link[scran]{computeSumFactors}} function from \pkg{scran}. The value 
+#' of 1 is recommended for read count data, while the default value of 1e-5 is 
+#' best for UMI data. This argument is only used for newer versions of 
+#' \pkg{scran}.
+#' @return An \code{\linkS4class{EMSet}} with an expression matrix with counts 
+#' normalised by \code{\link[scater]{normalize}} function.
 #' @examples
-#' \dontrun{
-#' single_cell_experiment <- ConvertToSCE(em.set, control.list = list(
-#' Mt = mt.genes, Rb = rb.genes
-#' ))}
-#' @export
-#' @importFrom scater calculateQCMetrics
-#' @importClassesFrom SingleCellExperiment SingleCellExperiment
-#'
-ConvertToSCE <- function(object, control.list = list()) {
-    # Prepare control list
-    control.names <- c("Mt", "Rb")
 
-    # Retrieve controls from EMSet object if user hasn't supplied a list
-    if (length(control.list) == 0) {
-        control.list <- object@Controls
-    }
-
-    if (length(control.list) > 0) {
-        # Verify Mt and Rb are names in supplied list
-        if (!all(control.names %in% names(control.list))) {
-            stop("Please make sure you have supplied mitochondrial and ribosomal gene identifiers in a named list.")
-        }
-
-        # Verify genes are present in the list
-        if (!all(sapply(control.list, function(x) length(x) > 0))) {
-            stop("Please make sure you have supplied genes to the mitochondrial and ribosomal gene lists.")
-        }
-        
-        expression.matrix <- GetExpressionMatrix(object, "matrix")
-        
-        # Extract Controls
-        mito.genes <- control.list[["Mt"]]
-        ribo.genes <- control.list[["Rb"]]
-        mito.bool <- rownames(expression.matrix) %in% mito.genes
-        ribo.bool <- rownames(expression.matrix) %in% ribo.genes
-        
-        sce.obj <- SingleCellExperiment::SingleCellExperiment(list(counts = expression.matrix))
-        sce.obj <- scater::calculateQCMetrics(sce.obj, feature_controls = list(Mt=mito.bool, Rb=ribo.bool))
-        
-    } else {
-        expression.matrix <- GetExpressionMatrix(object, "data.frame")
-        sce.obj <- SingleCellExperiment::SingleCellExperiment(list(counts = expression.matrix))
-    }
-
-    # Convert EMSet to SingleCellExpression object
-    return(sce.obj)
-}
-
-#' SCESet2EMset
-#'
-#' Loads data from a SCESet to a pre-existing 
-#' \linkS4class{EMSet} object.
-#' 
-#' @param SCESet A SCESet from \pkg{scater}.
-#' @param EMSet An \code{\linkS4class{EMSet}} to load data from.
-#' @return An \code{\linkS4class{EMSet}} with data retrieved from a SCESet.
-#' 
-#' @examples
-#' \dontrun{
-#' # Update original EMSet with count data from SCESet
-#' UpdatedEMSet <- SCESet2EMSet(SCESet, OldEMSet)
-#' }
-#' 
-#' @importFrom BiocGenerics counts
+#' @importFrom SummarizedExperiment colData rowData
+#' @importFrom SingleCellExperiment isSpike spikeNames sizeFactors counts normcounts logcounts
+#' @importFrom scran computeSumFactors quickCluster
+#' @importFrom scater normalize
 #' @export
 #'
-SCESet2EMSet <- function(SCESet, EMSet) {
-    # Retrieve counts from SCESet
-    expression.matrix <- BiocGenerics::counts(SCESet)
-
-    # Convert to sparse, re-run metrics and add to slot
-    EMSet <- ReplaceExpressionMatrix(EMSet, expression.matrix)
-
-    # Sync up the object
-    EMSet <- SyncSlots(EMSet)
-
-    # Return updated object
-    return(EMSet)
+scranNormalise <- function(object, quickCluster = FALSE, min_mean = 1e-5){
+  # Retrieve EMSet-only slots and keep for safekeeping
+  # Check if data is normalised
+  if (!is.null(progressLog(object)$NormalisationMethod)) {
+    stop("This data is already normalised.")
+  }
+  
+  # Remove controls
+  # Check if mitochondria and ribosomes are in the set
+  log <- progressLog(object)
+  
+  # Remove controls prior to normalisation
+  if (any(names(log$set_controls) %in% c("Mt", "Rb"))){
+    if ("Mt" %in% names(log$set_controls)){
+      object <- excludeControl(object, control = "Mt")    
+    }
+    if ("Rb" %in% names(log$set_controls)){
+      object <- excludeControl(object, control = "Rb")    
+    }
+  }
+  
+  col_info <- colInfo(object)
+  row_info <- rowInfo(object)
+  col_data <- SummarizedExperiment::colData(object)
+  row_data <- SummarizedExperiment::rowData(object)
+  log <- progressLog(object)
+  cluster_analysis <- clusterAnalysis(object)
+  
+  # Save column names for extracted data frames so they can be retrieved
+  col_info_headers <- colnames(col_info)
+  row_info_headers <- colnames(row_info)
+  col_data_headers <- colnames(col_data)
+  row_data_headers <- colnames(row_data)
+  sce_obj <- EMSet2SCE(object)
+  
+  # Remove spike-ins if present
+  if (!is.null(SingleCellExperiment::isSpike(sce_obj))){
+    spike_ins <- SingleCellExperiment::spikeNames(sce_obj)
+    exclude_list <- sapply(spike_ins, function(x) which(SingleCellExperiment::isSpike(sce_obj, x)))
+    exclude_list <- unique(exclude_list)
+    sce_obj <- sce_obj[-exclude_list, ]
+  }
+  
+  # Non-quickcluster method
+  ncells <- BiocGenerics::ncol(sce_obj)
+  
+  if (quickCluster){
+    print(sprintf("%i cells detected. Running computeSumFactors with quickCluster...", ncells))
+    quick_cluster <- scran::quickCluster(sce_obj, method = "hclust", min.mean = min_mean)
+    sce_obj <- scran::computeSumFactors(sce_obj, clusters = quick_cluster, positive = TRUE, min.mean = min_mean)
+  } else{
+    print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncells))
+    preset_sizes <- c(40, 60, 80, 100)
+    sce_obj <- scran::computeSumFactors(sce_obj, sizes = preset_sizes, positive = TRUE, min.mean = min_mean)
+  }
+  
+  print("scran's computeSumFactors complete. Adjusting zero sum factors...")
+  size_factors <- SingleCellExperiment::sizeFactors(sce_obj)
+  zero_size_factors <- which(size_factors == 0)
+  
+  # Adjust size factor to use minimum 
+  if (length(zero_size_factors) > 0){
+    min_size_factor <- min(size_factors[-zero_size_factors])
+    size_factors[zero_size_factors] <- min_size_factor
+    SingleCellExperiment::sizeFactors(sce_obj) <- size_factors
+  }
+  
+  print("Running scater's normalize method...")
+  norm_obj <- scater::normalize(sce_obj)
+  print("Normalisation complete. Converting SingleCellExperiment back to EMSet...")
+  
+  # Coercian doesn't quite work... just create a new EMSet instead.
+  logcounts <- SingleCellExperiment::logcounts(norm_obj)
+  normcounts <- unLog2Matrix(logcounts)
+  SingleCellExperiment::normcounts(norm_obj) <- normcounts
+  
+  norm_col_data <- SummarizedExperiment::colData(norm_obj)
+  norm_row_data <- SummarizedExperiment::rowData(norm_obj)
+  norm_col_info <- norm_col_data[ , colnames(norm_col_data) %in% col_info_headers]
+  norm_row_info <- norm_row_data[ , colnames(norm_row_data) %in% row_info_headers]
+  norm_col_data <- norm_col_data[, colnames(norm_col_data) %in% col_data_headers]
+  norm_row_data <- norm_row_data[, colnames(norm_row_data) %in% row_data_headers]
+  rownames(norm_col_info) <- norm_col_info$cell_barcode
+  rownames(norm_row_info) <- norm_row_info$gene_id
+  
+  SummarizedExperiment::colData(norm_obj) <- norm_col_data
+  SummarizedExperiment::rowData(norm_obj) <- norm_row_data
+  
+  # Update log
+  log$NormalisationMethod <- "Deconvolution"
+  
+  # Rebuild EMSet
+  norm_emset <- new("EMSet", norm_obj, colInfo = norm_col_info, rowInfo = norm_row_info, log = log, clusterAnalysis = cluster_analysis)
+  norm_emset <- calculateQC(norm_emset)
+  return(norm_emset)
 }

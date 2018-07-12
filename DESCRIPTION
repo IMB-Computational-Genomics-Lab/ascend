@@ -1,7 +1,7 @@
 Package: ascend
 Type: Package
 Title: ascend - Analysis of Single Cell Expression, Normalisation, and Differential expression
-Version: 0.5.0
+Version: 0.5.2
 Author: c(person("Anne", "Senabouth", email = "a.senabouth@uq.edu.au", rol = "aut, cre"), person("Quan", "Nguygen", email = "quan.nguyen@imb.uq.edu.au", rol = "aut"))
 Maintainer: Anne Senabouth <a.senabouth@uq.edu.au>
 Description: Provides a series of tools for cleaning, normalisation and analysis of data produced by single cell experiments.
@@ -9,10 +9,9 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Imports: methods,
-    stats,
-    devtools,
+Imports: stats,
     reshape2,
+    fields,
     ggplot2,
     ggbeeswarm,
     Biobase,
@@ -28,34 +27,39 @@ Imports: methods,
     scater,
     scran,
     locfit,
-    DESeq,
+Suggests: devtools,
+    knitr,
+    rmarkdown,
+    testthat,
+    KernSmooth,
+    DESeq
+VignetteBuilder: knitr
+Depends:
+    methods,
+    dplyr,
+    data.table,
+    Matrix,
     BiocGenerics,
     SummarizedExperiment,
     SingleCellExperiment
-Suggests: knitr,
-    rmarkdown,
-    testthat,
-    KernSmooth
-VignetteBuilder: knitr
-Depends:
-    dplyr,
-    data.table,
-    Matrix
 Collate: 
-    'ascend.R'
+    'ascend_DESeq.R'
+    'ascend_DESeq2.R'
+    'ascend_objects.R'
+    'ascend_getters.R'
+    'ascend_setters.R'
+    'ascend_methods.R'
     'ascend_cellranger.R'
     'ascend_clustering.R'
     'ascend_confoundingfactors.R'
     'ascend_diffexpression.R'
     'ascend_dimreduction.R'
     'ascend_filtering.R'
-    'ascend_objects.R'
-    'ascend_getfunctions.R'
-    'ascend_methods.R'
+    'ascend_imports.R'
     'ascend_normalisation.R'
     'ascend_plots.R'
     'ascend_scran.R'
-    'ascend_subsetmethods.R'
+    'ascend_subsetters.R'
     'ascend_utilities.R'
 biocViews: Software, 
     WorkflowStep, 
