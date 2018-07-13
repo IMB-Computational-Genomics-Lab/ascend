@@ -65,7 +65,6 @@ Collate:
     'ascend_scran.R'
     'ascend_subsetters.R'
     'ascend_utilities.R'
-    'testthat.R'
 biocViews: Software, 
     WorkflowStep, 
     Preprocessing, 
