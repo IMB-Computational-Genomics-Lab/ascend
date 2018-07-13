@@ -14,7 +14,7 @@ setGeneric("runTSNE", def = function(object, ..., PCA, dimensions, seed,
 #' runTSNE
 #' 
 #' Wrapper for the \code{\link[Rtsne]{Rtsne}} function. Users may call this 
-#' directly or call it through the \code{\link{PlotTSNE}} function and also pass
+#' directly or call it through the \code{\link{plotTSNE}} function and also pass
 #' additional arguments related to the \code{\link[Rtsne]{Rtsne}} function.
 #' 
 #' @param object An expression matrix or a PCA-reduced matrix.
@@ -81,8 +81,11 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
                        perplexity = perplexity, 
                        theta = theta, 
                        ignore_duplicates = TRUE, ...)
-  tsne_matrix <- data.frame(tsne$Y)
-  
+  if (PCA){
+      tsne_matrix <- tsne
+  } else{
+      tsne_matrix <- data.frame(tsne$Y)
+  }
   print("Rtsne complete! Returning matrix...")
   # Add cell names back to the results
   rownames(tsne_matrix) <- rownames(raw_matrix)
