@@ -82,7 +82,7 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
                        theta = theta, 
                        ignore_duplicates = TRUE, ...)
   if (PCA){
-      tsne_matrix <- tsne
+      tsne_matrix <- as.data.frame(tsne)
   } else{
       tsne_matrix <- data.frame(tsne$Y)
   }
