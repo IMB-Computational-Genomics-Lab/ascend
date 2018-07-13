@@ -22,7 +22,6 @@
 #' 
 #' @importFrom dplyr intersect
 #' @importFrom SingleCellExperiment rowData counts
-#' @importFrom DESeq2 DESeqDataSetFromMatrix DESeq results
 #' @export
 #'
 runDESeq2 <- function(object, 

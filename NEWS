@@ -1,6 +1,14 @@
+version 0.6.0 (2018-07-11)
+- Fixing installation issues.
+
+version 0.6.0 (2018-07-11)
+- Converted EMSet to SingleCellExperiment-inherited object.
+- Restructured all functions to interact with new EMSet
+- Added LRT function.
+- Added DESeq2 wrapper.
+
 version 0.5.2 (2018-05-16)
 - Set stringAsFactors import in LoadCellRanger function to FALSE
-- 
 
 version 0.5.0 (2018-04-30)
 - Upgraded for compatibility with Bioconductor 3.7

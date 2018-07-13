@@ -161,10 +161,29 @@ newEMSet <- function(assays = NULL,
                      colData = NULL,
                      rowData = NULL,
                      controls = NULL){
-  if (!("gene_id" %in% colnames(rowInfo)[1])){
-    stop("Please specify first column of rowInfo as 'gene_id'")
+  if (!("counts" %in% names(assays))){
+    stop("Please ensure 'counts' are in your supplied assay list.")
+  } else{
+    counts <- assays$counts
   }
-
+  
+  
+  if (is.null(colInfo)){
+    colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts))  
+  } else{
+    if(!("cell_barcode" %in% colnames(colInfo)[1])){
+      stop("Please specify the name of the first column in colInfo as 'cell_barcode'")
+    }
+  }
+  
+  if (is.null(rowInfo)){
+    rowInfo <- S4Vectors::DataFrame(gene_id = rownames(counts))
+  } else{
+    if (!("gene_id" %in% colnames(rowInfo)[1])){
+      stop("Please specify first column of rowInfo as 'gene_id'")
+    }    
+  }
+  
   # Prime rowData and colData with identifiers
   if (is.null(colData)){
     colData <- S4Vectors::DataFrame(cell_barcode = colInfo[, 1], row.names = colInfo[,1])

@@ -5,7 +5,6 @@
 #
 ################################################################################
 
-#' @import DESeq
 #' @export
 func_DESeq <- function(x, expression_matrix = NULL, condition_df = NULL, group = NULL,
                        condition.a = NULL, condition.b = NULL,

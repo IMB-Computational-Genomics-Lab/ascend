@@ -1,7 +1,7 @@
 Package: ascend
 Type: Package
 Title: ascend - Analysis of Single Cell Expression, Normalisation, and Differential expression
-Version: 0.5.2
+Version: 0.6.1
 Author: c(person("Anne", "Senabouth", email = "a.senabouth@uq.edu.au", rol = "aut, cre"), person("Quan", "Nguygen", email = "quan.nguyen@imb.uq.edu.au", rol = "aut"))
 Maintainer: Anne Senabouth <a.senabouth@uq.edu.au>
 Description: Provides a series of tools for cleaning, normalisation and analysis of data produced by single cell experiments.
@@ -24,22 +24,26 @@ Imports: stats,
     dynamicTreeCut,
     dendextend,
     RColorBrewer,
+    locfit,
     scater,
     scran,
-    locfit,
+    Matrix,
+    data.table,
+    tidyr,
+    MASS
 Suggests: devtools,
     knitr,
     rmarkdown,
     testthat,
     KernSmooth,
-    DESeq
+    DESeq,
+    DESeq2
 VignetteBuilder: knitr
 Depends:
     methods,
     dplyr,
-    data.table,
-    Matrix,
     BiocGenerics,
+    S4Vectors,
     SummarizedExperiment,
     SingleCellExperiment
 Collate: 
