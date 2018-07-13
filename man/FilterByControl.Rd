@@ -13,8 +13,7 @@ filterByControl(object, control = NULL, pct.threshold = 20)
 supplied to the EMSet object.}
 
 \item{pct.threshold}{Percentage threshold to filter cells by, as a whole 
-number. Default: 20.
-.}
+number. Default: 20.}
 }
 \value{
 An \code{\linkS4class{EMSet}} with filtered controls.
@@ -24,4 +23,13 @@ Filter cells in an expression matrix based on the expression levels of a
 specific control.
 This function should be used AFTER the cells have undergone general filtering
 with the \code{\link{filterByOutliers}} function.
+}
+\examples{
+# Load EMSet
+load("R/sysdata.rda")
+raw_emset <- data_package$raw_emset
+
+# Filter by outliers with default settings
+filtered_emset <- filterByControl(raw_emset, control = "control1", pct.threshold = 20)
+
 }

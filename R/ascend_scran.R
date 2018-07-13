@@ -13,27 +13,7 @@
 #'
 #' @param object An \code{\linkS4class{EMSet}} object.
 #' @param training.set A training dataset containing pairs of marker genes.
-#' @return \code{object} with cell cycle information loaded into CellInformation
-#' 
-#' @examples
-#' \dontrun{
-#' # Load EMSet that hasn't been filtered or normalised
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-#' "ExampleEMSet.rds"))
-#' 
-#' # Convert annotation to ENSEMBL
-#' EMSet <- ConvertGeneAnnotation(EMSet, "gene_id", "ensembl_id")
-#' 
-#' # Load scran's human training dataset
-#' training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", 
-#' package = "scran"))
-#' 
-#' # Run scran's cyclone function using scranCellCycle wrapper
-#' cycledEMSet <- scranCellCycle(EMSet, training.data)
-#' 
-#' # Convert annotation back to gene ids
-#' cycledEMSet <- ConvertGeneAnnotation(EMSet, "ensembl_id", "gene_id")
-#' }
+#' @return \code{object} with cell cycle information loaded into colInfo.
 #' 
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment colData
@@ -83,8 +63,7 @@ scranCellCycle <- function(object, training_set = NULL) {
 #' \pkg{scran}.
 #' @return An \code{\linkS4class{EMSet}} with an expression matrix with counts 
 #' normalised by \code{\link[scater]{normalize}} function.
-#' @examples
-
+#' 
 #' @importFrom SummarizedExperiment colData rowData
 #' @importFrom SingleCellExperiment isSpike spikeNames sizeFactors counts normcounts logcounts
 #' @importFrom scran computeSumFactors quickCluster

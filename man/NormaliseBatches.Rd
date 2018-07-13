@@ -20,3 +20,20 @@ undergoing library equalisation.
 \details{
 This step should be done prior to any filtering and normalisation between cells.
 }
+\examples{
+# Generate example matrix
+count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
+colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
+rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
+
+# Generate example colInfo
+col_info <- data.frame(cell_barcode = colnames(count_matrix))
+col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
+
+# Create test EMSet
+em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+
+# Normalise by RLE
+norm_set <- normaliseBatches(em_set)
+
+}

@@ -13,13 +13,20 @@
 #' is optional.
 #' 
 #' @param object An \code{\linkS4class{EMSet}} that has been filtered by 
-#' \code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.
+#' \code{\link{filterByOutliers}} and \code{\link{filterByControl}}.
 #' @param pct.threshold Percentage threshold as a whole number. Default: 1.
 #' @return An \code{\linkS4class{EMSet}} with low abundance genes removed from 
 #' the dataset.
 #' 
 #' @examples
+#' # Load EMSet
+#' load("R/sysdata.rda")
+#' raw_emset <- data_package$raw_emset
 #' 
+#' # Filter low abundance genes expressed in less than 1% of cells
+#' filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 1)
+#' 
+#' @importFrom SummarizedExperiment colData rowData 
 #' @importFrom Matrix rowSums
 #' @export
 #'
@@ -79,10 +86,19 @@ filterLowAbundanceGenes <- function(object, pct.threshold = 1){
 #' supplied to the EMSet object.
 #' @param pct.threshold Percentage threshold to filter cells by, as a whole 
 #' number. Default: 20.
-#' .
 #' @return An \code{\linkS4class{EMSet}} with filtered controls.
 #' 
 #' @examples
+#' # Load EMSet
+#' load("R/sysdata.rda")
+#' raw_emset <- data_package$raw_emset
+#' 
+#' # Filter by outliers with default settings
+#' filtered_emset <- filterByControl(raw_emset, control = "control1", pct.threshold = 20)
+#'
+#' @importFrom S4Vectors merge
+#' @importFrom SummarizedExperiment colData rowData
+#' 
 #' @export
 #'
 filterByControl <- function(object, control = NULL, pct.threshold = 20){
@@ -112,8 +128,7 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
   
   # Get percentage counts for control
   pct_counts <- cell_info[, sprintf("qc_%s_pct_counts", control)]
-  
-  # Perform test
+
   # Remove barcodes from the matrix
   discard_indices <- which(pct_counts > pct.threshold)
 
@@ -223,7 +238,20 @@ findOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), 
 #' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells 
 #' by proportion of control genes. Default: 3.
 #' @return An \code{\linkS4class{EMSet}} with outlier cells filtered out.
+#' 
 #' @examples
+#' # Load EMSet
+#' load("R/sysdata.rda")
+#' raw_emset <- data_package$raw_emset
+#' 
+#' # Filter by outliers with default settings
+#' filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, control.threshold = 3)
+#' 
+#' @importFrom dplyr semi_join
+#' @importFrom BiocParallel bplapply
+#' @importFrom S4Vectors merge
+#' @importFrom SummarizedExperiment colData rowData
+#' 
 #' @export
 #'
 filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) {

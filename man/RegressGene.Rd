@@ -18,6 +18,6 @@ RemoveConfoundingFactors.}
 List of values generated from regression
 }
 \description{
-Called by RemoveConfoundingFactors. This step extracts residuals from the 
+Called by \code{\link{regressConfoundingFactors}}. This step extracts residuals from the 
 supplied gene.
 }

@@ -19,3 +19,22 @@ the information stored in the colInfo and rowInfo steps by merging them with
 colData and rowData, respectively. Users should extract information in
 the log and clusterAnalysis slots prior to conversion.
 }
+\examples{
+# Randomly generate count matrix
+count_matrix <- matrix(sample(0:1, 100, replace=TRUE),10,10)
+
+# Generate cell barcodes
+cell_barcodes <- paste0("Cell-", 1:10)
+gene_ids <- paste0("Gene-", 1:10)
+
+# Add to matrix
+colnames(count_matrix) <- cell_barcodes
+rownames(count_matrix) <- gene_ids
+
+# Create an EMSet
+em_set <- newEMSet(assays = list(counts = count_matrix))
+
+# Convert to SingleCellExperiment
+single_cell_experiment <- EMSet2SCE(em_set)
+
+}

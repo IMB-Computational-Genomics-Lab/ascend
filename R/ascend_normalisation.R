@@ -11,6 +11,27 @@
 #' 
 #' @param object An \linkS4class{EMSet}.
 #' @return An EMSet with values normalised within a single batch.
+#' 
+#' @examples
+#' # Generate example matrix
+#' count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
+#' colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
+#' rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
+#' 
+#' # Generate example colInfo
+#' col_info <- data.frame(cell_barcode = colnames(count_matrix))
+#' col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
+#' 
+#' # Create test EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+#' 
+#' # Normalise within batches
+#' norm_set <- normWithinBatch(em_set)
+#' 
+#' @importFrom SingleCellExperiment counts sizeFactors
+#' @importFrom SummarizedExperiment colData
+#' @importFrom S4Vectors merge
+#' @importFrom BiocParallel bplapply
 #' @importFrom Matrix t rowSums
 #'
 normWithinBatch <- function(object) {
@@ -78,7 +99,23 @@ normWithinBatch <- function(object) {
 #'
 #' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch.
 #' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values.
+#' 
 #' @examples
+#' # Generate example matrix
+#' count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
+#' colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
+#' rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
+#' 
+#' # Generate example colInfo
+#' col_info <- data.frame(cell_barcode = colnames(count_matrix))
+#' col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
+#' 
+#' # Create test EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+#' 
+#' # Normalise by RLE
+#' norm_set <- normaliseBatches(em_set)
+#' 
 #' @importFrom BiocParallel bplapply
 #' @importFrom stats median
 #' @importFrom S4Vectors merge
@@ -143,8 +180,23 @@ normaliseBatches <- function(object){
 #' @param object An \code{\linkS4class{EMSet}} set that has undergone filtering. 
 #' Please ensure spike-ins have been removed before using this function.
 #' @return An \code{\linkS4class{EMSet}} with normalised expression values.
-#' @examples
 #'
+#' @examples
+#' # Generate example matrix
+#' count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
+#' colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
+#' rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
+#' 
+#' # Generate example colInfo
+#' col_info <- data.frame(cell_barcode = colnames(count_matrix))
+#' col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
+#' 
+#' # Create test EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+#' 
+#' # Normalise by RLE
+#' norm_set <- normaliseByRLE(em_set)
+#' 
 #' @importFrom BiocParallel bpvec
 #' @importFrom Matrix t
 #' @importFrom SingleCellExperiment normcounts logcounts sizeFactors

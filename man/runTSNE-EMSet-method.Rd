@@ -37,6 +37,3 @@ Wrapper for the \code{\link[Rtsne]{Rtsne}} function. Users may call this
 directly or call it through the \code{\link{PlotTSNE}} function and also pass
 additional arguments related to the \code{\link[Rtsne]{Rtsne}} function.
 }
-\examples{
-
-}

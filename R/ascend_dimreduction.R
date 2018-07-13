@@ -33,8 +33,6 @@ setGeneric("runTSNE", def = function(object, ..., PCA, dimensions, seed,
 #' @return A dataframe containing expression data for each cell reduced to 
 #' selected number of dimensions.
 #' 
-#' @examples
-#' 
 #' @include ascend_objects.R
 #' @importFrom SingleCellExperiment reducedDimNames reducedDims normcounts
 #' @importFrom methods is

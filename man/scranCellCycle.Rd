@@ -12,31 +12,10 @@ scranCellCycle(object, training_set = NULL)
 \item{training.set}{A training dataset containing pairs of marker genes.}
 }
 \value{
-\code{object} with cell cycle information loaded into CellInformation
+\code{object} with cell cycle information loaded into colInfo.
 }
 \description{
 Wrapper for \pkg{scran}'s cell cycle functions. Please ensure you are using
 *ensembl_id* as your rownames in this dataset. Also ensure you are using
 mitochondrial and ribosomal genes as controls.
-}
-\examples{
-\dontrun{
-# Load EMSet that hasn't been filtered or normalised
-EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-"ExampleEMSet.rds"))
-
-# Convert annotation to ENSEMBL
-EMSet <- ConvertGeneAnnotation(EMSet, "gene_id", "ensembl_id")
-
-# Load scran's human training dataset
-training.data <- readRDS(system.file("exdata", "human_cycle_markers.rds", 
-package = "scran"))
-
-# Run scran's cyclone function using scranCellCycle wrapper
-cycledEMSet <- scranCellCycle(EMSet, training.data)
-
-# Convert annotation back to gene ids
-cycledEMSet <- ConvertGeneAnnotation(EMSet, "ensembl_id", "gene_id")
-}
-
 }

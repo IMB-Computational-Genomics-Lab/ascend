@@ -8,7 +8,7 @@ filterLowAbundanceGenes(object, pct.threshold = 1)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} that has been filtered by 
-\code{\link{FilterByOutliers}} and \code{\link{FilterByControl}}.}
+\code{\link{filterByOutliers}} and \code{\link{filterByControl}}.}
 
 \item{pct.threshold}{Percentage threshold as a whole number. Default: 1.}
 }
@@ -23,5 +23,11 @@ normalisation. As this step may remove rare transcripts, this filtering step
 is optional.
 }
 \examples{
+# Load EMSet
+load("R/sysdata.rda")
+raw_emset <- data_package$raw_emset
+
+# Filter low abundance genes expressed in less than 1\% of cells
+filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 1)
 
 }

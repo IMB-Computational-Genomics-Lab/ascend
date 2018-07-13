@@ -30,3 +30,12 @@ These values are then used to filter out cells based on the following criteria:
 \details{
 This function then loads the filtered expression matrix into the \linkS4class{EMSet}.
 }
+\examples{
+# Load EMSet
+load("R/sysdata.rda")
+raw_emset <- data_package$raw_emset
+
+# Filter by outliers with default settings
+filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, control.threshold = 3)
+
+}

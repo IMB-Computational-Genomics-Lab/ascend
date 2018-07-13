@@ -1,6 +1,6 @@
 #' regressGene
 #'
-#' Called by RemoveConfoundingFactors. This step extracts residuals from the 
+#' Called by \code{\link{regressConfoundingFactors}}. This step extracts residuals from the 
 #' supplied gene.
 #' 
 #' @param x Gene to regress residuals from.
@@ -44,14 +44,12 @@ regressGene <- function(x, covariate.matrix = NULL, expression.matrix = NULL) {
 #' 
 #' @examples
 #' \dontrun{
-#' # Load EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
-#' 
 #' # Define genes to regress
 #' confoundingGenes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2")
 #' regressedSet <- RegressConfoundingFactors(EMSet, 
 #' candidate.genes = confoundingGenes)
 #' }
+#' 
 #' @importFrom Matrix t
 #' @importFrom BiocParallel bplapply
 #' @importFrom data.table as.data.table

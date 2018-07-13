@@ -24,6 +24,3 @@ Plot two principal components (PCs) on a scatter plot. This plot corresponds
 more closely to the distance between points and therefore is good to use
 to review the effectiveness of clustering by the CORE algorithm.
 }
-\examples{
-
-}

@@ -143,14 +143,35 @@ setMethod("show", "EMSet", function(object){
 
 #' newEMSet
 #' 
-#' Creates a new EMSet.
+#' \code{\link{newEMSet}} generates a \linkS4class{EMSet} object for use with 
+#' the `ascend` package. This object contains an expression matrix, 
+#' associated metadata, downstream analysis and a log documenting the actions 
+#' used to shape the data in this object.
 #' 
-#' @param assays A list of things
-#' @param colInfo A Dataframe
-#' @param rowInfo A Dataframe
-#' @param colData A Dataframe
-#' @param rowData A Dataframe
-#' @param controls A named list
+#' @param assays A list of matrices representing count data. You must have a 
+#' count matrix stored under "counts" in this list.
+#' @param colInfo A data frame containing cell-related metadata.
+#' @param rowInfo A data frame containing gene-related metadata.
+#' @param colData A data frame containing cell-related data.
+#' @param rowData A data frame containing gene-related data.
+#' @param controls A named list containing control genes grouped into named 
+#' control groups.
+#' 
+#' @examples
+#' # Randomly generate count matrix
+#' count_matrix <- matrix(sample(0:1, 100, replace=TRUE),10,10)
+#' 
+#' # Generate cell barcodes
+#' cell_barcodes <- paste0("Cell-", 1:10)
+#' gene_ids <- paste0("Gene-", 1:10)
+#' 
+#' # Add to matrix
+#' colnames(count_matrix) <- cell_barcodes
+#' rownames(count_matrix) <- gene_ids
+#' 
+#' # Create an EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix))
+#' 
 #' 
 #' @return An \linkS4class{EMSet}.
 #' 
@@ -236,6 +257,24 @@ setGeneric("EMSet2SCE", function(x, ...) standardGeneric("EMSet2SCE"))
 #' 
 #' @param x An EMSet
 #' @return A SingleCellExperiment object.
+#' 
+#' @examples
+#' # Randomly generate count matrix
+#' count_matrix <- matrix(sample(0:1, 100, replace=TRUE),10,10)
+#' 
+#' # Generate cell barcodes
+#' cell_barcodes <- paste0("Cell-", 1:10)
+#' gene_ids <- paste0("Gene-", 1:10)
+#' 
+#' # Add to matrix
+#' colnames(count_matrix) <- cell_barcodes
+#' rownames(count_matrix) <- gene_ids
+#' 
+#' # Create an EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix))
+#' 
+#' # Convert to SingleCellExperiment
+#' single_cell_experiment <- EMSet2SCE(em_set)
 #' 
 #' @import SingleCellExperiment
 #' @importFrom SummarizedExperiment colData rowData
