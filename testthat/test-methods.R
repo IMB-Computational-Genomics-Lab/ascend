@@ -47,7 +47,7 @@ test_that("progressLog set", {
   expect_message(progressLog(em_set), NA)
 })
 
-test_that("progressLog retrieval"){
+test_that("progressLog retrieval"{
   # Generate dummy expression matrix
   test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
@@ -60,7 +60,7 @@ test_that("progressLog retrieval"){
   progressLog(em_set) <- progressLog
   
   expect_equal(progressLog(em_set), progressLog)
-}
+})
 
 test_that("clusterAnalysis set", {
   # Generate dummy expression matrix
