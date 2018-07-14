@@ -25,6 +25,3 @@ slot.
 Reduce the dimensions of an expression matrix stored in an 
 \code{\linkS4class{EMSet}}. This should be used prior to clustering.
 }
-\examples{
-
-}

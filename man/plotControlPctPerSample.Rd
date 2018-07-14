@@ -16,5 +16,5 @@ A ggplot2 object containing a violin-beeswarm plot
 }
 \description{
 Generates a violin/beeswarm plot of percentage of control expression per 
-sample. Called by \code{\link{PlotGeneralQC}}.
+sample. Called by \code{\link{plotGeneralQC}}.
 }

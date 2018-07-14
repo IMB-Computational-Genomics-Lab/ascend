@@ -81,11 +81,8 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
                        perplexity = perplexity, 
                        theta = theta, 
                        ignore_duplicates = TRUE, ...)
-  if (PCA){
-      tsne_matrix <- as.data.frame(tsne)
-  } else{
-      tsne_matrix <- data.frame(tsne$Y)
-  }
+  tsne_matrix <- as.matrix(tsne$Y)
+  
   print("Rtsne complete! Returning matrix...")
   # Add cell names back to the results
   rownames(tsne_matrix) <- rownames(raw_matrix)
@@ -122,8 +119,6 @@ setGeneric("runPCA", def = function(object, ...., ngenes, scaling) {
 #' Default: TRUE.
 #' @return An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
 #' slot.
-#' @examples
-#'
 #' @include ascend_objects.R
 #' @importFrom stats prcomp
 #' @importFrom SingleCellExperiment normcounts reducedDim

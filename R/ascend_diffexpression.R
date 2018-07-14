@@ -59,7 +59,7 @@ bimodLikData <- function(x, xmin = 0) {
   #likelihood for observing x2 
   likB <- length(x = x2) *
     log(x = xal) +
-    sum(dnorm(x = x2, mean = mean(x = x2), sd = mysd, log = TRUE))
+    sum(stats::dnorm(x = x2, mean = mean(x = x2), sd = mysd, log = TRUE))
   return(likA + likB)
 }
 
@@ -80,7 +80,7 @@ differentialLRT <- function(x, y, xmin = 0) {
     lrt_diff <- 2 * (lrtX + lrtY - lrtZ)
   }
   
-  return(pchisq(q = lrt_diff, df = 3, lower.tail = F))
+  return(stats::pchisq(q = lrt_diff, df = 3, lower.tail = F))
 }
 
 # Called by parallel process - runs test on condition 1 vs condition 2

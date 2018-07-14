@@ -42,12 +42,3 @@ This will return an EMSet with the following objects:
     \item{KeyStats}{A dataframe containing information on each generated clustering result, that is used to determine the optimal cluster number.}
 }
 }
-\examples{
-# Load example EMSet
-EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
-
-# Cluster with CORE
-clustered_set <- RunCORE(EMSet, conservative = TRUE,
-nres = 40, remove_outlier = TRUE)
-
-}

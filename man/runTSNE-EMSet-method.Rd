@@ -34,6 +34,6 @@ selected number of dimensions.
 }
 \description{
 Wrapper for the \code{\link[Rtsne]{Rtsne}} function. Users may call this 
-directly or call it through the \code{\link{PlotTSNE}} function and also pass
+directly or call it through the \code{\link{plotTSNE}} function and also pass
 additional arguments related to the \code{\link[Rtsne]{Rtsne}} function.
 }

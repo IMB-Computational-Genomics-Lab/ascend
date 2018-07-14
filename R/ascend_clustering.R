@@ -323,6 +323,7 @@ calcRandIndexMatrix <- function(cluster_matrix, original_clusters, cluster_list)
   return(rand_idx_matrix)
 }
 
+#' @export
 retrieveCluster <- function(height_list, hclust_obj = NULL, distance_matrix = NULL){
   clusters <- sapply(height_list, function(height) dynamicTreeCut::cutreeDynamic(hclust_obj,
                                                                                  distM=as.matrix(distance_matrix),
@@ -367,14 +368,6 @@ setGeneric("runCORE", def = function(object,
 #' Default: FALSE.
 #' @return An \code{\linkS4class{EMSet}} with cluster information loaded into the
 #' Clusters slot.
-#' @examples
-#' # Load example EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
-#'
-#' # Cluster with CORE
-#' clustered_set <- RunCORE(EMSet, conservative = TRUE,
-#' nres = 40, remove_outlier = TRUE)
-#'
 #' @include ascend_objects.R
 #' @importFrom stats dist hclust setNames
 #' @importFrom dynamicTreeCut cutreeDynamic
