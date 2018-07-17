@@ -1,3 +1,14 @@
+version 0.6.7 (2018-07-17)
+- Resolved repeat clustering issue with runCORE
+
+version 0.6.6 (2018-07-17)
+- Resolved bug with filterByOutliers
+- Reassessed package dependencies
+
+version 0.6.5 (2018-07-13)
+- Updated documentation to reflect new functions.
+- Resolved runTSNE issue.
+
 version 0.6.0 (2018-07-11)
 - Fixing installation issues.
 

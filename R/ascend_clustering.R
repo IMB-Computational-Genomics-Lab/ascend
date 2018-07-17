@@ -338,7 +338,7 @@ setGeneric("runCORE", def = function(object,
                                      ..., 
                                      conservative,
                                      nres,
-                                     remove_outlier) {
+                                     remove.outlier) {
   standardGeneric("runCORE")  
 })
 
@@ -363,12 +363,13 @@ setGeneric("runCORE", def = function(object,
 #' @param conservative Use conservative (more stable) clustering result
 #' (TRUE or FALSE). Default: TRUE.
 #' @param nres Number of resolutions to test, ranging from 20 to 100. Default: 40.
-#' @param remove_outlier Remove cells that weren't assigned a cluster with
+#' @param remove.outlier Remove cells that weren't assigned a cluster with
 #' dynamicTreeCut. This is indicative of outlier cells within the sample.
 #' Default: FALSE.
 #' @return An \code{\linkS4class{EMSet}} with cluster information loaded into the
 #' Clusters slot.
 #' @include ascend_objects.R
+#' @include ascend_dimreduction.R
 #' @importFrom stats dist hclust setNames
 #' @importFrom dynamicTreeCut cutreeDynamic
 #' @importFrom BiocParallel bplapply
@@ -377,7 +378,7 @@ setGeneric("runCORE", def = function(object,
 setMethod("runCORE", signature("EMSet"), function(object, 
                                                   conservative = TRUE,
                                                   nres = 40, 
-                                                  remove_outlier = FALSE){
+                                                  remove.outlier = FALSE){
   
   # Fill in missing arguments
   if (missing(conservative)){
@@ -386,8 +387,8 @@ setMethod("runCORE", signature("EMSet"), function(object,
   if (missing(nres)){
     nres <- 40
   }
-  if (missing(remove_outlier)){
-    remove_outlier <- TRUE
+  if (missing(remove.outlier)){
+    remove.outlier <- TRUE
   }
                                  
   # Checks
@@ -427,7 +428,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
   print("Checking if outliers are present...")
   if (0 %in% original_clusters){
     outlier_barcode_list <- c()
-    if (remove_outlier){
+    if (remove.outlier){
       limit <- 0
       while ((0 %in% original_clusters) && (limit <= 5)){
         # If this is the next time the loop has been run, add the old barcodes to
@@ -441,8 +442,9 @@ setMethod("runCORE", signature("EMSet"), function(object,
         print(sprintf("%i outliers detected in dataset. Removing cells and repeating PCA.", length(outlier_idx)))
         outlier_barcodes <- colnames(object)[outlier_idx]
         object <- object[ , !(colnames(object) %in% outlier_barcodes)]
+        object <- calculateQC(object)
         object <- runPCA(object)
-        pca_matrix <- SingleCellExperiment::reducedDims(object)[,1:20]
+        pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")[,1:20]
         distance_matrix <- stats::dist(pca_matrix)
         original_tree <- stats::hclust(distance_matrix, method="ward.D2")
         original_clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
@@ -457,7 +459,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
     } else{
       stop("Your dataset may contain cells that are too distinct from the main
            population of cells. We recommend you run this function with
-           'remove_outlier = TRUE' or check the cell-cell normalisation of your
+           'remove.outlier = TRUE' or check the cell-cell normalisation of your
            dataset.")
     }
     }
@@ -525,7 +527,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
   log <- progressLog(object)
   log$clustering <- list(clustering = TRUE,
                          nres = nres,
-                         remove_outlier = remove_outlier,
+                         remove_outlier = remove.outlier,
                          conservative = conservative)
   if (exists("outlier_barcode_list")){
     output_list$unclustered <- outlier_barcode_list
