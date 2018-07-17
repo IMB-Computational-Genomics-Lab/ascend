@@ -196,29 +196,6 @@ filterControl <- function(control_group, total_counts, expression_matrix){
   return(control_pt_matrix)
 }
 
-#' findOutliers
-#'
-#' Adapted from \code{\link[scater]{isOutlier}}. Determines outliers based on 
-#' Mean Absolute Deviation (MAD) value.
-#' @param values List of values.
-#' @param nmads Mean Absolute Deviation value threshold. Default: 3.
-#' @param type Direction to find outliers in - both (Default), lower, upper.
-#' @param na.rm Remove NA values if present (Default: False).
-#' @return A boolean of values that fall between the ranges set by \code{nmads} 
-#' and \code{type}. 
-#' @importFrom stats median mad
-findOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), na.rm = FALSE) {
-  med_val <- median(values, na.rm = na.rm)
-  mad_val <- mad(values, center = med_val, na.rm = na.rm)
-  upper_limit <- med_val + nmads * mad_val
-  lower_limit <- med_val - nmads * mad_val
-  if (type == "lower"){
-    upper_limit <- Inf
-  } else if (type == "higher") {
-    lower_limit <- -Inf
-  }
-  return(values < lower_limit | upper_limit < values)
-}
 
 #' filterByOutliers
 #' 
@@ -285,13 +262,26 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   pct_total_counts <- lapply(names(control_list), function(x) cell_info[, sprintf("qc_%s_pct_counts", x)])
   names(pct_total_counts) <- names(control_list)
   
+  findOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), na.rm = FALSE) {
+    med_val <- stats::median(values, na.rm = na.rm)
+    mad_val <- stats::mad(values, center = med_val, na.rm = na.rm)
+    upper_limit <- med_val + nmads * mad_val
+    lower_limit <- med_val - nmads * mad_val
+    if (type == "lower"){
+      upper_limit <- Inf
+    } else if (type == "higher") {
+      lower_limit <- -Inf
+    }
+    return(values < lower_limit | upper_limit < values)
+  }
+  
   ## Start identifying cells by barcodes
   cells_libsize <- findOutliers(log10_total_counts, nmads=cell.threshold, type="lower") ## Remove cells with low expression
-  cells_feature <- findOutliers(log10_features_counts_per_cell, nmads=cell.threshold, type="lower") ## Remove cells with low number of genes
-  
+  cells_feature <- findOutliers(log10_features_counts_per_cell, nmads=control.threshold, type="lower") ## Remove cells with low number of genes
+
   ## Extract Indexes
   if (any(cells_libsize)){
-    drop_barcodes_libsize <- which(cells.libsize)
+    drop_barcodes_libsize <- which(cells_libsize)
   } else {
     drop_barcodes_libsize <- list()
   }
@@ -310,8 +300,12 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   names(drop_barcodes_control_list) <- paste0("CellsFilteredBy", names(drop_barcodes_controls))
   
   ### Barcode master list of cells to remove
-  remove_indices <- unique(c(as.vector(unlist(drop_barcodes_libsize)), as.vector(unlist(drop_barcodes_feature)), as.vector(unlist(drop_barcodes_controls))))
-  remove_barcodes <- colnames(remove_indices)
+  remove_indices <- unique(c(as.vector(unlist(drop_barcodes_libsize)), 
+                             as.vector(unlist(drop_barcodes_feature)),
+                             as.vector(unlist(drop_barcodes_controls))))
+
+  remove_barcodes <- colnames(object)[remove_indices]
+  
   outlier_libsize_barcodes <- cell_info$cell_barcode[as.vector(unlist(drop_barcodes_libsize))]
   outlier_feature_barcodes <- cell_info$cell_barcode[as.vector(unlist(drop_barcodes_feature))]
   
@@ -320,10 +314,10 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   filtering_log <- c(filtering_log, drop_barcodes_control_list)
   
   # Remove cells from object
-  filtered_object <- object[, which(!colnames(object) %in% remove_barcodes)]
-  
+  filtered_object <- object[ , !(colnames(object) %in% remove_barcodes)]
+  filtered_object <- calculateQC(filtered_object)
   # Add records to log
-  log <- progressLog(object)
+  log <- progressLog(filtered_object)
   
   ### Update old log if it is still there
   if (!is.null(log$filterByOutliers)){

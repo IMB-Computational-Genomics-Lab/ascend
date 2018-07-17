@@ -25,17 +25,19 @@ Imports: stats,
     dendextend,
     RColorBrewer,
     locfit,
-    scater,
-    scran,
     Matrix,
     data.table,
     tidyr,
-    MASS
+    MASS,
+    GenomeInfoDb,
+    GenomeInfoDbData
 Suggests: devtools,
     knitr,
     rmarkdown,
     testthat,
     KernSmooth,
+    scater,
+    scran,
     DESeq,
     DESeq2
 VignetteBuilder: knitr
