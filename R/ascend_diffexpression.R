@@ -178,7 +178,7 @@ runDiffExpression <- function(object,
     print("Identifying genes to retain...")
     nonzero_genes <- rownames(expression_matrix)[which(rowMeans(expression_matrix) > 0)]
     variable_genes <- rownames(expression_matrix)[which(apply(expression_matrix, 1, stats::sd) > 0)]
-    top_genes <- SummarizedExperiment::rowData(object)[order(SummarizedExperiment::rowData(object)$qc_topgeneranking),"gene_id"][1:ngenes]
+    top_genes <- SummarizedExperiment::rowData(object)[order(SummarizedExperiment::rowData(object)$qc_topgeneranking),1][1:ngenes]
     gene_list <- dplyr::intersect(dplyr::intersect(top_genes, nonzero_genes), variable_genes)
   } else{
     gene_list <- rownames(expression_matrix)

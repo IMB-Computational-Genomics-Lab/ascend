@@ -35,16 +35,17 @@ filterLowAbundanceGenes <- function(object, pct.threshold = 1){
   cell_info <- S4Vectors::merge(colInfo(object), 
                                 SummarizedExperiment::colData(object), 
                                 by = "cell_barcode")
+  gene_id_name <- colnames(colInfo(object))[1]
   gene_info <- S4Vectors::merge(rowInfo(object),
                                 SummarizedExperiment::rowData(object),
-                                by = "gene_id")
+                                by = 1)
   
   # Generate list of genes and cells to keep
   cells_per_gene <- gene_info$qc_ncells
   remove_genes_indices <- which(cells_per_gene < (ncol(object) * (pct.threshold/100)))
   
   if (length(remove_genes_indices) > 0){
-    removed_genes <- gene_info$gene_id[remove_genes_indices]
+    removed_genes <- gene_info[remove_genes_indices, 1]
     filtered_object <- object[which(!rownames(object) %in% removed_genes), ]
   } else{
     removed_genes <- list()
@@ -113,12 +114,13 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
   
   # Extract data from object
   # Merge data together to make it easier to work with
+  gene_id_name <- colnames(rowInfo(object))[1]
   cell_info <- S4Vectors::merge(colInfo(object), 
                                 SummarizedExperiment::colData(object), 
                                 by = "cell_barcode")
   gene_info <- S4Vectors::merge(rowInfo(object),
                                 SummarizedExperiment::rowData(object),
-                                by = "gene_id")
+                                by = 1)
   
   # Check if specified control is in gene information
   if (!(control %in% gene_info$control_group)){
@@ -177,26 +179,6 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
   return(filtered_object)
 }
 
-#' filterControl
-#'
-#' Called by \code{\link{filterByOutliers}}. This function identifies cells to
-#' remove based on expression levels of control genes.
-#' 
-#' @param control_group Name of control group.
-#' @param total_counts List of total counts of each cell.
-#' @param expression_matrix An expression matrix.
-#' @return Percentage expression of controls per cell.
-#' @importFrom Matrix colSums
-filterControl <- function(control_group, total_counts, expression_matrix){
-  # Get transcript counts for the controls
-  control_bool <- rownames(expression_matrix) %in% control_group
-  control_transcript_counts <- expression_matrix[control_bool, ]
-  control_transcript_total_counts <- colSums(control_transcript_counts)
-  control_pt_matrix <- (control_transcript_total_counts/total_counts)*100
-  return(control_pt_matrix)
-}
-
-
 #' filterByOutliers
 #' 
 #' Automatically filter cells based on expression levels.
@@ -231,7 +213,9 @@ filterControl <- function(control_group, total_counts, expression_matrix){
 #' 
 #' @export
 #'
-filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) {
+filterByOutliers <- function(object, 
+                             cell.threshold = 3, 
+                             control.threshold = 3){
   # Input check
   if (!is.numeric(cell.threshold)){
     stop("Please set your Cell Threshold (NMAD value) to a valid integer.")
@@ -244,13 +228,16 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
     stop("Please define controls before filtering this dataset.")
   }
   
+  # Gene ID
+  gene_id_name <- colnames(rowInfo(object))[1]
+  
   # Merge data together to make it easier to work with
   cell_info <- S4Vectors::merge(colInfo(object), 
                                 SummarizedExperiment::colData(object), 
                                 by = "cell_barcode")
   gene_info <- S4Vectors::merge(rowInfo(object),
                                 SummarizedExperiment::rowData(object),
-                                by = "gene_id")
+                                by = 1)
   
   control_list <- progressLog(object)$set_controls
   
@@ -262,7 +249,20 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   pct_total_counts <- lapply(names(control_list), function(x) cell_info[, sprintf("qc_%s_pct_counts", x)])
   names(pct_total_counts) <- names(control_list)
   
-  findOutliers <- function(values, nmads = 3, type = c("both", "lower", "upper"), na.rm = FALSE) {
+  # Functions called by this functions
+  filterControl <- function(control_group, total_counts, expression_matrix){
+    # Get transcript counts for the controls
+    control_bool <- rownames(expression_matrix) %in% control_group
+    control_transcript_counts <- expression_matrix[control_bool, ]
+    control_transcript_total_counts <- colSums(control_transcript_counts)
+    control_pt_matrix <- (control_transcript_total_counts/total_counts)*100
+    return(control_pt_matrix)
+  }
+  
+  findOutliers <- function(values, 
+                           nmads = 3, 
+                           type = c("both", "lower", "upper"), 
+                           na.rm = FALSE) {
     med_val <- stats::median(values, na.rm = na.rm)
     mad_val <- stats::mad(values, center = med_val, na.rm = na.rm)
     upper_limit <- med_val + nmads * mad_val
@@ -278,7 +278,7 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   ## Start identifying cells by barcodes
   cells_libsize <- findOutliers(log10_total_counts, nmads=cell.threshold, type="lower") ## Remove cells with low expression
   cells_feature <- findOutliers(log10_features_counts_per_cell, nmads=control.threshold, type="lower") ## Remove cells with low number of genes
-
+  
   ## Extract Indexes
   if (any(cells_libsize)){
     drop_barcodes_libsize <- which(cells_libsize)
@@ -303,7 +303,7 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   remove_indices <- unique(c(as.vector(unlist(drop_barcodes_libsize)), 
                              as.vector(unlist(drop_barcodes_feature)),
                              as.vector(unlist(drop_barcodes_controls))))
-
+  
   remove_barcodes <- colnames(object)[remove_indices]
   
   outlier_libsize_barcodes <- cell_info$cell_barcode[as.vector(unlist(drop_barcodes_libsize))]
@@ -316,6 +316,7 @@ filterByOutliers <- function(object, cell.threshold = 3, control.threshold = 3) 
   # Remove cells from object
   filtered_object <- object[ , !(colnames(object) %in% remove_barcodes)]
   filtered_object <- calculateQC(filtered_object)
+  
   # Add records to log
   log <- progressLog(filtered_object)
   

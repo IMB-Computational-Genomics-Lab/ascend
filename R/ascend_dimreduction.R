@@ -159,9 +159,13 @@ setMethod("runPCA", signature("EMSet"), function(object, ngenes = 1500, scaling 
   pca_percent_var <- pca_result$sdev^2/sum(pca_result$sdev^2)
   
   print("PCA complete! Loading PCA into EMSet...")
-  SingleCellExperiment::reducedDim(object, "PCA") <- as.matrix(pca_result$x)
+  pca_matrix <- as.matrix(pca_result$x)
+  SingleCellExperiment::reducedDim(object, "PCA") <- pca_matrix
+  
+  # Update log
   log <- progressLog(object)
   log$PCAVariance <- pca_percent_var
   progressLog(object) <- log
+  
   return(object)
 })

@@ -90,8 +90,8 @@ calcControlQC <- function(x, gene_info = NULL, qc_cell_df = NULL){
   }
   
   # Calculate proportion of non-control genes
-  feature_idx <- which(is.na(gene_info[,"control_group"]))
-  n_featurecounts_per_cell <- colSums(x[feature_idx, ])
+  feature_matrix <- x[which(is.na(gene_info[,"control_group"])), ]
+  n_featurecounts_per_cell <- colSums(feature_matrix)
   pct_featurecounts_per_cell <- 100*(n_featurecounts_per_cell/colSums(x))
   qc_cell_df$qc_nfeaturecounts <- n_featurecounts_per_cell
   qc_cell_df$qc_pctfeatures <- pct_featurecounts_per_cell
@@ -116,6 +116,7 @@ setMethod("calculateQC", "EMSet", function(object){
   old_colData <- SummarizedExperiment::colData(object)
   old_colInfo <- colInfo(object)
   old_rowInfo <- rowInfo(object)
+  gene_id_name <- colnames(old_rowInfo)[1]
   
   # Total expression for entire dataset
   qc_totalexpression <- sum(expression_matrix)
@@ -151,8 +152,8 @@ setMethod("calculateQC", "EMSet", function(object){
                            qc_meancounts = qc_meangenecounts,
                            qc_topgeneranking = qc_generankings,
                            qc_pct_total_expression = qc_pct_total_expression)
-  qc_gene_df$gene_id <- rownames(qc_gene_df)
-  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), qc_gene_df$gene_id), c("gene_id", "qc_ncounts", "qc_ncells",
+  qc_gene_df[, gene_id_name] <- rownames(qc_gene_df)
+  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), qc_gene_df[ , gene_id_name]), c(gene_id_name, "qc_ncounts", "qc_ncells",
                                                                                      "qc_meancounts", "qc_topgeneranking", "qc_pct_total_expression")]
   # For control-related metrics
   if ("control_group" %in% colnames(old_rowInfo) && any(!is.na(old_rowInfo["control_group"]))){
@@ -161,7 +162,7 @@ setMethod("calculateQC", "EMSet", function(object){
   
   # Sort again
   qc_cell_df <- qc_cell_df[match(colnames(expression_matrix), qc_cell_df$cell_barcode), ]
-  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), qc_gene_df$gene_id), ]
+  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), qc_gene_df[, gene_id_name]), ]
 
     # Convert to DataFrame
   qc_cell_df <- S4Vectors::DataFrame(qc_cell_df)
@@ -192,12 +193,12 @@ setMethod("calculateQC", "EMSet", function(object){
     
   } else{
     # Merge dataframes
-    new_rowData <- S4Vectors::merge(old_rowData, qc_gene_df, by = c("gene_id"))
+    new_rowData <- S4Vectors::merge(old_rowData, qc_gene_df, by = 1)
   }
 
   # Re-order
-  new_rowData <- new_rowData[match(rownames(expression_matrix), new_rowData$gene_id), ]
-  BiocGenerics::rownames(new_rowData) <- new_rowData$gene_id
+  new_rowData <- new_rowData[match(rownames(expression_matrix), new_rowData[, gene_id_name]), ]
+  BiocGenerics::rownames(new_rowData) <- new_rowData[ , gene_id_name]
   
   # Replace information
   SummarizedExperiment::colData(object) <- new_colData

@@ -869,7 +869,7 @@ plotNormQC <- function(object, gene_list = list()){
     } else if (length(gene_list) == 0){
       # Sample random counts from transcrips that are in at least 50% of cells
       row_data <- rowData(object)
-      gene_list <- sample(row_data[which(row_data$qc_ncells  > ncol(object) * 0.5), "gene_id"], 2)
+      gene_list <- sample(row_data[which(row_data$qc_ncells  > ncol(object) * 0.5), 1], 2)
     }
   }
   
@@ -1009,8 +1009,8 @@ plotTopGenesPerSample <- function(object){
   # Most expressed genes
   expression_matrix <- counts(object)
   ordered_row_data <- row_data[order(row_data$qc_topgeneranking), ]
-  top_500_counts <- expression_matrix[ordered_row_data$gene_id[1:500], ]
-  top_100_counts <- expression_matrix[ordered_row_data$gene_id[1:100], ]
+  top_500_counts <- expression_matrix[ordered_row_data[1:500,1], ]
+  top_100_counts <- expression_matrix[ordered_row_data[1:500,1], ]
   top_500_pct <- 100 * (colSums(top_500_counts)/colSums(expression_matrix))
   top_100_pct <- 100 * (colSums(top_100_counts)/colSums(expression_matrix))
   
@@ -1191,8 +1191,9 @@ plotAverageGeneCount <- function(object, metric = c("average", "log2", "log10"))
   }
   
   # Get metrics
+  gene_id_name <- colnames(rowData(object))[1]
   metrics_df <- as.data.frame(rowData(object))
-  metrics_df <- metrics_df[ , c("gene_id", "qc_meancounts")]
+  metrics_df <- metrics_df[ , c(gene_id_name, "qc_meancounts")]
   
   if (metric == "log2"){
     label <- Log[2]~"Average Count"
@@ -1263,7 +1264,7 @@ plotTopGenesBoxplot <- function(object, n = 20, controls = TRUE){
   
   # Subset n amount of genes and get related information
   plot_data <- row_data[1:n, ]
-  top_gene_list <- plot_data$gene_id
+  top_gene_list <- plot_data[, 1]
   pct_exprs_per_cell <- t(100*(expression_matrix[top_gene_list, ]/colSums(expression_matrix)))
   
   # Arrange data so it is nice

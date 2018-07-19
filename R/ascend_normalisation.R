@@ -148,13 +148,12 @@ normaliseBatches <- function(object){
   })
   
   # Calculate between-batch size factor
-  between_batch_size_factor <- median(as.vector(unlist(batch_size_factors)))
+  between_batch_size_factor <- stats::median(as.vector(unlist(batch_size_factors)))
   
   # Scale counts
   print("Scaling counts...")
   scaled_matrix <- Matrix::t(Matrix::t(expression_matrix) / between_batch_size_factor)
-  #scaled_matrix <- Matrix::t(Matrix::t(expression_matrix) / between_batch_size_factor) * 10^round(log10(between_batch_size_factor))
-  
+ 
   # Record size factor
   print("Storing data in EMSet...")
   batch_size_factor <- rep(between_batch_size_factor, ncol(expression_matrix))

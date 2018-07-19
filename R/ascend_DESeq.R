@@ -115,7 +115,7 @@ runDESeq <- function(object, group = NULL, condition.a = NULL,
   expression_matrix <- SingleCellExperiment::normcounts(object)
 
   print("Identifying genes to retain...")
-  top_genes <- row_data[order(row_data$qc_topgeneranking),"gene_id"][1:ngenes]
+  top_genes <- row_data[order(row_data$qc_topgeneranking),1][1:ngenes]
   nonzero_genes <- rownames(expression_matrix)[which(rowMeans(expression_matrix) > 0)]
   variable_genes <- rownames(expression_matrix)[which(apply(expression_matrix, 1, stats::sd) > 0)]
   gene_list <- dplyr::intersect(dplyr::intersect(top_genes, nonzero_genes), variable_genes)

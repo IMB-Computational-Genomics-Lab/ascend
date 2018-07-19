@@ -4,7 +4,7 @@
 \alias{scranNormalise}
 \title{scranNormalise}
 \usage{
-scranNormalise(object, quickCluster = FALSE, min_mean = 1e-05)
+scranNormalise(object, quickCluster = FALSE, min.mean = 1e-05)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} that has not undergone 
@@ -13,7 +13,7 @@ normalisation.}
 \item{quickCluster}{Use scran's quickCluster method (TRUE) or  use randomly-
 assigned groups (FALSE, Default).}
 
-\item{min_mean}{Threshold for average counts. This argument is for the 
+\item{min.mean}{Threshold for average counts. This argument is for the 
 \code{\link[scran]{computeSumFactors}} function from \pkg{scran}. The value 
 of 1 is recommended for read count data, while the default value of 1e-5 is 
 best for UMI data. This argument is only used for newer versions of 

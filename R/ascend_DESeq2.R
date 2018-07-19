@@ -83,7 +83,7 @@ runDESeq2 <- function(object,
   # Get expresison matrix
   expression_matrix <- SingleCellExperiment::counts(object)
   expression_matrix <- expression_matrix[, barcodes]
-  top_genes <- row_data[match(sort(row_data$qc_topgeneranking), row_data$qc_topgeneranking), "gene_id"][1:ngenes]
+  top_genes <- row_data[match(sort(row_data$qc_topgeneranking), row_data$qc_topgeneranking), 1][1:ngenes]
   
   print("Identifying genes to retain...")
   nonzero_genes <- rownames(expression_matrix)[which(rowMeans(expression_matrix) > 0)]

@@ -56,7 +56,7 @@ scranCellCycle <- function(object, training_set = NULL) {
 #' normalisation.
 #' @param quickCluster Use scran's quickCluster method (TRUE) or  use randomly-
 #' assigned groups (FALSE, Default).
-#' @param min_mean Threshold for average counts. This argument is for the 
+#' @param min.mean Threshold for average counts. This argument is for the 
 #' \code{\link[scran]{computeSumFactors}} function from \pkg{scran}. The value 
 #' of 1 is recommended for read count data, while the default value of 1e-5 is 
 #' best for UMI data. This argument is only used for newer versions of 
@@ -70,7 +70,7 @@ scranCellCycle <- function(object, training_set = NULL) {
 #' @importFrom scater normalize
 #' @export
 #'
-scranNormalise <- function(object, quickCluster = FALSE, min_mean = 1e-5){
+scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5){
   # Retrieve EMSet-only slots and keep for safekeeping
   # Check if data is normalised
   if (!is.null(progressLog(object)$NormalisationMethod)) {
@@ -80,6 +80,7 @@ scranNormalise <- function(object, quickCluster = FALSE, min_mean = 1e-5){
   # Remove controls
   # Check if mitochondria and ribosomes are in the set
   log <- progressLog(object)
+  gene_id_name <- colnames(rowInfo(object))[1]
   
   # Remove controls prior to normalisation
   if (any(names(log$set_controls) %in% c("Mt", "Rb"))){
@@ -118,12 +119,12 @@ scranNormalise <- function(object, quickCluster = FALSE, min_mean = 1e-5){
   
   if (quickCluster){
     print(sprintf("%i cells detected. Running computeSumFactors with quickCluster...", ncells))
-    quick_cluster <- scran::quickCluster(sce_obj, method = "hclust", min.mean = min_mean)
-    sce_obj <- scran::computeSumFactors(sce_obj, clusters = quick_cluster, positive = TRUE, min.mean = min_mean)
+    quick_cluster <- scran::quickCluster(sce_obj, method = "hclust", min.mean = min.mean)
+    sce_obj <- scran::computeSumFactors(sce_obj, clusters = quick_cluster, positive = TRUE, min.mean = min.mean)
   } else{
     print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncells))
     preset_sizes <- c(40, 60, 80, 100)
-    sce_obj <- scran::computeSumFactors(sce_obj, sizes = preset_sizes, positive = TRUE, min.mean = min_mean)
+    sce_obj <- scran::computeSumFactors(sce_obj, sizes = preset_sizes, positive = TRUE, min.mean = min.mean)
   }
   
   print("scran's computeSumFactors complete. Adjusting zero sum factors...")
@@ -153,7 +154,7 @@ scranNormalise <- function(object, quickCluster = FALSE, min_mean = 1e-5){
   norm_col_data <- norm_col_data[, colnames(norm_col_data) %in% col_data_headers]
   norm_row_data <- norm_row_data[, colnames(norm_row_data) %in% row_data_headers]
   rownames(norm_col_info) <- norm_col_info$cell_barcode
-  rownames(norm_row_info) <- norm_row_info$gene_id
+  rownames(norm_row_info) <- norm_row_info[, gene_id_name]
   
   SummarizedExperiment::colData(norm_obj) <- norm_col_data
   SummarizedExperiment::rowData(norm_obj) <- norm_row_data

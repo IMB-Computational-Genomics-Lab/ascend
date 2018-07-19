@@ -199,10 +199,6 @@ newEMSet <- function(assays = NULL,
   
   if (is.null(rowInfo)){
     rowInfo <- S4Vectors::DataFrame(gene_id = rownames(counts))
-  } else{
-    if (!("gene_id" %in% colnames(rowInfo)[1])){
-      stop("Please specify first column of rowInfo as 'gene_id'")
-    }    
   }
   
   # Prime rowData and colData with identifiers
@@ -212,9 +208,19 @@ newEMSet <- function(assays = NULL,
   }
   
   if (is.null(rowData)){
-    rowData <- S4Vectors::DataFrame(gene_id = rowInfo[, 1], row.names = rowInfo[,1])
+    # Ensure we use the same header as other datasets
+    gene_id_name <- colnames(rowInfo)[1]
+    gene_id_list <- list()
+    gene_id_list[[gene_id_name]] <- rowInfo[ ,1]
+    rowData <- S4Vectors::DataFrame(gene_id_list)
     BiocGenerics::rownames(rowData) <- rowData[,1]    
-  }  
+  } else{
+    # Check the columns match
+    if (!is.identical(colnames(rowData)[1], colnames(rowInfo)[1])){
+      stop("Please ensure the name of the first column of rowInfo is the
+           same as the first column of rowData.")
+    }
+  }
   
   # Load metadata as required
   colInfo <- S4Vectors::DataFrame(colInfo)
@@ -285,6 +291,9 @@ setMethod("EMSet2SCE", "EMSet", function(x){
   # Convert to SingleCellExperiment
   col_info <- colInfo(x)
   row_info <- rowInfo(x)
+  
+  # Save the name so we can use it
+  gene_id_name <- names(col_info)[1]
   log <- progressLog(x)
   cluster_analysis <- clusterAnalysis(x)
   
@@ -306,10 +315,10 @@ setMethod("EMSet2SCE", "EMSet", function(x){
   row_data <- SummarizedExperiment::rowData(single_cell_set)
   colnames <- BiocGenerics::colnames(SingleCellExperiment::counts(single_cell_set))
   rownames <- BiocGenerics::rownames(SingleCellExperiment::counts(single_cell_set))
-  updated_col_data <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
-  updated_row_data <- S4Vectors::merge(row_info, row_data, by = "gene_id")
+  updated_col_data <- S4Vectors::merge(col_info, col_data, by = 1)
+  updated_row_data <- S4Vectors::merge(row_info, row_data, by = 1)
   updated_col_data <- updated_col_data[match(colnames, updated_col_data$cell_barcode), ]
-  updated_row_data <- updated_row_data[match(rownames, updated_row_data$gene_id), ]
+  updated_row_data <- updated_row_data[match(rownames, updated_row_data[, 1]), ]
   BiocGenerics::rownames(updated_col_data) <- colnames
   BiocGenerics::rownames(updated_row_data) <- rownames
   SummarizedExperiment::colData(single_cell_set) <- updated_col_data
@@ -351,7 +360,7 @@ setMethod("SCE2EMSet", "SingleCellExperiment", function(x){
   sce_col_data <- sce_col_data[, colnames(sce_col_data) %in% metadata$ascend_coldata_headers]
   sce_row_data <- sce_row_data[, colnames(sce_row_data) %in% metadata$ascend_rowdata_headers]
   rownames(sce_col_info) <- sce_col_info$cell_barcode
-  rownames(sce_row_info) <- sce_row_info$gene_id
+  rownames(sce_row_info) <- sce_row_info[, 1]
   
   SummarizedExperiment::colData(x) <- sce_col_data
   SummarizedExperiment::rowData(x) <- sce_row_data
