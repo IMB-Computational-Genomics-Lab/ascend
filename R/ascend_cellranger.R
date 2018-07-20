@@ -25,13 +25,13 @@ loadCellRanger <- function(x){
   genes_file <- joinPaths(c(x, "genes.tsv"))
   
   # Create things from scratch to ensure nothing is missed
-  barcodes <- read.csv(barcodes_file, header = FALSE, sep = "\t", 
+  barcodes <- utils::read.csv(barcodes_file, header = FALSE, sep = "\t", 
                        stringsAsFactors = FALSE)
   colnames(barcodes) <- c("cell_barcode")
   barcodes$batch <- as.numeric(unlist(
     lapply(strsplit(as.character(barcodes$cell_barcode), "-"), `[`, 2)))
   
-  genes <- read.csv(genes_file, 
+  genes <- utils::read.csv(genes_file, 
                     header = FALSE, 
                     sep = "\t", 
                     stringsAsFactors = FALSE)

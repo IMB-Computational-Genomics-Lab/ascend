@@ -47,7 +47,7 @@ test_that("progressLog set", {
   expect_message(progressLog(em_set), NA)
 })
 
-test_that("progressLog retrieval"){
+test_that("progressLog retrieval", {
   # Generate dummy expression matrix
   test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
@@ -60,7 +60,7 @@ test_that("progressLog retrieval"){
   progressLog(em_set) <- progressLog
   
   expect_equal(progressLog(em_set), progressLog)
-}
+})
 
 test_that("clusterAnalysis set", {
   # Generate dummy expression matrix
@@ -77,7 +77,7 @@ test_that("clusterAnalysis set", {
   expect_message(clusterAnalysis(em_set), NA)
 })
 
-test_that("clusterAnalysis retrieval"){
+test_that("clusterAnalysis retrieval", {
   # Generate dummy expression matrix
   test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
@@ -92,7 +92,7 @@ test_that("clusterAnalysis retrieval"){
   expect_equal(clusterAnalysis(em_set), clusterAnalysis)
 }
 
-test_that("addControls test"){
+test_that("addControls test", {
   # Generate a test EMSet
   test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
@@ -116,4 +116,4 @@ test_that("addControls test"){
   
   # SubsetCondition - expect number of targets to be equal
   expect_true(progressLog(addControlInfo(em.set, controls = controls))$controls)
-}
+})

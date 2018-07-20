@@ -318,7 +318,7 @@ calcRandIndexMatrix <- function(cluster_matrix, original_clusters, cluster_list)
   # Organise rand indexes into a table, assign order/result numbers
   cluster_index_consec <-unlist(cluster_index_consec)
   cluster_index_ref <-unlist(cluster_index_ref)
-  rand_idx_matrix <-as_data_frame(cbind(cluster_index_consec, cluster_index_ref))
+  rand_idx_matrix <-as.data.frame(cbind(cluster_index_consec, cluster_index_ref))
   rand_idx_matrix$order <-row.names(rand_idx_matrix)
   return(rand_idx_matrix)
 }

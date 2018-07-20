@@ -18,7 +18,6 @@
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment colData
 #' @importFrom SingleCellExperiment counts
-#' @importFrom scran cyclone
 #' @importFrom BiocParallel bpparam
 #' @export
 #'
@@ -67,8 +66,6 @@ scranCellCycle <- function(object, training_set = NULL) {
 #' 
 #' @importFrom SummarizedExperiment colData rowData
 #' @importFrom SingleCellExperiment isSpike spikeNames sizeFactors counts normcounts logcounts
-#' @importFrom scran computeSumFactors quickCluster
-#' @importFrom scater normalize
 #' @export
 #'
 scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5){
