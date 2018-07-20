@@ -23,6 +23,7 @@
 #' @export
 #'
 scranCellCycle <- function(object, training_set = NULL) {
+  
   if(is.null(training_set)){
     stop("Please specify a cyclone training set.")
   }

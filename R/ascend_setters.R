@@ -37,7 +37,7 @@ setGeneric("colInfo<-", function(x, ..., value) standardGeneric("colInfo<-"))
 #' @export
 setReplaceMethod("colInfo", "EMSet", function(x, value) {
   # Sync colInfo, matrix and subsequent objects
-  x@colInfo <- value
+  x <- BiocGenerics:::replaceSlots(x, colInfo = value, check = FALSE)
   x <- x[ , value[,1]]
   x <- calculateQC(x)
   x
@@ -50,8 +50,8 @@ setGeneric("rowInfo<-", function(x, ..., value) standardGeneric("rowInfo<-"))
 #' @include ascend_objects.R
 #' @export
 setReplaceMethod("rowInfo", "EMSet",  function(x, value) {
+  x <- BiocGenerics:::replaceSlots(x, rowInfo = value, check = FALSE)
   x <- x[value[,1], ]
-  x@rowInfo <- value
   x <- calculateQC(x)
   x
 })

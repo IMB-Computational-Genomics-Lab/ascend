@@ -1,5 +1,5 @@
-version 0.6.8 (2018-07-19)
-- Changed gene_id call to general call for functions.
+version 0.6.8 (2018-07-20)
+- Changed ConvertGeneAnnotation to convertGeneID and updated for new object.
 
 version 0.6.7 (2018-07-17)
 - Resolved repeat clustering issue with runCORE

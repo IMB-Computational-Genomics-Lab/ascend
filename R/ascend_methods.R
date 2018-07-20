@@ -206,3 +206,74 @@ setMethod("calculateQC", "EMSet", function(object){
   
   return(object)
 })
+
+#' @export
+setGeneric("convertGeneID", function(object, ..., new.annotation) standardGeneric("convertGeneID"))
+
+
+#' @include ascend_objects.R
+#' @include ascend_getters.R
+#' @include ascend_setters.R
+#' @importFrom SummarizedExperiment rowData
+#' @export
+setMethod("convertGeneID", "EMSet", function(object, ..., new.annotation = NULL){
+  # Get old information
+  row_info <- rowInfo(object)
+  row_data <- SummarizedExperiment::rowData(object)
+  row_info_names <- colnames(row_info)
+  row_data_names <- colnames(row_data)
+  old.annotation <- row_info_names[1]
+  
+  # Check if the new annotation exists
+  if(!new.annotation %in% row_info_names){
+    stop("Your selected gene annotation is not present in the rowInfo dataframe.")
+  } else{
+    if (identical(old.annotation, new.annotation)){
+      stop("Your selected gene annotation is already in use.")
+    }
+  }
+  
+  # Identify non-identifier columns
+  other_columns_info <- row_info_names[which(!(row_info_names %in% c(old.annotation, new.annotation)))]
+  other_columns_data <- row_data_names[which(!(row_data_names %in% c(old.annotation, new.annotation)))]
+  
+  # New order for rowInfo
+  reordered_columns_info <- c(new.annotation, old.annotation, other_columns_info)
+  reordered_rowInfo <- row_info[ , reordered_columns_info]
+  new_annotations <- reordered_rowInfo[, 1]
+  rownames(reordered_rowInfo) <- new_annotations
+  
+  # Replace annotation in rowData
+  reordered_rowData <- row_data
+  colnames(reordered_rowData)[1] <- new.annotation
+  reordered_rowData[ ,1] <- new_annotations
+  rownames(reordered_rowData) <- new_annotations
+  
+  # New identifiers
+  renamed_set <- object
+  
+  # Check if any controls are defined
+  # If there are controls, convert them to the new convention
+  log <- progressLog(object)
+  if (log$controls){
+    control_list <- log$set_controls
+    converted_controls <- lapply(names(control_list), function(x){
+      old_gene_ids <- control_list[[x]]
+      new_gene_ids <- reordered_rowInfo[which(reordered_rowInfo[ , old.annotation] %in% old_gene_ids), new.annotation]
+      return(new_gene_ids)
+    })
+    names(converted_controls) <- names(control_list)
+    log$set_controls <- converted_controls
+  }
+  
+  # Replace slots
+  progressLog(renamed_set) <- log
+  BiocGenerics::rownames(renamed_set) <- new_annotations
+  SummarizedExperiment::rowData(renamed_set) <- S4Vectors::DataFrame(reordered_rowData)
+  rowInfo(renamed_set) <- S4Vectors::DataFrame(reordered_rowInfo)
+  
+  # Recalculate QC
+  renamed_set <- calculateQC(renamed_set)
+  return(renamed_set)  
+})
+
