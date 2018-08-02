@@ -105,8 +105,7 @@ package.
 library(devtools)
 
 # Use devtools to install the package
-install_github("IMB-Computational-Genomics-Lab/ascend")
-
+install_github("IMB-Computational-Genomics-Lab/ascend", build_vignettes = TRUE)
 # Load the package in R
 library(ascend)
 ```
