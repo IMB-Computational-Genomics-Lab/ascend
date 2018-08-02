@@ -4,9 +4,9 @@
 \alias{runDESeq}
 \title{runDESeq}
 \usage{
-runDESeq(object, group = NULL, condition.a = NULL, condition.b = NULL,
-  ngenes = NULL, fitType = c("parametric", "local"), method = c("pooled",
-  "pooled-CR", "per-condition", "blind"))
+runDESeq(object, group = NULL, condition.a = NULL,
+  condition.b = NULL, ngenes = NULL, fitType = c("parametric",
+  "local"), method = c("pooled", "pooled-CR", "per-condition", "blind"))
 }
 \arguments{
 \item{object}{A \code{\linkS4class{EMSet}} object that has undergone 

@@ -2,7 +2,8 @@
 % Please edit documentation in R/ascend_utilities.R
 \name{fileCheck}
 \alias{fileCheck}
-\title{fileCheck 
+\title{fileCheck
+ 
 This little snippet is designed in a way in which you pair it up with a call 
 to process the file. This checks if the file exists.}
 \usage{
@@ -15,7 +16,8 @@ fileCheck(x)
 Returns a message if the file doesn't exist.
 }
 \description{
-fileCheck 
+fileCheck
+ 
 This little snippet is designed in a way in which you pair it up with a call 
 to process the file. This checks if the file exists.
 }

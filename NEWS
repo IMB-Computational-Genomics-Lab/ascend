@@ -1,3 +1,7 @@
+version 0.7.0 (2018-08-02)
+- Updated documentation of some functions.
+- Updated base vignette.
+
 version 0.6.8 (2018-07-20)
 - Changed ConvertGeneAnnotation to convertGeneID and updated for new object.
 

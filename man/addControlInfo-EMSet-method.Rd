@@ -19,3 +19,15 @@ and calculated QC metrics.
 \description{
 Adds and integrates control information to an \linkS4class{EMSet}.
 }
+\examples{
+# Load data
+load("R/sysdata.rda")
+x <- data_package$raw_emset
+
+# Create a new list of controls
+new_control <- list(control3 = c("Gene3", "Gene4"))
+
+# Add to controls
+updated_x <- addControlInfo(x, controls = new_control)
+
+}

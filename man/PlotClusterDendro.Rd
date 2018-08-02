@@ -5,13 +5,13 @@
 \title{PlotClusterDendro}
 \usage{
 PlotClusterDendro(dendro, colors, groupLabels = NULL, rowText = NULL,
-  rowTextAlignment = c("left", "center", "right"), rowTextIgnore = NULL,
-  textPositions = NULL, setLayout = TRUE, autoColorHeight = TRUE,
-  colorHeight = 0.2, rowWidths = NULL, dendroLabels = NULL,
-  guideAll = FALSE, guideHang = 0.2, addTextGuide = FALSE,
-  cex.colorLabels = 0.8, cex.dendroLabels = 0.9, cex.rowText = 0.8,
-  marAll = c(1, 5, 3, 1), saveMar = TRUE, abHeight = NULL,
-  abCol = "red", ...)
+  rowTextAlignment = c("left", "center", "right"),
+  rowTextIgnore = NULL, textPositions = NULL, setLayout = TRUE,
+  autoColorHeight = TRUE, colorHeight = 0.2, rowWidths = NULL,
+  dendroLabels = NULL, guideAll = FALSE, guideHang = 0.2,
+  addTextGuide = FALSE, cex.colorLabels = 0.8,
+  cex.dendroLabels = 0.9, cex.rowText = 0.8, marAll = c(1, 5, 3, 1),
+  saveMar = TRUE, abHeight = NULL, abCol = "red", ...)
 }
 \arguments{
 \item{dendro}{Hclust object generated from \code{\link{runCORE}}.}

@@ -4,8 +4,9 @@
 \alias{runDESeq2}
 \title{runDESeq2}
 \usage{
-runDESeq2(object, group = NULL, condition.a = NULL, condition.b = NULL,
-  fitType = c("parametric", "local", "mean"), ngenes = NULL)
+runDESeq2(object, group = NULL, condition.a = NULL,
+  condition.b = NULL, fitType = c("parametric", "local", "mean"),
+  ngenes = NULL)
 }
 \arguments{
 \item{object}{An \linkS4class{EMSet}}

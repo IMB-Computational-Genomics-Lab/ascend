@@ -6,6 +6,34 @@
 ################################################################################
 
 #' @export
+setGeneric(name = "useVariableGenes", def = function(object, ..., ngenes) {
+  standardGeneric("useVariableGenes")
+})
+
+#' useVariableGenes
+#' 
+#' Reduces an EMSet to a range of the most variable genes as determined by 
+#' the values calculated by \code{\link{calculateCV}}.
+#' 
+#' @export
+setMethod("useVariableGenes", signature("EMSet"), function(object,
+                                                           ngenes = 1500){
+  # Check CV values have been calculated
+  if (!("ascend_cv" %in% colnames(SummarizedExperiment::rowData(object)))){
+    stop("Please use calculateCV before using this function.")
+  }
+  
+  # Extract row data
+  row_data <- SummarizedExperiment::rowData(object)
+  
+  # Select genes that fall within range
+  keep_data <- subset(row_data, row_data$ascend_cv_rank <= ngenes)
+  subset_object <- object[keep_data[,1], ]
+  subset_object <- calculateQC(subset_object)
+  return(subset_object)
+})
+
+#' @export
 setGeneric(name = "excludeControl", def = function(object, ...., control) {
   standardGeneric("excludeControl")
 })

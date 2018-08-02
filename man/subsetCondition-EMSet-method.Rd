@@ -5,7 +5,8 @@
 \alias{subsetCondition,EMSet-method}
 \title{subsetCondition}
 \usage{
-\S4method{subsetCondition}{EMSet}(object, by = c(), conditions = list())
+\S4method{subsetCondition}{EMSet}(object, by = c(),
+  conditions = list())
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}}}

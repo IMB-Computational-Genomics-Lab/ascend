@@ -23,5 +23,7 @@ slot.
 }
 \description{
 Reduce the dimensions of an expression matrix stored in an 
-\code{\linkS4class{EMSet}}. This should be used prior to clustering.
+\code{\linkS4class{EMSet}} based on the most variable genes. Datasets must
+be reduced prior to clustering analysis as it is used to construct the 
+distance matrix.
 }

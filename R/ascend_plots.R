@@ -5,6 +5,60 @@
 #
 ################################################################################
 
+#' plotVariableGenes
+#' 
+#' Generates a scatter plot to aid in the detection of variable genes. Scatter
+#' plot depicts Correlation of Variance (CV) vs log10(mean gene expression). 
+#' Please use the \code{\link{calculateCV}} function before using this function.
+#' 
+#' @param object An \linkS4class{EMSet} that has had CV values calculated
+#' @param ngenes Select n most variable genes to plot (Optional)
+#' @param label.size Size of gene labels
+#' @param point.size Size of scatter points
+#' @param check.overlap Hide overlapping labels (Default: FALSE)
+#' @return A scatter plot rendered by ggplot2's geom_point function.
+#' 
+#' @importFrom SummarizedExperiment rowData
+#' @importFrom ggplot2 ggplot aes geom_point geom_text ggtitle xlab ylab theme_bw
+#' @export
+plotVariableGenes <- function(object, 
+                              ngenes = NULL, 
+                              label.size = 3, 
+                              point.size = 0.5,
+                              check.overlap = FALSE){
+  # Check CV values have been generated
+  if (! "ascend_cv" %in% colnames(SummarizedExperiment::rowData(object)) ){
+    stop("Please run calculateCV before using this function.")
+  }
+  
+  # If ngenes not specified, use all values
+  if (is.null(ngenes)){
+    ngenes <- nrow(object)
+  }
+  
+  # Extract rowData
+  row_data <- as.data.frame(SummarizedExperiment::rowData(object))
+  gene_id_name <- colnames(row_data)[1]
+  plot_metrics <- row_data[ , c(gene_id_name, "qc_meancounts", "ascend_sd", "ascend_cv", "ascend_cv_rank")]
+  plot_metrics[, gene_id_name] <- factor(plot_metrics[ , gene_id_name], levels = unique(plot_metrics[ , gene_id_name]))
+  colnames(plot_metrics) <- c("gene_id", "gene_mean", "gene_sd", "gene_cv", "gene_rank")
+  cv_range <- round((max(plot_metrics$gene_cv)-min(plot_metrics$gene_cv))/2)
+  plot_metrics$label <- plot_metrics$gene_cv >= cv_range
+  
+  # Subset genes by ranking
+  plot_metrics <- subset(plot_metrics, plot_metrics$gene_rank <= ngenes)
+  
+  # Generate plot
+  plot <- ggplot2::ggplot(plot_metrics, ggplot2::aes(x = log10(gene_mean), y = gene_cv)) + 
+    ggplot2::geom_point(size = point.size) + 
+    ggplot2::geom_text(data = subset(plot_metrics, plot_metrics$label == TRUE), 
+                       ggplot2::aes(log10(gene_mean), gene_cv, label = gene_id), 
+                       size = label.size, hjust = -0.25, 
+                       check_overlap = check.overlap) + ggplot2::ggtitle("Variable genes") + 
+    ggplot2::xlab(log[10]~"Mean gene expression") + ggplot2::ylab("Coefficiant of variation") + ggplot2::theme_bw()
+  return(plot)
+}
+
 #' plotVolcano
 #'
 #' Produces a volcano plot featuring differential expression results.
@@ -1405,7 +1459,7 @@ plotGeneralQC <- function(object){
   output_list[["topgenes_violin"]] <- plotTopGenesPerSample(object)
 
     # If controls present...
-  if (progressLog(object)$controls){
+  if ("controls" %in% names(progressLog(object))){
     print("Controls detected. Plotting control-specific plots...")
     
     # 1. Plot feature count histogram

@@ -61,7 +61,8 @@ joinPaths <- function(x){
   }
 }
 
-#' fileCheck 
+#' fileCheck
+#'  
 #' This little snippet is designed in a way in which you pair it up with a call 
 #' to process the file. This checks if the file exists.
 #' 

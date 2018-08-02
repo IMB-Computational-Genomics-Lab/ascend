@@ -4,8 +4,8 @@
 \alias{newEMSet}
 \title{newEMSet}
 \usage{
-newEMSet(assays = NULL, colInfo = NULL, rowInfo = NULL, colData = NULL,
-  rowData = NULL, controls = NULL)
+newEMSet(assays = NULL, colInfo = NULL, rowInfo = NULL,
+  colData = NULL, rowData = NULL, controls = NULL)
 }
 \arguments{
 \item{assays}{A list of matrices representing count data. You must have a 
