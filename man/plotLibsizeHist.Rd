@@ -15,3 +15,8 @@ A ggplot2 glob containing the histogram.
 \description{
 Generates a histogram of all cell library sizes.
 }
+\examples{
+\dontrun{
+libsize_hist <- plotLibsizeHist(EMSet)
+}
+}

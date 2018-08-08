@@ -22,5 +22,23 @@ A ggplot glob that contains a scatter plot.
 \description{
 Plot two principal components (PCs) on a scatter plot. This plot corresponds
 more closely to the distance between points and therefore is good to use
-to review the effectiveness of clustering by the CORE algorithm.
+to review the effectiveness of clustering by the SCORE algorithm.
+}
+\examples{
+\dontrun{
+# Normalise counts
+EMSet <- normaliseByRLE(EMSet)
+
+# Remove controls
+EMSet <- excludeControl(EMSet, control = c("Mt", "Rb"))
+# Dimensionality reduction
+EMSet <- runPCA(EMSet)
+
+# Clustering
+EMSet <- runSCORE(EMSet)
+
+# Generate MDS
+pca_plot <- plotPCA(EMSet, PCX = 1, PCY = 2, group = "cluster")
+
+}
 }

@@ -31,8 +31,7 @@ This function is called when changes are made to the count matrix.
 }
 \examples{
 # Load example dataset
-load("R/sysdata.rda")
-object <- data_package$raw_emset
+object <- ascend::data_package$raw_emset
 
 # Recalculate quality control metrics
 object <- calculateQC(object)

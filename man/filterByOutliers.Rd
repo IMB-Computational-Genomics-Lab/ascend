@@ -7,7 +7,7 @@
 filterByOutliers(object, cell.threshold = 3, control.threshold = 3)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}}.}
+\item{object}{An \linkS4class{EMSet}.}
 
 \item{cell.threshold}{Mean Absolute Deviation (MAD) value to filter cells by 
 library size. Default: 3.}
@@ -16,7 +16,7 @@ library size. Default: 3.}
 by proportion of control genes. Default: 3.}
 }
 \value{
-An \code{\linkS4class{EMSet}} with outlier cells filtered out.
+An \linkS4class{EMSet} with outlier cells filtered out.
 }
 \description{
 Automatically filter cells based on expression levels.
@@ -32,8 +32,7 @@ This function then loads the filtered expression matrix into the \linkS4class{EM
 }
 \examples{
 # Load EMSet
-load("R/sysdata.rda")
-raw_emset <- data_package$raw_emset
+raw_emset <- ascend::data_package$raw_emset
 
 # Filter by outliers with default settings
 filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, control.threshold = 3)

@@ -45,3 +45,8 @@ each sample and control, depicting the proportion of controls to total
 expression.}
 }
 }
+\examples{
+\dontrun{
+general_qc_plots <- plotGeneralQC(EMSet)
+}
+}

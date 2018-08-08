@@ -7,5 +7,10 @@
 plotGeneNumber(object)
 }
 \description{
-plotGeneNumber
+Generates a histogram of the number of genes per cell.
+}
+\examples{
+\dontrun{
+gene_number_plot <- plotGeneNumber(EMSet)
+}
 }

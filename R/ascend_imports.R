@@ -4,4 +4,5 @@
 #' @import ggplot2
 #' @import SummarizedExperiment
 #' @import SingleCellExperiment
+#' @export data_package
 NULL

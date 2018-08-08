@@ -5,6 +5,15 @@
 #
 ################################################################################
 
+#' getConsecSeq
+#' 
+#' Function that looks for consecutive values in a forward or reverse direction.
+#' Used to calculate stability in the runSCORE algorithm.
+#' 
+#' @param x Vector of numbers to identify consecutive regions in.
+#' @param direction Forward or Reverse.
+#' @return A list of values that are consecutive
+#' 
 #' @export
 getConsecSeq <- function(x, direction = c("forward", "reverse")){
   consecutive <- c()
@@ -250,6 +259,7 @@ calcStability <- function(rand_idx_matrix = NULL, nres = 40){
   return(rand_idx_matrix)
 }
 
+
 #' @export
 chooseNew <- function(n = NULL, k = NULL) {
   n <- c(n); out1 <- rep(0,length(n));
@@ -334,15 +344,15 @@ retrieveCluster <- function(height_list, hclust_obj = NULL, distance_matrix = NU
 
 #' @include ascend_objects.R
 #' @export
-setGeneric("runCORE", def = function(object, 
+setGeneric("runSCORE", def = function(object, 
                                      ..., 
                                      conservative,
                                      nres,
                                      remove.outlier) {
-  standardGeneric("runCORE")  
+  standardGeneric("runSCORE")  
 })
 
-#' runCORE
+#' runSCORE
 #'
 #' This function determines the optimal number of clusters for a dataset.
 #' This function first generates a distance matrix and a hclust object, and then
@@ -375,7 +385,7 @@ setGeneric("runCORE", def = function(object,
 #' @importFrom BiocParallel bplapply
 #' @export
 #'
-setMethod("runCORE", signature("EMSet"), function(object, 
+setMethod("runSCORE", signature("EMSet"), function(object, 
                                                   conservative = TRUE,
                                                   nres = 40, 
                                                   remove.outlier = FALSE){

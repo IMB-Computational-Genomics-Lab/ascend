@@ -13,8 +13,7 @@ column of rowInfo.
 }
 \examples{
 # Load data
-load("R/sysdata.rda")
-x <- data_package$raw_emset
+x <- ascend::data_package$raw_emset
 
 # Extract rowInfo from EMSet
 row_info <- rowInfo(x)

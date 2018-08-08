@@ -16,3 +16,8 @@ A ggplot2 glob containing the barplot.
 Generates a barplot of each cell's library size, and arranges them in 
 descending order.
 }
+\examples{
+\dontrun{
+libsize_barplot <- plotLibsizeBarplot(EMSet)
+}
+}

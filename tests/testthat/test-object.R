@@ -2,14 +2,14 @@
 context("EMSet constructor functions")
 
 # Test newEMSet function, ensure it outputs an EMSet
-test_that::test_that("newEMSet works without controls.", {
+test_that("newEMSet works without controls.", {
   # Generate dummy expression matrix
   test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
   cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
   gene_ids <- sapply(1:nrow(test_matrix), function(x) paste0("Gene", x))
   colnames(test_matrix) <- cell_ids
   rownames(test_matrix) <- gene_ids
-  assay_list <- S4Vectors::SimpleList(counts = test_matrix)
+  assay_list <- list(counts = test_matrix)
   
   # Initiate test
   expect_match(class(newEMSet(assays = assay_list)), "EMSet")

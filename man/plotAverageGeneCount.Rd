@@ -17,3 +17,16 @@ A ggplot2 glob containing the histogram.
 \description{
 Generates a histogram of average counts for each gene.
 }
+\examples{
+\dontrun{
+# Plot average gene count
+average_genes <- plotAverageGeneCount(EMSet, metric = "average")
+
+# Plot log2 average gene count
+average_gene_2 <- plotAverageGeneCount(EMSet, metric = "log2")
+
+# Plot log10 average gene count
+average_gene_10 <- plotAverageGeneCount(EMSet, metric = "log10")
+
+}
+}

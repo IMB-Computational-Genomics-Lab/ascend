@@ -20,14 +20,9 @@ in the \pkg{WGCNA} package.
 \examples{
 \dontrun{
 pdf("MyStabilityDendrogram.pdf")
-}
 #' # Load clustered EMSet
-EMSet <- readRDS(system.file(package = "ascend", "extdata", 
-"ExampleClusteredEMSet.rds"))
-
 # Plot stability dendrogram
 PlotStabilityDendro(EMSet)
-\dontrun{
 dev.off()
 }
 }

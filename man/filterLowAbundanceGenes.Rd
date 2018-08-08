@@ -7,14 +7,14 @@
 filterLowAbundanceGenes(object, pct.threshold = 1)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} that has been filtered by 
+\item{object}{An \linkS4class{EMSet} that has been filtered by 
 \code{\link{filterByOutliers}} and \code{\link{filterByControl}}.}
 
 \item{pct.threshold}{Percentage threshold as a whole number. Default: 1.}
 }
 \value{
-An \code{\linkS4class{EMSet}} with low abundance genes removed from 
-the dataset.
+An \linkS4class{EMSet} with low abundance genes removed from the 
+dataset.
 }
 \description{
 Removes genes if they are expressed in less than a set percentage of cells . 
@@ -24,8 +24,7 @@ is optional.
 }
 \examples{
 # Load EMSet
-load("R/sysdata.rda")
-raw_emset <- data_package$raw_emset
+raw_emset <- ascend::data_package$raw_emset
 
 # Filter low abundance genes expressed in less than 1\% of cells
 filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 1)

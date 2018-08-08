@@ -7,7 +7,7 @@
 filterByControl(object, control = NULL, pct.threshold = 20)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}}}
+\item{object}{An \linkS4class{EMSet}.}
 
 \item{control}{Name of the control group, as used in the named list 
 supplied to the EMSet object.}
@@ -16,7 +16,7 @@ supplied to the EMSet object.}
 number. Default: 20.}
 }
 \value{
-An \code{\linkS4class{EMSet}} with filtered controls.
+An \linkS4class{EMSet} with filtered controls.
 }
 \description{
 Filter cells in an expression matrix based on the expression levels of a
@@ -26,8 +26,7 @@ with the \code{\link{filterByOutliers}} function.
 }
 \examples{
 # Load EMSet
-load("R/sysdata.rda")
-raw_emset <- data_package$raw_emset
+raw_emset <- ascend::data_package$raw_emset
 
 # Filter by outliers with default settings
 filtered_emset <- filterByControl(raw_emset, control = "control1", pct.threshold = 20)

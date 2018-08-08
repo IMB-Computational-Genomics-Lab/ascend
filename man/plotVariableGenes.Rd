@@ -26,3 +26,11 @@ Generates a scatter plot to aid in the detection of variable genes. Scatter
 plot depicts Correlation of Variance (CV) vs log10(mean gene expression). 
 Please use the \code{\link{calculateCV}} function before using this function.
 }
+\examples{
+\dontrun{
+em_set <- calculateCV(em_set)
+variable_gene_plot <- plotVariableGenes(em_set, ngenes = 1500, 
+label.size = 3, point.size = 0.5, check.overlap = TRUE)
+}
+
+}

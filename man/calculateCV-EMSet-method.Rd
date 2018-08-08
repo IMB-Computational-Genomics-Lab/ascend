@@ -13,8 +13,7 @@ values. Results are stored in the rowData slot.
 }
 \examples{
 # Load example dataset
-load("R/sysdata.rda")
-x <- data_package$processed_emset
+x <- ascend::data_package$processed_emset
 
 # Calculate CV 
 x <- calculateCV(x)

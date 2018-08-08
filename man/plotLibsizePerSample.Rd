@@ -15,3 +15,8 @@ A ggplot2 object containing a violin-beeswarm plot
 \description{
 Generates a violin-beeswarm plot of library sizes per sample.
 }
+\examples{
+\dontrun{
+libsize_per_sample <- plotLibsizePerSample(EMSet)
+}
+}

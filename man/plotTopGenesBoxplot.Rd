@@ -15,12 +15,14 @@ plotTopGenesBoxplot(object, n = 20, controls = TRUE)
 }
 \value{
 A ggplot glob containing a box scatter plot that represents the 
-expression of the most highly expressed genes.
+expression of the most highly expressed genes
 }
 \description{
 Generates a boxplot using \link[ggplot2]{geom_boxplot} of the most expressed 
 genes in the dataset, in a range defined by the user.
 }
 \examples{
-# Load example EMSet
+\dontrun{
+top_genes <- plotTopGenesBoxplot(EMSet, n = 20, controls = FALSE)
+}
 }

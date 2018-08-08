@@ -34,6 +34,8 @@
 #' @importFrom BiocParallel bplapply
 #' @importFrom Matrix t rowSums
 #'
+#' @export
+#' 
 normWithinBatch <- function(object) {
   if (!is.null(progressLog(object)$normaliseWithinBatch)) {
     stop("This data is already normalised.")
@@ -122,6 +124,7 @@ normWithinBatch <- function(object) {
 #' @importFrom Matrix t
 #' @importFrom SummarizedExperiment colData
 #' @importFrom SingleCellExperiment counts sizeFactors
+#' 
 #' @export
 #'
 normaliseBatches <- function(object){
@@ -199,6 +202,7 @@ normaliseBatches <- function(object){
 #' @importFrom BiocParallel bpvec
 #' @importFrom Matrix t
 #' @importFrom SingleCellExperiment normcounts logcounts sizeFactors
+#' 
 #' @export
 #'
 normaliseByRLE <- function(object) {

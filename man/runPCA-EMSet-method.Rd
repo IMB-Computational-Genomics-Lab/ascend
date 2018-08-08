@@ -8,7 +8,7 @@
 \S4method{runPCA}{EMSet}(object, ngenes = 1500, scaling = TRUE)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} that has undergone filtering and 
+\item{object}{An \linkS4class{EMSet} that has undergone filtering and 
 normalisation.}
 
 \item{ngenes}{The top number of genes you would like to perform the reduction by. 
@@ -18,12 +18,12 @@ Default: 1500.}
 Default: TRUE.}
 }
 \value{
-An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
+An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
 slot.
 }
 \description{
 Reduce the dimensions of an expression matrix stored in an 
-\code{\linkS4class{EMSet}} based on the most variable genes. Datasets must
+\linkS4class{EMSet} based on the most variable genes. Datasets must
 be reduced prior to clustering analysis as it is used to construct the 
 distance matrix.
 }

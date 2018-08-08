@@ -1,6 +1,7 @@
 #' regressGene
 #'
-#' Called by \code{\link{regressConfoundingFactors}}. This step extracts residuals from the 
+#' Called by \code{\link{regressConfoundingFactors}}. This step extracts 
+#' residuals from the 
 #' supplied gene.
 #' 
 #' @param x Gene to regress residuals from.

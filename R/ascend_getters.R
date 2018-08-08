@@ -9,6 +9,10 @@
 #' @export
 setGeneric("clusterAnalysis", function(x, ...) standardGeneric("clusterAnalysis"))
 
+#' clusterAnalysis
+#' 
+#' Convenience method to retrieve cluster analysis data from the slot.
+#' 
 #' @include ascend_objects.R
 #' @export
 setMethod("clusterAnalysis", "EMSet", function(x){
@@ -20,6 +24,10 @@ setMethod("clusterAnalysis", "EMSet", function(x){
 #' @export
 setGeneric("progressLog", function(x, ...) standardGeneric("progressLog"))
 
+#' progressLog
+#' 
+#' Covenience method to retrieve the progress log.
+#' 
 #' @include ascend_objects.R
 #' @export
 setMethod("progressLog", "EMSet", function(x){
@@ -31,6 +39,10 @@ setMethod("progressLog", "EMSet", function(x){
 #' @export
 setGeneric("colInfo", function(x, ...) standardGeneric("colInfo"))
 
+#' colInfo
+#' 
+#' Convenience method to retrieve cell information.
+#' 
 #' @include ascend_objects.R
 #' @importFrom BiocGenerics rownames
 #' @export
@@ -46,6 +58,11 @@ setMethod("colInfo", "EMSet", function(x, withDimnames = TRUE){
 #' @export
 setGeneric("rowInfo", function(x, ...) standardGeneric("rowInfo"))
 
+
+#' rowInfo
+#' 
+#' Convenience method to retrieve gene information.
+#' 
 #' @include ascend_objects.R
 #' @importFrom BiocGenerics rownames
 #' @export

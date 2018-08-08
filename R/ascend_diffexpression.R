@@ -5,8 +5,6 @@
 #
 ################################################################################
 
-# Differential expression via adapted LRT
-# Apply ceiling and floor 
 #' @export
 minMax <- function(data, min, max) {
   data2 <- data

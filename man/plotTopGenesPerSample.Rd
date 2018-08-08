@@ -16,3 +16,8 @@ A ggplot2 object containing a violin-beeswarm plot
 Generates a violin-beeswarm plot of top gene counts and contribution to to 
 a cell's total expression.
 }
+\examples{
+\dontrun{
+top_genes_violin <- plotTopGenesPerSample(EMSet)
+}
+}

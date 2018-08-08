@@ -45,11 +45,11 @@ func_DESeq <- function(x, expression_matrix = NULL, condition_df = NULL, group =
 #' This wrapper runs differential expression analysis via the \pkg{DESeq} 
 #' package.
 #' 
-#' @param object A \code{\linkS4class{EMSet}} object that has undergone 
+#' @param object An \linkS4class{EMSet} object that has undergone 
 #' filtering and normalisation.
 #' @param group Name of the column in the colInfo dataframe where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
-#' identified by RunCORE.
+#' identified by \code{\link{runSCORE}}.
 #' @param condition.a Condition of the group you want to use as the baseline.
 #' @param condition.b Conditions of the group you want to compare to the baseline.
 #' @param ngenes Perform differential expression analysis using top number of genes.
@@ -60,7 +60,10 @@ func_DESeq <- function(x, expression_matrix = NULL, condition_df = NULL, group =
 #' Options: pooled, pooled-CR, per-condition (Default), blind.
 #' @return A dataframe containing \pkg{DESeq} results
 #' @examples
-#' 
+#' \dontrun{
+#' cluster1_vs_others <- runDESeq(EMSet, group = "cluster", condition.a = "1",
+#' condition.b = c("2", "3"), ngenes = 1500, fitType = "local", method = "per-condition")
+#' }
 #' @importFrom BiocParallel bplapply bpnworkers bpparam
 #' @importFrom dplyr intersect bind_rows
 #' @importFrom SingleCellExperiment rowData normcounts

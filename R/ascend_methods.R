@@ -19,8 +19,7 @@ setGeneric("addControlInfo", function(x, ..., controls) standardGeneric("addCont
 #'
 #' @examples
 #' # Load data
-#' load("R/sysdata.rda")
-#' x <- data_package$raw_emset
+#' x <- ascend::data_package$raw_emset
 #' 
 #' # Create a new list of controls
 #' new_control <- list(control3 = c("Gene3", "Gene4"))
@@ -141,8 +140,7 @@ setGeneric("calculateQC", function(object, ...) standardGeneric("calculateQC"))
 #' 
 #' @examples
 #' # Load example dataset
-#' load("R/sysdata.rda")
-#' object <- data_package$raw_emset
+#' object <- ascend::data_package$raw_emset
 #' 
 #' # Recalculate quality control metrics
 #' object <- calculateQC(object)
@@ -291,8 +289,7 @@ setGeneric("convertGeneID", function(object, ..., new.annotation) standardGeneri
 #' 
 #' @examples
 #' # Load data
-#' load("R/sysdata.rda")
-#' x <- data_package$raw_emset
+#' x <- ascend::data_package$raw_emset
 #' 
 #' # Extract rowInfo from EMSet
 #' row_info <- rowInfo(x)
@@ -383,8 +380,7 @@ setGeneric("calculateCV", function(object) standardGeneric("calculateCV"))
 #' 
 #' @examples
 #' # Load example dataset
-#' load("R/sysdata.rda")
-#' x <- data_package$processed_emset
+#' x <- ascend::data_package$processed_emset
 #' 
 #' # Calculate CV 
 #' x <- calculateCV(x)

@@ -26,5 +26,9 @@ Generates a series of plots comparing an un-normalised and a normalised
 \code{\linkS4class{EMSet}}.
 }
 \examples{
-
+\dontrun{
+# Normalise counts and plot QC
+EMSet <- normaliseByRLE(EMSet)
+norm_qc <- plotNormQC(EMSet, gene_list = c("GAPDH", "MALAT1"))
+}
 }

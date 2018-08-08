@@ -14,7 +14,7 @@ PlotClusterDendro(dendro, colors, groupLabels = NULL, rowText = NULL,
   saveMar = TRUE, abHeight = NULL, abCol = "red", ...)
 }
 \arguments{
-\item{dendro}{Hclust object generated from \code{\link{runCORE}}.}
+\item{dendro}{Hclust object generated from \code{\link{runSCORE}}.}
 
 \item{colors}{List of colours to use to label each cluster combination. Must 
 be equal to the number of resolutions.}

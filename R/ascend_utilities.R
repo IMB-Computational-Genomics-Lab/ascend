@@ -21,6 +21,8 @@
 #' # Return values to normal
 #' unlogged_matrix <- unLog2Matrix(logged_matrix)
 #' 
+#' @export
+#' 
 unLog2Matrix <- function(x){
   # Convert to matrix
   x <- as(x, "matrix")
@@ -46,10 +48,13 @@ unLog2Matrix <- function(x){
 #' malformed.
 #' 
 #' @param x A list of substrings to combine into a full path.
+#' 
 #' @examples
 #' sub_paths <- c("Path", "To/", "Me")
 #' full_path <- joinPaths(sub_paths)
 #' print(full_path)
+#' 
+#' @export
 #' 
 joinPaths <- function(x){
   if (length(x) > 1){

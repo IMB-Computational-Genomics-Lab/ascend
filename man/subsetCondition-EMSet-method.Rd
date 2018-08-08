@@ -27,5 +27,9 @@ Subset cells of specific conditions from an \code{\linkS4class{EMSet}}.
 }
 \examples{
 # Load a pre-existing EMSet
+em_set <- ascend::data_package$processed_emset
+
+# Subset batch 1
+batch1 <- subsetCondition(em_set, by = "batch", conditions = list(batch = 1))
 
 }

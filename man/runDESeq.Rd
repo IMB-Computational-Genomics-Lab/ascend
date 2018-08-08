@@ -9,12 +9,12 @@ runDESeq(object, group = NULL, condition.a = NULL,
   "local"), method = c("pooled", "pooled-CR", "per-condition", "blind"))
 }
 \arguments{
-\item{object}{A \code{\linkS4class{EMSet}} object that has undergone 
+\item{object}{An \linkS4class{EMSet} object that has undergone 
 filtering and normalisation.}
 
 \item{group}{Name of the column in the colInfo dataframe where you have
 defined the conditions you would like to test. eg cluster to compare clusters
-identified by RunCORE.}
+identified by \code{\link{runSCORE}}.}
 
 \item{condition.a}{Condition of the group you want to use as the baseline.}
 
@@ -37,5 +37,8 @@ This wrapper runs differential expression analysis via the \pkg{DESeq}
 package.
 }
 \examples{
-
+\dontrun{
+cluster1_vs_others <- runDESeq(EMSet, group = "cluster", condition.a = "1",
+condition.b = c("2", "3"), ngenes = 1500, fitType = "local", method = "per-condition")
+}
 }

@@ -12,8 +12,13 @@ plotControlHist(object, control = NULL)
 \item{control}{Name of control group to plot.}
 }
 \value{
-A ggplot2 glob containing the histogram.
+A ggplot2 histogram
 }
 \description{
 Generates a histogram of percentage of control per samples.
+}
+\examples{
+\dontrun{
+control_histogram <- plotControlHist(EMSet, control = "Mt")
+}
 }

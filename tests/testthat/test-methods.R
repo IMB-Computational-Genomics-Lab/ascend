@@ -90,7 +90,7 @@ test_that("clusterAnalysis retrieval", {
   clusterAnalysis(em_set) <- clusterAnalysis
   
   expect_equal(clusterAnalysis(em_set), clusterAnalysis)
-}
+})
 
 test_that("addControls test", {
   # Generate a test EMSet

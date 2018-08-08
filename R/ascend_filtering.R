@@ -12,16 +12,15 @@
 #' normalisation. As this step may remove rare transcripts, this filtering step
 #' is optional.
 #' 
-#' @param object An \code{\linkS4class{EMSet}} that has been filtered by 
+#' @param object An \linkS4class{EMSet} that has been filtered by 
 #' \code{\link{filterByOutliers}} and \code{\link{filterByControl}}.
 #' @param pct.threshold Percentage threshold as a whole number. Default: 1.
-#' @return An \code{\linkS4class{EMSet}} with low abundance genes removed from 
-#' the dataset.
+#' @return An \linkS4class{EMSet} with low abundance genes removed from the 
+#' dataset.
 #' 
 #' @examples
 #' # Load EMSet
-#' load("R/sysdata.rda")
-#' raw_emset <- data_package$raw_emset
+#' raw_emset <- ascend::data_package$raw_emset
 #' 
 #' # Filter low abundance genes expressed in less than 1% of cells
 #' filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 1)
@@ -82,17 +81,16 @@ filterLowAbundanceGenes <- function(object, pct.threshold = 1){
 #' This function should be used AFTER the cells have undergone general filtering
 #' with the \code{\link{filterByOutliers}} function.
 #' 
-#' @param object An \code{\linkS4class{EMSet}}
+#' @param object An \linkS4class{EMSet}.
 #' @param control Name of the control group, as used in the named list 
 #' supplied to the EMSet object.
 #' @param pct.threshold Percentage threshold to filter cells by, as a whole 
 #' number. Default: 20.
-#' @return An \code{\linkS4class{EMSet}} with filtered controls.
+#' @return An \linkS4class{EMSet} with filtered controls.
 #' 
 #' @examples
 #' # Load EMSet
-#' load("R/sysdata.rda")
-#' raw_emset <- data_package$raw_emset
+#' raw_emset <- ascend::data_package$raw_emset
 #' 
 #' # Filter by outliers with default settings
 #' filtered_emset <- filterByControl(raw_emset, control = "control1", pct.threshold = 20)
@@ -191,17 +189,16 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
 #'
 #' This function then loads the filtered expression matrix into the \linkS4class{EMSet}.
 #'
-#' @param object An \code{\linkS4class{EMSet}}.
+#' @param object An \linkS4class{EMSet}.
 #' @param cell.threshold  Mean Absolute Deviation (MAD) value to filter cells by 
 #' library size. Default: 3.
 #' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells 
 #' by proportion of control genes. Default: 3.
-#' @return An \code{\linkS4class{EMSet}} with outlier cells filtered out.
+#' @return An \linkS4class{EMSet} with outlier cells filtered out.
 #' 
 #' @examples
 #' # Load EMSet
-#' load("R/sysdata.rda")
-#' raw_emset <- data_package$raw_emset
+#' raw_emset <- ascend::data_package$raw_emset
 #' 
 #' # Filter by outliers with default settings
 #' filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, control.threshold = 3)

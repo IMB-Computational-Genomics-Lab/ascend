@@ -18,3 +18,8 @@ A ggplot2 object containing a violin-beeswarm plot
 Generates a violin/beeswarm plot of percentage of control expression per 
 sample. Called by \code{\link{plotGeneralQC}}.
 }
+\examples{
+\dontrun{
+control_violin <- plotControlPctPerSample(EMSet, control = "Mt")
+}
+}

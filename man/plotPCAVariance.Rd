@@ -19,3 +19,19 @@ Generates a scree plot. The principal components (PCs) are sorted from
 largest percent variance to the smallest percent variance. This plot is
 for determining the optimal number of PCs to retain for further analysis.
 }
+\examples{
+\dontrun{
+# Normalise counts
+EMSet <- normaliseByRLE(EMSet)
+
+# Remove controls
+EMSet <- excludeControl(EMSet, control = c("Mt", "Rb"))
+
+# Dimensionality reduction
+EMSet <- runPCA(EMSet)
+
+# PCA Variance
+pca_variance_plot <- plotPCAVariance(EMSet, n = 100)
+
+}
+}

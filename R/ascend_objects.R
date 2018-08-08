@@ -138,7 +138,6 @@ setMethod("show", "EMSet", function(object){
   line13 <- paste("clusterAnalysis:", clusteranlaysis, collapse = " ")
   cat(paste(line1, line2, line3, line4, line5, line6, line7,
               line8, line9, line10, line11, line12, line13, sep = "\n"))
-  print(progressLog(object))
 })
 
 #' newEMSet
@@ -216,7 +215,7 @@ newEMSet <- function(assays = NULL,
     BiocGenerics::rownames(rowData) <- rowData[,1]    
   } else{
     # Check the columns match
-    if (!is.identical(colnames(rowData)[1], colnames(rowInfo)[1])){
+    if (!identical(colnames(rowData)[1], colnames(rowInfo)[1])){
       stop("Please ensure the name of the first column of rowInfo is the
            same as the first column of rowData.")
     }
@@ -372,3 +371,77 @@ setMethod("SCE2EMSet", "SingleCellExperiment", function(x){
   return(em_set)
 })
 
+#' updateObject
+#' 
+#' Converts EMSets from ascend version < 0.5.0 to new EMSet that inherits from
+#' SingleCellExperiment. Please note that normalised data will be used as the 
+#' main count matrix, and loaded into the normcounts slot if a normalisation
+#' method was logged. Quality control metrics will be re-calculated upon 
+#' conversion.
+#' 
+#' @param object An old EMSet.
+#' @examples
+#' \dontrun{
+#' # Make sure you replace your original object with the updated object
+#' object <- updateObject(object)
+#' }
+#' @return An updated EMSet.
+#' 
+#' @export
+setMethod("updateObject", "EMSet", function(object){
+  if (.hasSlot(object, "ExpressionMatrix")){
+    print("Old EMSet detected! Updating to new EMSet structure...")
+    log <- object@Log
+    
+    counts <- object@ExpressionMatrix
+    
+    # Retrieve metadata  
+    cell_info <- object@CellInformation
+    gene_info <- object@GeneInformation
+    
+    rownames(cell_info) <- colnames(counts)
+    rownames(gene_info) <- rownames(counts)
+    
+    # Create base EMSet
+    updated_object <- newEMSet(assays = list(counts = as.matrix(counts)),
+                               colInfo = S4Vectors::DataFrame(cell_info),
+                               rowInfo = S4Vectors::DataFrame(gene_info))
+    
+    SummarizedExperiment::mcols(updated_object) <- S4Vectors::DataFrame(gene_info)
+    
+    if(length(object@Controls) > 0){
+      updated_object <- addControlInfo(updated_object, controls = object@Controls)
+    }
+    
+    progressLog(updated_object) <- log
+    
+    # Check if values are normalised
+    if (!is.null(object@Log$NormalisationMethod)){
+      normcounts <- object@ExpressionMatrix
+      SingleCellExperiment::normcounts(updated_object) <- normcounts
+    }
+    
+    if (length(object@PCA) > 0){
+      pca_matrix <- object@PCA$PCA
+      pct_variance <- object@PCA$PCAPercentVariance
+      SingleCellExperiment::reducedDim(updated_object, "PCA") <- pca_matrix
+      log <- progressLog(updated_object)
+      log$PCAVariance <- pct_variance
+      progressLog(updated_object) <- log
+    }
+    if (length(object@Clusters) > 0){
+      cluster_list <- object@Clusters
+      clusterAnalysis(updated_object) <- cluster_list
+    }
+    
+    # Validate
+    if (validateEMSet(updated_object)){
+      # Calculate QC metrics
+      object <- calculateQC(updated_object)
+      print("Conversion complete! Returning object...")
+      return(object)
+    } else{
+      stop("Converstion unsuccessful.")
+    }
+  }  
+})

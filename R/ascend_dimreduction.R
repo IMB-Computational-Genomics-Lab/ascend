@@ -109,23 +109,25 @@ setGeneric("runPCA", def = function(object, ...., ngenes, scaling) {
 #' runPCA
 #'
 #' Reduce the dimensions of an expression matrix stored in an 
-#' \code{\linkS4class{EMSet}} based on the most variable genes. Datasets must
+#' \linkS4class{EMSet} based on the most variable genes. Datasets must
 #' be reduced prior to clustering analysis as it is used to construct the 
 #' distance matrix.
 #'  
-#' @param object An \code{\linkS4class{EMSet}} that has undergone filtering and 
+#' @param object An \linkS4class{EMSet} that has undergone filtering and 
 #' normalisation.
 #' @param ngenes The top number of genes you would like to perform the reduction by. 
 #' Default: 1500.
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values. 
 #' Default: TRUE.
-#' @return An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
+#' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @include ascend_objects.R
 #' @importFrom stats prcomp
 #' @importFrom SingleCellExperiment normcounts reducedDim
 #' @export
-setMethod("runPCA", signature("EMSet"), function(object, ngenes = 1500, scaling = TRUE){
+setMethod("runPCA", signature("EMSet"), function(object, 
+                                                 ngenes = 1500, 
+                                                 scaling = TRUE){
   # Check for ngenes
   if (missing(ngenes)){
     ngenes <- 1500
