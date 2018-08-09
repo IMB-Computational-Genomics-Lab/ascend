@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{'ascend': Installation and environment setup}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -102,12 +102,12 @@ installing this package from [this website](https://cran.r-project.org/web/packa
 As `ascend` is still under development, we will use devtools to install the
 package.
 
-```{r install_ascend}
+```{r install_ascend, eval = FALSE}
 # Load devtools package
 library(devtools)
 
 # Use devtools to install the package
-install_github("IMB-Computational-Genomics-Lab/ascend", ref = "devel")
+install_github("IMB-Computational-Genomics-Lab/ascend")
 ```
 
 The package can then be loaded as normal.

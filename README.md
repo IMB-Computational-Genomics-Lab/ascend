@@ -17,7 +17,7 @@ The expression matrix is loaded into a container object known as an Expression
 and Metadata Set (EMSet). This object is also capable of storing metadata
 related to cells and genes.
 
-Please refer to the [vignettes](vignettes/) for more information on how to use this package.
+Please refer to the vignettes (browseVignettes("ascend") in R) for more information on how to use this package.
 
 ### 3. Installation
 #### 3.1 Preparing the R Environment
@@ -105,7 +105,8 @@ package.
 library(devtools)
 
 # Use devtools to install the package
-install_github("IMB-Computational-Genomics-Lab/ascend", build_vignettes = TRUE)
+install_github("IMB-Computational-Genomics-Lab/ascend")
+
 # Load the package in R
 library(ascend)
 ```

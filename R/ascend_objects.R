@@ -430,8 +430,30 @@ setMethod("updateObject", "EMSet", function(object){
       progressLog(updated_object) <- log
     }
     if (length(object@Clusters) > 0){
+      # Retrieve old cluster list
       cluster_list <- object@Clusters
-      clusterAnalysis(updated_object) <- cluster_list
+      
+      # Reformat so it matches new cluster list
+      distanceMatrix <- cluster_list$DistanceMatrix
+      hClust <- cluster_list$Hclust
+      putativeCluster <- cluster_list$PutativeClusters
+      clusteringMatrix <- cluster_list$ClusteringMatrix # Need to change resolution labels
+      colnames(clusteringMatrix)[1:ncol(clusteringMatrix) - 1] <- cluster_list$KeyStats$Height
+      clusters <- cluster_list$Clusters
+      nClusters <- cluster_list$NumberOfClusters
+      optimalTreeHeight <- cluster_list$OptimalTreeHeight
+      keyStats <- cluster_list$KeyStats
+      
+      # New list
+      clusterAnalysis <- list(distanceMatrix = distanceMatrix,
+                              hClust = hClust,
+                              putativeCluster = putativeCluster,
+                              clusteringMatrix = clusteringMatrix,
+                              clusters = clusters,
+                              nClusters = nClusters,
+                              optimalTreeHeight = optimalTreeHeight,
+                              keyStats = keyStats)
+      clusterAnalysis(updated_object) <- clusterAnalysis
     }
     
     # Validate

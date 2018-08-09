@@ -1,3 +1,11 @@
+version 0.7.4 (2018-08-09)
+- Updated documentation.
+- Resolved issues with updateObject function.
+- Removed build vignette reference from instructions.
+
+version 0.7.3 (2018-08-08)
+- Updated documentation. Resolved check conflicts.
+
 version 0.7.2 (2018-08-07)
 - Changed runCORE to runSCORE
 - Added updateObject for converting old EMSets for compatability with the new
