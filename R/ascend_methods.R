@@ -72,8 +72,8 @@ setMethod("addControlInfo", "EMSet" , function(x, controls = NULL){
 calculateControlMetrics <- function(x, expression_matrix = NULL, gene_info = NULL, qc_cell_df = NULL){
   control_name <- x
   control_gene_info <- subset(gene_info, gene_info[, "control_group"] == control_name)
-  control_counts <- expression_matrix[which(rownames(expression_matrix) %in% control_gene_info[ , 1]), ]
-  control_ntotal <- colSums(control_counts)
+  control_counts <- expression_matrix[rownames(expression_matrix) %in% control_gene_info[ , 1], ]
+  control_ntotal <- Matrix::colSums(control_counts)
   control_pct <- (control_ntotal / qc_cell_df$qc_libsize) * 100
   output <- list(control_ntotal = control_ntotal, control_pct = control_pct)
   return(output)
@@ -103,9 +103,9 @@ calcControlQC <- function(x, gene_info = NULL, qc_cell_df = NULL){
   }
   
   # Calculate proportion of non-control genes
-  feature_matrix <- x[which(is.na(gene_info[,"control_group"])), ]
-  n_featurecounts_per_cell <- colSums(feature_matrix)
-  pct_featurecounts_per_cell <- 100*(n_featurecounts_per_cell/colSums(x))
+  feature_matrix <- x[is.na(gene_info[,"control_group"]), ]
+  n_featurecounts_per_cell <- Matrix::colSums(feature_matrix)
+  pct_featurecounts_per_cell <- 100*(n_featurecounts_per_cell/Matrix::colSums(x))
   qc_cell_df$qc_nfeaturecounts <- n_featurecounts_per_cell
   qc_cell_df$qc_pctfeatures <- pct_featurecounts_per_cell
   
@@ -152,7 +152,7 @@ setGeneric("calculateQC", function(object, ...) standardGeneric("calculateQC"))
 #' @export
 setMethod("calculateQC", "EMSet", function(object){
   # Metrics - save trouble of retrieving object over and over
-  expression_matrix <- SingleCellExperiment::counts(object)
+  expression_matrix <- Matrix::Matrix(SingleCellExperiment::counts(object), sparse = TRUE)
   old_rowData <- SummarizedExperiment::rowData(object)
   old_colData <- SummarizedExperiment::colData(object)
   old_colInfo <- colInfo(object)
@@ -165,16 +165,16 @@ setMethod("calculateQC", "EMSet", function(object){
   # QC for cells
   # 1. qc_libsize: Total transcripts for each cell
   # 2. qc_ngenes: Number of genes expressed by each cell
-  qc_libsize <- colSums(expression_matrix)
-  qc_ngenes <- colSums(expression_matrix != 0)
+  qc_libsize <- Matrix::colSums(expression_matrix)
+  qc_ngenes <- diff(expression_matrix@p)
   
   # QC for genes
   # 1. qc_genecounts: Total transcripts for each gene
   # 2. qc_cellspergene: Number of cells expressing each gene
   # 3. qc_meangenecounts: Average expression of each gene
-  qc_genecounts <- rowSums(expression_matrix)
-  qc_cellspergene <- rowSums(expression_matrix > 0)
-  qc_meangenecounts <- rowMeans(expression_matrix)
+  qc_genecounts <- Matrix::rowSums(expression_matrix)
+  qc_cellspergene <- Matrix::rowSums(expression_matrix > 0)
+  qc_meangenecounts <- Matrix::rowMeans(expression_matrix)
   qc_sortedcountspergene <- sort(qc_genecounts, decreasing = TRUE)
   
   qc_genecounts <- qc_genecounts[rownames(expression_matrix)]
@@ -182,8 +182,6 @@ setMethod("calculateQC", "EMSet", function(object){
   qc_meangenecounts <- qc_meangenecounts[rownames(expression_matrix)]
   qc_generankings <- rank(-qc_genecounts, ties.method = "first")
   names(qc_generankings) <- rownames(expression_matrix)
-  #qc_generankings <- match(rownames(expression_matrix), names(qc_sortedcountspergene))
-  #names(qc_generankings) <- rownames(expression_matrix)
   qc_pct_total_expression <- (qc_genecounts / qc_totalexpression) * 100
   
   qc_cell_df <- data.frame(qc_libsize = qc_libsize, qc_ngenes = qc_ngenes)

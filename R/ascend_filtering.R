@@ -110,6 +110,15 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
     stop("Please specify a control name before using this function.")
   }
   
+  filterControl <- function(control_group, total_counts = NULL, expression_matrix = NULL){
+    # Get transcript counts for the controls
+    control_bool <- rownames(expression_matrix) %in% control_group
+    control_transcript_counts <- expression_matrix[control_bool, ]
+    control_transcript_total_counts <- Matrix::colSums(control_transcript_counts)
+    control_pt_matrix <- (control_transcript_total_counts/total_counts)*100
+    return(control_pt_matrix)
+  }
+  
   # Extract data from object
   # Merge data together to make it easier to work with
   gene_id_name <- colnames(rowInfo(object))[1]
@@ -247,15 +256,6 @@ filterByOutliers <- function(object,
   names(pct_total_counts) <- names(control_list)
   
   # Functions called by this functions
-  filterControl <- function(control_group, total_counts, expression_matrix){
-    # Get transcript counts for the controls
-    control_bool <- rownames(expression_matrix) %in% control_group
-    control_transcript_counts <- expression_matrix[control_bool, ]
-    control_transcript_total_counts <- colSums(control_transcript_counts)
-    control_pt_matrix <- (control_transcript_total_counts/total_counts)*100
-    return(control_pt_matrix)
-  }
-  
   findOutliers <- function(values, 
                            nmads = 3, 
                            type = c("both", "lower", "upper"), 
@@ -312,7 +312,6 @@ filterByOutliers <- function(object,
   
   # Remove cells from object
   filtered_object <- object[ , !(colnames(object) %in% remove_barcodes)]
-  filtered_object <- calculateQC(filtered_object)
   
   # Add records to log
   log <- progressLog(filtered_object)
