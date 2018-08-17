@@ -1,4 +1,50 @@
-version 0.5 (2018-04-30)
+version 0.7.5 (2018-08-14)
+- Optimisation for large datasets via sparse matrices
+
+version 0.7.4 (2018-08-09)
+- Updated documentation.
+- Resolved issues with updateObject function.
+- Removed build vignette reference from instructions.
+
+version 0.7.3 (2018-08-08)
+- Updated documentation. Resolved check conflicts.
+
+version 0.7.2 (2018-08-07)
+- Changed runCORE to runSCORE
+- Added updateObject for converting old EMSets for compatability with the new
+version of ascend.
+
+version 0.7.0 (2018-08-02)
+- Updated documentation of some functions.
+- Updated base vignette.
+
+version 0.6.8 (2018-07-20)
+- Changed ConvertGeneAnnotation to convertGeneID and updated for new object.
+
+version 0.6.7 (2018-07-17)
+- Resolved repeat clustering issue with runCORE
+
+version 0.6.6 (2018-07-17)
+- Resolved bug with filterByOutliers
+- Reassessed package dependencies
+
+version 0.6.5 (2018-07-13)
+- Updated documentation to reflect new functions.
+- Resolved runTSNE issue.
+
+version 0.6.0 (2018-07-11)
+- Fixing installation issues.
+
+version 0.6.0 (2018-07-11)
+- Converted EMSet to SingleCellExperiment-inherited object.
+- Restructured all functions to interact with new EMSet
+- Added LRT function.
+- Added DESeq2 wrapper.
+
+version 0.5.2 (2018-05-16)
+- Set stringAsFactors import in LoadCellRanger function to FALSE
+
+version 0.5.0 (2018-04-30)
 - Upgraded for compatibility with Bioconductor 3.7
 - Removed functions related to the use of SCESets
 

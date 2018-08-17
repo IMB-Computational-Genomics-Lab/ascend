@@ -42,5 +42,5 @@ Returns a dendrogram with coloured bars in correct cluster order.
 \description{
 Adapted from plotOrderedColors found in the \pkg{WGCNA} package. This is 
 called by the \code{\link{PlotOrderedColors}} subfunction of the 
-\code{\link{PlotStabilityDendro}} function.
+\code{\link{plotStabilityDendro}} function.
 }

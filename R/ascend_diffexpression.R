@@ -1,218 +1,212 @@
-# Code for differential expression Requires DESeq to run, and parallel
+################################################################################
+#
+# ascend_dimreduction.R
+# description: Functions related to the analysis of differential expression
+#
+################################################################################
 
-#' RunDESeq
-#'
-#' Called by \code{\link{RunDiffExpression}} to run in parallel. This performs 
-#' the differential expression part.
-#' 
-#' @param data Chunk of count matrix.
-#' @param condition.list List of conditions to test.
-#' @param condition.a Condition A.
-#' @param condition.b Condition B.
-#' @param fitType Type of fit to use with \pkg{DESeq}.
-#' @param method Method to use with \pkg{DESeq}.
-#' @return A dataframe containing DESeq results.
-#' @import DESeq
-#' @importFrom locfit locfit
-#' 
-RunDESeq <- function(data, condition.list = list(), 
-                     condition.a = NULL, condition.b = NULL, 
-                     fitType = NULL, method = NULL) {
-    library(DESeq)
-    count.dataset <- DESeq::newCountDataSet(data, condition.list)
-    count.dataset <- DESeq::estimateSizeFactors(count.dataset)
-    dispersions <- DESeq::estimateDispersions(count.dataset, method = method, fitType = fitType)
-    de.seq.results <- DESeq::nbinomTest(dispersions, condition.a, condition.b)
-    return(de.seq.results)
-}
-
-#' ProcessDEREsults
-#'
-#' Called by \code{\link{RunDiffExpression}}. Compiles the resultant data into 
-#' data frames and converts the results to absolute fold change.
-#'
-#' @param output.list List of DESeq resuilts to process and compile
-#' @return One data frame containing DESeq results for all genes
-#' @importFrom dplyr bind_rows
-#'  
-ProcessDEResults <- function(output.list) {
-    de.result.df <- dplyr::bind_rows(output.list)
-
-    # Adjust Foldchange
-    print("Adjusting fold change values...")
-    adjusted.foldchange <- (de.result.df$baseMeanB - 1)/(de.result.df$baseMeanA - 1)
-    log2.adjusted.foldchange <- log2(adjusted.foldchange)
-    de.result.df$foldChange <- adjusted.foldchange
-    de.result.df$log2FoldChange <- -log2.adjusted.foldchange
-    de.result.df <- de.result.df[order(de.result.df$pval, decreasing = FALSE), ]
-    return(de.result.df)
-}
-
-#' PrepareCountData
-#'
-#' Called by \code{\link{RunDiffExpression}}. This chunks up the expression 
-#' matrix to feed into \pkg{DESeq}.
-#' 
-#' @param object An \code{\linkS4class{EMSet}} to perform differential expression on.
-#' @param cells List of cells to extract from the \code{\linkS4class{EMSet}}.
-#' @param ngenes Number of cells to extract from the \code{\linkS4class{EMSet}}.
-#' @return A list of chunks of the expression matrix.
-#' @importFrom stats sd
-PrepareCountData <- function(object, cells, ngenes) {
-    # If ngenes aren't specified, use all of the expression matrix
-    if (is.null(ngenes)){
-      ngenes <- nrow(object@ExpressionMatrix)
-    } else{
-    # If not, check there are enough genes to chunk
-      if (ngenes > nrow(object@ExpressionMatrix)){
-        ngenes <- nrow(object@ExpressionMatrix)
-      }
-    }
-  
-    # Retrieve information from EMSet
-    expression.matrix <- GetExpressionMatrix(object, "matrix")
-    expression.matrix <- expression.matrix[ ,cells]
-    
-    # Filter out genes with zero expression, and add one to make it friendly for DESeq
-    print("Rounding expression matrix values...")
-    ordered.genes <- object@Metrics$TopGeneList
-    
-    # Identify which genes to keep
-    ## 1. They need to be within the top genes that the user has specified
-    ## 2. The mean of these genes need to be greater than zero
-    ## 3. Their standard deviation needs to be greater than zero
-    
-    top.genes <- ordered.genes[1:ngenes]
-    mean.gene.expression <- rownames(expression.matrix)[which(rowMeans(expression.matrix) > 0)]
-    gene.sd <- rownames(expression.matrix)[which(apply(expression.matrix, 1, stats::sd) > 0)]
-    gene.list <- intersect(intersect(top.genes, mean.gene.expression), gene.sd)
-    expression.matrix <- expression.matrix[gene.list, ]
-    expression.matrix <- round(expression.matrix + 1)
-
-    print("Chunking matrix...")
-    # Check how many genes are present, before determining chunk size.
-    # Determine number of chunks by logging number of genes and adjusting for
-    # chunk size for that value
-    divisor <- 10^floor(log10(ngenes))/10
-    chunk.size <- nrow(expression.matrix)/divisor     
-    chunked.matrix <- ChunkMatrix(expression.matrix, axis = 0, chunks = chunk.size)
-    return(chunked.matrix)
-}
-
-
-#' RunDiffExpression
-#'
-#' Compare the differential expression of genes between cells of different conditions.
-#'
-#' @param object A \code{\linkS4class{EMSet}} object that has undergone 
-#' filtering and normalisation.
-#' @param conditions Name of the column in the CellInformations lot where you have
-#' defined the conditions you would like to test. eg cluster to compare clusters
-#' identified by RunCORE.
-#' @param condition.a Condition of the group you want to use as the baseline.
-#' @param condition.b Conditions of the group you want to compare to the baseline.
-#' @param ngenes Perform differential expression analysis using top number of genes.
-#' If omitted, this function will run analysis on ALL genes.
-#' @param fitType Method used to fit a dispersion-mean relation by \pkg{DESeq}. 
-#' Options: parametric, local (Default).
-#' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
-#' Options: pooled, pooled-CR, per-condition (Default), blind.
-#' @return A dataframe containing \pkg{DESeq} results
-#' @examples
-#' # Load example EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
-#' 
-#' # Compare cluster 1 vs cluster 2
-#' de_result <- RunDiffExpression(EMSet, conditions = "cluster", 
-#' condition.a = "1", condition.b = "2", fitType = "local", 
-#' method = "per-condition", ngenes = 1000)
-#' 
-#' @importFrom BiocParallel bplapply
 #' @export
-#'
-RunDiffExpression <- function(object, conditions = NULL, condition.a = NULL, 
-                              condition.b = NULL, fitType = c("parametric", "local"), 
-                              method = c("pooled", "pooled-CR", "per-condition", "blind"),
-                              ngenes = NULL) {
-  # Object check
-  if (class(object) != "EMSet") {
-    stop("Please supply a EMSet object.")
+minMax <- function(data, min, max) {
+  data2 <- data
+  data2[data2 > max] <- max
+  data2[data2 < min] <- min
+  return(data2)
+}
+
+# Called by DifferentialLRT after bimodLikData
+#' @export
+bimodLikData_FixNoVar <- function(x, xmin = 0) {
+  x1 <- x[x <= xmin]
+  x2 <- x[x > xmin]
+  xal <- minMax(
+    data = length(x = x2) / length(x = x),
+    min = 1e-5,
+    max = (1 - 1e-5)
+  )
+  
+  likA <- length(x = x1) * log(x = 1 - xal)
+  #likelihood of positive cells 
+  likB <- length(x = x2) *
+    log(x = xal)
+  return(likA + likB)
+}
+
+# Called by DifferentialLRT first
+#' @export
+bimodLikData <- function(x, xmin = 0) {
+  #x1 and x2 are 2 vectors representing 2 modes
+  #x1 for 0 values -> on/off distribution model 
+  #x2 for positive values -> normal, continuous distribution 
+  x1 <- x[x <= xmin]
+  x2 <- x[x > xmin]
+  #estimate proportion of positive cells 
+  #use 1e-5 as min and 1-1e-5 as max (i.e. if there is only 1 nonzero among 100K cells)
+  xal <- minMax(
+    data = length(x = x2) / length(x = x),
+    min = 1e-5,
+    max = (1 - 1e-5)
+  )
+  #likelihood for observing x1, 1-xal is expected ratio of 0 values  
+  likA <- length(x = x1) * log(x = 1 - xal)
+  #calculate variabce for x2, to be used in dnorm to calculate prob distr
+  if (length(x = x2) < 2) {
+    mysd <- 1
+  } else {
+    mysd <- sd(x = x2)
+  }
+  #likelihood for observing x2 
+  likB <- length(x = x2) *
+    log(x = xal) +
+    sum(stats::dnorm(x = x2, mean = mean(x = x2), sd = mysd, log = TRUE))
+  return(likA + likB)
+}
+
+
+# Called by runCombinedLRT
+#' @export
+differentialLRT <- function(x, y, xmin = 0) {
+  lrtX <- bimodLikData(x = x)
+  lrtY <- bimodLikData(x = y)
+  lrtZ <- bimodLikData(x = c(x, y))
+  lrt_diff <- 2 * (lrtX + lrtY - lrtZ)
+  
+  # Check to account for results that do not conform to expected model
+  if (is.infinite(lrt_diff) || (lrt_diff < 0) || is.nan(lrt_diff) || is.na(lrt_diff)){
+    lrtX <- bimodLikData_FixNoVar(x = x)
+    lrtY <- bimodLikData_FixNoVar(x = y)
+    lrtZ <- bimodLikData_FixNoVar(x = c(x, y))
+    lrt_diff <- 2 * (lrtX + lrtY - lrtZ)
   }
   
-  # If user wants to compare clusters but hasn't run it
-  if ((conditions == "cluster") && (is.null(object@CellInformation[, "cluster"]))) {
-    stop("Please run the RunCORE function on this object before using this function.")
-  }
+  return(stats::pchisq(q = lrt_diff, df = 3, lower.tail = F))
+}
+
+# Called by parallel process - runs test on condition 1 vs condition 2
+#' @export
+runGeneLRT <- function(gene, test_matrix = NULL, control_matrix = NULL){
+  # Retrieve counts
+  test_counts <- as.numeric(unlist(test_matrix[gene, ]))
+  control_counts <- as.numeric(unlist(control_matrix[gene, ]))
   
-  # Check for missing variables 
-  if (missing(conditions) | missing(condition.a) | missing(condition.b)) {
-    stop("Please supply your conditions and try again.")
-  }
-  
-  # Check your conditions
-  if (!(condition.a %in% object@CellInformation[, conditions])){
-    stop("Please make sure Condition A is in your conditions column.")
-  }
-  
-  if (length(condition.b) > 1){
-    if (!(all(sapply(condition.b, function(x) x %in% object@CellInformation[, conditions])))){
-      stop("Please make sure all conditions in Condition B are in your conditions column.")
-    }    
+  # Perform Combined LRT
+  de_result <- differentialLRT(test_counts, control_counts)
+  return(de_result)
+}
+
+#' @export
+worker_LRT <- function(x, test_matrix = NULL, control_matrix = NULL){
+  lrt_results <- sapply(x, runGeneLRT, test_matrix = test_matrix, control_matrix = control_matrix)
+  return(lrt_results)
+}
+
+#' runDiffExpression
+#' 
+#' This function uses a combined Likelihood-Ratio Test (LRT) for 
+#' discrete/continuous models to examine differentially expressed genes, on a 
+#' gene-gene level. This method was adapted from the method published by [McDavid
+#' et al. 2013](https://doi.org/10.1093/bioinformatics/bts714).
+#' 
+#' @param object An \linkS4class{EMSet}.
+#' @param group A column in colInfo that contains a vector of conditions.
+#' @param condition.a Condition(s) of first group of cells.
+#' @param condition.b Condition(s) of second group of cells.
+#' @param subsampling TRUE or FALSE (Default). Whether or not to subsample from larger group of cells if cell populations are uneven.
+#' @param ngenes Test this number of the most variable genes in the dataset.
+#' 
+#' @importFrom methods is
+#' @importFrom SingleCellExperiment normcounts
+#' @importFrom BiocParallel bpvec
+#' @importFrom stats p.adjust
+#' @export 
+#' 
+runDiffExpression <- function(object, 
+                              group = NULL,
+                              condition.a = NULL, 
+                              condition.b = NULL,
+                              subsampling = FALSE,
+                              ngenes = NULL){
+  # Check if EMSet
+  if (!(is(object, "EMSet"))){
+    stop("Please supply an EMSet.")
   } else{
-    if (!(condition.b %in% object@CellInformation[, conditions]) & condition.b != "Others"){
-      stop("Please make sure Condition B is in your conditions column.")
+    if(!("normcounts" %in% SummarizedExperiment::assayNames(object))){
+      stop("Please normalise your dataset.")
     }
   }
   
-  # Check ngenes
-  if (!missing(ngenes) & !is.null(ngenes)){
-    if (!is.numeric(ngenes)){
-      stop("Please ensure ngenes argument is a number.")
-    } 
+  if (is.null(ngenes)){
+    ngenes <- nrow(object)
   }
   
-  # Use default values for DESeq if user hasn't defined them.
-  if (missing(fitType)){
-    fitType <- "local"
-  }
-  if (missing(method)){
-    method <- "per-condition"
-  }
-  if (missing(ngenes)){
-    ngenes <- NULL
+  # Retrieve information from EMSet
+  col_info <- colInfo(object)
+  
+  # Check if group exists in col_info
+  if (group %in% colnames(col_info)){
+    if (!all(c(condition.a, condition.b) %in% col_info[, group])){
+      stop(sprintf("Not all conditions are present in %s. Please check the data in 
+                   colInfo and try again.", group))
+    }
+    } else{
+      print(sprintf("%s not found in colInfo. Please choose another group.", group))
   }
   
-  # Prepare conditions for input into DESeq
-  cell.info <- GetCellInfo(object)
+  # Retrieve data for each condition
+  condition_df <- col_info[, c("cell_barcode", group)]
   
-  # Get Condition A information
-  condition.a.df <- cell.info[which(cell.info[, conditions] == condition.a), ]
+  # Group data into conditions
+  a_cells <- condition_df[which(condition_df[, group] %in% condition.a), "cell_barcode"]
+  b_cells <- condition_df[which(condition_df[, group] %in% condition.b), "cell_barcode"]
   
-  # Get Condition B information
-  if (condition.b != "Others"){
-    condition.b.df <- cell.info[which(cell.info[ ,conditions] == condition.b), ]
+  # Get expression matrix
+  expression_matrix <- SingleCellExperiment::normcounts(object)
+  
+  # If user wishes to subsample data, randomly select barcodes from larger list
+  if (subsampling){
+    if (length(a_cells) > length(b_cells)){
+      a_cells <- sample(a_cells, length(b_cells), replace = FALSE)
+    }
+    else if (length(b_cells) > length(a_cells)){
+      b_cells <- sample(b_cells, length(a_cells), replace = FALSE)
+    }
+  }
+  
+  # If user has specified a number of genes, select top n most variable genes
+  if (ngenes != nrow(expression_matrix)){
+    print("Identifying genes to retain...")
+    nonzero_genes <- rownames(expression_matrix)[which(Matrix::rowMeans(expression_matrix) > 0)]
+    variable_genes <- rownames(expression_matrix)[which(apply(expression_matrix, 1, stats::sd) > 0)]
+    top_genes <- SummarizedExperiment::rowData(object)[order(SummarizedExperiment::rowData(object)$qc_topgeneranking),1][1:ngenes]
+    gene_list <- dplyr::intersect(dplyr::intersect(top_genes, nonzero_genes), variable_genes)
   } else{
-    condition.b.df <- cell.info[which(cell.info[ ,conditions] != condition.a), ]
+    gene_list <- rownames(expression_matrix)
   }
   
-  cells <- c(as.vector(condition.a.df[ ,1]), as.vector(condition.b.df[ ,1]))
-  condition.a.list <- as.character(condition.a.df[, conditions])
-  condition.b.list <- as.character(rep(condition.b, nrow(condition.b.df)))
-  condition.list <- c(condition.a.list, condition.b.list)
-  condition.list <- as.factor(condition.list)
+  # Separate the matrices
+  a_matrix <- expression_matrix[gene_list , a_cells]
+  b_matrix <- expression_matrix[gene_list, b_cells]
   
-  # Prepare chunked matrix
-  chunked.matrix <- PrepareCountData(object, cells, ngenes)
+  print("Running LRT...")
+  lrt_results <- BiocParallel::bpvec(rownames(a_matrix), worker_LRT, test_matrix = a_matrix, control_matrix = b_matrix)
   
-  print("Running DESeq...")    
-  result.list <- BiocParallel::bplapply(chunked.matrix, RunDESeq, 
-                                        condition.list = condition.list, 
-                                        condition.a = condition.a, 
-                                        condition.b = condition.b, 
-                                        fitType = fitType,
-                                        method = method)
-
-  print("Combining DE results...")
-  output <- ProcessDEResults(result.list)
-  return(output)
+  # Format output
+  # Create a row of results with the following information:
+  # 1. Raw LRT Pvalue (unadjusted, generated by LRT)
+  # 2. Mean Test Expression (mean expression of genes in guide-assigned cells)
+  # 3. Mean Control Expression (mean expression of genes in control-assigned cells)
+  
+  print("LRT complete! Returning results...")
+  de_result <- data.frame(a_mean = Matrix::rowMeans(a_matrix),
+                          b_mean = Matrix::rowMeans(b_matrix),
+                          pval = lrt_results,
+                          padj = stats::p.adjust(lrt_results, method = "BH"),
+                          foldChange = Matrix::rowMeans(a_matrix)/Matrix::rowMeans(b_matrix),
+                          log2FoldChange = log2(Matrix::rowMeans(a_matrix)/Matrix::rowMeans(b_matrix)))
+  de_result$id <- rownames(de_result)
+  de_result <- de_result[ , c("id", "a_mean", "b_mean", 
+                              "pval", "padj",
+                              "foldChange", "log2FoldChange")]
+  de_result <- de_result[order(abs(de_result$foldChange), decreasing = TRUE), ]
+  rownames(de_result) <- NULL
+  return(de_result)
 }

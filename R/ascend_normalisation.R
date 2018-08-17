@@ -1,85 +1,97 @@
-#' scranNormalise
-#'
-#' Normalise an \code{\linkS4class{EMSet}} with \pkg{scran}'s deconvolution 
-#' method by Lun et al. 2016.
-#'
-#' @details Pooling method of cells is influenced by the size of the cell 
-#' population.For datasets containing less than 20000 cells, this function will 
-#' run\code{\link[scran]{computeSumFactors}} with preset sizes of 40, 60, 80 and 
-#' 100.
-#' 
-#' For datasets containing over 20000 cells, you have the option to use 
-#' \code{\link[scran]{quickCluster}} to form pools of cells to feed into 
-#' \code{\link[scran]{computeSumFactors}}. This method is slower and may fail
-#' with very large datasets containing over 40000 cells. If 
-#' \code{\link[scran]{quickCluster}} is not selected, cells will be randomly 
-#' assigned to a group.
-#'
-#' @param object An \code{\linkS4class{EMSet}} that has not undergone 
-#' normalisation.
-#' @param quickCluster Use scran's quickCluster method (TRUE) or  use randomly-
-#' assigned groups (FALSE, Default).
-#' @param min.mean Threshold for average counts. This argument is for the 
-#' \code{\link[scran]{computeSumFactors}} function from \pkg{scran}. The value 
-#' of 1 is recommended for read count data, while the default value of 1e-5 is 
-#' best for UMI data. This argument is only used for newer versions of 
-#' \pkg{scran}.
-#' @return An \code{\linkS4class{EMSet}} with an expression matrix with counts 
-#' normalised by \code{\link[scater]{normalize}} function.
-#' @examples
-#' # Load EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
-#' 
-#' # Normalise expression with scranNormalise
-#' NormalEMSet <- scranNormalise(EMSet, quickCluster = FALSE, min.mean = 1e-5)
-#' 
-#' @importFrom utils packageVersion
-#' @export
-#'
-scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5) {
-  # Scran Normalise Manual
-  if (!is.null(object@Log$NormalisationMethod)) {
-    stop("This data is already normalised.")
-  }
-  
-  # Check version of scran - this is to ensure we are using the right object
-  # scater 1.6.1 is depreciated, so removed SCESet
-  print("Converting EMSet to SingleCellExperiment...")
-  sce.obj <- ConvertToSCE(object, control.list = object@Controls)
-  normalised.obj <- SCEnormalise(sce.obj, object, quickCluster = quickCluster, min.mean = min.mean)
-  return(normalised.obj)
-}
+################################################################################
+#
+# ascend_normalisation.R
+# description: Functions related to the normalisation of data.
+#
+################################################################################
 
-#' NormWithinBatch
+#' normWithinBatch
 #'
-#' Called by NormaliseBatches. Performs normalisation within a batch.
+#' Normalise cells within each batch.
 #' 
-#' @param batch.id Batch identifier as stored in CellInformation.
-#' @param expression.matrix Expression matrix that has not been batch-normalised.
-#' @param cell.info Cell Information data frame.
-#' @return A list containing the normalisation factor and a batch-normalised 
-#' expression matrix in sparse format.
+#' @param object An \linkS4class{EMSet}.
+#' @return An EMSet with values normalised within a single batch.
+#' 
+#' @examples
+#' # Generate example matrix
+#' count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
+#' colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
+#' rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
+#' 
+#' # Generate example colInfo
+#' col_info <- data.frame(cell_barcode = colnames(count_matrix))
+#' col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
+#' 
+#' # Create test EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+#' 
+#' # Normalise within batches
+#' norm_set <- normWithinBatch(em_set)
+#' 
+#' @importFrom SingleCellExperiment counts sizeFactors
+#' @importFrom SummarizedExperiment colData
+#' @importFrom S4Vectors merge
+#' @importFrom BiocParallel bplapply
 #' @importFrom Matrix t rowSums
 #'
-NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL) {
-  # Function called by NormaliseBatches
-  barcodes <- cell.info[, 1][which(cell.info[, 2] == batch.id)]
-  sub.mtx <- expression.matrix[, barcodes]
+#' @export
+#' 
+normWithinBatch <- function(object) {
+  if (!is.null(progressLog(object)$normaliseWithinBatch)) {
+    stop("This data is already normalised.")
+  }
+  # Retrieve variables from EMSet object
+  expression_matrix <- SingleCellExperiment::counts(object)
+  col_data <- SummarizedExperiment::colData(object)
+  cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
+  batch_list <- unique(as.vector(cell_info[, "batch"]))
   
-  # Collapse all cells into one cell
-  collapsed.mtx <- rowSums(sub.mtx)
-  norm.factor <- sum(collapsed.mtx)
+  func_normWithinBatch <- function(x, 
+                                   expression_matrix = NULL,
+                                   cell_info = NULL){
+    
+    # Function called by NormaliseBatches
+    barcodes <- cell_info[which(cell_info[, "batch"] == x), "cell_barcode"]
+    batch_matrix <- expression_matrix[, barcodes]
+    
+    # Collapse all cells into one cell
+    collapsed_matrix <- Matrix::rowSums(batch_matrix)
+    norm_factor <- sum(collapsed_matrix)
+    
+    ## Scale sub-matrix to normalisation factor
+    norm_matrix <- Matrix::t(Matrix::t(batch_matrix)/norm_factor)
+    
+    # Output to list for further calculations
+    norm_factor_list <- rep(norm_factor, length(barcodes))
+    names(norm_factor_list) <- barcodes
+    return(list(norm_factors = norm_factor_list, norm_matrix = as.matrix(norm_matrix)))
+  }
   
-  ## Scale sub-matrix to normalisation factor
-  cpm.mtx <- Matrix::t(Matrix::t(sub.mtx)/norm.factor)
+  print("Normalising each batch...")
+  norm_objs <- BiocParallel::bplapply(batch_list, func_normWithinBatch,
+                                      expression_matrix = expression_matrix,
+                                      cell_info = cell_info)
+  names(norm_objs) <- batch_list
+  norm_matrices <- sapply(batch_list, function(x) norm_objs[[x]]$norm_matrix)
+  norm_matrix <- do.call("cbind", norm_matrices)
+  norm_matrix <- norm_matrix[rownames(object), colnames(object)]
+  norm_size_factors <- sapply(batch_list, function(x) norm_objs[[x]]$norm_factors)
+  norm_size_factors <- unlist(norm_size_factors)[colnames(object)]
   
-  # Output to list for further calculations
-  output.list <- list(NormalisationFactor = norm.factor, CpmMatrix = cpm.mtx)
-  return(output.list)
+  SingleCellExperiment::counts(object) <- norm_matrix
+  SingleCellExperiment::sizeFactors(object, "withinBatch") <- norm_size_factors
+  
+  print("Re-calculating QC metrics...")
+  object <- calculateQC(object)
+  progress_log <- progressLog(object)
+  progress_log$normaliseWithinBatch <- TRUE
+  progressLog(object) <- progress_log
+  print("Batch normalisation complete! Returning object...")
+  return(object)
 }
 
-#' NormaliseBatches
-#'
+#' normaliseBatches
+#' 
 #' Normalise counts to remove batch effects. This normalisation method is for
 #' experiments where data from batches of different samples are combined without
 #' undergoing library equalisation.
@@ -88,85 +100,104 @@ NormWithinBatch <- function(batch.id, expression.matrix = NULL, cell.info = NULL
 #'
 #' @param object An \code{\linkS4class{EMSet}} with cells from more than one batch.
 #' @return An \code{\linkS4class{EMSet}} with batch-normalised expression values.
-#' @examples
-#' # Load EMSet that contains multiple batches
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
 #' 
-#' # Normalise expression by batches with NormaliseBatches
-#' BatchNormalisedEMSet <- NormaliseBatches(EMSet)
+#' @examples
+#' # Generate example matrix
+#' count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
+#' colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
+#' rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
+#' 
+#' # Generate example colInfo
+#' col_info <- data.frame(cell_barcode = colnames(count_matrix))
+#' col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
+#' 
+#' # Create test EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+#' 
+#' # Normalise by RLE
+#' norm_set <- normaliseBatches(em_set)
 #' 
 #' @importFrom BiocParallel bplapply
 #' @importFrom stats median
+#' @importFrom S4Vectors merge
+#' @importFrom Matrix t
+#' @importFrom SummarizedExperiment colData
+#' @importFrom SingleCellExperiment counts sizeFactors
+#' 
 #' @export
 #'
-NormaliseBatches <- function(object) {
-  if (!is.null(object@Log$NormaliseBatches)) {
+normaliseBatches <- function(object){
+  if (!is.null(progressLog(object)$normaliseBatches)) {
     stop("This data is already normalised.")
   }
   
   # Retrieve variables from EMSet object
-  exprs.mtx <- GetExpressionMatrix(object, "matrix")
-  cell.info <- GetCellInfo(object)
-  unique.batch.identifiers <- unique(cell.info[, 2])
+  expression_matrix <- SingleCellExperiment::counts(object)
+  col_info <- colInfo(object)
+  col_data <- SummarizedExperiment::colData(object)
+  cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
   
-  # Loop to get batch-specific data PARALLEL
-  print("Retrieving batch-specific data...")
-  batch.data <- BiocParallel::bplapply(unique.batch.identifiers, NormWithinBatch, expression.matrix = exprs.mtx, cell.info = cell.info)
+  # Generate list of batches
+  batch_list <- as.numeric(sort(unique(cell_info[, "batch"])))
+  calcNormFactor <- function(x, cell_info = NULL, expression_matrix = NULL){
+    barcodes <- cell_info[which(cell_info$batch == x), "cell_barcode"]
+    batch_matrix <- expression_matrix[, barcodes]
+    y_sums <- Matrix::rowSums(batch_matrix)
+    norm_factor <- stats::median(y_sums)
+    return(norm_factor)
+  }
   
-  # Unpacking results
-  print("Scaling data...")
-  norm.factors <- unlist(lapply(batch.data, function(x) x$NormalisationFactor))
-  median.size <- median(norm.factors)
-  sub.matrix.list <- lapply(batch.data, function(x) x$CpmMatrix)
-  cpm.matrix <- data.frame(sub.matrix.list)
-  scaled.matrix <- cpm.matrix * median.size
+  print("Calculating size factors...")
+  batch_size_factors <- BiocParallel::bplapply(batch_list, calcNormFactor, 
+                                               cell_info = cell_info, 
+                                               expression_matrix = expression_matrix)
   
-  # Load back into EMSet and write metrics
-  print("Returning object...")
-  colnames(scaled.matrix) <- cell.info[, 1]
-  object@ExpressionMatrix <- ConvertMatrix(scaled.matrix, format = "sparseMatrix")
-  object@Log$NormaliseBatches <- TRUE
-  updated.object <- GenerateMetrics(object)
-  return(updated.object)
+  # Calculate between-batch size factor
+  between_batch_size_factor <- stats::median(as.vector(unlist(batch_size_factors)))
+  
+  # Scale counts
+  print("Scaling counts...")
+  scaled_matrix <- Matrix::t(Matrix::t(expression_matrix) / between_batch_size_factor)
+ 
+  # Record size factor
+  print("Storing data in EMSet...")
+  batch_size_factor <- rep(between_batch_size_factor, ncol(expression_matrix))
+  SingleCellExperiment::counts(object) <- scaled_matrix
+  SingleCellExperiment::sizeFactors(object, "batch") <- batch_size_factor 
+  print("Re-calculating QC metrics...")
+  progress_log <- progressLog(object)
+  progress_log$normaliseBatches <- TRUE
+  progressLog(object) <- progress_log
+  object <- calculateQC(object)
+  print("Batch normalisation complete! Returning object...")
+  return(object)
 }
 
-## SUBFUNCTIONS FOR NormaliseByRLE
-#' CalculateNormFactor
-#'
-#' Calculate the normalisation factor between all cells. This function is called
-#' by \code{\link{NormaliseByRLE}}.
-#' 
-#' @param x List of counts associated with a gene.
-#' @param geo.means Geometric mean associated with a cell as calculated by the
-#' \code{\link{CalcGeoMeans}} function.
-#' @return A list of normalisation factors.
-#' @importFrom stats median
-#' 
-CalcNormFactor <- function(x, geo.means) {
-  x.geo.means <- cbind(x, geo.means)
-  x.geo.means <- x.geo.means[(x.geo.means[, 1] > 0), ]
-  non.zero.median <- median(apply(x.geo.means, 1, function(y) {
-    y <- as.vector(y)
-    y[1]/y[2]
-  }))
-  return(non.zero.median)
+#' @export
+calcNormFactor <- function(x, geo_means = NULL) {
+  norm_factors <- apply(x, 2, function(y){
+    x_geomeans <- cbind(y, geo_means)
+    x_geomeans <- x_geomeans[(x_geomeans[, 1] > 0), ]
+    nonzero_median <- median(apply(x_geomeans, 1, function(z) {
+      z <- as.vector(z)
+      z[1]/z[2]
+    }))
+    return(nonzero_median)    
+  })
+  return(norm_factors)
 }
 
-#' CalcGeoMeans
-#'
-#' Calculate the geometric mean around a point. Called by 
-#' \code{\link{NormaliseByRLE}} function.
-#' 
-#' @param x Counts associated with a cell.
-#' @return Geometric means associated with each cell.
-#' 
-CalcGeoMeans <- function(x) {
-  x <- x[x > 0]
-  x <- exp(mean(log(x)))
-  return(x)
+#' @export
+calcGeoMeans <- function(x){
+  geo_means <- apply(x, 1, function(y){
+    y <- y[y > 0]
+    y <- exp(mean(log(y)))
+    return(y)
+  })
+  return(geo_means)
 }
 
-#' NormaliseByRLE
+#' normaliseByRLE
 #'
 #' Normalisation of expression between cells, by scaling to relative log 
 #' expression (RLE). This method assumes all genes express a pseudo value higher 
@@ -176,30 +207,73 @@ CalcGeoMeans <- function(x) {
 #' @param object An \code{\linkS4class{EMSet}} set that has undergone filtering. 
 #' Please ensure spike-ins have been removed before using this function.
 #' @return An \code{\linkS4class{EMSet}} with normalised expression values.
+#'
 #' @examples
-#' # Load EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
+#' # Generate example matrix
+#' count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
+#' colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
+#' rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
 #' 
-#' # Normalise expression between cells using Relative Log Expression (RLE)
-#' NormalisedEMSet <- NormaliseByRLE(EMSet)
+#' # Generate example colInfo
+#' col_info <- data.frame(cell_barcode = colnames(count_matrix))
+#' col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
+#' 
+#' # Create test EMSet
+#' em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+#' 
+#' # Normalise by RLE
+#' norm_set <- normaliseByRLE(em_set)
+#' 
+#' @importFrom BiocParallel bpvec
 #' @importFrom Matrix t
+#' @importFrom SingleCellExperiment normcounts logcounts sizeFactors
+#' 
 #' @export
 #'
-NormaliseByRLE <- function(object) {
-  if (!is.null(object@Log$NormalisationMethod)) {
+normaliseByRLE <- function(object) {
+  if (!is.null(progressLog(object)$NormalisationMethod)){
     stop("This data is already normalised.")
   }
-  expression.matrix <- GetExpressionMatrix(object, format = "matrix")
+  
+  # Calculate geometric means, then use to calculate normFactors
+  expression_matrix <- SingleCellExperiment::counts(object)
+  
+  print("Chunking matrix for calculations")
+  chunked_genes <- split(rownames(expression_matrix), 1:BiocParallel::bpworkers())
+  chunked_cells <- split(colnames(expression_matrix), 1:BiocParallel::bpworkers())
+  chunked_genecounts <- BiocParallel::bplapply(chunked_genes, function(x) expression_matrix[x, ])
+  chunked_cellcounts <- BiocParallel::bplapply(chunked_cells, function(x) expression_matrix[, x])
   
   print("Calculating geometric means...")
-  geo.means <- apply(expression.matrix, 1, CalcGeoMeans)
+  # Calculate geometric means - memory intensive step
+  geo_means <- BiocParallel::bplapply(chunked_genecounts, calcGeoMeans)
+  geo_means <- unlist(geo_means, recursive = FALSE, use.names = FALSE)
+  names(geo_means) <- as.vector(unlist(chunked_genes, use.names = FALSE))
+  remove(chunked_genecounts)
+  # Replace Nan with 0
+  geo_means[is.nan(geo_means)] <- 0
   
-  print("Calculating normalisation factors...")
-  norm.factor <- apply(expression.matrix, 2, function(x) CalcNormFactor(x, geo.means))
+  print("Calculating normalisation factor...")
+  norm_factor <- BiocParallel::bplapply(chunked_cellcounts, calcNormFactor, geo_means = geo_means)
+  norm_factor <- unlist(norm_factor, recursive = FALSE, use.names = FALSE)
+  names(norm_factor) <- as.vector(unlist(chunked_cells, use.names = FALSE))
+  remove(chunked_cellcounts)
   
-  print("Normalising data...")
-  normalised.matrix <- Matrix::t(Matrix::t(expression.matrix)/norm.factor)
-  object@ExpressionMatrix <- ConvertMatrix(normalised.matrix, "sparseMatrix")
-  object@Log <- c(object@Log, list(NormalisationMethod = "NormaliseByRLE"))
+  # Store size factors
+  print("Scaling counts...")
+  norm_matrix <- Matrix::t(Matrix::t(expression_matrix/norm_factor))
+  remove(expression_matrix)
+  log2_matrix <- log2(norm_matrix + 1)
+  
+  print("Storing normalised counts...")
+  SingleCellExperiment::normcounts(object) <- norm_matrix
+  SingleCellExperiment::logcounts(object) <- log2_matrix
+  SingleCellExperiment::sizeFactors(object, "RLE") <- norm_factor
+  SummarizedExperiment::rowData(object)$geo_mean <- geo_means
+  
+  # Update log and return object
+  log <- progressLog(object)
+  log$NormalisationMethod <- "RLE"
+  progressLog(object) <- log
   return(object)
 }

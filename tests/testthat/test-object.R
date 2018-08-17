@@ -1,115 +1,64 @@
 # Tests for EMSet creation and modification
-context("EMSet functions")
+context("EMSet constructor functions")
 
-# Test for NewEMSet outputs an EMSet
-test_that("NewEMSet works - no controls", {
+# Test newEMSet function, ensure it outputs an EMSet
+test_that("newEMSet works without controls.", {
   # Generate dummy expression matrix
-  test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
-  gene.ids <- sapply(1:nrow(test.matrix), function(x) paste0("Gene", x))
-  colnames(test.matrix) <- cell.ids
-  rownames(test.matrix) <- gene.ids
+  test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
+  cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
+  gene_ids <- sapply(1:nrow(test_matrix), function(x) paste0("Gene", x))
+  colnames(test_matrix) <- cell_ids
+  rownames(test_matrix) <- gene_ids
+  assay_list <- list(counts = test_matrix)
   
   # Initiate test
-  expect_match(class(NewEMSet(ExpressionMatrix = test.matrix)), "EMSet")
+  expect_match(class(newEMSet(assays = assay_list)), "EMSet")
+  
 })
 
+# Test newEMSet works with controls
 test_that("NewEMSet works - with controls", {
   # Generate dummy expression matrix
-  test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
-  gene.ids <- sapply(1:nrow(test.matrix), function(x) paste0("Gene", x))
-  colnames(test.matrix) <- cell.ids
-  rownames(test.matrix) <- gene.ids
+  test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
+  cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
+  gene_ids <- sapply(1:nrow(test_matrix), function(x) paste0("Gene", x))
+  colnames(test_matrix) <- cell_ids
+  rownames(test_matrix) <- gene_ids
   
   # Generate dummy controls
-  control.genes <- sample(gene.ids, 10, replace = FALSE)
-  controls <- list(Control = control.genes)
+  control_genes <- sample(gene_ids, 10, replace = FALSE)
+  controls <- list(Control = control_genes)
   
   # Initiate test
-  expect_match(class(NewEMSet(ExpressionMatrix = test.matrix, Controls = controls)), "EMSet")  
+  expect_match(class(newEMSet(assays = list(counts = test_matrix), controls = controls)), "EMSet")  
 })
 
-# Tests that ensure EMSet can be updated correctly
-test_that("Check if UpdateControls works", {
+# Test if colInfo works
+test_that("NewEMSet works - colInfo loading", {
   # Generate dummy expression matrix
-  test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
-  gene.ids <- sapply(1:nrow(test.matrix), function(x) paste0("Gene", x))
-  colnames(test.matrix) <- cell.ids
-  rownames(test.matrix) <- gene.ids
-  
-  # Generate dummy EMSet
-  em.set <- NewEMSet(ExpressionMatrix = test.matrix)
-  
-  # Generate dummy controls
-  control.genes <- sample(gene.ids, 10, replace = FALSE)
-  controls <- list(Control = control.genes)
-  
+  test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
+  cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
+  gene_ids <- sapply(1:nrow(test_matrix), function(x) paste0("Gene", x))
+  colnames(test_matrix) <- cell_ids
+  rownames(test_matrix) <- gene_ids
+
+  colInfo <- data.frame(cell_barcode = cell_ids, condition = "Test")
+    
   # Initiate test
-  expect_match(class(UpdateControls(em.set, controls)), "EMSet")
+  expect_match(class(newEMSet(assays = list(counts = test_matrix), colInfo = colInfo)), "EMSet")  
 })
 
-test_that("Check if ReplaceCellInfo works", {
+# Test if rowInfo works
+test_that("NewEMSet works - rowInfo loading", {
   # Generate dummy expression matrix
-  test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
-  gene.ids <- sapply(1:nrow(test.matrix), function(x) paste0("Gene", x))
-  colnames(test.matrix) <- cell.ids
-  rownames(test.matrix) <- gene.ids
+  test_matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
+  cell_ids <- sapply(1:ncol(test_matrix), function(x) paste0("Cell", x))
+  gene_ids <- sapply(1:nrow(test_matrix), function(x) paste0("Gene", x))
+  colnames(test_matrix) <- cell_ids
+  rownames(test_matrix) <- gene_ids
   
-  # Generate dummy EMSet
-  em.set <- NewEMSet(ExpressionMatrix = test.matrix)
-  
-  # Generate Dummy Replacement
-  old.cell.info <- em.set@CellInformation
-  new.cell.info <- old.cell.info
-  new.cell.info$test <- rep("Test", nrow(new.cell.info))
+  rowInfo <- data.frame(gene_id = gene_ids, condition = "Test")
   
   # Initiate test
-  expect_match(class(ReplaceCellInfo(em.set, new.cell.info)), "EMSet")
-})
-
-test_that("Check if ReplaceGeneInfo works", {
-  # Generate dummy expression matrix
-  test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
-  gene.ids <- sapply(1:nrow(test.matrix), function(x) paste0("Gene", x))
-  colnames(test.matrix) <- cell.ids
-  rownames(test.matrix) <- gene.ids
-  
-  # Generate dummy EMSet
-  em.set <- NewEMSet(ExpressionMatrix = test.matrix)
-  
-  # Generate Dummy Replacement
-  old.gene.info <- em.set@GeneInformation
-  new.gene.info <- old.gene.info
-  new.gene.info$test <- rep("Test", nrow(new.gene.info))
-  
-  # Initiate test
-  expect_match(class(ReplaceGeneInfo(em.set, new.gene.info)), "EMSet")
-})
-
-test_that("Check if ReplaceExpressionMatrix works", {
-  # Generate dummy expression matrix
-  test.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  cell.ids <- sapply(1:ncol(test.matrix), function(x) paste0("Cell", x))
-  gene.ids <- sapply(1:nrow(test.matrix), function(x) paste0("Gene", x))
-  colnames(test.matrix) <- cell.ids
-  rownames(test.matrix) <- gene.ids
-  
-  # Generate dummy EMSet
-  em.set <- NewEMSet(ExpressionMatrix = test.matrix)
-  
-  # Generate a new expression matrix
-  replacement.matrix <- matrix(rnbinom(1000*200, mu=2^runif(1000, 3, 10), size=2), nrow=1000)
-  new.cell.ids <- sapply(1:ncol(replacement.matrix), function(x) paste0("Cell", x))
-  new.gene.ids <- sapply(1:nrow(replacement.matrix), function(x) paste0("Gene", x))
-  
-  colnames(replacement.matrix) <- new.cell.ids
-  rownames(replacement.matrix) <- new.gene.ids
-
-  # Test function
-  # Initiate test
-  expect_match(class(ReplaceExpressionMatrix(em.set, replacement.matrix)), "EMSet")
+  expect_match(class(newEMSet(assays = list(counts = test_matrix), rowInfo = rowInfo)), "EMSet")  
 })

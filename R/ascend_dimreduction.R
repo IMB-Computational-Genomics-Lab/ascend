@@ -1,10 +1,25 @@
-#' RunTSNE
+################################################################################
+#
+# ascend_dimreduction.R
+# description: Functions related to the dimensional reduction of data.
+#
+################################################################################
+
+#' @export
+setGeneric("runTSNE", def = function(object, ..., PCA, dimensions, seed, 
+                                     perplexity, theta) {
+  standardGeneric("runTSNE")  
+})
+
+#' runTSNE
 #' 
 #' Wrapper for the \code{\link[Rtsne]{Rtsne}} function. Users may call this 
-#' directly or call it through the \code{\link{PlotTSNE}} function and also pass
+#' directly or call it through the \code{\link{plotTSNE}} function and also pass
 #' additional arguments related to the \code{\link[Rtsne]{Rtsne}} function.
 #' 
 #' @param object An expression matrix or a PCA-reduced matrix.
+#' @param ... Additional arguments to pass on to \code{\link[Rtsne]{Rtsne}}
+#' function.
 #' @param PCA Set this PCA flag to TRUE if the object is a PCA-reduced matrix. 
 #' Default: FALSE.
 #' @param dimensions Number of dimensions you would like to reduce to. 
@@ -14,171 +29,152 @@
 #' @param perplexity (Optional) Numeric; perplexity parameter. Default: 30.
 #' @param theta (Optional) Numeric; Speed/accuracy trade-off. 
 #' (increase for less accuracy). Default: 0.5.
-#' @param ... Additional arguments to pass on to \code{\link[Rtsne]{Rtsne}}
-#' function.
+
 #' @return A dataframe containing expression data for each cell reduced to 
 #' selected number of dimensions.
 #' 
-#' @examples
-#' # Load PCA-reduced EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
-#' 
-#' # Generate TSNE matrix from PCA matrix
-#' tsne_matrix <- RunTSNE(EMSet, PCA = TRUE, dimensions = 2, seed = 1, 
-#' perplexity = 30, theta = 0.5)
-#' 
+#' @include ascend_objects.R
+#' @importFrom SingleCellExperiment reducedDimNames reducedDims normcounts
 #' @importFrom methods is
 #' @importFrom Rtsne Rtsne
 #' @export
 #'
-RunTSNE <- function(object, PCA = FALSE, dimensions = 2, seed = 0, perplexity = 30, theta = 0.5, ...) {
-    if (class(object) == "EMSet") {
-        if (PCA) {
-            if (!is.null(object@PCA$PCA)) {
-                x <- object@PCA$PCA
-                PCA <- TRUE
-            } else {
-                x <- object@ExpressionMatrix
-                PCA <- FALSE
-            }
-        }
-    } else {
-        if (!(is.matrix(object) || is.data.frame(object) || is(object, "sparseMatrix"))) {
-            stop("Please supply an EMSet, matrix or dataframe.")
-        } else {
-            x <- object
-            PCA = FALSE
-        }
+setMethod("runTSNE", signature("EMSet"), function(object, ...,
+                                                  PCA = FALSE, 
+                                                  dimensions = 2, 
+                                                  seed = 0, 
+                                                  perplexity = 30, 
+                                                  theta = 0.5
+                                                  ){
+  # Fill in missing values
+  if (missing(PCA)){
+    PCA <- FALSE
+  }
+  if (missing(dimensions)){
+    dimensions <- 2
+  }
+  if (missing(seed)){
+    seed <- 0
+  }
+  if (missing(perplexity)){
+    perplexity <- 30
+  }
+  if (missing(theta)){
+    theta <- 0.5
+  }
+  
+  # If PCA is true, check PCA matrix has been generated
+  if (PCA){
+    if (!("PCA" %in% SingleCellExperiment::reducedDimNames(object))){
+      stop("Please generate a PCA matrix with runPCA before using this option.")
+    } else{
+      raw_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
     }
-    
-    # Will load a matrix to work with, regardless
-    if (PCA) {
-        transposed.matrix <- as.matrix(x)
-    } else {
-        transposed.matrix <- as.matrix(Matrix::t(x))
-    }
-    
-    print("Running Rtsne...")
-    set.seed(seed)
-    tsne <- Rtsne::Rtsne(transposed.matrix, dims = dimensions, pca = PCA, perplexity = perplexity, theta = theta, ignore_duplicates = TRUE, ...)
-    tsne.mtx <- data.frame(tsne$Y)
-    print("Rtsne complete! Returning matrix...")
-    # Add cell names back to the results
-    if (PCA) {
-        rownames(tsne.mtx) <- rownames(x)
-    } else {
-        rownames(tsne.mtx) <- colnames(x)
-    }
-    return(tsne.mtx)
-}
+  } else{
+    raw_matrix <- Matrix::t(SingleCellExperiment::normcounts(object))
+  }
 
-#' ReduceDimensions
-#'
-#' @param object An \code{\linkS4class{EMSet}} object that has undergone PCA reduction.
-#' @param n The number of PC dimensions you would like to select. Refer to
-#' vignette on how to select this value. Default: 10.
-#' @return An \code{\linkS4class{EMSet}} with a PCA matrix of dimensions ncells by 
-#' ndimensions.
-#' @examples
-#' # Load PCA-reduced EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleClusteredEMSet.rds"))
-#' 
-#' # Reduce to 10 PCs
-#' ReducedEMSet <- ReduceDimensions(EMSet, n = 10)
+  print("Running Rtsne...")
+  set.seed(seed)
+  tsne <- Rtsne::Rtsne(raw_matrix, dims = dimensions, 
+                       pca = PCA, 
+                       perplexity = perplexity, 
+                       theta = theta, 
+                       ignore_duplicates = TRUE, ...)
+  tsne_matrix <- as.matrix(tsne$Y)
+  
+  print("Rtsne complete! Returning matrix...")
+  # Add cell names back to the results
+  rownames(tsne_matrix) <- rownames(raw_matrix)
+  SingleCellExperiment::reducedDim(object, "TSNE") <- tsne_matrix
+  return(object)
+})
+
 #' @export
-#'
-ReduceDimensions <- function(object, n = 10) {
-    if (length(object@PCA) == 0) {
-        stop("Please run RunPCA on this object before using this function.")
-    }
-    
-    pca.matrix <- object@PCA$PCA
-    reduced.pca <- as.data.frame(pca.matrix[, 1:n])
-    object@PCA$PCA <- reduced.pca
-    return(object)
+calcVariance <- function(x, axis = c("row", "column")){
+  if (axis == "row"){
+    variance <- sqrt(Matrix::rowSums((x - Matrix::rowMeans(x))^2)/(dim(x)[2] - 1))
+  }
+  if (axis == "column"){
+    variance <- sqrt(Matrix::colSums((x - Matrix::colMeans(x))^2)/(dim(x)[1]-1))
+  }
+  return(variance)
 }
 
-# Functions for PCA
-#' CalcColVariance
-#' 
-#' Internal function called by RunPCA function
-#' 
-#' @param x A matrix to calculate the column-wise variance of.
-#' @return A vector of numeric values.
-#' 
-CalcColVariance <- function(x) {
-    col.variance <- sqrt(colSums((x - colMeans(x))^2)/(dim(x)[1] - 1))
-    return(col.variance)
-}
+#' @export
+setGeneric("runPCA", def = function(object, ...., ngenes, scaling) {
+             standardGeneric("runPCA")
+           })
 
-#' CalcRowVariance
-#' 
-#' Internal function called by RunPCA function
-#' 
-#' @param x A matrix to calculate the row-wise variance of.
-#' @return A vector of numeric values.
-#' 
-CalcRowVariance <- function(x) {
-    row.variance <- sqrt(rowSums((x - rowMeans(x))^2)/(dim(x)[2] - 1))
-    return(row.variance)
-}
-
-#' RunPCA
+#' runPCA
 #'
 #' Reduce the dimensions of an expression matrix stored in an 
-#' \code{\linkS4class{EMSet}}. This should be used prior to clustering.
-#' 
-#' @param object An \code{\linkS4class{EMSet}} that has undergone filtering and 
+#' \linkS4class{EMSet} based on the most variable genes. Datasets must
+#' be reduced prior to clustering analysis as it is used to construct the 
+#' distance matrix.
+#'  
+#' @param object An \linkS4class{EMSet} that has undergone filtering and 
 #' normalisation.
 #' @param ngenes The top number of genes you would like to perform the reduction by. 
 #' Default: 1500.
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values. 
 #' Default: TRUE.
-#' @return An \code{\linkS4class{EMSet}} with a PCA-reduced matrix stored in the PCA
+#' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
 #' slot.
-#' @examples
-#' # Load example EMSet
-#' EMSet <- readRDS(system.file(package = "ascend", "extdata", "ExampleEMSet.rds"))
-#' 
-#' # Run PCA
-#' pca_set <- RunPCA(EMSet)
-#' 
+#' @include ascend_objects.R
 #' @importFrom stats prcomp
+#' @importFrom SingleCellExperiment normcounts reducedDim
 #' @export
-#'
-RunPCA <- function(object, ngenes = 1500, scaling = TRUE) {
-    print("Retrieving data...")
-    expression.matrix <- GetExpressionMatrix(object, format = "matrix")
-    
-    # Check if ngenes is too large, just use all the genes to stop it from
-    # spazzing out.
-    if (ngenes > nrow(expression.matrix)){
-      ngenes <- nrow(expression.matrix)
-    }
-    
-    # Selecting top ngenes by variance
-    print("Calculating variance...")
-    gene.variance <- CalcRowVariance(expression.matrix)
-    names(gene.variance) <- rownames(expression.matrix)
-    sorted.gene.variance <- gene.variance[order(unlist(gene.variance), decreasing = TRUE)]
-    top.genes <- sorted.gene.variance[1:ngenes]
-    
-    # Subsetting matrix
-    subset.matrix <- expression.matrix[names(top.genes), ]
-    
-    # Skip additional scaling as this was already done with RLE
-    scaled.transposed.matrix <- scale(t(subset.matrix), scale = scaling)
-    pca.input.matrix <- scaled.transposed.matrix[, CalcColVariance(scaled.transposed.matrix) > 0]
-    
-    # Compute PCA
-    print("Computing PCA values...")
-    pca.result <- stats::prcomp(pca.input.matrix)
-    pca.percent.var <- pca.result$sdev^2/sum(pca.result$sdev^2)
-    
-    # Output back to EMSet
-    print("PCA complete! Returning object...")
-    pca.result.matrix <- as.data.frame(pca.result$x)
-    object@PCA <- list(PCA = pca.result.matrix, PCAPercentVariance = pca.percent.var)
-    object@Log <- c(object@Log, list(PCA = TRUE))
-    return(object)
-}
+setMethod("runPCA", signature("EMSet"), function(object, 
+                                                 ngenes = 1500, 
+                                                 scaling = TRUE){
+  # Check for ngenes
+  if (missing(ngenes)){
+    ngenes <- 1500
+  }
+  if (missing(scaling)){
+    scaling <- TRUE
+  }
+  
+  if (ngenes > nrow(object)){
+    print(sprintf("There are less genes than specified. Setting number of genes to %i.", nrow(object)))
+    ngenes <- nrow(object)
+  }
+  
+  # Check if normalised
+  if (is.null(progressLog(object)$NormalisationMethod)){
+    stop("Please normalise your dataset before using this function.")
+  }
+  
+  # Extract normalised counts
+  expression_matrix <- SingleCellExperiment::normcounts(object)
+  gene_variance <- calcVariance(expression_matrix, axis = "row")
+  sorted_gene_variance <- gene_variance[order(unlist(gene_variance), decreasing = TRUE)]
+  top_genes <- sorted_gene_variance[1:ngenes]
+  
+  # Subset matrix
+  subset_matrix <- expression_matrix[names(top_genes), ]
+  scaled_matrix <- scale(Matrix::t(subset_matrix), scale = scaling)
+  #scaled_transposed_matrix <- scale(t(subset_matrix), scale = scaling)
+  pca_input_matrix <- scaled_matrix[, calcVariance(scaled_matrix, axis = "column") > 0]
+  
+  print("Computing PCA values...")
+  pca_result <- stats::prcomp(pca_input_matrix)
+  pca_percent_var <- pca_result$sdev^2/sum(pca_result$sdev^2)
+  
+  print("PCA complete! Loading PCA into EMSet...")
+  if (is(expression_matrix, "sparseMatrix")){
+    pca_matrix <- as(pca_result$x, "sparseMatrix")    
+  } else{
+    pca_matrix <- as.matrix(pca_result$x)
+  }
+
+  SingleCellExperiment::reducedDim(object, "PCA") <- pca_matrix
+  
+  # Update log
+  log <- progressLog(object)
+  log$PCAVariance <- pca_percent_var
+  progressLog(object) <- log
+  
+  return(object)
+})
