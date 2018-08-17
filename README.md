@@ -1,6 +1,6 @@
-![alt text](ascend_banner.png "ascend - Analysis of Single Cell Expression, Normalisation and Differential expression")
+![alt text](ascend_banner.png?raw=true "ascend - Analysis of Single Cell Expression, Normalisation and Differential expression")
 ### Workflow Summary
-![alt text](workflow.png "ascend workflow summary")
+![alt text](workflow.png?raw=true "ascend workflow summary")
 
 ### 1. Introduction
 `ascend` (Analysis of Single Cell Expression, Normalisation and Differential expression) is a user-friendly scRNA-seq analysis toolkit implemented in R. Using pre-existing and novel methods, `ascend` offers quick and robust tools for quality control, normalisation, dimensionality reduction, clustering and differential expression.
