@@ -8,7 +8,7 @@
 #' getConsecSeq
 #' 
 #' Function that looks for consecutive values in a forward or reverse direction.
-#' Used to calculate stability in the runSCORE algorithm.
+#' Used to calculate stability in the runCORE algorithm.
 #' 
 #' @param x Vector of numbers to identify consecutive regions in.
 #' @param direction Forward or Reverse.
@@ -334,25 +334,27 @@ calcRandIndexMatrix <- function(cluster_matrix, original_clusters, cluster_list)
 }
 
 #' @export
-retrieveCluster <- function(height_list, hclust_obj = NULL, distance_matrix = NULL){
-  clusters <- sapply(height_list, function(height) dynamicTreeCut::cutreeDynamic(hclust_obj,
-                                                                                 distM=as.matrix(distance_matrix),
-                                                                                 minSplitHeight=height, verbose=0))
-  colnames(clusters) <- height_list
-  return(clusters)
+retrieveCluster <- function(x, hclust_obj = NULL, distance_matrix = NULL){
+  print(sprintf("Calculating clusters from cut height %1.2f", x))
+  clusters <- dynamicTreeCut::cutreeDynamic(hclust_obj,
+                                            distM=distance_matrix,
+                                            minSplitHeight=x, verbose=0)
+  output_list <- list() 
+  output_list[[as.character(x)]] <- clusters
+  return(output_list)
 }
 
 #' @include ascend_objects.R
 #' @export
-setGeneric("runSCORE", def = function(object, 
+setGeneric("runCORE", def = function(object, 
                                      ..., 
                                      conservative,
                                      nres,
                                      remove.outlier) {
-  standardGeneric("runSCORE")  
+  standardGeneric("runCORE")  
 })
 
-#' runSCORE
+#' runCORE
 #'
 #' This function determines the optimal number of clusters for a dataset.
 #' This function first generates a distance matrix and a hclust object, and then
@@ -372,6 +374,7 @@ setGeneric("runSCORE", def = function(object,
 #' @param object An EMSet object that has undergone PCA reduction.
 #' @param conservative Use conservative (more stable) clustering result
 #' (TRUE or FALSE). Default: TRUE.
+#' @param dims Number of PC components to use in distance matrix generation. Default: 20
 #' @param nres Number of resolutions to test, ranging from 20 to 100. Default: 40.
 #' @param remove.outlier Remove cells that weren't assigned a cluster with
 #' dynamicTreeCut. This is indicative of outlier cells within the sample.
@@ -385,8 +388,9 @@ setGeneric("runSCORE", def = function(object,
 #' @importFrom BiocParallel bplapply
 #' @export
 #'
-setMethod("runSCORE", signature("EMSet"), function(object, 
+setMethod("runCORE", signature("EMSet"), function(object, 
                                                   conservative = TRUE,
+                                                  dims = 20,
                                                   nres = 40, 
                                                   remove.outlier = FALSE){
   
@@ -407,14 +411,11 @@ setMethod("runSCORE", signature("EMSet"), function(object,
     stop("Please run runPCA on this object before using this function.")
   }
   
-  # Prepare arguments
-  ## Use top 20 PCs or all PCs if less than 20
   pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
-  if (ncol(pca_matrix) > 20){
-    pca_matrix <- pca_matrix[ , 1:20]
+  if (ncol(pca_matrix) > dims){
+    pca_matrix <- pca_matrix[ , 1:dims]
   }
   
-  # If user has set their own resolutions - generate windows
   if (nres != 40){
     minres <- 20
     if (nres < minres | nres > 100){
@@ -425,17 +426,18 @@ setMethod("runSCORE", signature("EMSet"), function(object,
   # Generate sliding windows
   windows <- seq((1/nres):1, by = 1/nres)
   
-  # Generate a distance matrix from the PCA matrix
   print("Calculating distance matrix...")
   distance_matrix <- stats::dist(pca_matrix)
-  print("Generating hclust object...")
   original_tree <- stats::hclust(distance_matrix, method="ward.D2")
+  distance_matrix <- Matrix::as.matrix(distance_matrix)
+  print("Generating hclust object...")
   print("Using dynamicTreeCut to generate reference set of clusters...")
   original_clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
-                                                            distM=as.matrix(distance_matrix),
+                                                            distM = distance_matrix,
                                                             verbose=0))
   
   print("Checking if outliers are present...")
+  
   if (0 %in% original_clusters){
     outlier_barcode_list <- c()
     if (remove.outlier){
@@ -454,11 +456,14 @@ setMethod("runSCORE", signature("EMSet"), function(object,
         object <- object[ , !(colnames(object) %in% outlier_barcodes)]
         object <- calculateQC(object)
         object <- runPCA(object)
-        pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")[,1:20]
-        distance_matrix <- stats::dist(pca_matrix)
+        if (ncol(pca_matrix) > dims){
+          pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
+          pca_matrix <- pca_matrix[ , 1:dims]
+        }
+        distance_matrix <- Matrix::as.matrix(stats::dist(pca_matrix))
         original_tree <- stats::hclust(distance_matrix, method="ward.D2")
         original_clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
-                                                                  distM=as.matrix(distance_matrix), verbose=0))
+                                                                  distM=distance_matrix, verbose=0))
         if (!(0 %in% original_clusters)){
           outlier_barcode_list <- c(outlier_barcode_list, outlier_barcodes)
           break
@@ -474,9 +479,6 @@ setMethod("runSCORE", signature("EMSet"), function(object,
     }
     }
   
-  # Generate clustering matrix
-  # Features number of clusters produced at varying dendrogram cut heights
-  # Perform 40 dynamic tree cuts at varying heights
   print("Generating clusters by running dynamicTreeCut at different heights...")
   
   # Run dynamicTreeCut at different resolutions
@@ -488,20 +490,25 @@ setMethod("runSCORE", signature("EMSet"), function(object,
     chunked_windows <- windows
   }
   
-  # Parallel Process
-  cluster_list <- BiocParallel::bplapply(chunked_windows, retrieveCluster,
-                                         hclust_obj = original_tree,
-                                         distance_matrix = distance_matrix)
+  # Parallel Process - not worth it, too much overhead on large datasets
+  #cluster_list <- BiocParallel::bplapply(chunked_windows, retrieveCluster,
+  #                                       hclust_obj = original_tree,
+  #                                       distance_matrix = distance_matrix)
   
-  cluster_matrix <- do.call("cbind", cluster_list)
-  cluster_matrix <- as.data.frame(cluster_matrix)
-  cluster_matrix$REF <- original_clusters
-  cluster_matrix <- cluster_matrix[ , c(as.character(windows), "REF")]
+  cluster_list <- sapply(windows, retrieveCluster, 
+                         hclust_obj = original_tree,
+                         distance_matrix = distance_matrix)
+  
+  print("Cluster generation complete!")
+  
+  # Aggregate cluster results
+  cluster_matrix <- as.data.frame(matrix(unlist(cluster_list), ncol = length(cluster_list), byrow = FALSE))
+  colnames(cluster_matrix) <- names(cluster_list)
   rownames(cluster_matrix) <- original_tree$labels
+  cluster_matrix$REF <- original_clusters
   
   print("Calculating rand indices...")
   rand_idx_matrix <- calcRandIndexMatrix(cluster_matrix, original_clusters)
-  
   
   print("Calculating stability values...")
   rand_idx_matrix <- calcStability(rand_idx_matrix, nres)
@@ -549,6 +556,5 @@ setMethod("runSCORE", signature("EMSet"), function(object,
   clusterAnalysis(object) <- output_list
   colInfo(object)$cluster <- optimal_cluster_list
   progressLog(object) <- log
-  
   return(object)
 })

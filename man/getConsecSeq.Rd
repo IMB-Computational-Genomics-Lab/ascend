@@ -16,5 +16,5 @@ A list of values that are consecutive
 }
 \description{
 Function that looks for consecutive values in a forward or reverse direction.
-Used to calculate stability in the runSCORE algorithm.
+Used to calculate stability in the runCORE algorithm.
 }

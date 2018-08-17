@@ -19,6 +19,24 @@ related to cells and genes.
 
 Please refer to the vignettes (browseVignettes("ascend") in R) for more information on how to use this package.
 
+
+### 2.1 Updating EMSets created with older versions of `ascend`
+If you have created an EMSet using older versions of the package (< 0.6.0),
+please update your old objects as follows:
+
+```{r}
+# Import old EMSet stored in RDS file
+legacy_EMSet <- readRDS("legacy_EMSet.rds")
+
+# Update EMSet, please make sure you overwrite your old object
+legacy_EMSet <- updateObject(legacy_EMSet)
+
+```
+
+This function will repackage your data into the new SingleCellExperiment-based
+EMSet. If your data has been normalised, it will load your data into both the
+`counts` and `normcounts` slots.
+
 ### 3. Installation
 #### 3.1 Preparing the R Environment
 Feel free to skip some steps if you have already done those steps.

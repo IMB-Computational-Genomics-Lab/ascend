@@ -93,10 +93,10 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
 #' @export
 calcVariance <- function(x, axis = c("row", "column")){
   if (axis == "row"){
-    variance <- sqrt(rowSums((x - rowMeans(x))^2)/(dim(x)[2] - 1))
+    variance <- sqrt(Matrix::rowSums((x - Matrix::rowMeans(x))^2)/(dim(x)[2] - 1))
   }
   if (axis == "column"){
-    variance <- sqrt(colSums((x - colMeans(x))^2)/(dim(x)[1]-1))
+    variance <- sqrt(Matrix::colSums((x - Matrix::colMeans(x))^2)/(dim(x)[1]-1))
   }
   return(variance)
 }
@@ -147,14 +147,14 @@ setMethod("runPCA", signature("EMSet"), function(object,
   }
   
   # Extract normalised counts
-  expression_matrix <- as.matrix(SingleCellExperiment::normcounts(object))
+  expression_matrix <- SingleCellExperiment::normcounts(object)
   gene_variance <- calcVariance(expression_matrix, axis = "row")
   sorted_gene_variance <- gene_variance[order(unlist(gene_variance), decreasing = TRUE)]
   top_genes <- sorted_gene_variance[1:ngenes]
   
   # Subset matrix
   subset_matrix <- expression_matrix[names(top_genes), ]
-  scaled_matrix <- scale(t(subset_matrix), scale = scaling)
+  scaled_matrix <- scale(Matrix::t(subset_matrix), scale = scaling)
   #scaled_transposed_matrix <- scale(t(subset_matrix), scale = scaling)
   pca_input_matrix <- scaled_matrix[, calcVariance(scaled_matrix, axis = "column") > 0]
   
@@ -163,7 +163,12 @@ setMethod("runPCA", signature("EMSet"), function(object,
   pca_percent_var <- pca_result$sdev^2/sum(pca_result$sdev^2)
   
   print("PCA complete! Loading PCA into EMSet...")
-  pca_matrix <- as.matrix(pca_result$x)
+  if (is(expression_matrix, "sparseMatrix")){
+    pca_matrix <- as(pca_result$x, "sparseMatrix")    
+  } else{
+    pca_matrix <- as.matrix(pca_result$x)
+  }
+
   SingleCellExperiment::reducedDim(object, "PCA") <- pca_matrix
   
   # Update log

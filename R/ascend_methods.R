@@ -152,7 +152,7 @@ setGeneric("calculateQC", function(object, ...) standardGeneric("calculateQC"))
 #' @export
 setMethod("calculateQC", "EMSet", function(object){
   # Metrics - save trouble of retrieving object over and over
-  expression_matrix <- Matrix::Matrix(SingleCellExperiment::counts(object), sparse = TRUE)
+  expression_matrix <- SingleCellExperiment::counts(object)
   old_rowData <- SummarizedExperiment::rowData(object)
   old_colData <- SummarizedExperiment::colData(object)
   old_colInfo <- colInfo(object)
@@ -166,8 +166,8 @@ setMethod("calculateQC", "EMSet", function(object){
   # 1. qc_libsize: Total transcripts for each cell
   # 2. qc_ngenes: Number of genes expressed by each cell
   qc_libsize <- Matrix::colSums(expression_matrix)
-  qc_ngenes <- diff(expression_matrix@p)
-  
+  qc_ngenes <- Matrix::colSums(expression_matrix != 0)
+
   # QC for genes
   # 1. qc_genecounts: Total transcripts for each gene
   # 2. qc_cellspergene: Number of cells expressing each gene

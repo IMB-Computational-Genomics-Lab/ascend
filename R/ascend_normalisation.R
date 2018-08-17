@@ -41,8 +41,7 @@ normWithinBatch <- function(object) {
     stop("This data is already normalised.")
   }
   # Retrieve variables from EMSet object
-  expression_matrix <- as.matrix(SingleCellExperiment::counts(object), sparse = TRUE)
-  col_info <- colInfo(object)
+  expression_matrix <- SingleCellExperiment::counts(object)
   col_data <- SummarizedExperiment::colData(object)
   cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
   batch_list <- unique(as.vector(cell_info[, "batch"]))
@@ -133,7 +132,7 @@ normaliseBatches <- function(object){
   }
   
   # Retrieve variables from EMSet object
-  expression_matrix <- Matrix::Matrix(SingleCellExperiment::counts(object), sparse = TRUE)
+  expression_matrix <- SingleCellExperiment::counts(object)
   col_info <- colInfo(object)
   col_data <- SummarizedExperiment::colData(object)
   cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
@@ -163,7 +162,7 @@ normaliseBatches <- function(object){
   # Record size factor
   print("Storing data in EMSet...")
   batch_size_factor <- rep(between_batch_size_factor, ncol(expression_matrix))
-  SingleCellExperiment::counts(object) <- as.matrix(scaled_matrix)
+  SingleCellExperiment::counts(object) <- scaled_matrix
   SingleCellExperiment::sizeFactors(object, "batch") <- batch_size_factor 
   print("Re-calculating QC metrics...")
   progress_log <- progressLog(object)
@@ -174,6 +173,29 @@ normaliseBatches <- function(object){
   return(object)
 }
 
+#' @export
+calcNormFactor <- function(x, geo_means = NULL) {
+  norm_factors <- apply(x, 2, function(y){
+    x_geomeans <- cbind(y, geo_means)
+    x_geomeans <- x_geomeans[(x_geomeans[, 1] > 0), ]
+    nonzero_median <- median(apply(x_geomeans, 1, function(z) {
+      z <- as.vector(z)
+      z[1]/z[2]
+    }))
+    return(nonzero_median)    
+  })
+  return(norm_factors)
+}
+
+#' @export
+calcGeoMeans <- function(x){
+  geo_means <- apply(x, 1, function(y){
+    y <- y[y > 0]
+    y <- exp(mean(log(y)))
+    return(y)
+  })
+  return(geo_means)
+}
 
 #' normaliseByRLE
 #'
@@ -213,30 +235,8 @@ normaliseByRLE <- function(object) {
     stop("This data is already normalised.")
   }
   
-  calcNormFactor <- function(x, geo_means = NULL) {
-    norm_factors <- apply(x, 2, function(y){
-      x_geomeans <- cbind(y, geo_means)
-      x_geomeans <- x_geomeans[(x_geomeans[, 1] > 0), ]
-      nonzero_median <- median(apply(x_geomeans, 1, function(z) {
-        z <- as.vector(z)
-        z[1]/z[2]
-      }))
-      return(nonzero_median)    
-    })
-    return(norm_factors)
-  }
-  
-  calcGeoMeans <- function(x){
-    geo_means <- apply(x, 1, function(y){
-      y <- y[y > 0]
-      y <- exp(mean(log(y)))
-      return(y)
-    })
-    return(geo_means)
-  }
-  
   # Calculate geometric means, then use to calculate normFactors
-  expression_matrix <- as(SingleCellExperiment::counts(object), "sparseMatrix")
+  expression_matrix <- SingleCellExperiment::counts(object)
   
   print("Chunking matrix for calculations")
   chunked_genes <- split(rownames(expression_matrix), 1:BiocParallel::bpworkers())

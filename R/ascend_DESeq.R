@@ -49,7 +49,7 @@ func_DESeq <- function(x, expression_matrix = NULL, condition_df = NULL, group =
 #' filtering and normalisation.
 #' @param group Name of the column in the colInfo dataframe where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
-#' identified by \code{\link{runSCORE}}.
+#' identified by \code{\link{runCORE}}.
 #' @param condition.a Condition of the group you want to use as the baseline.
 #' @param condition.b Conditions of the group you want to compare to the baseline.
 #' @param ngenes Perform differential expression analysis using top number of genes.

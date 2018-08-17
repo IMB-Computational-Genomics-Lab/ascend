@@ -174,7 +174,7 @@ runDiffExpression <- function(object,
   # If user has specified a number of genes, select top n most variable genes
   if (ngenes != nrow(expression_matrix)){
     print("Identifying genes to retain...")
-    nonzero_genes <- rownames(expression_matrix)[which(rowMeans(expression_matrix) > 0)]
+    nonzero_genes <- rownames(expression_matrix)[which(Matrix::rowMeans(expression_matrix) > 0)]
     variable_genes <- rownames(expression_matrix)[which(apply(expression_matrix, 1, stats::sd) > 0)]
     top_genes <- SummarizedExperiment::rowData(object)[order(SummarizedExperiment::rowData(object)$qc_topgeneranking),1][1:ngenes]
     gene_list <- dplyr::intersect(dplyr::intersect(top_genes, nonzero_genes), variable_genes)
@@ -196,12 +196,12 @@ runDiffExpression <- function(object,
   # 3. Mean Control Expression (mean expression of genes in control-assigned cells)
   
   print("LRT complete! Returning results...")
-  de_result <- data.frame(a_mean = rowMeans(a_matrix),
-                          b_mean = rowMeans(b_matrix),
+  de_result <- data.frame(a_mean = Matrix::rowMeans(a_matrix),
+                          b_mean = Matrix::rowMeans(b_matrix),
                           pval = lrt_results,
                           padj = stats::p.adjust(lrt_results, method = "BH"),
-                          foldChange = rowMeans(a_matrix)/rowMeans(b_matrix),
-                          log2FoldChange = log2(rowMeans(a_matrix)/rowMeans(b_matrix)))
+                          foldChange = Matrix::rowMeans(a_matrix)/Matrix::rowMeans(b_matrix),
+                          log2FoldChange = log2(Matrix::rowMeans(a_matrix)/Matrix::rowMeans(b_matrix)))
   de_result$id <- rownames(de_result)
   de_result <- de_result[ , c("id", "a_mean", "b_mean", 
                               "pval", "padj",

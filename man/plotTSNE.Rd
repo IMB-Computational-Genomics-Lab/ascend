@@ -35,7 +35,7 @@ EMSet <- excludeControl(EMSet, control = c("Mt", "Rb"))
 EMSet <- runPCA(EMSet)
 
 # Clustering
-EMSet <- runSCORE(EMSet)
+EMSet <- runCORE(EMSet)
 
 # Dimensionality reduction with t-SNE
 EMSet <- runTSNE(EMSet, seed = 1)
