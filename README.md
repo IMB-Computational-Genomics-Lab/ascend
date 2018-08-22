@@ -44,7 +44,7 @@ Feel free to skip some steps if you have already done those steps.
 ##### 3.1.1 R installation
 Please follow the R installation instructions [here](https://mirror.aarnet.edu.au/pub/CRAN/).
 If you are a Windows user, make sure you install Rtools. Please note the `ascend`
-package requires R version >= 3.4.3. The latest version of R version 3.5.1 is
+package requires R version >= 3.5.0. The latest version of R version 3.5.1 is
 best.
 
 ##### 3.1.2 R programming environment
