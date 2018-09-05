@@ -131,18 +131,19 @@ normaliseBatches <- function(object){
     stop("This data is already normalised.")
   }
   
-  # Retrieve variables from EMSet object
+  # Retrieve variables from EMSet
   expression_matrix <- SingleCellExperiment::counts(object)
   col_info <- colInfo(object)
   col_data <- SummarizedExperiment::colData(object)
   cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
-  
+  cell_info <- cell_info[match(colnames(expression_matrix), cell_info$cell_barcode), ]
   # Generate list of batches
   batch_list <- as.numeric(sort(unique(cell_info[, "batch"])))
+  
   calcNormFactor <- function(x, cell_info = NULL, expression_matrix = NULL){
     barcodes <- cell_info[which(cell_info$batch == x), "cell_barcode"]
     batch_matrix <- expression_matrix[, barcodes]
-    y_sums <- Matrix::rowSums(batch_matrix)
+    y_sums <- Matrix::colSums(batch_matrix)
     norm_factor <- stats::median(y_sums)
     return(norm_factor)
   }
@@ -152,18 +153,36 @@ normaliseBatches <- function(object){
                                                cell_info = cell_info, 
                                                expression_matrix = expression_matrix)
   
+  
+  scaleBatch <- function(x, size_factor = NULL, cell_info = NULL, expression_matrix = NULL){
+    barcodes <- cell_info[which(cell_info$batch == x), "cell_barcode"]
+    batch_matrix <- expression_matrix[, barcodes]
+    batch_counts <- stats::median(Matrix::colSums(batch_matrix))
+    batch_norm_factor <- batch_counts / size_factor
+    scaled_matrix <- Matrix::t(Matrix::t(batch_matrix) / batch_norm_factor)
+    return(list(norm_factor = batch_norm_factor, scaled_matrix = scaled_matrix))
+  }
+  
   # Calculate between-batch size factor
-  between_batch_size_factor <- stats::median(as.vector(unlist(batch_size_factors)))
+  between_batch_size_factor <- stats::median(unlist(batch_size_factors))
   
   # Scale counts
   print("Scaling counts...")
-  scaled_matrix <- Matrix::t(Matrix::t(expression_matrix) / between_batch_size_factor)
- 
-  # Record size factor
-  print("Storing data in EMSet...")
-  batch_size_factor <- rep(between_batch_size_factor, ncol(expression_matrix))
-  SingleCellExperiment::counts(object) <- scaled_matrix
-  SingleCellExperiment::sizeFactors(object, "batch") <- batch_size_factor 
+  scaled_data <- BiocParallel::bplapply(batch_list, scaleBatch, size_factor = between_batch_size_factor, 
+                                        cell_info = cell_info, expression_matrix = expression_matrix)
+  
+  # Collect data
+  scaled_counts <- do.call(cbind, sapply(scaled_data, function(x) x$scaled_matrix))
+  scaled_counts <- scaled_counts[rownames(expression_matrix), colnames(expression_matrix)]
+  size_factors <- sapply(scaled_data, function(x) x $norm_factor)
+  names(size_factors) <- batch_list
+  size_factor_vector <- lapply(colnames(scaled_counts), function(x) size_factors[[cell_info$batch[cell_info$cell_barcode == x]]])
+  names(size_factor_vector) <- colnames(scaled_counts)
+  
+  # Load data back into matrix
+  SingleCellExperiment::counts(object) <- scaled_counts
+  SingleCellExperiment::sizeFactors(object, "batch") <- size_factor_vector 
+  
   print("Re-calculating QC metrics...")
   progress_log <- progressLog(object)
   progress_log$normaliseBatches <- TRUE

@@ -69,99 +69,119 @@ scranCellCycle <- function(object, training_set = NULL) {
 #' @export
 #'
 scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5){
-  # Retrieve EMSet-only slots and keep for safekeeping
-  # Check if data is normalised
-  if (!is.null(progressLog(object)$NormalisationMethod)) {
-    stop("This data is already normalised.")
-  }
-  
-  # Remove controls
-  # Check if mitochondria and ribosomes are in the set
-  log <- progressLog(object)
-  gene_id_name <- colnames(rowInfo(object))[1]
-  
-  # Remove controls prior to normalisation
-  if (any(names(log$set_controls) %in% c("Mt", "Rb"))){
-    if ("Mt" %in% names(log$set_controls)){
-      object <- excludeControl(object, control = "Mt")    
+    if (!is.null(progressLog(object)$NormalisationMethod)) {
+      stop("This data is already normalised.")
     }
-    if ("Rb" %in% names(log$set_controls)){
-      object <- excludeControl(object, control = "Rb")    
+    # Remove controls
+    # Check if mitochondria and ribosomes are in the set
+    log <- progressLog(object)
+    gene_id_name <- colnames(rowInfo(object))[1]
+    
+    # Remove controls prior to normalisation
+    if (any(names(log$set_controls) %in% c("Mt", "Rb"))){
+      if ("Mt" %in% names(log$set_controls)){
+        object <- excludeControl(object, control = "Mt")    
+      }
+      if ("Rb" %in% names(log$set_controls)){
+        object <- excludeControl(object, control = "Rb")    
+      }
     }
-  }
-  
-  col_info <- colInfo(object)
-  row_info <- rowInfo(object)
-  col_data <- SummarizedExperiment::colData(object)
-  row_data <- SummarizedExperiment::rowData(object)
-  log <- progressLog(object)
-  cluster_analysis <- clusterAnalysis(object)
-  
-  # Save column names for extracted data frames so they can be retrieved
-  col_info_headers <- colnames(col_info)
-  row_info_headers <- colnames(row_info)
-  col_data_headers <- colnames(col_data)
-  row_data_headers <- colnames(row_data)
-  sce_obj <- EMSet2SCE(object)
-  
-  # Remove spike-ins if present
-  if (!is.null(SingleCellExperiment::isSpike(sce_obj))){
-    spike_ins <- SingleCellExperiment::spikeNames(sce_obj)
-    exclude_list <- sapply(spike_ins, function(x) which(SingleCellExperiment::isSpike(sce_obj, x)))
-    exclude_list <- unique(exclude_list)
-    sce_obj <- sce_obj[-exclude_list, ]
-  }
-  
-  # Non-quickcluster method
-  ncells <- BiocGenerics::ncol(sce_obj)
-  
-  if (quickCluster){
-    print(sprintf("%i cells detected. Running computeSumFactors with quickCluster...", ncells))
-    quick_cluster <- scran::quickCluster(sce_obj, method = "hclust", min.mean = min.mean)
-    sce_obj <- scran::computeSumFactors(sce_obj, clusters = quick_cluster, positive = TRUE, min.mean = min.mean)
-  } else{
-    print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncells))
-    preset_sizes <- c(40, 60, 80, 100)
-    sce_obj <- scran::computeSumFactors(sce_obj, sizes = preset_sizes, positive = TRUE, min.mean = min.mean)
-  }
-  
-  print("scran's computeSumFactors complete. Adjusting zero sum factors...")
-  size_factors <- SingleCellExperiment::sizeFactors(sce_obj)
-  zero_size_factors <- which(size_factors == 0)
-  
-  # Adjust size factor to use minimum 
-  if (length(zero_size_factors) > 0){
-    min_size_factor <- min(size_factors[-zero_size_factors])
-    size_factors[zero_size_factors] <- min_size_factor
-    SingleCellExperiment::sizeFactors(sce_obj) <- size_factors
-  }
-  
-  print("Running scater's normalize method...")
-  norm_obj <- scater::normalize(sce_obj)
-  print("Normalisation complete. Converting SingleCellExperiment back to EMSet...")
-  
-  # Coercian doesn't quite work... just create a new EMSet instead.
-  logcounts <- SingleCellExperiment::logcounts(norm_obj)
-  normcounts <- unLog2Matrix(logcounts)
-  SingleCellExperiment::normcounts(norm_obj) <- normcounts
-  
-  norm_col_data <- SummarizedExperiment::colData(norm_obj)
-  norm_row_data <- SummarizedExperiment::rowData(norm_obj)
-  norm_col_info <- norm_col_data[ , colnames(norm_col_data) %in% col_info_headers]
-  norm_row_info <- norm_row_data[ , colnames(norm_row_data) %in% row_info_headers]
-  norm_col_data <- norm_col_data[, colnames(norm_col_data) %in% col_data_headers]
-  norm_row_data <- norm_row_data[, colnames(norm_row_data) %in% row_data_headers]
-  rownames(norm_col_info) <- norm_col_info$cell_barcode
-  rownames(norm_row_info) <- norm_row_info[, gene_id_name]
-  
-  SummarizedExperiment::colData(norm_obj) <- norm_col_data
-  SummarizedExperiment::rowData(norm_obj) <- norm_row_data
-  
-  # Update log
-  log$NormalisationMethod <- "Deconvolution"
-  
-  # Rebuild EMSet
-  norm_emset <- new("EMSet", norm_obj, colInfo = norm_col_info, rowInfo = norm_row_info, log = log, clusterAnalysis = cluster_analysis)
-  norm_emset <- calculateQC(norm_emset)
-  return(norm_emset)
+    
+    col_info <- colInfo(object)
+    row_info <- rowInfo(object)
+    col_data <- SummarizedExperiment::colData(object)
+    row_data <- SummarizedExperiment::rowData(object)
+    log <- progressLog(object)
+    cluster_analysis <- clusterAnalysis(object)
+    old_size_factors <- SingleCellExperiment::sizeFactors(object)
+    counts <- SingleCellExperiment::counts(object)
+    
+    # Save column names for extracted data frames so they can be retrieved
+    col_info_headers <- BiocGenerics::colnames(col_info)
+    row_info_headers <- BiocGenerics::colnames(row_info)
+    col_data_headers <- BiocGenerics::colnames(col_data)
+    row_data_headers <- BiocGenerics::colnames(row_data)
+    sce_obj <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = counts))
+    
+    # Remove spike-ins if present
+    if (!is.null(SingleCellExperiment::isSpike(object))){
+      spike_ins <- SingleCellExperiment::spikeNames(sce_obj)
+      exclude_list <- sapply(spike_ins, function(x) which(SingleCellExperiment::isSpike(sce_obj, x)))
+      exclude_list <- unique(exclude_list)
+      sce_obj <- sce_obj[-exclude_list, ]
+    }
+    
+    # Non-quickcluster method
+    ncells <- BiocGenerics::ncol(sce_obj)
+    
+    if (quickCluster){
+      print(sprintf("%i cells detected. Running computeSumFactors with quickCluster...", ncells))
+      quick_cluster <- scran::quickCluster(sce_obj, method = "hclust", min.mean = min.mean)
+      sce_obj <- scran::computeSumFactors(sce_obj, clusters = quick_cluster, positive = TRUE, min.mean = min.mean)
+    } else{
+      print(sprintf("%i cells detected. Running computeSumFactors with preset sizes of 40, 60, 80, 100...", ncells))
+      preset_sizes <- c(40, 60, 80, 100)
+      sce_obj <- scran::computeSumFactors(sce_obj, sizes = preset_sizes, positive = TRUE, min.mean = min.mean)
+    }
+    
+    print("scran's computeSumFactors complete. Adjusting zero sum factors...")
+    size_factors <- SingleCellExperiment::sizeFactors(sce_obj)
+    zero_size_factors <- which(size_factors == 0)
+    
+    # Adjust size factor to use minimum 
+    if (length(zero_size_factors) > 0){
+      min_size_factor <- min(size_factors[-zero_size_factors])
+      size_factors[zero_size_factors] <- min_size_factor
+      SingleCellExperiment::sizeFactors(sce_obj) <- size_factors
+    }
+    
+    print("Running scater's normalize method...")
+    norm_obj <- scater::normalize(sce_obj, exprs_values = "counts")
+    print("Normalisation complete. Converting SingleCellExperiment back to EMSet...")
+    counts <- SingleCellExperiment::counts(norm_obj)
+    logcounts <- SingleCellExperiment::logcounts(norm_obj)
+    normcounts <- unLog2Matrix(logcounts)
+    size_factors <- SingleCellExperiment::sizeFactors(norm_obj)
+    
+    # Retrieve cells that are still in the expression matrix
+    cell_list <- colnames(normcounts)
+    gene_list <- rownames(normcounts)
+    
+    # Trim so all the data is there
+    colInfo <- col_info[which(col_info$cell_barcode %in% cell_list), ]
+    rowInfo <- row_info[which(row_info[,1] %in% gene_list), ]
+    keep_colData <- which(!(col_data_headers %in% grep("^qc_", col_data_headers, value = TRUE)))
+    keep_rowData <- which(!(row_data_headers %in% grep("^qc_", row_data_headers, value = TRUE)))
+    
+    if (length(keep_colData) > 1){
+      colData <- col_data[, keep_colData]
+      colData <- colData[match(cell_list, colData$cell_barcode), ]
+    } else{
+      colData <- S4Vectors::DataFrame(cell_barcode = cell_list, row.names = cell_list) 
+    }
+    
+    if (length(keep_rowData) > 1){
+      rowData <- row_data[, keep_rowData]
+      rowData <- rowData[match(gene_list, rowData[, gene_id_name]), ]
+    } else{
+      rowData <- S4Vectors::DataFrame(gene_list, row.names = gene_list)
+      colnames(rowData) <- gene_id_name
+    }
+    
+    norm_emset <- newEMSet(assays = list(counts = counts,
+                                         normcounts = normcounts,
+                                         logcounts = logcounts),
+                           colInfo = colInfo,
+                           rowInfo = rowInfo,
+                           colData = colData,
+                           rowData = rowData
+    )
+    
+    SingleCellExperiment::sizeFactors(norm_emset, "norm_deconv") <- size_factors
+    
+    # Update log
+    log$NormalisationMethod <- "Deconvolution"
+    progressLog(norm_emset) <- log
+    norm_emset <- calculateQC(norm_emset)
+    return(norm_emset)
 }
