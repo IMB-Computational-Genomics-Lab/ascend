@@ -1,3 +1,11 @@
+version 0.8.0 (2018-09-05)
+- Introduced variable genes functions
+- Bug fixes associated with filtering functions 
+
+version 0.7.7 (2018-08-23)
+- Fixed normaliseBatches function
+- Added plotBatchNormQC function
+
 version 0.7.6 (2018-08-17)
 - Reverted SCORE algorithm name to CORE
 - Major optimisations for large datasets
