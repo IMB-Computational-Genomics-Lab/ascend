@@ -81,3 +81,31 @@ fileCheck <- function(x) {
     return(FALSE)
   }
 }
+
+#' mergeDF
+#' 
+#' Convenience function to merge data frames and overwrite pre-existing
+#' columns with the new values
+#' 
+#' @param x Old DataFrame
+#' @param y Replacement DataFrame
+#' @param z Name of column(s) to merge DataFrames by
+#' @return A merged DataFrame
+#' @export
+#'
+mergeDF <- function(x, y, z){
+  # Get old colnames
+  x_colnames <- colnames(x)
+  y_colnames <- colnames(y)
+  
+  # Merge
+  merged <- S4Vectors::merge(x, y, by = z)
+  
+  # Drop .x columns
+  drop_cols <- grep(".x", colnames(merged))
+  merged <- merged[ , -drop_cols]
+  
+  # Clean up .y columns
+  colnames(merged) <- gsub(".y", "", colnames(merged))
+  return(merged)
+} 

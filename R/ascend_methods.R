@@ -153,6 +153,8 @@ setGeneric("calculateQC", function(object, ...) standardGeneric("calculateQC"))
 setMethod("calculateQC", "EMSet", function(object){
   # Metrics - save trouble of retrieving object over and over
   expression_matrix <- SingleCellExperiment::counts(object)
+  
+  # Get old metadata
   old_rowData <- SummarizedExperiment::rowData(object)
   old_colData <- SummarizedExperiment::colData(object)
   old_colInfo <- colInfo(object)
@@ -168,6 +170,10 @@ setMethod("calculateQC", "EMSet", function(object){
   qc_libsize <- Matrix::colSums(expression_matrix)
   qc_ngenes <- Matrix::colSums(expression_matrix != 0)
 
+  qc_cell_df <- data.frame(qc_libsize = qc_libsize, qc_ngenes = qc_ngenes)
+  qc_cell_df$cell_barcode <- rownames(qc_cell_df)
+  qc_cell_df <- qc_cell_df[match(colnames(expression_matrix), qc_cell_df$cell_barcode), c("cell_barcode", "qc_libsize", "qc_ngenes")]
+  
   # QC for genes
   # 1. qc_genecounts: Total transcripts for each gene
   # 2. qc_cellspergene: Number of cells expressing each gene
@@ -183,10 +189,6 @@ setMethod("calculateQC", "EMSet", function(object){
   qc_generankings <- rank(-qc_genecounts, ties.method = "first")
   names(qc_generankings) <- rownames(expression_matrix)
   qc_pct_total_expression <- (qc_genecounts / qc_totalexpression) * 100
-  
-  qc_cell_df <- data.frame(qc_libsize = qc_libsize, qc_ngenes = qc_ngenes)
-  qc_cell_df$cell_barcode <- rownames(qc_cell_df)
-  qc_cell_df <- qc_cell_df[match(colnames(expression_matrix), qc_cell_df$cell_barcode), c("cell_barcode", "qc_libsize", "qc_ngenes")]
   
   qc_gene_df <- data.frame(qc_ncounts = qc_genecounts,
                            qc_ncells = qc_cellspergene,
@@ -204,71 +206,29 @@ setMethod("calculateQC", "EMSet", function(object){
   
   # Sort again
   qc_cell_df <- qc_cell_df[match(colnames(expression_matrix), qc_cell_df$cell_barcode), ]
-  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), qc_gene_df[, gene_id_name]), ]
+  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), as.vector(qc_gene_df[, gene_id_name])), ]
 
   # Convert to DataFrame
   qc_cell_df <- S4Vectors::DataFrame(qc_cell_df)
   qc_gene_df <- S4Vectors::DataFrame(qc_gene_df)
   
-  # We'll just replace pre-existing colnames
-  if (all(colnames(qc_cell_df) %in% colnames(old_colData))){
-    new_colData <- old_colData
-    new_colData[, colnames(qc_cell_df)] <- qc_cell_df[, colnames(qc_cell_df)]
-  }  
-  else{
-    # Identify common columns
-    common_columns <- intersect(colnames(old_colData), colnames(qc_cell_df))
-    
-    if (length(grep("^qc_", common_columns)) > 0){
-      # Remove QC columns
-      qc_columns <- colnames(qc_cell_df)[2:ncol(qc_cell_df)]
-      common_columns <- common_columns[which(!common_columns %in% qc_columns)]
-      
-      # Merge dataframes
-      new_colData <- S4Vectors::merge(old_colData, qc_cell_df, by = common_columns)
-      
-      # Clean up - remove .x columns
-      old_columns <- grep(".x$", colnames(new_colData))
-      new_colData <- new_colData[, -grep(".x$", colnames(new_colData))]
-      colnames(new_colData) <-gsub(".y$", "", colnames(new_colData))
-      
-    } else{
-      # Merge dataframes
-      new_colData <- S4Vectors::merge(old_colData, qc_cell_df, by = common_columns)      
-    }
+  # Merge with old data
+  if (any(colnames(qc_cell_df)[2:length(qc_cell_df)] %in% colnames(old_colData))){
+    new_colData <- mergeDF(old_colData, qc_cell_df, "cell_barcode")
+  } else{
+    new_colData <- S4Vectors::merge(old_colData, qc_cell_df, by = "cell_barcode")
   }
   
-  # Re-order
-  new_colData <- new_colData[match(colnames(expression_matrix), new_colData[ ,1]), ]
-  rownames(new_colData) <- new_colData[,1]
-  
-  if (all(colnames(qc_gene_df) %in% colnames(old_rowData))){
-    new_rowData <- old_rowData
-    new_rowData[, colnames(qc_gene_df)] <- qc_gene_df[, colnames(qc_gene_df)]
+  if (any(colnames(qc_gene_df)[2:length(qc_gene_df)] %in% colnames(old_rowData))){
+    new_rowData <- mergeDF(old_rowData, qc_gene_df, gene_id_name)
   } else{
-    # Identify common columns
-    common_columns <- intersect(colnames(old_rowData), colnames(qc_gene_df))
-    
-    if (length(grep("^qc_", common_columns)) > 0){
-      # Remove QC columns
-      qc_columns <- colnames(qc_gene_df)[2:ncol(qc_gene_df)]
-      common_columns <- common_columns[which(!common_columns %in% qc_columns)]
-      
-      # Merge dataframes
-      new_rowData <- S4Vectors::merge(old_rowData, qc_gene_df, by = common_columns)
-      
-      # Dispose of old data frames
-      # Clean up - remove .x columns
-      old_columns <- grep(".x$", colnames(new_rowData))
-      new_rowData <- new_rowData[, -grep(".x$", colnames(new_rowData))]
-      colnames(new_rowData) <-gsub(".y$", "", colnames(new_rowData))      
-    } else{
-      new_rowData <- S4Vectors::merge(old_rowData, qc_gene_df, by = common_columns)
-    }
+    new_rowData <- S4Vectors::merge(old_rowData, qc_gene_df, by = gene_id_name)
   }
 
   # Re-order
-  new_rowData <- new_rowData[match(rownames(expression_matrix), new_rowData[, gene_id_name]), ]
+  new_colData <- new_colData[match(colnames(expression_matrix), new_colData$cell_barcode), ]
+  BiocGenerics::rownames(new_colData) <- new_colData[,1]
+  new_rowData <- new_rowData[match(rownames(expression_matrix), as.vector(new_rowData[, gene_id_name])), ]
   BiocGenerics::rownames(new_rowData) <- new_rowData[ , gene_id_name]
   
   # Replace information

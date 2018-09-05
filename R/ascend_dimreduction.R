@@ -74,6 +74,8 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
     raw_matrix <- Matrix::t(SingleCellExperiment::normcounts(object))
   }
 
+  raw_matrix <- Matrix::as.matrix(raw_matrix)
+  
   print("Running Rtsne...")
   set.seed(seed)
   tsne <- Rtsne::Rtsne(raw_matrix, dims = dimensions, 

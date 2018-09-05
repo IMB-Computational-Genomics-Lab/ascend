@@ -5,6 +5,63 @@
 #
 ################################################################################
 
+#' plotBatchNormQC
+#' 
+#' Creates a boxplot that depicts the library sizes of each batch in a dataset.
+#' This function is for the comparison of pre- and post- batch-normalised 
+#' datasets that have been loaded into an EMSet. Cells found in these datasets 
+#' must have the same identifiers.
+#'
+#' @param raw_object Dataset prior to batch normalisation
+#' @param norm_object Dataset after batch normalisation
+#' @return A boxplot created with ggplot2
+#' @export
+plotBatchNormQC <- function(raw_object = NULL, norm_object = NULL){
+  # Check if data is in correct state
+  if (all(!is.null(progressLog(raw_object)$normaliseBatches) & is.null(progressLog(norm_object)$normaliseBatches))){
+    stop("Please ensure normaliseBatches has only been run on norm_object.")
+  }
+  
+  # Load data from pre- and post- batch normalised objects
+  exprs_counts <- SingleCellExperiment::counts(raw_object)
+  exprs_normcounts <- SingleCellExperiment::counts(norm_object)
+  
+  # Load object information
+  colInfo1 <- colInfo(raw_object)
+  colInfo2 <- colInfo(norm_object)
+  colData1 <- SummarizedExperiment::colData(raw_object)
+  colData2 <- SummarizedExperiment::colData(norm_object)
+  
+  # Marry data
+  objInfo1 <- S4Vectors::merge(colInfo1, colData1, by = "cell_barcode")
+  objInfo2 <- S4Vectors::merge(colInfo2, colData2, by = "cell_barcode")
+  
+  # Take rows that are present in both datasets
+  common_barcodes <- intersect(objInfo1$cell_barcode, objInfo2$cell_barcode)
+  objInfo1 <- objInfo1[which(objInfo1$cell_barcode %in% common_barcodes), ]
+  objInfo2 <- objInfo2[which(objInfo2$cell_barcode %in% common_barcodes), ]
+  
+  # Calculate library sizes
+  libsize <- objInfo1[ , c("cell_barcode", "batch", "qc_libsize")]
+  norm_libsize <- objInfo2[, c("cell_barcode", "batch", "qc_libsize")]
+  colnames(libsize) <- c("cell_barcode", "batch", "libsize")
+  colnames(norm_libsize) <- c("cell_barcode", "batch", "norm_libsize")
+  
+  # Build plot dataframe
+  cell_df <- S4Vectors::merge(libsize, norm_libsize, by = c("cell_barcode", "batch"))
+  cell_df$batch <- factor(cell_df$batch, levels = sort(unique(cell_df$batch))) 
+  cell_df <- as.data.frame(cell_df)
+  tidy_df <- tidyr::gather(cell_df, type, libsize, -cell_barcode, -batch)
+  tidy_df$type <- factor(tidy_df$type, levels = c("libsize", "norm_libsize"))
+  
+  comparison_plot <- ggplot2::ggplot(tidy_df, ggplot2::aes(x = batch, y = libsize, fill = type)) + ggplot2::geom_boxplot()
+  comparison_plot <- comparison_plot + ggplot2::ggtitle("Library sizes per batch before and after normalisation") 
+  comparison_plot <- comparison_plot + ggplot2::xlab("Batch") + ggplot2::ylab("Library size") 
+  comparison_plot <- comparison_plot + ggplot2::scale_colour_brewer(name = "Library size", labels = c("Raw", "Normalised"), aesthetics = "fill")
+  
+  return(comparison_plot)
+}
+
 #' plotVariableGenes
 #' 
 #' Generates a scatter plot to aid in the detection of variable genes. Scatter
@@ -1323,7 +1380,7 @@ plotControlPctPerSample<- function(object, control = NULL){
   return(violin_plot)
 }
 
-#' plotLibsizeBarplot
+#' plotLibsizeBoxplot
 #' 
 #' Generates a barplot of each cell's library size, and arranges them in 
 #' descending order.
@@ -1331,14 +1388,14 @@ plotControlPctPerSample<- function(object, control = NULL){
 #' @param object An \linkS4class{EMSet} object.
 #' @examples
 #' \dontrun{
-#' libsize_barplot <- plotLibsizeBarplot(EMSet)
+#' libsize_barplot <- plotLibsizeBoxplot(EMSet)
 #' }
 #' @export
 #' @importFrom dplyr left_join
 #' @importFrom stats reorder
 #' @return A ggplot2 glob containing the barplot.
 #' 
-plotLibsizeBarplot <- function(object){
+plotLibsizeBoxplot <- function(object){
   # Silence R Check
   cell_barcode <- "Shhh"
   qc_libsize <- "Shhh"
@@ -1356,21 +1413,12 @@ plotLibsizeBarplot <- function(object){
   # Combine data
   metrics_df <- dplyr::left_join(cell_info, metrics_df, by = "cell_barcode")
   metrics_df <- metrics_df[, c("cell_barcode", "batch", "qc_libsize")]
-  metrics_df$batch <- factor(metrics_df$batch, levels = unique(metrics_df$batch))
-  metrics_df$cell_barcode <- 1:nrow(metrics_df)
-  
-  libsize_barplot <- ggplot2::ggplot(metrics_df, 
-                                     ggplot2::aes(x = reorder(cell_barcode, -qc_libsize), 
-                                                  y = qc_libsize, 
-                                                  fill = batch))
-  libsize_barplot <- libsize_barplot + ggplot2::geom_bar(stat = "identity")
-  libsize_barplot <- libsize_barplot + ggplot2::ggtitle("Library size per cell")
-  libsize_barplot <- libsize_barplot + ggplot2::scale_y_continuous(breaks = seq(0, max(metrics_df$qc_libsize), by = 1e4))
-  libsize_barplot <- libsize_barplot + ggplot2::theme(legend.position = "bottom")
-  libsize_barplot <- libsize_barplot + ggplot2::scale_x_discrete(breaks = NULL, name = "Cell")
-  libsize_barplot <- libsize_barplot + ggplot2::scale_fill_brewer(name = "Batch", type = "qual")
-  libsize_barplot <- libsize_barplot + ggplot2::ylab("Library size") + ggplot2::theme_bw()
-  return(libsize_barplot)
+  metrics_df$batch <- factor(metrics_df$batch, levels = sort(unique(metrics_df$batch)))
+
+  libsize_boxplot <- ggplot2::ggplot(metrics_df, ggplot2::aes(x = batch, y = qc_libsize)) + ggplot2::geom_boxplot()
+  libsize_boxplot <- libsize_boxplot + ggplot2::ggtitle("Library sizes per batch") + ggplot2::xlab("Sample")
+  libsize_boxplot <- libsize_boxplot + ggplot2::ylab("Library size") + ggplot2::theme_bw()
+  return(libsize_boxplot)
 }
 
 #' plotLibsizeHist
@@ -1657,7 +1705,7 @@ plotGeneralQC <- function(object){
   
   print("Plotting library size plots...")
   # 1. Libsize barplot
-  output_list[["libsize_barplot"]] <- plotLibsizeBarplot(object)
+  output_list[["libsize_boxplot"]] <- plotLibsizeBoxplot(object)
   
   # 2. Libsize histogram
   output_list[["libsize_histogram"]] <- plotLibsizeHist(object)

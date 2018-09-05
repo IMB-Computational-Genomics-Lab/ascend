@@ -189,7 +189,7 @@ newEMSet <- function(assays = NULL,
   
   
   if (is.null(colInfo)){
-    colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts))  
+    colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts), row.names = colnames(counts))  
   } else{
     if(!("cell_barcode" %in% colnames(colInfo)[1])){
       stop("Please specify the name of the first column in colInfo as 'cell_barcode'")
@@ -197,13 +197,12 @@ newEMSet <- function(assays = NULL,
   }
   
   if (is.null(rowInfo)){
-    rowInfo <- S4Vectors::DataFrame(gene_id = rownames(counts))
+    rowInfo <- S4Vectors::DataFrame(gene_id = rownames(counts), row.names = rownames(counts))
   }
   
   # Prime rowData and colData with identifiers
   if (is.null(colData)){
     colData <- S4Vectors::DataFrame(cell_barcode = colInfo[, 1], row.names = colInfo[,1])
-    BiocGenerics::rownames(colData) <- colData[,1]    
   }
   
   if (is.null(rowData)){
@@ -211,8 +210,7 @@ newEMSet <- function(assays = NULL,
     gene_id_name <- colnames(rowInfo)[1]
     gene_id_list <- list()
     gene_id_list[[gene_id_name]] <- rowInfo[ ,1]
-    rowData <- S4Vectors::DataFrame(gene_id_list)
-    BiocGenerics::rownames(rowData) <- rowData[,1]    
+    rowData <- S4Vectors::DataFrame(gene_id_list, row.names = rowInfo[, 1])
   } else{
     # Check the columns match
     if (!identical(colnames(rowData)[1], colnames(rowInfo)[1])){
@@ -222,10 +220,8 @@ newEMSet <- function(assays = NULL,
   }
   
   # Load metadata as required
-  colInfo <- S4Vectors::DataFrame(colInfo)
-  rowInfo <- S4Vectors::DataFrame(rowInfo)
-  BiocGenerics::rownames(colInfo) <- colInfo[ ,1]
-  BiocGenerics::rownames(rowInfo) <- rowInfo[ ,1]
+  colInfo <- S4Vectors::DataFrame(colInfo, row.names = colInfo[, 1])
+  rowInfo <- S4Vectors::DataFrame(rowInfo, row.names = rowInfo[, 1])
   
   # Load into object
   object <- new("EMSet", 
@@ -243,8 +239,8 @@ newEMSet <- function(assays = NULL,
   }
   
   # Calculate QC
-  object <- calculateQC(object)
   BiocGenerics::colnames(object) <- colnames(SingleCellExperiment::counts(object))
+  object <- calculateQC(object)
   
   # Return to user
   return(object)

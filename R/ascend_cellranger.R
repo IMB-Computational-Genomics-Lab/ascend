@@ -45,18 +45,20 @@ loadCellRanger <- function(x){
   genes$gene_id <- make.unique(genes$gene_id)
   genes <- genes[ , c("gene_id", "ensembl_gene_id")]
   
-  sparse_matrix <- Matrix::readMM(matrix_file)
-  expression_matrix <- as.matrix(sparse_matrix)
-  colnames(expression_matrix) <- barcodes[, 1]
-  rownames(expression_matrix) <- genes[, 1]
+  expression_matrix <- Matrix::readMM(matrix_file)
+  colnames(expression_matrix) <- barcodes[, "cell_barcode"]
+  rownames(expression_matrix) <- genes[, "gene_id"]
   
   # Create EMSet
   controls <- list(Mt = grep("^Mt-", genes[,"gene_id"], ignore.case = TRUE, value = TRUE), 
                    Rb = grep("^Rps|^Rpl", genes[, "gene_id"], ignore.case = TRUE, value = TRUE))
   
+  barcodes <- S4Vectors::DataFrame(barcodes, row.names = barcodes[, 1])
+  genes <- S4Vectors::DataFrame(genes, row.names = genes[, 1])
+
   object <- newEMSet(assays = list(counts = expression_matrix), 
-                         colInfo = S4Vectors::DataFrame(barcodes),
-                         rowInfo = S4Vectors::DataFrame(genes),
+                         colInfo = barcodes,
+                         rowInfo = genes,
                          controls = controls)
   
   return(object)
