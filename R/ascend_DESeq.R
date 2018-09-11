@@ -119,7 +119,7 @@ runDESeq <- function(object, group = NULL, condition.a = NULL,
 
   print("Identifying genes to retain...")
   top_genes <- row_data[order(row_data$qc_topgeneranking),1][1:ngenes]
-  nonzero_genes <- rownames(expression_matrix)[which(rowMeans(expression_matrix) > 0)]
+  nonzero_genes <- rownames(expression_matrix)[which(Matrix::rowMeans(expression_matrix) > 0)]
   variable_genes <- rownames(expression_matrix)[which(apply(expression_matrix, 1, stats::sd) > 0)]
   gene_list <- dplyr::intersect(dplyr::intersect(top_genes, nonzero_genes), variable_genes)
   expression_matrix <- round(expression_matrix + 1)
