@@ -1,3 +1,18 @@
+version 0.8.1 (2018-09-19)
+- Bux fix for runCORE reclustering when outliers are found
+
+version 0.8.0 (2018-09-05)
+- Introduced variable genes functions
+- Bug fixes associated with filtering functions 
+
+version 0.7.7 (2018-08-23)
+- Fixed normaliseBatches function
+- Added plotBatchNormQC function
+
+version 0.7.6 (2018-08-17)
+- Reverted SCORE algorithm name to CORE
+- Major optimisations for large datasets
+
 version 0.7.5 (2018-08-14)
 - Optimisation for large datasets via sparse matrices
 

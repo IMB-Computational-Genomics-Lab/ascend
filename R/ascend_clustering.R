@@ -429,11 +429,11 @@ setMethod("runCORE", signature("EMSet"), function(object,
   print("Calculating distance matrix...")
   distance_matrix <- stats::dist(pca_matrix)
   original_tree <- stats::hclust(distance_matrix, method="ward.D2")
-  distance_matrix <- Matrix::as.matrix(distance_matrix)
+  distance_matrix <- distance_matrix
   print("Generating hclust object...")
   print("Using dynamicTreeCut to generate reference set of clusters...")
   original_clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
-                                                            distM = distance_matrix,
+                                                            distM = as.matrix(distance_matrix),
                                                             verbose=0))
   
   print("Checking if outliers are present...")
@@ -460,10 +460,10 @@ setMethod("runCORE", signature("EMSet"), function(object,
           pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
           pca_matrix <- pca_matrix[ , 1:dims]
         }
-        distance_matrix <- Matrix::as.matrix(stats::dist(pca_matrix))
+        distance_matrix <- stats::dist(pca_matrix)
         original_tree <- stats::hclust(distance_matrix, method="ward.D2")
         original_clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
-                                                                  distM=distance_matrix, verbose=0))
+                                                                  distM=as.matrix(distance_matrix), verbose=0))
         if (!(0 %in% original_clusters)){
           outlier_barcode_list <- c(outlier_barcode_list, outlier_barcodes)
           break

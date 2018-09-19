@@ -1,3 +1,6 @@
+version 0.8.1 (2018-09-19)
+- Bux fix for runCORE reclustering when outliers are found
+
 version 0.8.0 (2018-09-05)
 - Introduced variable genes functions
 - Bug fixes associated with filtering functions 
