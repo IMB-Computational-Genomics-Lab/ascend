@@ -8,10 +8,8 @@
 #'
 #' Validation function for the EMSet.
 #' 
-#' @params object An EMSet that has been created, but needs validation.
-#' 
+#' @param object An EMSet that has been created, but needs validation.
 #' @keywords internal
-#' 
 #' @export
 validateEMSet <- function(object){
   # Store errors in an object. If length is greater than 0, indicates multiple
