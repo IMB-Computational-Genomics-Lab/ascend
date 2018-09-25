@@ -350,7 +350,7 @@ setGeneric("runCORE", def = function(object,
                                      ..., 
                                      conservative,
                                      nres,
-                                     remove.outlier) {
+                                     remove.outliers) {
   standardGeneric("runCORE")  
 })
 
@@ -376,7 +376,7 @@ setGeneric("runCORE", def = function(object,
 #' (TRUE or FALSE). Default: TRUE.
 #' @param dims Number of PC components to use in distance matrix generation. Default: 20
 #' @param nres Number of resolutions to test, ranging from 20 to 100. Default: 40.
-#' @param remove.outlier Remove cells that weren't assigned a cluster with
+#' @param remove.outliers Remove cells that weren't assigned a cluster with
 #' dynamicTreeCut. This is indicative of outlier cells within the sample.
 #' Default: FALSE.
 #' @return An \code{\linkS4class{EMSet}} with cluster information loaded into the
@@ -392,8 +392,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
                                                   conservative = TRUE,
                                                   dims = 20,
                                                   nres = 40, 
-                                                  remove.outlier = FALSE){
-  
+                                                  remove.outliers = FALSE){
   # Fill in missing arguments
   if (missing(conservative)){
     conservative <- TRUE
@@ -401,14 +400,8 @@ setMethod("runCORE", signature("EMSet"), function(object,
   if (missing(nres)){
     nres <- 40
   }
-  if (missing(remove.outlier)){
-    remove.outlier <- TRUE
-  }
-                                 
-  # Checks
-  ## 1. Make sure it is PCA reduced
-  if(is.null(SingleCellExperiment::reducedDim(object, "PCA"))){
-    stop("Please run runPCA on this object before using this function.")
+  if (missing(remove.outliers)){
+    remove.outliers <- TRUE
   }
   
   pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
@@ -426,89 +419,62 @@ setMethod("runCORE", signature("EMSet"), function(object,
   # Generate sliding windows
   windows <- seq((1/nres):1, by = 1/nres)
   
-  print("Calculating distance matrix...")
-  distance_matrix <- stats::dist(pca_matrix)
-  original_tree <- stats::hclust(distance_matrix, method="ward.D2")
-  distance_matrix <- distance_matrix
-  print("Generating hclust object...")
-  print("Using dynamicTreeCut to generate reference set of clusters...")
-  original_clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
-                                                            distM = as.matrix(distance_matrix),
-                                                            verbose=0))
-  
-  print("Checking if outliers are present...")
-  
-  if (0 %in% original_clusters){
-    outlier_barcode_list <- c()
-    if (remove.outlier){
-      limit <- 0
-      while ((0 %in% original_clusters) && (limit <= 5)){
-        # If this is the next time the loop has been run, add the old barcodes to
-        # the outlier_barcode_list to store in the object
-        if (exists("outlier_barcodes")){
-          outlier_barcode_list <- c(outlier_barcode_list, outlier_barcodes)
-        }
-        
-        # Get indices of outliers
-        outlier_idx <- which(original_clusters == 0)
-        print(sprintf("%i outliers detected in dataset. Removing cells and repeating PCA.", length(outlier_idx)))
-        outlier_barcodes <- colnames(object)[outlier_idx]
-        object <- object[ , !(colnames(object) %in% outlier_barcodes)]
-        object <- calculateQC(object)
-        object <- runPCA(object)
-        if (ncol(pca_matrix) > dims){
-          pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
-          pca_matrix <- pca_matrix[ , 1:dims]
-        }
-        distance_matrix <- stats::dist(pca_matrix)
-        original_tree <- stats::hclust(distance_matrix, method="ward.D2")
-        original_clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
-                                                                  distM=as.matrix(distance_matrix), verbose=0))
-        if (!(0 %in% original_clusters)){
-          outlier_barcode_list <- c(outlier_barcode_list, outlier_barcodes)
-          break
-        } else{
-          limit <- limit + 1
-        }
-      }
-    } else{
-      stop("Your dataset may contain cells that are too distinct from the main
-           population of cells. We recommend you run this function with
-           'remove.outlier = TRUE' or check the cell-cell normalisation of your
-           dataset.")
-    }
-    }
-  
-  print("Generating clusters by running dynamicTreeCut at different heights...")
-  
-  # Run dynamicTreeCut at different resolutions
-  nworkers <- BiocParallel::bpnworkers(BiocParallel::bpparam())
-  
-  if(nworkers > 1){
-    chunked_windows <- split(windows, 1:nworkers)
-  } else{
-    chunked_windows <- windows
+  generateClusters <- function(pca_matrix = NULL){
+    print("Calculating distance matrix...")
+    distance_matrix <- stats::dist(pca_matrix)
+    original_tree <- stats::hclust(distance_matrix, method="ward.D2")
+    print("Generating hclust object...")
+    print("Using dynamicTreeCut to generate reference set of clusters...")
+    clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
+                                                     distM = as.matrix(distance_matrix),
+                                                     verbose=0))
+    return(list(distanceMatrix = distance_matrix, hClust = original_tree, putativeClusters = clusters))
   }
   
-  # Parallel Process - not worth it, too much overhead on large datasets
-  #cluster_list <- BiocParallel::bplapply(chunked_windows, retrieveCluster,
-  #                                       hclust_obj = original_tree,
-  #                                       distance_matrix = distance_matrix)
+  cluster_results <- FALSE
+  outlier_cells <- c()
+  clustering_result <- generateClusters(pca_matrix = pca_matrix)
+  counter <- 0
+  
+  while (cluster_results == FALSE){
+    if (0 %in% clustering_result$putativeClusters){
+      if (counter < 5){
+        # Add to outlier cells 
+        outlier_cells <- c(outlier_cells, clustering_result$hClust$labels[which(clustering_result$putativeClusters == 0)])
+        
+        # Remove outlier cells from dataset
+        object <- object[, !(colnames(object) %in% outlier_cells)]
+        
+        # Run PCA again
+        object <- runPCA(object, scaling = TRUE, ngenes = 1500)
+        
+        pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
+        if (ncol(pca_matrix) > dims){
+          pca_matrix <- pca_matrix[ , 1:dims]
+        }
+        
+        clustering_result <- generateClusters(pca_matrix = pca_matrix)
+        counter <- counter + 1
+      }
+      else{
+        stop("Many outliers have been detected. Please review your filtering and normalisation methods before trying to cluster again.")
+      }
+    } else{
+      cluster_results <- TRUE
+    }
+  }
   
   cluster_list <- sapply(windows, retrieveCluster, 
-                         hclust_obj = original_tree,
-                         distance_matrix = distance_matrix)
+                         hclust_obj = clustering_result$hClust,
+                         distance_matrix = as.matrix(clustering_result$distanceMatrix))
   
-  print("Cluster generation complete!")
-  
-  # Aggregate cluster results
   cluster_matrix <- as.data.frame(matrix(unlist(cluster_list), ncol = length(cluster_list), byrow = FALSE))
   colnames(cluster_matrix) <- names(cluster_list)
-  rownames(cluster_matrix) <- original_tree$labels
-  cluster_matrix$REF <- original_clusters
+  rownames(cluster_matrix) <- clustering_result$hClust$labels
+  cluster_matrix$REF <- clustering_result$putativeClusters
   
   print("Calculating rand indices...")
-  rand_idx_matrix <- calcRandIndexMatrix(cluster_matrix, original_clusters)
+  rand_idx_matrix <- calcRandIndexMatrix(cluster_matrix, clustering_result$putativeClusters)
   
   print("Calculating stability values...")
   rand_idx_matrix <- calcStability(rand_idx_matrix, nres)
@@ -527,33 +493,33 @@ setMethod("runCORE", signature("EMSet"), function(object,
   optimal_cluster_number <- cluster_counts[[optimal_tree_height]]
   
   print("Optimal number of clusters found! Returning output...")
-  cell_labels <- original_tree$labels
+  cell_labels <- clustering_result$hClust$labels
+  
+  
   
   # Add information to the EMSet object
-  output_list <- list(
-    distanceMatrix = distance_matrix,
-    hClust = original_tree,
-    putativeClusters = stats::setNames(original_clusters, cell_labels),
-    clusteringMatrix = cluster_matrix,
-    clusters = stats::setNames(optimal_cluster_list, cell_labels),
-    nClusters = as.numeric(optimal_cluster_number),
-    optimalTreeHeight = as.numeric(optimal_tree_height),
-    keyStats = key_stats
-  )
+  clustering_result$putativeClusters = stats::setNames(clustering_result$putativeClusters, cell_labels)
+  clustering_result$clusteringMatrix = cluster_matrix
+  clustering_result$nClusters = as.numeric(optimal_cluster_number)
+  clustering_result$clusters = optimal_cluster_list
+  clustering_result$optimalTreeHeight = as.numeric(optimal_tree_height)
+  clustering_result$keyStats = key_stats
   
   log <- progressLog(object)
   log$clustering <- list(clustering = TRUE,
                          nres = nres,
-                         remove_outlier = remove.outlier,
-                         conservative = conservative)
-  if (exists("outlier_barcode_list")){
-    output_list$unclustered <- outlier_barcode_list
-    log$clustering$unclustered_cells <- outlier_barcode_list
-    object <- object[ , !(colnames(object) %in% outlier_barcode_list)]
+                         remove.outliers = remove.outliers,
+                         conservative = conservative,
+                         dims = dims)
+  
+  
+  if (length(outlier_cells) > 0){
+    output_list$unclustered <- outlier_cells
+    log$clustering$unclustered_cells <- outlier_cells
   }
   
   # Append all of this information to the EMSet object
-  clusterAnalysis(object) <- output_list
+  clusterAnalysis(object) <- clustering_result
   colInfo(object)$cluster <- optimal_cluster_list
   progressLog(object) <- log
   return(object)

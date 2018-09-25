@@ -6,7 +6,7 @@
 \title{runCORE}
 \usage{
 \S4method{runCORE}{EMSet}(object, conservative = TRUE, dims = 20,
-  nres = 40, remove.outlier = FALSE)
+  nres = 40, remove.outliers = FALSE)
 }
 \arguments{
 \item{object}{An EMSet object that has undergone PCA reduction.}
@@ -18,7 +18,7 @@
 
 \item{nres}{Number of resolutions to test, ranging from 20 to 100. Default: 40.}
 
-\item{remove.outlier}{Remove cells that weren't assigned a cluster with
+\item{remove.outliers}{Remove cells that weren't assigned a cluster with
 dynamicTreeCut. This is indicative of outlier cells within the sample.
 Default: FALSE.}
 }
