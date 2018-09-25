@@ -514,7 +514,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
   
   
   if (length(outlier_cells) > 0){
-    output_list$unclustered <- outlier_cells
+    clustering_result$unclustered <- outlier_cells
     log$clustering$unclustered_cells <- outlier_cells
   }
   
