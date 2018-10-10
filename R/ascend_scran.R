@@ -101,6 +101,9 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5){
     row_info_headers <- BiocGenerics::colnames(row_info)
     col_data_headers <- BiocGenerics::colnames(col_data)
     row_data_headers <- BiocGenerics::colnames(row_data)
+    
+    # Need to ensure the object is a dgc matrix
+    
     sce_obj <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = counts))
     
     # Remove spike-ins if present
