@@ -4,13 +4,17 @@
 \alias{filterByOutliers}
 \title{filterByOutliers}
 \usage{
-filterByOutliers(object, cell.threshold = 3, control.threshold = 3)
+filterByOutliers(object, cell.threshold = 3, gene.threshold = 3,
+  control.threshold = 3)
 }
 \arguments{
 \item{object}{An \linkS4class{EMSet}.}
 
 \item{cell.threshold}{Mean Absolute Deviation (MAD) value to filter cells by 
 library size. Default: 3.}
+
+\item{gene.threshold}{Mean Absolute Deviation (MAD) value to filter cells by
+number of expressed genes. Default: 3}
 
 \item{control.threshold}{Mean Absolute Deviation (MAD) value to filter cells 
 by proportion of control genes. Default: 3.}

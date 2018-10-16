@@ -87,21 +87,23 @@ getConsecSeq <- function(x, direction = c("forward", "reverse")){
 
 #' @export
 findOptimalResult <- function(key_stats, conservative = TRUE, nres = 40){
+  
   # Get stability values for most clusters and least clusters
   # Which one is greater than the other one?
-  # # FindOptimalIndex
-  max_min_idx <- c(1,nres)
+  max_min_idx <- c(1, nres)
   stability <- key_stats$Stability
-  endpoint_stability_idx <- max_min_idx[which(stability[max_min_idx] ==
-                                                max(stability[max_min_idx]))]
-  if (length(endpoint_stability_idx) > 1){
-    endpoint_stability_idx <- 1
-  }
-  endpoint_stability_value <- stability[endpoint_stability_idx]
+  minmax_stabilities <- stability[max_min_idx]
   
-  if (endpoint_stability_value >= 0.5){
-    optimal_idx <- endpoint_stability_idx
+  # 1. Optimal result is lowest resolution if plateau accounts for at least 50% 
+  # of results
+  # 2. Otherwise, check if high resolution plateau is more stable than the
+  # cumulative stability of the transition region.
+  if ((minmax_stabilities[2]) >= 0.5){
+    optimal_stability_idx <- nres
   } else{
+    # Find where transition region begins by finding
+    # where low resolution plateau ends
+    # and where high resolution plateu begins
     if (stability[1] != stability[nres]){
       left_plateau <- getConsecSeq(which(stability == stability[1]), direction = "forward")
       right_plateau <- getConsecSeq(which(stability == stability[nres]), direction = "reverse")
@@ -112,48 +114,35 @@ findOptimalResult <- function(key_stats, conservative = TRUE, nres = 40){
       right_plateau <- right_plateau[-(which(right_plateau %in% left_plateau))]
     }
     
-    # Get rand indexes
-    rand_idx_values <- key_stats$RandIndex[-c(left_plateau, right_plateau)]
-    unique_rand_idx <- unique(rand_idx_values)
+    # Get stabilities of transition region
+    transition_stabilities <- stability[-(c(left_plateau,right_plateau))]
+    plateaus <- c(left_plateau, right_plateau)
     
-    consecutive_vals <- list()
-    
-    # Search for stability between the plateau
-    for (idx in unique_rand_idx){
-      # Get the indices where the index is present
-      indexes <- which(key_stats$RandIndex == idx)
-      
-      # Remove indices that cross over into the plateau
-      indexes <- setdiff(indexes, left_plateau)
-      indexes <- setdiff(indexes, right_plateau)
-      
-      # If the indices plateau, get the consecutive values
-      if (length(indexes) > 1){
-        consecutive_indexes <- getConsecSeq(indexes, direction = "forward")
-        consecutive_vals[[as.character(idx)]] <- consecutive_indexes
-      }
-    }
-    
-    # List of consecutive indexes for each unique rand index
-    unique_rand_length <- lapply(consecutive_vals, length)
-    max_length <- max(unlist(unique_rand_length))
-    max_idx <- names(unique_rand_length)[which(unique_rand_length == max_length)]
-    
-    if (length(max_idx) > 1){
-      # Conservative Check
-      if (conservative == FALSE){
-        max_idx <- max_idx[1]
-      } else{
-        max_idx <- max_idx[length(max_idx)]
-      }
-      optimal_idx <- min(which(key_stats$RandIndex == max_idx))
+    # If right plateau is longer than transition region, it is optimal
+    if (length(right_plateau) > length(transition_stabilities)){
+      optimal_stability_idx <- right_plateau[1] 
     } else{
-      # Get Minimum
-      min_idx <- lapply(max_idx, function(x) return(min(consecutive_vals[[x]])))
-      optimal_idx <- min(unlist(min_idx))
+      # Otherwise get the most stable result in the transition region
+      max_stability_indices <- which(stability == max(transition_stabilities))
+      # Remove indices that are in either plateaus
+      max_stability_indices <- max_stability_indices[which(!max_stability_indices %in% plateaus)]
+      # Determine if equally stable regions have different number of clusters.
+      putative_clusters <- unique(key_stats[max_stability_indices, "ClusterCount"])
+      if (length(putative_clusters) > 1){
+        # If conservative flag is true, use the lower cluster count
+        if (conservative){
+          putative_cluster <- min(putative_clusters) 
+        } else{
+          putative_cluster <- max(putative_clusters)          
+        }
+      } else{
+        putative_cluster <- putative_clusters
+      }
+      # Get optimal index
+      optimal_stability_idx <- min(which(key_stats$ClusterCount == putative_cluster & key_stats$ConsecutiveRI == 1))
     }
   }
-  return(optimal_idx)
+  return(optimal_stability_idx)
 }
 
 #' @export

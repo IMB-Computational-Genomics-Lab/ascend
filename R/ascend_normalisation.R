@@ -138,7 +138,7 @@ normaliseBatches <- function(object){
   cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
   cell_info <- cell_info[match(colnames(expression_matrix), cell_info$cell_barcode), ]
   # Generate list of batches
-  batch_list <- as.numeric(sort(unique(cell_info[, "batch"])))
+  batch_list <- sort(unique(cell_info[, "batch"]))
   
   calcNormFactor <- function(x, cell_info = NULL, expression_matrix = NULL){
     barcodes <- cell_info[which(cell_info$batch == x), "cell_barcode"]

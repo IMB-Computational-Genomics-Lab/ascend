@@ -1,3 +1,10 @@
+version 0.9.0 (2018-10-16)
+- Updated CORE algorithm to now select high resolution plateau if it is more
+stable than all clustering results generated within transition region.
+- Fixed bug with scranNormalise and datasets generated from just expression
+data.
+- Updated normaliseBatches function to accept non-numeric batch labels
+
 version 0.8.3 (2018-09-25)
 - Fixed reclustering issue when CORE detects outliers in dataset
 

@@ -194,7 +194,7 @@ newEMSet <- function(assays = NULL,
   
   
   if (is.null(colInfo)){
-    colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts), row.names = colnames(counts))  
+    colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts), batch = rep(1, ncol(counts)), row.names = colnames(counts))  
   } else{
     if(!("cell_barcode" %in% colnames(colInfo)[1])){
       stop("Please specify the name of the first column in colInfo as 'cell_barcode'")

@@ -206,6 +206,8 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
 #' library size. Default: 3.
 #' @param control.threshold  Mean Absolute Deviation (MAD) value to filter cells 
 #' by proportion of control genes. Default: 3.
+#' @param gene.threshold Mean Absolute Deviation (MAD) value to filter cells by
+#' number of expressed genes. Default: 3
 #' @return An \linkS4class{EMSet} with outlier cells filtered out.
 #' 
 #' @examples
@@ -224,125 +226,144 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
 #'
 filterByOutliers <- function(object, 
                              cell.threshold = 3, 
+                             gene.threshold = 3,
                              control.threshold = 3){
-    #Input check
-    if (!is.numeric(cell.threshold)){
-      stop("Please set your Cell Threshold (NMAD value) to a valid integer.")
+  #Input check
+  if (!is.numeric(cell.threshold)){
+    stop("Please set your Cell Threshold (NMAD value) to a valid integer.")
+  }
+  if(!is.numeric(control.threshold)){
+    stop("Please set your Control Threshold (NMAD value) to a valid integer.")
+  }
+ 
+  # Stop if the user hasn't set any controls
+  if(!progressLog(object)$controls){
+    stop("Please define controls before filtering this dataset.")
+  }
+  
+  # Gene ID
+  gene_id_name <- colnames(rowInfo(object))[1]
+  
+  # Merge data together to make it easier to work with
+  cell_info <- S4Vectors::merge(colInfo(object), 
+                                SummarizedExperiment::colData(object), 
+                                by = "cell_barcode")
+  gene_info <- S4Vectors::merge(rowInfo(object),
+                                SummarizedExperiment::rowData(object),
+                                by = gene_id_name)
+  
+  # Reorder
+  cell_info <- cell_info[match(colnames(object), cell_info$cell_barcode), ]
+  gene_info <- gene_info[match(rownames(object), gene_info[, gene_id_name]), ]
+  
+  # Check values
+  control_list <- progressLog(object)$set_controls
+  
+  total_counts <- cell_info$qc_libsize
+  log10_total_counts <- log10(total_counts)
+  total_features_counts_per_cell <- cell_info$qc_nfeaturecounts
+  log10_features_counts_per_cell <- log10(total_features_counts_per_cell)
+  pct_total_counts <- lapply(names(control_list), function(x) cell_info[, sprintf("qc_%s_pct_counts", x)])
+  names(pct_total_counts) <- names(control_list)
+  
+  findOutliers <- function(values, 
+                           nmads = 3, 
+                           type = c("both", "lower", "upper"), 
+                           na.rm = FALSE) {
+    med_val <- stats::median(values, na.rm = na.rm)
+    mad_val <- stats::mad(values, center = med_val, na.rm = na.rm)
+    upper_limit <- med_val + nmads * mad_val
+    lower_limit <- med_val - nmads * mad_val
+    if (type == "lower"){
+      upper_limit <- Inf
+    } else if (type == "higher") {
+      lower_limit <- -Inf
     }
-    if(!is.numeric(control.threshold)){
-      stop("Please set your Control Threshold (NMAD value) to a valid integer.")
-    }
-    
-    # Stop if the user hasn't set any controls
-    if(!progressLog(object)$controls){
-      stop("Please define controls before filtering this dataset.")
-    }
-    
-    # Gene ID
-    gene_id_name <- colnames(rowInfo(object))[1]
-    
-    # Merge data together to make it easier to work with
-    cell_info <- S4Vectors::merge(colInfo(object), 
-                                  SummarizedExperiment::colData(object), 
-                                  by = "cell_barcode")
-    gene_info <- S4Vectors::merge(rowInfo(object),
-                                  SummarizedExperiment::rowData(object),
-                                  by = gene_id_name)
-    
-    # Reorder
-    cell_info <- cell_info[match(colnames(object), cell_info$cell_barcode), ]
-    gene_info <- gene_info[match(rownames(object), gene_info[, gene_id_name]), ]
-    
-    # Check values
-    control_list <- progressLog(object)$set_controls
-    
-    # Retrieve values from the object
-    total_counts <- cell_info$qc_libsize
-    log10_total_counts <- log10(total_counts)
-    total_features_counts_per_cell <- cell_info$qc_nfeaturecounts
-    log10_features_counts_per_cell <- log10(total_features_counts_per_cell)
-    pct_total_counts <- lapply(names(control_list), function(x) cell_info[, sprintf("qc_%s_pct_counts", x)])
-    names(pct_total_counts) <- names(control_list)
-    
-    # Functions called by this functions
-    findOutliers <- function(values, 
-                             nmads = 3, 
-                             type = c("both", "lower", "upper"), 
-                             na.rm = FALSE) {
-      med_val <- stats::median(values, na.rm = na.rm)
-      mad_val <- stats::mad(values, center = med_val, na.rm = na.rm)
-      upper_limit <- med_val + nmads * mad_val
-      lower_limit <- med_val - nmads * mad_val
-      if (type == "lower"){
-        upper_limit <- Inf
-      } else if (type == "higher") {
-        lower_limit <- -Inf
-      }
-      return(values < lower_limit | upper_limit < values)
-    }
-    
-    ## Start identifying cells by barcodes
-    cells_libsize <- findOutliers(log10_total_counts, nmads=cell.threshold, type="lower") ## Remove cells with low expression
-    cells_feature <- findOutliers(log10_features_counts_per_cell, nmads=control.threshold, type="lower") ## Remove cells with low number of genes
-    
-    ## Extract Indexes
-    if (any(cells_libsize)){
-      drop_barcodes_libsize <- which(cells_libsize)
-    } else {
-      drop_barcodes_libsize <- list()
-    }
-    
-    if (any(cells_feature)){
-      drop_barcodes_feature <- which(cells_feature)
-    } else {
-      drop_barcodes_feature <- list()
-    }
-    
-    ## Identify cells to remove based on proportion of expression
-    print("Identifying outliers...")
-    control_counts <- BiocParallel::bplapply(pct_total_counts, findOutliers, nmads=control.threshold, type="higher") ## Use nmad to identify outliers
-    drop_barcodes_controls <- BiocParallel::bplapply(control_counts, which) ## Identify cell barcodes to remove
-    drop_barcodes_control_list <- BiocParallel::bplapply(names(drop_barcodes_controls), function(x) cell_info$cell_barcode[drop_barcodes_controls[[x]]])
-    names(drop_barcodes_control_list) <- paste0("CellsFilteredBy", names(drop_barcodes_controls))
-    
-    ### Barcode master list of cells to remove
-    remove_indices <- unique(c(as.vector(unlist(drop_barcodes_libsize)), 
-                               as.vector(unlist(drop_barcodes_feature)),
-                               as.vector(unlist(drop_barcodes_controls))))
-    
-    remove_barcodes <- colnames(object)[remove_indices]
-    
-    outlier_libsize_barcodes <- cell_info$cell_barcode[as.vector(unlist(drop_barcodes_libsize))]
-    outlier_feature_barcodes <- cell_info$cell_barcode[as.vector(unlist(drop_barcodes_feature))]
-    
-    filtering_log <- list(CellsFilteredByLibSize = outlier_libsize_barcodes,
-                          CellsFilteredByLowExpression = outlier_feature_barcodes)
-    filtering_log <- c(filtering_log, drop_barcodes_control_list)
-    
-    # Remove cells from object
-    filtered_object <- object[ , !(colnames(object) %in% remove_barcodes)]
-    
-    # Add records to log
-    log <- progressLog(filtered_object)
-    
-    ### Update old log if it is still there
-    if (!is.null(log$filterByOutliers)){
-      old_filtering_log <- log$filterByOutliers
-      keys <- unique(c(names(old_filtering_log), names(filtering_log)))
-      filtering_log <- setNames(mapply(c, old_filtering_log[keys], filtering_log[keys]), keys)
-    }
-    
-    filtering_df <- as.data.frame(t(as.matrix(sapply(names(filtering_log), function(x) length(filtering_log[[x]])))))
-    
-    # To go into the dataframe
-    if (!is.null(log$FilteringLog)){
-      old_filtering_df <- log$FilteringLog
-      filtering_df <- dplyr::semi_join(filtering_log, old_filtering_df)
-    }
-    
-    # Add to object
-    log$filterByOutliers <- filtering_log
-    log$FilteringLog <- filtering_df
-    progressLog(filtered_object) <- log
-    return(filtered_object)
+    return(values < lower_limit | upper_limit < values)
+  }
+  
+  ## Start identifying cells by barcodes
+  # Returns boolean - do not merge yet
+  cells_libsize_upper <- findOutliers(log10_total_counts, nmads=cell.threshold, type="lower") ## Remove cells with low expression
+  cells_libsize_lower <- findOutliers(log10_total_counts, nmads=cell.threshold, type="higher") ## Remove cells with low expression
+  cells_feature <- findOutliers(log10_features_counts_per_cell, nmads=control.threshold, type="lower") ## Remove cells with low number of genes
+  cells_ngenes <- findOutliers(cell_info$qc_ngenes, nmads = gene.threshold, type = "lower")
+  
+  # Filter cells by MAD
+  drop_barcodes_libsize <- c()
+  if (any(cells_libsize_upper)){
+    drop_barcodes_libsize <- c(drop_barcodes_libsize, which(cells_libsize_upper))
+  }
+  if (any(cells_libsize_lower)){
+    drop_barcodes_libsize <- c(drop_barcodes_libsize, which(cells_libsize_lower))
+  }
+  
+  if (length(drop_barcodes_libsize) > 0){
+    drop_barcodes_libsize <- unique(drop_barcodes_libsize)
+    cells_libsize <- rep(FALSE, length(cells_libsize_upper))
+    cells_libsize[drop_barcodes_libsize] <- TRUE
+  }
+  
+  # Filter features by MAD
+  if (any(cells_feature)){
+    drop_barcodes_feature <- which(cells_feature)
+  } else {
+    drop_barcodes_feature <- list()
+  }
+  
+  if (any(cells_ngenes)){
+    drop_barcodes_ngenes <- which(cells_ngenes)
+  } else{
+    drop_barcodes_ngenes <- list()
+  }
+  
+  ## Identify cells to remove based on proportion of expression
+  print("Identifying outliers...")
+  control_counts <- BiocParallel::bplapply(pct_total_counts, findOutliers, nmads=control.threshold, type="higher") ## Use nmad to identify outliers
+  drop_barcodes_controls <- BiocParallel::bplapply(control_counts, which) ## Identify cell barcodes to remove
+  drop_barcodes_control_list <- BiocParallel::bplapply(names(drop_barcodes_controls), function(x) cell_info$cell_barcode[drop_barcodes_controls[[x]]])
+  names(drop_barcodes_control_list) <- paste0("CellsFilteredBy", names(drop_barcodes_controls))
+  
+  ### Barcode master list of cells to remove
+  remove_indices <- unique(c(as.vector(unlist(drop_barcodes_libsize)), 
+                             as.vector(unlist(drop_barcodes_feature)),
+                             as.vector(unlist(drop_barcodes_controls)),
+                             as.vector(unlist(drop_barcodes_ngenes))))
+  
+  remove_barcodes <- colnames(object)[remove_indices]
+  
+  outlier_libsize_barcodes <- cell_info$cell_barcode[as.vector(unlist(drop_barcodes_libsize))]
+  outlier_feature_barcodes <- cell_info$cell_barcode[as.vector(unlist(drop_barcodes_feature))]
+  
+  filtering_log <- list(CellsFilteredByLibSize = outlier_libsize_barcodes,
+                        CellsFilteredByLowExpression = outlier_feature_barcodes)
+  filtering_log <- c(filtering_log, drop_barcodes_control_list)
+  
+  # Remove cells from object
+  filtered_object <- object[ , !(colnames(object) %in% remove_barcodes)]
+  
+  # Add records to log
+  log <- progressLog(filtered_object)
+  
+  ### Update old log if it is still there
+  if (!is.null(log$filterByOutliers)){
+    old_filtering_log <- log$filterByOutliers
+    keys <- unique(c(names(old_filtering_log), names(filtering_log)))
+    filtering_log <- setNames(mapply(c, old_filtering_log[keys], filtering_log[keys]), keys)
+  }
+  
+  filtering_df <- as.data.frame(t(as.matrix(sapply(names(filtering_log), function(x) length(filtering_log[[x]])))))
+  
+  # To go into the dataframe
+  if (!is.null(log$FilteringLog)){
+    old_filtering_df <- log$FilteringLog
+    filtering_df <- dplyr::semi_join(filtering_log, old_filtering_df)
+  }
+  
+  # Add to object
+  log$filterByOutliers <- filtering_log
+  log$FilteringLog <- filtering_df
+  progressLog(filtered_object) <- log
+  remove(object)
+  return(filtered_object)
 }

@@ -46,6 +46,7 @@ loadCellRanger <- function(x){
   genes <- genes[ , c("gene_id", "ensembl_gene_id")]
   
   expression_matrix <- Matrix::readMM(matrix_file)
+  expression_matrix <- as(expression_matrix, "dgCMatrix")
   colnames(expression_matrix) <- barcodes[, "cell_barcode"]
   rownames(expression_matrix) <- genes[, "gene_id"]
   
