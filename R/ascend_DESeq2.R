@@ -81,12 +81,12 @@ runDESeq2 <- function(object,
   conditions <- condition_df[, group]
   
   # Get expresison matrix
-  expression_matrix <- SingleCellExperiment::counts(object)
+  expression_matrix <- SingleCellExperiment::normcounts(object)
   expression_matrix <- expression_matrix[, barcodes]
   top_genes <- row_data[match(sort(row_data$qc_topgeneranking), row_data$qc_topgeneranking), 1][1:ngenes]
   
   print("Identifying genes to retain...")
-  nonzero_genes <- rownames(expression_matrix)[which(rowMeans(expression_matrix) > 0)]
+  nonzero_genes <- rownames(expression_matrix)[which(Matrix::rowMeans(expression_matrix) > 0)]
   variable_genes <- rownames(expression_matrix)[which(apply(expression_matrix, 1, stats::sd) > 0)]
   gene_list <- dplyr::intersect(dplyr::intersect(top_genes, nonzero_genes), variable_genes)
   expression_matrix <- round(expression_matrix + 1)

@@ -653,6 +653,7 @@ plotStabilityDendro <- function(object){
 #' @param Dim2 Dimension to plot on the y-axis.
 #' @param group (Optional) Name of the column in colInfo that 
 #' describe a set of conditions you would like to colour cells by.
+#' @param density Vary alpha by density (Default: FALSE)
 #' @return A ggplot glob that contains a scatter plot.
 #'
 #' @examples
@@ -677,7 +678,7 @@ plotStabilityDendro <- function(object){
 #' @importFrom ggplot2 ggplot aes geom_point labs ggtitle scale_alpha theme_bw
 #' @export
 #'
-plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
+plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE){
   # Silence R Check
   PCA <- "Shhh"
   
@@ -736,23 +737,38 @@ plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
   print("Cmdscale complete! Processing scaled data...")
   mds_matrix <- as.data.frame(as.matrix(mds_matrix))
   colnames(mds_matrix) <- c("Dim1", "Dim2")
-  mds_matrix$density <- fields::interp.surface(MASS::kde2d(mds_matrix$Dim1, mds_matrix$Dim2), mds_matrix[, c("Dim1", "Dim2")])
   
-  print("Generating MDS plot...")
-  if(!is.null(condition_list) && length(condition_list) > 0){
-    mds_matrix <- as.data.frame(cbind(mds_matrix, group = factor(condition_list, levels = unique(condition_list))))
-    mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
-      ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
-      ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
-      ggplot2::scale_alpha(range = c(0.3, 1), guide ="none") + 
-      ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
+  if (density){
+    mds_matrix$density <- fields::interp.surface(MASS::kde2d(mds_matrix$Dim1, mds_matrix$Dim2), mds_matrix[, c("Dim1", "Dim2")])
+    
+    print("Generating MDS plot...")
+    if(!is.null(condition_list) && length(condition_list) > 0){
+      mds_matrix <- as.data.frame(cbind(mds_matrix, group = factor(condition_list, levels = unique(condition_list))))
+      mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+        ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+        ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+        ggplot2::scale_alpha(range = c(0.3, 1), guide ="none") + 
+        ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
+    } else{
+      mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+        ggplot2::geom_point() + ggplot2::theme_bw() + 
+        ggplot2::scale_alpha(range = c(0.3, 1), guide ="none") + 
+        ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
+    }
   } else{
-    mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
-      ggplot2::geom_point() + ggplot2::theme_bw() + 
-      ggplot2::scale_alpha(range = c(0.3, 1), guide ="none") + 
-      ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
+    print("Generating MDS plot...")
+    if(!is.null(condition_list) && length(condition_list) > 0){
+      mds_matrix <- as.data.frame(cbind(mds_matrix, group = factor(condition_list, levels = unique(condition_list))))
+      mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2)) + 
+        ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+        ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+        ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
+    } else{
+      mds_plot <- ggplot2::ggplot(mds_matrix, ggplot2::aes(Dim1, Dim2)) + 
+        ggplot2::geom_point() + ggplot2::theme_bw() + 
+        ggplot2::ggtitle("Multi-Dimensional Scaling (MDS) Plot")
+    }
   }
-  
   return(mds_plot)
 }
 
@@ -766,6 +782,7 @@ plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
 #' @param Dim2 Dimension to plot on the y-axis.
 #' @param group (Optional) Name of the column in colInfo that 
 #' describe a set of conditions you would like to colour cells by.
+#' @param density Vary alpha by density (Default: FALSE)
 #' @return A ggplot glob that contains a scatter plot.
 #' @examples
 #' \dontrun{
@@ -791,7 +808,7 @@ plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
 #' @importFrom ggplot2 ggplot aes geom_point labs ggtitle scale_alpha theme_bw
 #' @export
 #'
-plotTSNE <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
+plotTSNE <- function(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE){
   if(!("TSNE" %in% SingleCellExperiment::reducedDimNames(object))){
     stop("Please supply an object that has undergone t-SNE.")
   }
@@ -817,24 +834,38 @@ plotTSNE <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
   colnames(plot_df) <- c("Dim1", "Dim2")
   plot_df < as.data.frame(plot_df)
   
-  # Adjust alpha by adding bivariate density for each point
-  plot_df$density <- fields::interp.surface(MASS::kde2d(plot_df$Dim1, plot_df$Dim2), plot_df[, c("Dim1", "Dim2")])
-  
-  if (!is.null(condition_list) && length(condition_list) > 0){
-    plot_df <- cbind(plot_df, group = condition_list)
-    plot_df <- as.data.frame(plot_df)
-    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
-      ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
-      ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
-      ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
-      ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+  if (density){
+    # Adjust alpha by adding bivariate density for each point
+    plot_df$density <- fields::interp.surface(MASS::kde2d(plot_df$Dim1, plot_df$Dim2), plot_df[, c("Dim1", "Dim2")])
+    
+    if (!is.null(condition_list) && length(condition_list) > 0){
+      plot_df <- cbind(plot_df, group = condition_list)
+      plot_df <- as.data.frame(plot_df)
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+        ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+        ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+        ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
+        ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+    } else{
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
+        ggplot2::geom_point() +
+        ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
+        ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+    }
   } else{
-    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2, alpha = 1/density)) + 
-      ggplot2::geom_point() +
-      ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
-      ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+    if (!is.null(condition_list) && length(condition_list) > 0){
+      plot_df <- cbind(plot_df, group = condition_list)
+      plot_df <- as.data.frame(plot_df)
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2)) + 
+        ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+        ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+        ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+    } else{
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(Dim1, Dim2)) + 
+        ggplot2::geom_point() +
+        ggplot2::ggtitle("t-Distributed Stochastic Neighbor Embedding (t-SNE) Plot")
+    }
   }
-  
   return(pca_plot)
 }
 
@@ -850,6 +881,7 @@ plotTSNE <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
 #' @param PCY Principal component to plot on the y-axis.
 #' @param group (Optional) Name of the column in colInfo that 
 #' describe a set of conditions you would like to colour cells by.
+#' @param density Vary alpha by density (Default: FALSE)
 #' @return A ggplot glob that contains a scatter plot.
 #' 
 #' @examples
@@ -874,7 +906,7 @@ plotTSNE <- function(object, Dim1 = 1, Dim2 = 2, group = NULL){
 #' @importFrom MASS kde2d
 #' @export
 #'
-plotPCA <- function(object, PCX = 1, PCY = 2, group = NULL){
+plotPCA <- function(object, PCX = 1, PCY = 2, group = NULL, density = FALSE){
   if(!("PCA" %in% SingleCellExperiment::reducedDimNames(object))){
     stop("Please supply an object that has undergone PCA reduction.")
   }
@@ -901,24 +933,38 @@ plotPCA <- function(object, PCX = 1, PCY = 2, group = NULL){
   colnames(plot_df) <- c("PCX", "PCY")
   plot_df < as.data.frame(plot_df)
   
-  # Adjust alpha by adding bivariate density for each point
-  plot_df$density <- fields::interp.surface(MASS::kde2d(plot_df$PCX, plot_df$PCY), plot_df[, c("PCX", "PCY")])
-  
-  if (!is.null(condition_list) && length(condition_list) > 0){
-    plot_df <- cbind(plot_df, group = condition_list)
-    plot_df <- as.data.frame(plot_df)
-    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY, alpha = 1/density)) + 
-      ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
-      ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
-      ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
-      ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
+  if (density){
+    # Adjust alpha by adding bivariate density for each point
+    plot_df$density <- fields::interp.surface(MASS::kde2d(plot_df$PCX, plot_df$PCY), plot_df[, c("PCX", "PCY")])
+    
+    if (!is.null(condition_list) && length(condition_list) > 0){
+      plot_df <- cbind(plot_df, group = condition_list)
+      plot_df <- as.data.frame(plot_df)
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY, alpha = 1/density)) + 
+        ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+        ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+        ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") + 
+        ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
+    } else{
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY, alpha = 1/density)) + 
+        ggplot2::geom_point() +
+        ggplot2::theme_bw() + ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") +
+        ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
+    }    
   } else{
-    pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY, alpha = 1/density)) + 
-      ggplot2::geom_point() +
-      ggplot2::theme_bw() + ggplot2::scale_alpha(range = c(0.4, 1), guide ="none") +
-      ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
+    if (!is.null(condition_list) && length(condition_list) > 0){
+      plot_df <- cbind(plot_df, group = condition_list)
+      plot_df <- as.data.frame(plot_df)
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY)) + 
+        ggplot2::geom_point(ggplot2::aes(colour = factor(group))) + 
+        ggplot2::labs(colour = group) + ggplot2::theme_bw() + 
+        ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
+    } else{
+      pca_plot <- ggplot2::ggplot(plot_df, ggplot2::aes(PCX, PCY)) + 
+        ggplot2::geom_point() + ggplot2::theme_bw() +
+        ggplot2::ggtitle("Principal Component Analysis (PCA) Plot")
+    }    
   }
-  
   return(pca_plot)
 }
 
@@ -1543,7 +1589,7 @@ plotTopGenesBoxplot <- function(object, n = 20, controls = TRUE){
   
   # Prep the data to feed into the function
   row_info <- rowInfo(object)
-  
+  controls <- FALSE
   if(!controls){
     # Check if controls are excluded
     if (progressLog(object)$controls){
@@ -1553,22 +1599,25 @@ plotTopGenesBoxplot <- function(object, n = 20, controls = TRUE){
   }
   
   # Extract required data
+  n <- 20
   plot_title <- sprintf("Top %i expressed genes", n)
   expression_matrix <- SingleCellExperiment::counts(object)
   row_info <- rowInfo(object)
   row_data <- SummarizedExperiment::rowData(object)
-  
+  col_data <- colData(object)
   # Sort genes by rank
   row_data <- row_data[order(row_data$qc_topgeneranking), ]
   
   # Subset n amount of genes and get related information
   plot_data <- row_data[1:n, ]
   top_gene_list <- plot_data[, 1]
-  pct_exprs_per_cell <- Matrix::t(100*(expression_matrix[top_gene_list, ]/Matrix::colSums(expression_matrix)))
+  top_gene_counts <- expression_matrix[top_gene_list, ]
+  total_counts_per_cell <- col_data$qc_libsize
+  pct_exprs_per_cell <- top_gene_counts/total_counts_per_cell
   
   # Arrange data so it is nice
   if (is(expression_matrix, "sparseMatrix")){
-    pct_exprs_per_cell <- as.matrix(pct_exprs_per_cell)
+    pct_exprs_per_cell <- as.matrix(Matrix::t(pct_exprs_per_cell))
   }
   
   pct_exprs_per_cell <- as.data.frame(pct_exprs_per_cell)

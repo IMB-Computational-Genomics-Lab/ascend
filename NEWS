@@ -1,3 +1,14 @@
+version 0.9.4 (2018-11-20)
+- Fixed issues with scran wrapper
+
+version 0.9.2 (2018-11-07)
+- Added parallel function to DESeq
+- Fixed bug with DESeq
+ 
+version 0.9.1 (2018-10-30)
+- Resolved reoccuring error with runDESeq wrapper failing on some datasets.
+- Resolved plotting issues associated with small datasets.
+
 version 0.9.0 (2018-10-16)
 - Updated CORE algorithm to now select high resolution plateau if it is more
 stable than all clustering results generated within transition region.

@@ -138,11 +138,9 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5){
   }
   
   print("Running scater's normalize method...")
-  norm_obj <- scater::normalize(sce_obj, exprs_values = "counts")
-  print("Normalisation complete. Converting SingleCellExperiment back to EMSet...")
-  counts <- SingleCellExperiment::counts(norm_obj)
-  logcounts <- SingleCellExperiment::logcounts(norm_obj)
-  normcounts <- unLog2Matrix(logcounts)
+  norm_obj <- scater::normalize(sce_obj, exprs_values = "counts", return_log = FALSE)
+  normcounts <- SingleCellExperiment::normcounts(norm_obj)
+  logcounts <- log2(normcounts + 1)
   size_factors <- SingleCellExperiment::sizeFactors(norm_obj)
   
   # Retrieve cells that are still in the expression matrix

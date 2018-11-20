@@ -1,8 +1,7 @@
 #' @import methods
-#' @import BiocGenerics
-#' @import S4Vectors
 #' @import ggplot2
 #' @import SummarizedExperiment
 #' @import SingleCellExperiment
+#' @importFrom stats density sd
 #' @export data_package
 NULL

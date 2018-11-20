@@ -6,7 +6,8 @@
 \usage{
 runDESeq(object, group = NULL, condition.a = NULL,
   condition.b = NULL, ngenes = NULL, fitType = c("parametric",
-  "local"), method = c("pooled", "pooled-CR", "per-condition", "blind"))
+  "local"), method = c("pooled", "pooled-CR", "per-condition", "blind"),
+  parallel = TRUE)
 }
 \arguments{
 \item{object}{An \linkS4class{EMSet} object that has undergone 
@@ -28,6 +29,8 @@ Options: parametric, local (Default).}
 
 \item{method}{Method used by \pkg{DESeq} to compute emperical dispersion.
 Options: pooled, pooled-CR, per-condition (Default), blind.}
+
+\item{parallel}{Run DESeq through parallelised wrapper (Default: TRUE)}
 }
 \value{
 A dataframe containing \pkg{DESeq} results

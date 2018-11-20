@@ -4,7 +4,7 @@
 \alias{plotTSNE}
 \title{plotTSNE}
 \usage{
-plotTSNE(object, Dim1 = 1, Dim2 = 2, group = NULL)
+plotTSNE(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object that has undergone PCA.}
@@ -15,6 +15,8 @@ plotTSNE(object, Dim1 = 1, Dim2 = 2, group = NULL)
 
 \item{group}{(Optional) Name of the column in colInfo that 
 describe a set of conditions you would like to colour cells by.}
+
+\item{density}{Vary alpha by density (Default: FALSE)}
 }
 \value{
 A ggplot glob that contains a scatter plot.
