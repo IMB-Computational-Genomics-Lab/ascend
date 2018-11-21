@@ -1,3 +1,7 @@
+version 0.9.5 (2018-11-21)
+- Changed calcVariance function to use less memory
+- Reduced number of objects created by PCA function
+
 version 0.9.4 (2018-11-20)
 - Fixed issues with scran wrapper
 
