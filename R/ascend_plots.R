@@ -678,10 +678,7 @@ plotStabilityDendro <- function(object){
 #' @importFrom ggplot2 ggplot aes geom_point labs ggtitle scale_alpha theme_bw
 #' @export
 #'
-plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE){
-  # Silence R Check
-  PCA <- "Shhh"
-  
+plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE, PCA = TRUE){
   # Load data from EMSet
   col_info <- colInfo(object)
   
@@ -716,7 +713,7 @@ plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE){
       }
     } else{
       print("Using expression matrix to generate distance matrix...")
-      expression_matrix <- as.matrix(SingleCellExperiment::logcounts(object))
+      expression_matrix <- SingleCellExperiment::logcounts(object)
       
       # Identify most variable genes to decrease scope of distance matrix
       gene_variance <- calcVariance(expression_matrix, axis = "row")

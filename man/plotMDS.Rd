@@ -4,7 +4,8 @@
 \alias{plotMDS}
 \title{plotMDS}
 \usage{
-plotMDS(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE)
+plotMDS(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE,
+  PCA = TRUE)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}}.}

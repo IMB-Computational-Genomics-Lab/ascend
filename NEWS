@@ -1,3 +1,6 @@
+version 0.9.6 (2018-11-26)
+- PCA check wasn't working correctly in the plotMDS function.
+
 version 0.9.5 (2018-11-21)
 - Changed calcVariance function to use less memory
 - Reduced number of objects created by PCA function
