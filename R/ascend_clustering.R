@@ -372,7 +372,8 @@ setGeneric("runCORE", def = function(object,
 #' Clusters slot.
 #' @include ascend_objects.R
 #' @include ascend_dimreduction.R
-#' @importFrom stats dist hclust setNames
+#' @importFrom stats dist setNames
+#' @importFrom fastcluster hclust
 #' @importFrom dynamicTreeCut cutreeDynamic
 #' @importFrom BiocParallel bplapply
 #' @export
@@ -411,7 +412,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
   generateClusters <- function(pca_matrix = NULL){
     print("Calculating distance matrix...")
     distance_matrix <- stats::dist(pca_matrix)
-    original_tree <- stats::hclust(distance_matrix, method="ward.D2")
+    original_tree <- fastcluster::hclust(distance_matrix, method="ward.D2")
     print("Generating hclust object...")
     print("Using dynamicTreeCut to generate reference set of clusters...")
     clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
