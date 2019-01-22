@@ -7,7 +7,7 @@
 plotAverageGeneCount(object, metric = c("average", "log2", "log10"))
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object.}
+\item{object}{An \linkS4class{EMSet}.}
 
 \item{metric}{Scale to plot data by - average (DEFAULT), log2 or log10.}
 }

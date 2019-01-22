@@ -9,5 +9,5 @@
 }
 \description{
 Reduces an EMSet to a range of the most variable genes as determined by 
-the values calculated by \code{\link{calculateCV}}.
+the values calculated by \code{\link[ascend:calculateCV-EMSet-method]{calculateCV}}.
 }

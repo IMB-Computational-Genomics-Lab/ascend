@@ -7,7 +7,7 @@
 regressConfoundingFactors(object, candidate.genes = c())
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has been normalised.}
+\item{object}{An \code{\linkS4class{EMSet}} that has been normalised.}
 
 \item{candidate.genes}{A list of genes you wish to regress from the dataset.
 Refer to the vignette on how to choose genes for regression.}
@@ -24,7 +24,7 @@ supplied by the user. This function should be used after normalisation.
 \dontrun{
 # Define genes to regress
 confoundingGenes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2")
-regressedSet <- RegressConfoundingFactors(EMSet, 
+regressedSet <- regressConfoundingFactors(EMSet, 
 candidate.genes = confoundingGenes)
 }
 

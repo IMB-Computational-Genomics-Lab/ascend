@@ -7,7 +7,7 @@
 plotTopGenesBoxplot(object, n = 20, controls = TRUE)
 }
 \arguments{
-\item{object}{A EMSet object.}
+\item{object}{A \code{\linkS4class{EMSet}}.}
 
 \item{n}{Number of genes to be plotted.}
 

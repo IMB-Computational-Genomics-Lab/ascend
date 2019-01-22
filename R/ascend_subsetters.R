@@ -13,7 +13,7 @@ setGeneric(name = "useVariableGenes", def = function(object, ..., ngenes) {
 #' useVariableGenes
 #' 
 #' Reduces an EMSet to a range of the most variable genes as determined by 
-#' the values calculated by \code{\link{calculateCV}}.
+#' the values calculated by \code{\link[ascend:calculateCV-EMSet-method]{calculateCV}}.
 #' 
 #' @export
 setMethod("useVariableGenes", signature("EMSet"), function(object,

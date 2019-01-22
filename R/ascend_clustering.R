@@ -410,10 +410,11 @@ setMethod("runCORE", signature("EMSet"), function(object,
   windows <- seq((1/nres):1, by = 1/nres)
   
   generateClusters <- function(pca_matrix = NULL){
+    print("Initiating clustering...")
     print("Calculating distance matrix...")
     distance_matrix <- stats::dist(pca_matrix)
+    print("Generating hclust object via fastcluster...")
     original_tree <- fastcluster::hclust(distance_matrix, method="ward.D2")
-    print("Generating hclust object...")
     print("Using dynamicTreeCut to generate reference set of clusters...")
     clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,
                                                      distM = as.matrix(distance_matrix),
@@ -484,8 +485,6 @@ setMethod("runCORE", signature("EMSet"), function(object,
   
   print("Optimal number of clusters found! Returning output...")
   cell_labels <- clustering_result$hClust$labels
-  
-  
   
   # Add information to the EMSet object
   clustering_result$putativeClusters = stats::setNames(clustering_result$putativeClusters, cell_labels)

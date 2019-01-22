@@ -9,38 +9,6 @@ PlotOrderedColors(order, colors, rowLabels = NULL, rowWidths = NULL,
   rowTextIgnore = NULL, textPositions = NULL, addTextGuide = TRUE,
   cex.rowLabels = 1, cex.rowText = 0.8, startAt = 0, ...)
 }
-\arguments{
-\item{order}{Order of colours/clustering result.}
-
-\item{colors}{List of colours to use for each result.}
-
-\item{rowLabels}{Set to NULL (Default).}
-
-\item{rowWidths}{Set to NULL (Default).}
-
-\item{rowText}{Set to NULL (Default)/}
-
-\item{rowTextAlignment}{Can choose from "left", "center" and "right".}
-
-\item{rowTextIgnore}{Set to NULL (Default).}
-
-\item{textPositions}{Set to NULL (Default).}
-
-\item{addTextGuide}{Set to TRUE (Default).}
-
-\item{cex.rowLabels}{Set to 1 (Default).}
-
-\item{cex.rowText}{Set to 0.8 (Default).}
-
-\item{startAt}{Set to 0 (Default).}
-
-\item{...}{Additional arguments to pass on.}
-}
-\value{
-Returns a dendrogram with coloured bars in correct cluster order.
-}
 \description{
-Adapted from plotOrderedColors found in the \pkg{WGCNA} package. This is 
-called by the \code{\link{PlotOrderedColors}} subfunction of the 
-\code{\link{plotStabilityDendro}} function.
+Adapted from plotOrderedColors found in the \pkg{WGCNA} package.
 }

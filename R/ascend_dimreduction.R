@@ -92,17 +92,11 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
   return(object)
 })
 
+#' @importFrom stats var
 #' @export
 calcVariance <- function(x, axis = c("row", "column")){
   direction <- list(row = 1, column = 2)
-  variance <- apply(x, direction[[axis]], var)
-  
-  #if (axis == "row"){
-#    variance <- sqrt(Matrix::rowSums((x - Matrix::rowMeans(x))^2)/(dim(x)[2] - 1))
- # }
-  #if (axis == "column"){
-   # variance <- sqrt(Matrix::colSums((x - Matrix::colMeans(x))^2)/(dim(x)[1]-1))
-  #}
+  variance <- apply(x, direction[[axis]], stats::var)
   return(variance)
 }
 

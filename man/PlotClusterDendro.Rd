@@ -13,57 +13,6 @@ PlotClusterDendro(dendro, colors, groupLabels = NULL, rowText = NULL,
   cex.dendroLabels = 0.9, cex.rowText = 0.8, marAll = c(1, 5, 3, 1),
   saveMar = TRUE, abHeight = NULL, abCol = "red", ...)
 }
-\arguments{
-\item{dendro}{Hclust object generated from \code{\link{runCORE}}.}
-
-\item{colors}{List of colours to use to label each cluster combination. Must 
-be equal to the number of resolutions.}
-
-\item{groupLabels}{List of labels.}
-
-\item{rowText}{Row text.}
-
-\item{rowTextAlignment}{Positioning of row text.}
-
-\item{rowTextIgnore}{Whether to ignore row text.}
-
-\item{textPositions}{Shift positioning of text.}
-
-\item{setLayout}{Set the layout.}
-
-\item{autoColorHeight}{Boolean.}
-
-\item{colorHeight}{Height of colour bars.}
-
-\item{rowWidths}{Width of bars.}
-
-\item{dendroLabels}{Labels on dendrogram.}
-
-\item{guideAll}{Add guides to all.}
-
-\item{guideHang}{Hang guide off dendrogram (Default: 0.2).}
-
-\item{addTextGuide}{Set to FALSE (Default).}
-
-\item{cex.colorLabels}{Set to 0.8 (Default).}
-
-\item{cex.dendroLabels}{Set to 0.9 (Default).}
-
-\item{cex.rowText}{Set to 0.8 (Default).}
-
-\item{marAll}{Margins set to 1, 5, 3 and 1 (Default).}
-
-\item{saveMar}{Set to TRUE (Default).}
-
-\item{abHeight}{Set to NULL (Default).}
-
-\item{abCol}{Set to red (Default).}
-
-\item{...}{Additional parameters to feed into graphics function.}
-}
-\value{
-Plots a dendrogram via R base graphics
-}
 \description{
 This function was adapted from the plotDendroAndColors function by Steve 
 Horvarth, Peter Langelder, and Tal Galili (\pkg{WGCNA}).
