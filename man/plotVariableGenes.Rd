@@ -8,7 +8,7 @@ plotVariableGenes(object, ngenes = NULL, label.size = 3,
   point.size = 0.5, check.overlap = FALSE)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} that has had CV values calculated}
+\item{object}{An \code{\linkS4class{EMSet}} that has had CV values calculated}
 
 \item{ngenes}{Select n most variable genes to plot (Optional)}
 
@@ -24,7 +24,8 @@ A scatter plot rendered by ggplot2's geom_point function.
 \description{
 Generates a scatter plot to aid in the detection of variable genes. Scatter
 plot depicts Correlation of Variance (CV) vs log10(mean gene expression). 
-Please use the \code{\link{calculateCV}} function before using this function.
+Please use the \code{\link[ascend:calculateCV-EMSet-method]{calculateCV}} 
+function before using this function.
 }
 \examples{
 \dontrun{

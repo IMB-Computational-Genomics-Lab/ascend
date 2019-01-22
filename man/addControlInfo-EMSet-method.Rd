@@ -8,16 +8,16 @@
 \S4method{addControlInfo}{EMSet}(x, controls = NULL)
 }
 \arguments{
-\item{x}{An \linkS4class{EMSet}.}
+\item{x}{An \code{\linkS4class{EMSet}}.}
 
 \item{controls}{A named list of control groups and controls.}
 }
 \value{
-An \linkS4class{EMSet} with controls integrated into \code{rowInfo}
-and calculated QC metrics.
+An \code{\linkS4class{EMSet}} with controls integrated into the 
+rowInfo slot and calculated QC metrics.
 }
 \description{
-Adds and integrates control information to an \linkS4class{EMSet}.
+Adds and integrates control information to an \code{\linkS4class{EMSet}}.
 }
 \examples{
 # Load data

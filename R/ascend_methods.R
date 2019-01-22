@@ -10,12 +10,12 @@ setGeneric("addControlInfo", function(x, ..., controls) standardGeneric("addCont
 
 #' addControlInfo
 #' 
-#' Adds and integrates control information to an \linkS4class{EMSet}.
+#' Adds and integrates control information to an \code{\linkS4class{EMSet}}.
 #' 
-#' @param x An \linkS4class{EMSet}.
+#' @param x An \code{\linkS4class{EMSet}}.
 #' @param controls A named list of control groups and controls.
-#' @return An \linkS4class{EMSet} with controls integrated into \code{rowInfo}
-#' and calculated QC metrics.
+#' @return An \code{\linkS4class{EMSet}} with controls integrated into the 
+#' rowInfo slot and calculated QC metrics.
 #'
 #' @examples
 #' # Load data

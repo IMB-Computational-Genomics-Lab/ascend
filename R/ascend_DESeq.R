@@ -5,6 +5,7 @@
 #
 ################################################################################
 
+#' @import locfit
 #' @export
 func_DESeq <- function(x, 
                        expression_matrix = NULL, 
@@ -13,7 +14,7 @@ func_DESeq <- function(x,
                        condition.b = NULL,
                        fitType = NULL,
                        method = NULL){
-  library(DESeq)
+  #library(DESeq, quietly = TRUE)
   subset_matrix <- expression_matrix[x, ]
   count_dataset <- DESeq::newCountDataSet(subset_matrix, conditions = condition_list)
   count_dataset <- DESeq::estimateSizeFactors(count_dataset)
@@ -31,7 +32,7 @@ func_DESeq <- function(x,
 #' filtering and normalisation.
 #' @param group Name of the column in the colInfo dataframe where you have
 #' defined the conditions you would like to test. eg cluster to compare clusters
-#' identified by \code{\link{runCORE}}.
+#' identified by \code{\link[ascend:runCORE-EMSet-method]{runCORE}}.
 #' @param condition.a Condition of the group you want to use as the baseline.
 #' @param condition.b Conditions of the group you want to compare to the baseline.
 #' @param ngenes Perform differential expression analysis using top number of genes.
@@ -178,7 +179,6 @@ runDESeq <- function(object, group = NULL, condition.a = NULL,
     print("DESeq complete! Adjusting results...")
     de_results <- dplyr::bind_rows(de_list)    
   } else{
-    library(DESeq)
     subset_matrix <- expression_matrix[gene_list, ]
     count_dataset <- DESeq::newCountDataSet(subset_matrix, conditions = condition_list)
     count_dataset <- DESeq::estimateSizeFactors(count_dataset)

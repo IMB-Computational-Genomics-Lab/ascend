@@ -1,3 +1,13 @@
+version 0.9.8 (2019-01-22)
+- Addressed R CMD check error messages
+
+version 0.9.6 (2018-11-26)
+- PCA check wasn't working correctly in the plotMDS function.
+
+version 0.9.5 (2018-11-21)
+- Changed calcVariance function to use less memory
+- Reduced number of objects created by PCA function
+
 version 0.9.4 (2018-11-20)
 - Fixed issues with scran wrapper
 

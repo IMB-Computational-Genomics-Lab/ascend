@@ -7,7 +7,7 @@
 plotLibsizeBoxplot(object)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet} object.}
+\item{object}{An \linkS4class{EMSet}.}
 }
 \value{
 A ggplot2 glob containing the barplot.

@@ -111,6 +111,7 @@ validateEMSet <- function(object){
 #' @importFrom S4Vectors metadata
 #' @importFrom BiocGenerics rownames colnames
 #' @importFrom SingleCellExperiment reducedDimNames spikeNames
+#' @aliases EMSet
 #' @export
 #' 
 setMethod("show", "EMSet", function(object){

@@ -92,14 +92,18 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
   return(object)
 })
 
+#' @importFrom stats var
 #' @export
 calcVariance <- function(x, axis = c("row", "column")){
-  if (axis == "row"){
-    variance <- sqrt(Matrix::rowSums((x - Matrix::rowMeans(x))^2)/(dim(x)[2] - 1))
-  }
-  if (axis == "column"){
-    variance <- sqrt(Matrix::colSums((x - Matrix::colMeans(x))^2)/(dim(x)[1]-1))
-  }
+  direction <- list(row = 1, column = 2)
+  variance <- apply(x, direction[[axis]], stats::var)
+  
+  #if (axis == "row"){
+#    variance <- sqrt(Matrix::rowSums((x - Matrix::rowMeans(x))^2)/(dim(x)[2] - 1))
+ # }
+  #if (axis == "column"){
+   # variance <- sqrt(Matrix::colSums((x - Matrix::colMeans(x))^2)/(dim(x)[1]-1))
+  #}
   return(variance)
 }
 
@@ -148,35 +152,28 @@ setMethod("runPCA", signature("EMSet"), function(object,
     stop("Please normalise your dataset before using this function.")
   }
   
-  # Extract normalised counts
-  expression_matrix <- SingleCellExperiment::normcounts(object)
-  gene_variance <- calcVariance(expression_matrix, axis = "row")
+  matrix <- normcounts(object)
+  gene_variance <- calcVariance(matrix, axis = "row")
   sorted_gene_variance <- gene_variance[order(unlist(gene_variance), decreasing = TRUE)]
   top_genes <- sorted_gene_variance[1:ngenes]
   
   # Subset matrix
-  subset_matrix <- expression_matrix[names(top_genes), ]
-  scaled_matrix <- scale(Matrix::t(subset_matrix), scale = scaling)
-  #scaled_transposed_matrix <- scale(t(subset_matrix), scale = scaling)
-  pca_input_matrix <- scaled_matrix[, calcVariance(scaled_matrix, axis = "column") > 0]
+  matrix <- matrix[names(top_genes), ]
+  
+  matrix <- scale(Matrix::t(matrix), scale = scaling)  
   
   print("Computing PCA values...")
-  pca_result <- stats::prcomp(pca_input_matrix)
-  pca_percent_var <- pca_result$sdev^2/sum(pca_result$sdev^2)
+  matrix <- stats::prcomp(matrix)
+  pca_percent_var <- matrix$sdev^2/sum(matrix$sdev^2)
   
   print("PCA complete! Loading PCA into EMSet...")
-  if (is(expression_matrix, "sparseMatrix")){
-    pca_matrix <- as(pca_result$x, "sparseMatrix")    
-  } else{
-    pca_matrix <- as.matrix(pca_result$x)
-  }
-
-  SingleCellExperiment::reducedDim(object, "PCA") <- pca_matrix
+  matrix <- as.matrix(matrix$x)
   
-  # Update log
+  SingleCellExperiment::reducedDim(object, "PCA") <- matrix
   log <- progressLog(object)
   log$PCAVariance <- pca_percent_var
   progressLog(object) <- log
   
+  remove(matrix)
   return(object)
 })
