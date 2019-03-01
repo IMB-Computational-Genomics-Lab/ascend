@@ -42,6 +42,7 @@ setReplaceMethod("controls", signature(x = "EMSet"), function(x, value){
   log$set_controls <- value
   log$controls <- TRUE
   progressLog(x) <- log
+  x <- calculateQC(x)
   return(x)
 })
 
