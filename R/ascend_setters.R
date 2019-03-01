@@ -7,6 +7,47 @@
 
 #' @include ascend_objects.R
 #' @export
+setGeneric("controls<-", function(x, ...,  value) standardGeneric("controls<-"))
+
+#' @include ascend_objects.R
+#' @export
+setReplaceMethod("controls", signature(x = "EMSet"), function(x, value){
+  # Get row information
+  row_info <- rowInfo(x)
+  
+  # Set control group to NULL by default. This is for non-control genes
+  if (is.null(row_info$control_group)){
+    row_info$control_group <- NA    
+  }
+  
+  # For each control group...
+  # Control group check in case user did not group the controls
+  if (length(names(value)) >= 1){
+    for (control_name in names(value)){
+      gene_set <- value[[control_name]]
+      row_info$control_group[which(row_info[ ,1] %in% gene_set)] <- control_name
+    }
+  } else{
+    row_info$control_group[which(row_info[,1] %in% unlist(value))] <- "Control"
+  }
+  
+  # Replace control information
+  rownames(row_info) <- row_info[, 1]
+  rowInfo(x) <- S4Vectors::DataFrame(row_info)
+  
+  # Get log information
+  log <- progressLog(x)
+  
+  # Update log information with controls
+  log$set_controls <- value
+  log$controls <- TRUE
+  progressLog(x) <- log
+  return(x)
+})
+
+
+#' @include ascend_objects.R
+#' @export
 setGeneric("clusterAnalysis<-", function(x, ..., value) standardGeneric("clusterAnalysis<-")) 
 
 #' @include ascend_objects.R
@@ -35,12 +76,24 @@ setGeneric("colInfo<-", function(x, ..., value) standardGeneric("colInfo<-"))
 
 #' @include ascend_objects.R
 #' @export
-setReplaceMethod("colInfo", "EMSet", function(x, value) {
-  # Sync colInfo, matrix and subsequent objects
-  x <- BiocGenerics:::replaceSlots(x, colInfo = value, check = FALSE)
-  x <- x[ , value[,1]]
-  x <- calculateQC(x)
+setReplaceMethod("colInfo", signature(x = "EMSet"), function(x, value) {
+  # If it's a data frame
+  if (is.data.frame(value)){
+    value <- S4Vectors::DataFrame(value)
+  }
+  
+  # Make rownames equal colInfo[ , 1]
+  rownames(value) <- value[, 1]
+  
+  # Replace slot directory
+  x@colInfo <- value
   x
+  
+  # Sync colInfo, matrix and subsequent objects
+  #x <- BiocGenerics:::replaceSlots(x, colInfo = value, check = FALSE)
+  #x <- x[ , value[,1]]
+  #x <- calculateQC(x)
+  #x
 })
 
 #' @include ascend_objects.R
@@ -49,11 +102,20 @@ setGeneric("rowInfo<-", function(x, ..., value) standardGeneric("rowInfo<-"))
 
 #' @include ascend_objects.R
 #' @export
-setReplaceMethod("rowInfo", "EMSet",  function(x, value) {
-  x <- BiocGenerics:::replaceSlots(x, rowInfo = value, check = FALSE)
-  x <- x[value[,1], ]
-  x <- calculateQC(x)
+setReplaceMethod("rowInfo", signature(x = "EMSet"),  function(x, value) {
+  # Make rownames of value equal value[,1]
+  if (is.data.frame(value)){
+    value <- S4Vectors::DataFrame(value)
+  }
+  rownames(value) <- value[, 1]
+  
+  # Replace item in slot
+  x@rowInfo <- value
   x
+  #x <- BiocGenerics:::replaceSlots(x, rowInfo = value, check = FALSE)
+  #x <- x[value[,1], ]
+  #x <- calculateQC(x)
+  #x
 })
 
 #' @include ascend_objects.R

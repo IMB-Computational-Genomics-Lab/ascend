@@ -22,6 +22,20 @@ setMethod("clusterAnalysis", "EMSet", function(x){
 
 #' @include ascend_objects.R
 #' @export
+setGeneric("controls", function(x, ...) standardGeneric("controls"))
+
+#' controls
+#' 
+#' Retrieve list of set controls.
+#' @include ascend_objects.R
+#' @export
+setMethod("controls", "EMSet", function(x){
+  controls <- x@log$set_controls
+  return(controls)
+})
+
+#' @include ascend_objects.R
+#' @export
 setGeneric("progressLog", function(x, ...) standardGeneric("progressLog"))
 
 #' progressLog
@@ -30,7 +44,7 @@ setGeneric("progressLog", function(x, ...) standardGeneric("progressLog"))
 #' 
 #' @include ascend_objects.R
 #' @export
-setMethod("progressLog", "EMSet", function(x){
+setMethod("progressLog", signature(x = "EMSet"), function(x){
   output <- x@log
   return(output)
 })
@@ -48,6 +62,8 @@ setGeneric("colInfo", function(x, ...) standardGeneric("colInfo"))
 #' @export
 setMethod("colInfo", "EMSet", function(x, withDimnames = TRUE){
   output <- x@colInfo
+  
+  # If user has set withDimnames
   if (withDimnames){
     BiocGenerics::rownames(output) <- colnames(x)
   }

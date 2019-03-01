@@ -16,28 +16,33 @@ validateEMSet <- function(object){
   # errors are present.
   errors <- c()
   
-  # 1. Retrieve cell identifiers and gene names
-  cell_list <- BiocGenerics::colnames(object)
-  gene_list <- BiocGenerics::rownames(object)
+  # LET'S VALIDATE THIS OBJECT!
+  # Get gene identifiers
+  gene_list <- rownames(object)
   
-  # 2. Retrieve data from colInfo and rowInfo slots
-  col_info <- object@colInfo
-  row_info <- object@rowInfo
+  # Get cell identifiers
+  cell_list <- colnames(object)
   
-  # 3. Check they match the rownames of the slotted items
-  if (any(cell_list != rownames(col_info))){
-    errors <- c(errors, "Cell identifiers in count matrix do not match rownames of colInfo dataframe.")
-  }
-  if (any(gene_list != rownames(row_info))){
-    errors <- c(errors, "Gene identifiers in count matrix do not match rownames of rowInfo dataframe.")
+  # Now we check all the elements are the same
+  ## Check cell identifiers for EMSet match those in colInfo
+  ## Check first column of colInfo matches others
+  colInfo <- colInfo(object)
+  if (!(identical(cell_list, rownames(colInfo)))){
+    errors <- c(errors, "colInfo rownames do not match EMSet colnames.")
+  } else{
+    if (!(identical(as.vector(colInfo[,1]), cell_list))){
+      errors <- c(errors, "First column of colInfo does not match EMSet colnames and colInfo rownames.")
+    }
   }
   
-  # 4. Check if they match the first column of the slotted items
-  if (any(cell_list != col_info[, 1])){
-    errors <- c(errors, "Cell identifiers in count matrix do not match the first column of colInfo dataframe.")
-  }
-  if (any(gene_list != row_info[, 1])){
-    errors <- c(errors, "Gene identifiers in count matrix do not match the first column of rowInfo dataframe.")
+  rowInfo <- rowInfo(object)
+  ## Check gene names for EMSet match those in rowInfo
+  if (!(identical(gene_list, rownames(rowInfo)))){
+    errors <- c(errors, "rowInfo rownames do not match EMSet rownames.")
+  } else{
+    if (!(identical(as.vector(rowInfo[,1]), gene_list))){
+      errors <- c(errors, "First column of rowInfo does not match EMSet rownames and rowInfo rownames.")
+    }
   }
   
   # If any messages were collected, return an error, otherwise return TRUE
@@ -146,6 +151,43 @@ setMethod("show", "EMSet", function(object){
               line8, line9, line10, line11, line12, line13, sep = "\n"))
 })
 
+loadCounts <- function(x){
+  # If it is a list
+  if (is.list(x)){
+    if ("counts" %in% names(x)){
+      x <- SingleCellExperiment::SingleCellExperiment(x)
+    } else{
+      stop("Please supply a list with an object labelled counts.")
+    }
+  }
+  
+  # If it is a simple list
+  else if (is(x, "SimpleList")){
+    if ("counts" %in% names(x)){
+      x <- SingleCellExperiment::SingleCellExperiment(x)
+    } else{
+      stop("Please supply a list with an object labelled counts.")
+    }
+  }
+  
+  # If it is a matrix
+  else if (is.matrix(x)){
+    x <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = x))
+  }
+  
+  # If it is a sparse matrix
+  else if (is(x, "sparseMatrix")){
+    x <- SingleCellExperiment::SingleCellExperiment(assays = list(counts= x))
+  }
+  
+  # Check that we have created a single cell experiment
+  if (is(x, "SingleCellExperiment")){
+    return(x)
+  } else{
+    stop("Please supply counts in an accepted format.")
+  }
+}
+
 #' newEMSet
 #' 
 #' \code{\link{newEMSet}} generates a \linkS4class{EMSet} object for use with 
@@ -153,8 +195,9 @@ setMethod("show", "EMSet", function(object){
 #' associated metadata, downstream analysis and a log documenting the actions 
 #' used to shape the data in this object.
 #' 
-#' @param assays A list of matrices representing count data. You must have a 
-#' count matrix stored under "counts" in this list.
+#' @param x An object containing count data. The counts can be stored in the 
+#' following formats: SingleCellExperiment, "counts" in a list or SimpleList,
+#' dense matrix or sparse matrix.
 #' @param colInfo A data frame containing cell-related metadata.
 #' @param rowInfo A data frame containing gene-related metadata.
 #' @param colData A data frame containing cell-related data.
@@ -175,82 +218,96 @@ setMethod("show", "EMSet", function(object){
 #' rownames(count_matrix) <- gene_ids
 #' 
 #' # Create an EMSet
-#' em_set <- newEMSet(assays = list(counts = count_matrix))
+#' # EMSet from a list
+#' em_set <- newEMSet(list(counts = count_matrix))
+#' 
+#' # EMSet from a matrix
+#' em_set <- newEMSet(count_matrix)
 #' 
 #' 
 #' @return An \linkS4class{EMSet}.
-#' 
+#' @importFrom S4Vectors DataFrame
+#' @importFrom SummarizedExperiment colData rowData
 #' @export
-newEMSet <- function(assays = NULL, 
+newEMSet <- function(x,
                      colInfo = NULL,
-                     rowInfo = NULL,
                      colData = NULL,
+                     rowInfo = NULL,
                      rowData = NULL,
                      controls = NULL){
-  if (!("counts" %in% names(assays))){
-    stop("Please ensure 'counts' are in your supplied assay list.")
-  } else{
-    counts <- assays$counts
-  }
+
+  # Load count data into a SingleCellExperiment object if possible
+  # Expect errors to be picked up by SingleCellExperiment methods
+  counts <- loadCounts(x)
   
-  
+  # Check colInfo
   if (is.null(colInfo)){
-    colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts), batch = rep(1, ncol(counts)), row.names = colnames(counts))  
+    colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts), 
+                                    batch = rep(1, ncol(counts)), 
+                                    row.names = colnames(counts)) 
   } else{
-    if(!("cell_barcode" %in% colnames(colInfo)[1])){
+    if("cell_barcode" != colnames(colInfo)[1]){
       stop("Please specify the name of the first column in colInfo as 'cell_barcode'")
     }
-  }
-  
-  if (is.null(rowInfo)){
-    rowInfo <- S4Vectors::DataFrame(gene_id = rownames(counts), row.names = rownames(counts))
-  }
-  
-  # Prime rowData and colData with identifiers
-  if (is.null(colData)){
-    colData <- S4Vectors::DataFrame(cell_barcode = colInfo[, 1], row.names = colInfo[,1])
-  }
-  
-  if (is.null(rowData)){
-    # Ensure we use the same header as other datasets
-    gene_id_name <- colnames(rowInfo)[1]
-    gene_id_list <- list()
-    gene_id_list[[gene_id_name]] <- rowInfo[ ,1]
-    rowData <- S4Vectors::DataFrame(gene_id_list, row.names = rowInfo[, 1])
-  } else{
-    # Check the columns match
-    if (!identical(colnames(rowData)[1], colnames(rowInfo)[1])){
-      stop("Please ensure the name of the first column of rowInfo is the
-           same as the first column of rowData.")
+    if (!("batch" %in% colnames(colInfo))){
+      colInfo$batch <- 1
     }
   }
   
-  # Load metadata as required
-  colInfo <- S4Vectors::DataFrame(colInfo, row.names = colInfo[, 1])
-  rowInfo <- S4Vectors::DataFrame(rowInfo, row.names = rowInfo[, 1])
-  
-  # Load into object
-  object <- new("EMSet", 
-                SingleCellExperiment::SingleCellExperiment(assays = assays), 
-                colInfo = colInfo, 
-                rowInfo = rowInfo)
-  
-  # Append rowData and colData
-  SummarizedExperiment::colData(object) <- colData
-  SummarizedExperiment::rowData(object) <- rowData
-  
-  # Add controls if present
-  if (!is.null(controls)){
-    object <- addControlInfo(object, controls = controls)
+  # Check rowInfo
+  if (missing(rowInfo)){
+    rowInfo <- S4Vectors::DataFrame(gene_id = rownames(counts), 
+                                    row.names = rownames(counts))
   }
   
-  # Calculate QC
-  BiocGenerics::colnames(object) <- colnames(SingleCellExperiment::counts(object))
+  # Load colData and rowData if the supplied object didn't contain any of this
+  if (ncol(colData(counts)) == 0){
+    # Create colData if user hasn't supplied one
+    if (missing(colData)){
+      colData <- S4Vectors::DataFrame(cell_barcode = colInfo[, 1], row.names = colInfo[,1])
+    }
+    SummarizedExperiment::colData(counts) <- colData
+  }
+  
+  if (ncol(SummarizedExperiment::rowData(counts)) == 0){
+    if (missing(rowData)){
+      # Ensure we use the same header as other datasets
+      gene_id_name <- colnames(rowInfo)[1]
+      gene_id_list <- list()
+      gene_id_list[[gene_id_name]] <- rowInfo[ ,1]
+      rowData <- S4Vectors::DataFrame(gene_id_list, row.names = rowInfo[, 1])
+    } else{
+      # Check the columns match
+      if (!identical(colnames(rowData)[1], colnames(rowInfo)[1])){
+        stop("Please ensure the name of the first column of rowInfo is the
+           same as the first column of rowData.")
+      }
+    }
+    SummarizedExperiment::rowData(counts) <- rowData
+  }
+  
+  # Make sure rownames are column 1 in colInfo, rowInfo, colData, rowData
+  colInfo <- S4Vectors::DataFrame(colInfo, row.names = as.vector(colInfo[, 1]))
+  rowInfo <- S4Vectors::DataFrame(rowInfo, row.names = as.vector(rowInfo[, 1]))
+  
+  # Now that everything is in order, create an EMSet
+  object <- new("EMSet",
+                counts,
+                colInfo = colInfo,
+                rowInfo = rowInfo)
+  
+  # Now add controls if they are present
+  if (!(is.null(controls))){
+    controls(object) <- controls
+  }
+  
+  # Calculate QC metrics
   object <- calculateQC(object)
   
   # Return to user
-  return(object)
+  return (object)
 }
+
 
 #' @export
 setGeneric("EMSet2SCE", function(x, ...) standardGeneric("EMSet2SCE"))
@@ -278,53 +335,31 @@ setGeneric("EMSet2SCE", function(x, ...) standardGeneric("EMSet2SCE"))
 #' rownames(count_matrix) <- gene_ids
 #' 
 #' # Create an EMSet
-#' em_set <- newEMSet(assays = list(counts = count_matrix))
+#' em_set <- newEMSet(list(counts = count_matrix))
 #' 
 #' # Convert to SingleCellExperiment
 #' single_cell_experiment <- EMSet2SCE(em_set)
 #' 
 #' @import SingleCellExperiment
 #' @importFrom SummarizedExperiment colData rowData
-#' @importFrom S4Vectors merge
-#' @importFrom BiocGenerics rownames colnames
+#' @importFrom S4Vectors metadata
 #' @export
-setMethod("EMSet2SCE", "EMSet", function(x){
-  # Convert to SingleCellExperiment
+setMethod("EMSet2SCE", signature("EMSet"), function(x){
+  # Retrieve EMSet-specific slots
   col_info <- colInfo(x)
   row_info <- rowInfo(x)
-  
-  # Save the name so we can use it
-  gene_id_name <- names(col_info)[1]
   log <- progressLog(x)
   cluster_analysis <- clusterAnalysis(x)
   
-  # Coerce into single cell experiment
-  single_cell_set <- as(x, "SingleCellExperiment")
+  # Convert into SingleCellExperiment
+  object <- as(x, "SingleCellExperiment")
   
-  # Stash data into metadata slots
-  metadata_list <- S4Vectors::metadata(single_cell_set)
-  metadata_list$EMSet <- TRUE
-  metadata_list$ascend_log <- log
-  metadata_list$ascend_cluster_analysis <- cluster_analysis
-  metadata_list$ascend_colinfo_headers <- colnames(col_info)
-  metadata_list$ascend_rowinfo_headers <- colnames(row_info)
-  metadata_list$ascend_coldata_headers <- colnames(SummarizedExperiment::colData(x))
-  metadata_list$ascend_rowdata_headers <- colnames(SummarizedExperiment::rowData(x))
-  S4Vectors::metadata(single_cell_set) <- metadata_list
-  
-  col_data <- SummarizedExperiment::colData(single_cell_set)
-  row_data <- SummarizedExperiment::rowData(single_cell_set)
-  colnames <- BiocGenerics::colnames(SingleCellExperiment::counts(single_cell_set))
-  rownames <- BiocGenerics::rownames(SingleCellExperiment::counts(single_cell_set))
-  updated_col_data <- S4Vectors::merge(col_info, col_data, by = 1)
-  updated_row_data <- S4Vectors::merge(row_info, row_data, by = 1)
-  updated_col_data <- updated_col_data[match(colnames, updated_col_data$cell_barcode), ]
-  updated_row_data <- updated_row_data[match(rownames, updated_row_data[, 1]), ]
-  BiocGenerics::rownames(updated_col_data) <- colnames
-  BiocGenerics::rownames(updated_row_data) <- rownames
-  SummarizedExperiment::colData(single_cell_set) <- updated_col_data
-  SummarizedExperiment::rowData(single_cell_set) <- updated_row_data
-  return(single_cell_set)
+  # Load everything EMSet-related into metatadata 
+  S4Vectors::metadata(object) <- list(colInfo = col_info,
+                          rowInfo = row_info,
+                          log = log,
+                          cluster_analysis)
+  return(object)
 })
 
 #' @export
@@ -342,35 +377,51 @@ setGeneric("SCE2EMSet", function(x, ...) standardGeneric("SCE2EMSet"))
 #' @import SingleCellExperiment
 #' @importFrom S4Vectors metadata
 #' @importFrom SummarizedExperiment colData rowData
-#' @importFrom S4Vectors merge
+#' @importFrom S4Vectors metadata
 #' @importFrom BiocGenerics rownames colnames
 #' @export
-setMethod("SCE2EMSet", "SingleCellExperiment", function(x){
-  # Extract data from SCE
-  sce_col_data <- SummarizedExperiment::colData(x)
-  sce_row_data <- SummarizedExperiment::rowData(x)
-  metadata <- S4Vectors::metadata(x)
+setMethod("SCE2EMSet", signature(x = "SingleCellExperiment"), function(x){
+  # Set ascend slots to retrieve
+  ascend_slots <- c("colInfo", "rowInfo", "log", "clusterAnalysis")
   
-  if (is.null(metadata$EMSet)){
-    stop("Please supply a SingleCellExperiment that was generated from an EMSet.")
+  # Get metadata where these ascend slots are stored
+  sce_metadata <- S4Vectors::metadata(x)
+
+  # Retreive ascend metadata
+  ascend_elements <- sce_metadata[names(sce_metadata) %in% ascend_slots]
+  
+  # Identify non-ascend entries
+  non_ascend_indices <- which(!(names(sce_metadata) %in% ascend_slots))
+  
+  
+  # If they are not ascend entries, retain for storage
+  if (length(non_ascend_indices) > 0){
+    metadata <- sce_metadata[non_ascend_indices]
+  } else{
+    metadata <- c()
   }
   
-  # Extract parent data
-  sce_col_info <- sce_col_data[ , colnames(sce_col_data) %in% metadata$ascend_colinfo_headers]
-  sce_row_info <- sce_row_data[ , colnames(sce_row_data) %in% metadata$ascend_rowinfo_headers]
-  sce_col_data <- sce_col_data[, colnames(sce_col_data) %in% metadata$ascend_coldata_headers]
-  sce_row_data <- sce_row_data[, colnames(sce_row_data) %in% metadata$ascend_rowdata_headers]
-  rownames(sce_col_info) <- sce_col_info$cell_barcode
-  rownames(sce_row_info) <- sce_row_info[, 1]
+  # Cooerce into EMSet
+  object <- as(x, "EMSet")
   
-  SummarizedExperiment::colData(x) <- sce_col_data
-  SummarizedExperiment::rowData(x) <- sce_row_data
+  # Restore old metadata to the object
+  S4Vectors::metadata(object) <- metadata
+
+  # Replace slots  
+  colInfo(object) <- ascend_elements$colInfo[BiocGenerics::colnames(object), ]
+  rowInfo(object) <- ascend_elements$rowInfo[BiocGenerics::rownames(object), ]
+  progressLog(object) <- ascend_elements$log
   
-  # Create an EMSet
-  em_set <- new("EMSet", x, colInfo = sce_col_info, rowInfo = sce_row_info, 
-                log = metadata$ascend_log, clusterAnalysis = metadata$ascend_cluster_analysis)
-  em_set <- calculateQC(em_set)
-  return(em_set)
+  # If clustering has been done, replace the analysis
+  if ("clusterAnalysis" %in% names(ascend_elements)){
+    clusterAnalysis(object) <- ascend_elements$clusterAnalysis  
+  }
+  
+  # Run QC
+  object <- calculateQC(object)
+  
+  # Return to user
+  return(object)
 })
 
 #' updateObject
@@ -405,14 +456,14 @@ setMethod("updateObject", "EMSet", function(object){
     rownames(gene_info) <- rownames(counts)
     
     # Create base EMSet
-    updated_object <- newEMSet(assays = list(counts = as.matrix(counts)),
+    updated_object <- newEMSet(list(counts = as.matrix(counts)),
                                colInfo = S4Vectors::DataFrame(cell_info),
                                rowInfo = S4Vectors::DataFrame(gene_info))
     
     SummarizedExperiment::mcols(updated_object) <- S4Vectors::DataFrame(gene_info)
     
     if(length(object@Controls) > 0){
-      updated_object <- addControlInfo(updated_object, controls = object@Controls)
+      updated_object <- controls(updated_object, controls = object@Controls)
     }
     
     progressLog(updated_object) <- log

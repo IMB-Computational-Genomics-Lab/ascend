@@ -32,7 +32,7 @@ colnames(count_matrix) <- cell_barcodes
 rownames(count_matrix) <- gene_ids
 
 # Create an EMSet
-em_set <- newEMSet(assays = list(counts = count_matrix))
+em_set <- newEMSet(list(counts = count_matrix))
 
 # Convert to SingleCellExperiment
 single_cell_experiment <- EMSet2SCE(em_set)

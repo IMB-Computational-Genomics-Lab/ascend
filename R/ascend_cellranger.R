@@ -57,7 +57,7 @@ loadCellRanger <- function(x){
   barcodes <- S4Vectors::DataFrame(barcodes, row.names = barcodes[, 1])
   genes <- S4Vectors::DataFrame(genes, row.names = genes[, 1])
 
-  object <- newEMSet(assays = list(counts = expression_matrix), 
+  object <- newEMSet(list(counts = expression_matrix), 
                          colInfo = barcodes,
                          rowInfo = genes,
                          controls = controls)

@@ -4,18 +4,19 @@
 \alias{newEMSet}
 \title{newEMSet}
 \usage{
-newEMSet(assays = NULL, colInfo = NULL, rowInfo = NULL,
-  colData = NULL, rowData = NULL, controls = NULL)
+newEMSet(x, colInfo = NULL, colData = NULL, rowInfo = NULL,
+  rowData = NULL, controls = NULL)
 }
 \arguments{
-\item{assays}{A list of matrices representing count data. You must have a 
-count matrix stored under "counts" in this list.}
+\item{x}{An object containing count data. The counts can be stored in the 
+following formats: SingleCellExperiment, "counts" in a list or SimpleList,
+dense matrix or sparse matrix.}
 
 \item{colInfo}{A data frame containing cell-related metadata.}
 
-\item{rowInfo}{A data frame containing gene-related metadata.}
-
 \item{colData}{A data frame containing cell-related data.}
+
+\item{rowInfo}{A data frame containing gene-related metadata.}
 
 \item{rowData}{A data frame containing gene-related data.}
 
@@ -44,7 +45,11 @@ colnames(count_matrix) <- cell_barcodes
 rownames(count_matrix) <- gene_ids
 
 # Create an EMSet
-em_set <- newEMSet(assays = list(counts = count_matrix))
+# EMSet from a list
+em_set <- newEMSet(list(counts = count_matrix))
+
+# EMSet from a matrix
+em_set <- newEMSet(count_matrix)
 
 
 }

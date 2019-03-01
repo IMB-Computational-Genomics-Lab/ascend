@@ -30,7 +30,7 @@ col_info <- data.frame(cell_barcode = colnames(count_matrix))
 col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
 
 # Create test EMSet
-em_set <- newEMSet(assays = list(counts = count_matrix), colInfo = col_info)
+em_set <- newEMSet(list(counts = count_matrix), colInfo = col_info)
 
 # Normalise by RLE
 norm_set <- normaliseByRLE(em_set)
