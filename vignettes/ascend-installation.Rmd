@@ -27,7 +27,7 @@ datasets of up to 10,000 cells on a single machine with 8GB of RAM and a
 quad-core CPU. Larger datasets should be run on a High Performance Cluster 
 (HPC).
 
-We have tested this package on datasets ranging from 100 to 20,000 cells. 
+We have tested this package on datasets ranging from 100 to 70,000 cells. 
 Generally, increasing the number of CPUs will decrease the processing time of 
 functions, while larger datasets require more RAM.
 
@@ -47,38 +47,27 @@ ggplot2 and tidyr.
 3. [data.table](https://github.com/Rdatatable/data.table/wiki/Installation):
 Please follow the instructions on this page for your operating system.
 
-Remaining packages can be installed as follows:
-
-```{r install_cran, eval = FALSE}
-# List of packages to install
-cran_packages <- c("reshape2", "fields", "ggbeeswarm", "gridExtra", 
-                   "dynamicTreeCut", "dendextend", "RColorBrewer",
-                   "locfit", "KernSmooth")
-
-# Easy command to install all at once
-install.packages(cran_packages)
-```
-
 #### Packages from Bioconductor
 Bioconductor is a repository for R packages  related to the analysis and 
 comprehension of high-throughput genomic data. It uses a separate set of 
 commands for the installation of packages.
 
 ##### Setting up Bioconductor
-Use the following code to retrieve the latest installer from Bioconductor.
+Use the `BiocManager` package to load the Bioconductor installer.
 
 ```{r setup_bioconductor, eval = FALSE}
-## try http:// if https:// URLs are not supported
-source("https://bioconductor.org/biocLite.R")
-biocLite()
+if (!requireNamespace("BiocManager"))
+    install.packages("BiocManager")
+BiocManager::install()
 ```
 
-You can then install the Bioconductor packages using `biocLite`.
+You can then install the Bioconductor packages using `install`.
 
 ```{r bioconductor_packages, eval = FALSE}
 bioconductor_packages <- c("Biobase", "BiocGenerics", "BiocParallel",
-                           "SingleCellExperiment", "GenomeInfoDb", "GenomeInfoDbData")
-biocLite(bioconductor_packages)
+                           "SingleCellExperiment", "GenomeInfoDb", 
+                           "GenomeInfoDbData")
+BiocManager::install(bioconductor_packages)
 ```
 
 ##### scater/scran package installation

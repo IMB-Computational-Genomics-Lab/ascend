@@ -27,7 +27,13 @@
 loadCellRanger <- function(x){
   matrix_file <- joinPaths(c(x, "matrix.mtx"))
   barcodes_file <- joinPaths(c(x, "barcodes.tsv"))
+  
+  # Check if path exists - for Cell Ranger 3.0.0
   genes_file <- joinPaths(c(x, "genes.tsv"))
+  
+  if (!file.exists(genes_file)){
+    genes_file <- joinPaths(c(x, "features.tsv"))
+  }
   
   # Create things from scratch to ensure nothing is missed
   barcodes <- utils::read.csv(barcodes_file, header = FALSE, sep = "\t", 
@@ -57,7 +63,7 @@ loadCellRanger <- function(x){
   barcodes <- S4Vectors::DataFrame(barcodes, row.names = barcodes[, 1])
   genes <- S4Vectors::DataFrame(genes, row.names = genes[, 1])
 
-  object <- newEMSet(list(counts = expression_matrix), 
+  object <- EMSet(list(counts = expression_matrix), 
                          colInfo = barcodes,
                          rowInfo = genes,
                          controls = controls)

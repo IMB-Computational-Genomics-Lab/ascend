@@ -24,7 +24,8 @@ plotBatchNormQC <- function(raw_object = NULL, norm_object = NULL){
   batch <- "Shhh"
   
   # Check if data is in correct state
-  if (all(!is.null(progressLog(raw_object)$normaliseBatches) & is.null(progressLog(norm_object)$normaliseBatches))){
+  if (all(!is.null(progressLog(raw_object)$normaliseBatches) & 
+          is.null(progressLog(norm_object)$normaliseBatches))){
     stop("Please ensure normaliseBatches has only been run on norm_object.")
   }
   
@@ -54,16 +55,26 @@ plotBatchNormQC <- function(raw_object = NULL, norm_object = NULL){
   colnames(norm_libsize) <- c("cell_barcode", "batch", "norm_libsize")
   
   # Build plot dataframe
-  cell_df <- S4Vectors::merge(libsize, norm_libsize, by = c("cell_barcode", "batch"))
+  cell_df <- S4Vectors::merge(libsize, norm_libsize, 
+                              by = c("cell_barcode", "batch"))
   cell_df$batch <- factor(cell_df$batch, levels = sort(unique(cell_df$batch))) 
   cell_df <- as.data.frame(cell_df)
   tidy_df <- tidyr::gather(cell_df, type, libsize, -cell_barcode, -batch)
   tidy_df$type <- factor(tidy_df$type, levels = c("libsize", "norm_libsize"))
   
-  comparison_plot <- ggplot2::ggplot(tidy_df, ggplot2::aes(x = batch, y = libsize, fill = type)) + ggplot2::geom_boxplot()
-  comparison_plot <- comparison_plot + ggplot2::ggtitle("Library sizes per batch before and after normalisation") 
-  comparison_plot <- comparison_plot + ggplot2::xlab("Batch") + ggplot2::ylab("Library size") 
-  comparison_plot <- comparison_plot + ggplot2::scale_colour_brewer(name = "Library size", labels = c("Raw", "Normalised"), aesthetics = "fill")
+  comparison_plot <- ggplot2::ggplot(tidy_df, 
+                                     ggplot2::aes(x = batch, 
+                                                  y = libsize, 
+                                                  fill = type)) + 
+    ggplot2::geom_boxplot()
+  comparison_plot <- comparison_plot + 
+    ggplot2::ggtitle("Library sizes per batch before and after normalisation") 
+  comparison_plot <- comparison_plot + 
+    ggplot2::xlab("Batch") + ggplot2::ylab("Library size") 
+  comparison_plot <- comparison_plot + 
+    ggplot2::scale_colour_brewer(name = "Library size", 
+                                 labels = c("Raw", "Normalised"), 
+                                 aesthetics = "fill")
   
   return(comparison_plot)
 }
@@ -116,8 +127,10 @@ plotVariableGenes <- function(object,
   # Extract rowData
   row_data <- as.data.frame(SummarizedExperiment::rowData(object))
   gene_id_name <- colnames(row_data)[1]
-  plot_metrics <- row_data[ , c(gene_id_name, "qc_meancounts", "ascend_sd", "ascend_cv", "ascend_cv_rank")]
-  plot_metrics[, gene_id_name] <- factor(plot_metrics[ , gene_id_name], levels = unique(plot_metrics[ , gene_id_name]))
+  plot_metrics <- row_data[ , c(gene_id_name, "qc_meancounts", 
+                                "ascend_sd", "ascend_cv", "ascend_cv_rank")]
+  plot_metrics[, gene_id_name] <- factor(plot_metrics[ , gene_id_name], 
+                                         levels = unique(plot_metrics[ , gene_id_name]))
   colnames(plot_metrics) <- c("gene_id", "gene_mean", "gene_sd", "gene_cv", "gene_rank")
   cv_range <- round((max(plot_metrics$gene_cv)-min(plot_metrics$gene_cv))/2)
   plot_metrics$label <- plot_metrics$gene_cv >= cv_range
@@ -200,6 +213,9 @@ plotVolcano <- function(x, threshold = 5e-3,
   if (any(sig_downregulated)){
     x[sig_downregulated, "group"] <- "Significant"
   }
+  
+  # Remove Inf values
+  x <- x[is.finite(x$log2FoldChange),]
   
   x$group <- factor(x$group, levels = c("Not significant", "Significant"))
   
@@ -1649,7 +1665,9 @@ plotGeneNumber <- function(object){
   metrics_df <- as.data.frame(SummarizedExperiment::colData(object))
   plot <- ggplot2::ggplot(metrics_df, ggplot2::aes(qc_ngenes))
   plot <- plot + ggplot2::geom_histogram(binwidth = 100)
-  plot <- plot + ggplot2::ggtitle("Number of genes per cell") + ggplot2::xlab("Number of genes") + ggplot2::ylab("Number of cells")
+  plot <- plot + ggplot2::ggtitle("Number of genes per cell") + 
+    ggplot2::xlab("Number of genes") + ggplot2::ylab("Number of cells") +
+    ggplot2::theme_bw()
   return(plot)
 }
 

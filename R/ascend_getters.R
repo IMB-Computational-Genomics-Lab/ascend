@@ -106,7 +106,7 @@ setMethod("[", "EMSet", function(x, i, j, drop=TRUE) {
       )
     }
     i <- as.vector(i)
-    row_info <- row_info[i, , drop = FALSE]
+    row_info <- row_info[i, , drop = drop]
   }
   
   # If column is defined
@@ -118,7 +118,7 @@ setMethod("[", "EMSet", function(x, i, j, drop=TRUE) {
       )
     }
     j <- as.vector(j)
-    col_info <- col_info[j, ,drop=FALSE]
+    col_info <- col_info[j, ,drop=drop]
   }
   
   out <- callNextMethod()

@@ -16,7 +16,7 @@ test_that("subsetCondition returns an EMSet with the correct number of cells", {
   # Define Controls
   control_genes <- sample(gene_ids, 10, replace = FALSE)
   controls <- list("Control" = control_genes)
-  em_set <- newEMSet(list(counts = test_matrix), controls = controls, colInfo = cell_information)
+  em_set <- EMSet(list(counts = test_matrix), controls = controls, colInfo = cell_information)
   
   # SubsetCondition - expect number of targets to be equal
   expect_equal(ncol((subsetCondition(em_set, by = "condition", conditions = list(condition = "TRUE")))), length(targets))
@@ -40,7 +40,7 @@ test_that("Check if excludeControls subsets the right number of genes", {
   control.genes2 <- sample(gene.ids, 10, replace = FALSE)
   control.genes2 <- control.genes2[!(which(control.genes2 %in% control.genes1))]
   controls <- list(control1 = control.genes1, control2 = control.genes2)
-  em.set <- newEMSet(list(counts = test.matrix), controls = controls, colInfo = cell.information)
+  em.set <- EMSet(list(counts = test.matrix), controls = controls, colInfo = cell.information)
   
   # SubsetCondition - expect number of targets to be equal
   expect_equal(nrow((excludeControl(em.set, control = "control1"))), nrow(em.set) - length(control.genes1))
@@ -66,7 +66,7 @@ test_that("Check if excludeControls of all controls returns control set to FALSE
     control.genes2 <- control.genes2[!(which(control.genes2 %in% control.genes1))]    
   }
   controls <- list(control1 = control.genes1, control2 = control.genes2)
-  em.set <- newEMSet(list(counts = test.matrix), controls = controls, colInfo = cell.information)
+  em.set <- EMSet(list(counts = test.matrix), controls = controls, colInfo = cell.information)
   
   # SubsetCondition - expect number of targets to be equal
   expect_false(progressLog(excludeControl(em.set, control = c("control1", "control2")))$controls)

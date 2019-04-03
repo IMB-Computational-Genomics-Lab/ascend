@@ -76,6 +76,7 @@ setReplaceMethod("progressLog", "EMSet", function(x, value) {
 setGeneric("colInfo<-", function(x, ..., value) standardGeneric("colInfo<-")) 
 
 #' @include ascend_objects.R
+#' @importClassesFrom S4Vectors DataFrame
 #' @export
 setReplaceMethod("colInfo", signature(x = "EMSet"), function(x, value) {
   # If it's a data frame
@@ -89,12 +90,6 @@ setReplaceMethod("colInfo", signature(x = "EMSet"), function(x, value) {
   # Replace slot directory
   x@colInfo <- value
   x
-  
-  # Sync colInfo, matrix and subsequent objects
-  #x <- BiocGenerics:::replaceSlots(x, colInfo = value, check = FALSE)
-  #x <- x[ , value[,1]]
-  #x <- calculateQC(x)
-  #x
 })
 
 #' @include ascend_objects.R
@@ -102,6 +97,7 @@ setReplaceMethod("colInfo", signature(x = "EMSet"), function(x, value) {
 setGeneric("rowInfo<-", function(x, ..., value) standardGeneric("rowInfo<-"))
 
 #' @include ascend_objects.R
+#' @importClassesFrom S4Vectors DataFrame
 #' @export
 setReplaceMethod("rowInfo", signature(x = "EMSet"),  function(x, value) {
   # Make rownames of value equal value[,1]
@@ -113,13 +109,10 @@ setReplaceMethod("rowInfo", signature(x = "EMSet"),  function(x, value) {
   # Replace item in slot
   x@rowInfo <- value
   x
-  #x <- BiocGenerics:::replaceSlots(x, rowInfo = value, check = FALSE)
-  #x <- x[value[,1], ]
-  #x <- calculateQC(x)
-  #x
 })
 
 #' @include ascend_objects.R
+#' @importClassesFrom SummarizedExperiment SummarizedExperiment
 #' @export
 setReplaceMethod("[", c("EMSet", "ANY", "ANY", "EMSet"),
                  function(x, i, j, ..., value) {
@@ -130,7 +123,7 @@ setReplaceMethod("[", c("EMSet", "ANY", "ANY", "EMSet"),
                    if (!missing(i)) {
                      if (is.character(i)) {
                        fmt <- paste0("<", class(x), ">[i,] index out of bounds: %s")
-                       i <- SummarizedExperiment:::.SummarizedExperiment.charbound(
+                       i <- .SummarizedExperiment.charbound(
                          i, rownames(x), fmt
                        )
                      }
