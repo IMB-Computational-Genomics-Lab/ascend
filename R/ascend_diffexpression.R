@@ -4,8 +4,6 @@
 # description: Functions related to the analysis of differential expression
 #
 ################################################################################
-
-#' @export
 minMax <- function(data, min, max) {
   data2 <- data
   data2[data2 > max] <- max
@@ -13,8 +11,6 @@ minMax <- function(data, min, max) {
   return(data2)
 }
 
-# Called by DifferentialLRT after bimodLikData
-#' @export
 bimodLikData_FixNoVar <- function(x, xmin = 0) {
   x1 <- x[x <= xmin]
   x2 <- x[x > xmin]
@@ -31,8 +27,6 @@ bimodLikData_FixNoVar <- function(x, xmin = 0) {
   return(likA + likB)
 }
 
-# Called by DifferentialLRT first
-#' @export
 bimodLikData <- function(x, xmin = 0) {
   #x1 and x2 are 2 vectors representing 2 modes
   #x1 for 0 values -> on/off distribution model 
@@ -62,8 +56,6 @@ bimodLikData <- function(x, xmin = 0) {
 }
 
 
-# Called by runCombinedLRT
-#' @export
 differentialLRT <- function(x, y, xmin = 0) {
   lrtX <- bimodLikData(x = x)
   lrtY <- bimodLikData(x = y)
@@ -81,8 +73,6 @@ differentialLRT <- function(x, y, xmin = 0) {
   return(stats::pchisq(q = lrt_diff, df = 3, lower.tail = F))
 }
 
-# Called by parallel process - runs test on condition 1 vs condition 2
-#' @export
 runGeneLRT <- function(gene, test_matrix = NULL, control_matrix = NULL){
   # Retrieve counts
   test_counts <- as.numeric(unlist(test_matrix[gene, ]))
@@ -93,7 +83,6 @@ runGeneLRT <- function(gene, test_matrix = NULL, control_matrix = NULL){
   return(de_result)
 }
 
-#' @export
 worker_LRT <- function(x, test_matrix = NULL, control_matrix = NULL){
   lrt_results <- sapply(x, runGeneLRT, test_matrix = test_matrix, control_matrix = control_matrix)
   return(lrt_results)

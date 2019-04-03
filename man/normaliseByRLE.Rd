@@ -15,9 +15,8 @@ An \code{\linkS4class{EMSet}} with normalised expression values.
 }
 \description{
 Normalisation of expression between cells, by scaling to relative log 
-expression (RLE). This method assumes all genes express a pseudo value higher 
-than 0, and also assumes most genes are not differentially expressed. Only 
-counts that are greater than zero are considered in this normalisation method.
+expression (RLE). Only counts that are greater than zero are considered in 
+this normalisation method.
 }
 \examples{
 # Generate example matrix
@@ -30,7 +29,7 @@ col_info <- data.frame(cell_barcode = colnames(count_matrix))
 col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
 
 # Create test EMSet
-em_set <- newEMSet(list(counts = count_matrix), colInfo = col_info)
+em_set <- EMSet(list(counts = count_matrix), colInfo = col_info)
 
 # Normalise by RLE
 norm_set <- normaliseByRLE(em_set)

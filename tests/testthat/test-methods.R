@@ -11,7 +11,7 @@ test_that("colInfo retrieval", {
   colInfo <- S4Vectors::DataFrame(cell_barcode = cell_ids, batch = 1, condition = "Test")
 
   # Create EMSet
-  em_set <- newEMSet(list(counts = test_matrix), colInfo = colInfo)
+  em_set <- EMSet(list(counts = test_matrix), colInfo = colInfo)
   rownames(colInfo) <- cell_ids
   
   # Initiate test
@@ -27,7 +27,7 @@ test_that("rowInfo retrieval", {
   rownames(test_matrix) <- gene_ids
   
   rowInfo <- S4Vectors::DataFrame(gene_id = gene_ids, condition = "Test")
-  em_set <- newEMSet(list(counts = test_matrix), rowInfo = rowInfo)
+  em_set <- EMSet(list(counts = test_matrix), rowInfo = rowInfo)
   
   # Initiate test
   rownames(rowInfo) <- gene_ids
@@ -42,7 +42,7 @@ test_that("progressLog set", {
   colnames(test_matrix) <- cell_ids
   rownames(test_matrix) <- gene_ids
   
-  em_set <- newEMSet(list(counts = test_matrix))
+  em_set <- EMSet(list(counts = test_matrix))
   
   # Initiate test
   expect_message(progressLog(em_set), NA)
@@ -57,7 +57,7 @@ test_that("progressLog retrieval", {
   rownames(test_matrix) <- gene_ids
   
   progressLog <- list(Test = "Successful!")
-  em_set <- newEMSet(list(counts = test_matrix))
+  em_set <- EMSet(list(counts = test_matrix))
   progressLog(em_set) <- progressLog
   
   expect_equal(progressLog(em_set), progressLog)
@@ -72,7 +72,7 @@ test_that("clusterAnalysis set", {
   rownames(test_matrix) <- gene_ids
   
   clusterAnalysis <- list(Test = "Successful!")
-  em_set <- newEMSet(list(counts = test_matrix))
+  em_set <- EMSet(list(counts = test_matrix))
   
   # Initiate test
   expect_message(clusterAnalysis(em_set), NA)
@@ -87,7 +87,7 @@ test_that("clusterAnalysis retrieval", {
   rownames(test_matrix) <- gene_ids
   
   clusterAnalysis <- list(Test = "Successful!")
-  em_set <- newEMSet(list(counts = test_matrix))
+  em_set <- EMSet(list(counts = test_matrix))
   clusterAnalysis(em_set) <- clusterAnalysis
   
   expect_equal(clusterAnalysis(em_set), clusterAnalysis)
@@ -117,7 +117,7 @@ test_that("addControls test", {
   controls <- list(control1 = control_genes1, control2 = control_genes2)
   
   # Build an EMSet
-  em_set <- newEMSet(list(counts = test_matrix), colInfo = cell_information)
+  em_set <- EMSet(list(counts = test_matrix), colInfo = cell_information)
   controls(em_set) <- controls
   # SubsetCondition - expect number of targets to be equal
   expect_true(progressLog(em_set)$controls)

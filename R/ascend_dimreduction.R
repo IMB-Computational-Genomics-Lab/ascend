@@ -6,7 +6,7 @@
 ################################################################################
 
 #' @export
-setGeneric("runTSNE", def = function(object, ..., PCA, dimensions, seed, 
+setGeneric("runTSNE", def = function(object, ..., PCA, dims, seed, 
                                      perplexity, theta) {
   standardGeneric("runTSNE")  
 })
@@ -22,7 +22,7 @@ setGeneric("runTSNE", def = function(object, ..., PCA, dimensions, seed,
 #' function.
 #' @param PCA Set this PCA flag to TRUE if the object is a PCA-reduced matrix. 
 #' Default: FALSE.
-#' @param dimensions Number of dimensions you would like to reduce to. 
+#' @param dims Number of dimensions you would like to reduce to. 
 #' Default: 2.
 #' @param seed (Optional) Set to a specific value for reproducible TSNE plots. 
 #' Default: 0.
@@ -41,7 +41,7 @@ setGeneric("runTSNE", def = function(object, ..., PCA, dimensions, seed,
 #'
 setMethod("runTSNE", signature("EMSet"), function(object, ...,
                                                   PCA = FALSE, 
-                                                  dimensions = 2, 
+                                                  dims = 2, 
                                                   seed = 0, 
                                                   perplexity = 30, 
                                                   theta = 0.5
@@ -50,8 +50,8 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
   if (missing(PCA)){
     PCA <- FALSE
   }
-  if (missing(dimensions)){
-    dimensions <- 2
+  if (missing(dims)){
+    dims <- 2
   }
   if (missing(seed)){
     seed <- 0
@@ -78,7 +78,7 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
   
   print("Running Rtsne...")
   set.seed(seed)
-  tsne <- Rtsne::Rtsne(raw_matrix, dims = dimensions, 
+  tsne <- Rtsne::Rtsne(raw_matrix, dims = dims, 
                        pca = PCA, 
                        perplexity = perplexity, 
                        theta = theta, 
@@ -121,11 +121,10 @@ setGeneric("runPCA", def = function(object, ...., ngenes, scaling) {
 #' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @include ascend_objects.R
-#' @importFrom stats prcomp
 #' @importFrom SingleCellExperiment normcounts reducedDim
 #' @export
 setMethod("runPCA", signature("EMSet"), function(object, 
-                                                 ngenes = 1500, 
+                                                 ngenes = 1500,
                                                  scaling = TRUE){
   # Check for ngenes
   if (missing(ngenes)){
@@ -145,6 +144,7 @@ setMethod("runPCA", signature("EMSet"), function(object,
     stop("Please normalise your dataset before using this function.")
   }
   
+  print("Identifying variable genes...")
   matrix <- normcounts(object)
   gene_variance <- calcVariance(matrix, axis = "row")
   sorted_gene_variance <- gene_variance[order(unlist(gene_variance), decreasing = TRUE)]
@@ -152,15 +152,11 @@ setMethod("runPCA", signature("EMSet"), function(object,
   
   # Subset matrix
   matrix <- matrix[names(top_genes), ]
-  
-  matrix <- scale(Matrix::t(matrix), scale = scaling)  
-  
-  print("Computing PCA values...")
-  matrix <- stats::prcomp(matrix)
-  pca_percent_var <- matrix$sdev^2/sum(matrix$sdev^2)
-  
+  print("Computing 50 PCs with irlba...")
+  matrix_irlba <- irlba::prcomp_irlba(Matrix::t(matrix), n = 50, retx = TRUE, scale. = scaling)
+  pca_percent_var <- (matrix_irlba$sdev^2/sum(matrix_irlba$sdev^2))
   print("PCA complete! Loading PCA into EMSet...")
-  matrix <- as.matrix(matrix$x)
+  matrix <- as.matrix(matrix_irlba$x)
   
   SingleCellExperiment::reducedDim(object, "PCA") <- matrix
   log <- progressLog(object)

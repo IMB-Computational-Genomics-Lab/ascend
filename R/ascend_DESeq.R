@@ -5,7 +5,17 @@
 #
 ################################################################################
 
-#' @import locfit
+#' func_DESeq
+#' 
+#' Function called by parallel version of runDESeq.
+#' 
+#' @param x List of genes
+#' @param expression_matrix Matrix of counts with a pseudocount added
+#' @param condition_list Vector of conditions linked to cells
+#' @param condition.a Condition A to test
+#' @param condition.b Condition B to test
+#' @param fitType DESeq argument - fitType to use
+#' @param method DESeq argument - method to use
 #' @export
 func_DESeq <- function(x, 
                        expression_matrix = NULL, 
@@ -96,13 +106,14 @@ runDESeq <- function(object, group = NULL, condition.a = NULL,
   a_df <- condition_df[which(condition_df[, group] %in% condition.a), ]
   b_df <- condition_df[which(condition_df[, group] %in% condition.b), ]
   
+  
   # Order in input order...
   if (length(condition.a) > 1){
-    a_df <- a_df[order(match(a_df$cluster, condition.a)), ]  
+    a_df <- a_df[order(match(a_df[, group], condition.a)), ]  
   }
   
   if (length(condition.b) > 1){
-    b_df <- b_df[order(match(b_df$cluster, condition.b)), ]  
+    b_df <- b_df[order(match(b_df[, group], condition.b)), ]  
   }
   
   # Set order for vectors

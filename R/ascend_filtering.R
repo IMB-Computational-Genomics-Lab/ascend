@@ -38,7 +38,6 @@ filterLowAbundanceGenes <- function(object, pct.threshold = 1){
   gene_info <- S4Vectors::merge(rowInfo(object),
                                 SummarizedExperiment::rowData(object),
                                 by = gene_id_name)
-  
   # Reorder to match expression matrix
   cell_info <- cell_info[match(colnames(object), cell_info$cell_barcode), ]
   gene_info <- gene_info[match(rownames(object), gene_info[, gene_id_name]), ]
@@ -60,12 +59,12 @@ filterLowAbundanceGenes <- function(object, pct.threshold = 1){
   current_log <- progressLog(filtered_object)
   updated_log <- current_log
   
-  if (!is.null(current_log$filterLowAbundanceGenes)){
+  if (!is.null(updated_log$filterLowAbundanceGenes)){
     updated_log$RemovedLowAbundanceGenes <- c(current_log$RemovedLowAbundanceGenes, removed_genes)
   } else{
     updated_log$RemovedLowAbundanceGenes <- removed_genes
   }
-
+  
   # Update the data frame
   if (is.null(updated_log$FilteringLog)){
     filtered_df <- data.frame(FilteredLowAbundanceGenes = length(removed_genes))
@@ -75,6 +74,22 @@ filterLowAbundanceGenes <- function(object, pct.threshold = 1){
   }
   updated_log$FilteringLog <- filtered_df
   progressLog(filtered_object) <- updated_log
+  # Validate controls
+  
+  if (!is.null(controls(filtered_object))){
+    controls <- controls(filtered_object)
+    updated_controls <- lapply(names(controls), function(x){
+      if (any(!(controls[[x]] %in% rownames(filtered_object)))){
+        return(controls[[x]][which(controls[[x]] %in% rownames(filtered_object))])
+      } else{
+        return(controls[[x]])
+      }
+    })
+    names(updated_controls) <- names(controls)
+    updated_controls[sapply(updated_controls, is.null)] <- NULL
+    controls(filtered_object) <- updated_controls
+  }
+  
   return(filtered_object)
 }
 

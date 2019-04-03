@@ -5,7 +5,7 @@
 \alias{runTSNE,EMSet-method}
 \title{runTSNE}
 \usage{
-\S4method{runTSNE}{EMSet}(object, ..., PCA = FALSE, dimensions = 2,
+\S4method{runTSNE}{EMSet}(object, ..., PCA = FALSE, dims = 2,
   seed = 0, perplexity = 30, theta = 0.5)
 }
 \arguments{
@@ -17,7 +17,7 @@ function.}
 \item{PCA}{Set this PCA flag to TRUE if the object is a PCA-reduced matrix. 
 Default: FALSE.}
 
-\item{dimensions}{Number of dimensions you would like to reduce to. 
+\item{dims}{Number of dimensions you would like to reduce to. 
 Default: 2.}
 
 \item{seed}{(Optional) Set to a specific value for reproducible TSNE plots. 

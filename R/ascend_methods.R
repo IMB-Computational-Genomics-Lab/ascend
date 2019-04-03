@@ -6,68 +6,47 @@
 ################################################################################
 
 #' @export
-setGeneric("addControlInfo", function(x, ..., controls) standardGeneric("addControlInfo"))
+setGeneric("addGeneLabel", function(x, ...,  gene) standardGeneric("addGeneLabel"))
 
-#' addControlInfo
-#' 
-#' Adds and integrates control information to an \code{\linkS4class{EMSet}}.
-#' 
-#' @param x An \code{\linkS4class{EMSet}}.
-#' @param controls A named list of control groups and controls.
-#' @return An \code{\linkS4class{EMSet}} with controls integrated into the 
-#' rowInfo slot and calculated QC metrics.
-#'
-#' @examples
-#' # Load data
-#' x <- ascend::data_package$raw_emset
-#' 
-#' # Create a new list of controls
-#' new_control <- list(control3 = c("Gene3", "Gene4"))
-#' 
-#' # Add to controls
-#' updated_x <- addControlInfo(x, controls = new_control)
+#' addGeneLabel
 #' 
 #' @include ascend_objects.R
-#' @include ascend_setters.R
-#' @include ascend_getters.R
+#' @importFrom SingleCellExperiment normcounts counts
+#' @importClassesFrom S4Vectors DataFrame
 #' @export
-#' @importFrom SummarizedExperiment rowData
-setMethod("addControlInfo", "EMSet" , function(x, controls = NULL){
-  # Get row data
-  row_info <- rowInfo(x)
-  
-  # Set control group to NULL by default. This is for non-control genes
-  if (is.null(row_info$control_group)){
-    row_info$control_group <- NA    
+#' 
+setMethod("addGeneLabel", signature(x = "EMSet"), function(x, ..., gene = c()){
+  if (any(!(gene %in% rownames(x)))){
+    stop("Please ensure all listed genes/transcripts are present in the matrix.")
   }
   
-  # For each control group...
-  # Control group check in case user did not group the controls
-  if (length(names(controls)) >= 1){
-    for (control_name in names(controls)){
-      gene_set <- controls[[control_name]]
-      row_info$control_group[which(row_info[ ,1] %in% gene_set)] <- control_name
-    }
-  } else{
-    row_info$control_group[which(row_info[,1] %in% unlist(controls))] <- "Control"
+  # Use normcounts, otherwise use counts
+  if ("normcounts" %in% names(SummarizedExperiment::assays(x))){
+    counts <- SingleCellExperiment::normcounts(x)  
+  } else(
+    counts <- SingleCellExperiment::counts(x)
+  )
+  
+  # Retrieve boolean of whether genes are present
+  col_info <- colInfo(x)
+  expressor_df <- as.matrix(counts[rownames(counts) %in% gene, ] > 0)
+  
+  # Flip it around if it's a vector of genes
+  if (ncol(expressor_df) > 1){
+    expressor_df <- t(expressor_df)
   }
   
-  # Replace control information
-  rownames(row_info) <- row_info[, 1]
-  rowInfo(x) <- S4Vectors::DataFrame(row_info)
-  
-  # Get log information
-  log <- progressLog(x)
-  
-  # Update log information with controls
-  log$set_controls <- controls
-  log$controls <- TRUE
-  progressLog(x) <- log
+  # Polish it to store in the colInfo slot
+  expressor_df <- S4Vectors::DataFrame(expressor_df)
+  colnames(expressor_df) <- gene
+  # Add to col_info
+  col_info <- cbind(col_info, expressor_df)
+  colInfo(x) <- col_info 
   return(x)
 })
 
+
 #' @include ascend_objects.R
-# Per control - add to cell information
 #' @export
 calculateControlMetrics <- function(x, expression_matrix = NULL, gene_info = NULL, qc_cell_df = NULL){
   control_name <- x

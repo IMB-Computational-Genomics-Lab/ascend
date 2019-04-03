@@ -125,10 +125,10 @@ setMethod("subsetCondition", signature("EMSet"), function(object,
   # Retrieve colInfo
   col_info <- colInfo(object, withDimnames = TRUE)
   
-  # Check if by value is in colInfo
   if (! by %in% names(conditions)){
-    stop("Please ensure your conditions are organised into a named list.")
+    stop("Please ensure your conditions are in the named list supplied to the conditions argument.")
   }
+  
   if (!all(by %in% colnames(col_info))){
     stop("Please check if your defined condition(s) is/are present in colInfo.")
   }
@@ -139,10 +139,10 @@ setMethod("subsetCondition", signature("EMSet"), function(object,
   }
   
   # Retrieve list of cells from col_info
-  cell_list <- lapply(by, function(x) which(col_info[, x] %in% conditions[[x]]))
-  cell_list <- unique(unlist(cell_list))
+  cell_indices <- lapply(by, function(x) which(col_info[, x] == conditions[[x]]))
+  cell_list <- col_info[unique(unlist(cell_indices)), 1]
   
   # Subset EMSet
-  subset_set <- object[ , cell_list]
+  subset_set <- object[, cell_list]
   return(subset_set)
 })

@@ -5,16 +5,6 @@
 #
 ################################################################################
 
-#' getConsecSeq
-#' 
-#' Function that looks for consecutive values in a forward or reverse direction.
-#' Used to calculate stability in the runCORE algorithm.
-#' 
-#' @param x Vector of numbers to identify consecutive regions in.
-#' @param direction Forward or Reverse.
-#' @return A list of values that are consecutive
-#' 
-#' @export
 getConsecSeq <- function(x, direction = c("forward", "reverse")){
   consecutive <- c()
   # This is for when we are looking for consecutive numbers in the FORWARD direction
@@ -85,7 +75,6 @@ getConsecSeq <- function(x, direction = c("forward", "reverse")){
   return(consecutive)
 }
 
-#' @export
 findOptimalResult <- function(key_stats, conservative = TRUE, nres = 40){
   
   # Get stability values for most clusters and least clusters
@@ -104,22 +93,21 @@ findOptimalResult <- function(key_stats, conservative = TRUE, nres = 40){
     # Find where transition region begins by finding
     # where low resolution plateau ends
     # and where high resolution plateu begins
-    if (stability[1] != stability[nres]){
+    if (minmax_stabilities[1] != minmax_stabilities[2]){
       left_plateau <- getConsecSeq(which(stability == stability[1]), direction = "forward")
       right_plateau <- getConsecSeq(which(stability == stability[nres]), direction = "reverse")
     } else{
-      # Remove indices in right plateau that are in left plateau
       left_plateau <- getConsecSeq(which(stability == stability[1]), direction = "forward")
       right_plateau <- getConsecSeq(which(stability == stability[nres]), direction = "reverse")
-      right_plateau <- right_plateau[-(which(right_plateau %in% left_plateau))]
+      right_plateau <- right_plateau[which(!(right_plateau %in% left_plateau))]
     }
     
     # Get stabilities of transition region
     transition_stabilities <- stability[-(c(left_plateau,right_plateau))]
     plateaus <- c(left_plateau, right_plateau)
     
-    # If right plateau is longer than transition region, it is optimal
-    if (length(right_plateau) > length(transition_stabilities)){
+    # If left plateau is longer than transition region, it is optimal
+    if (length(left_plateau) > length(transition_stabilities)){
       optimal_stability_idx <- right_plateau[1] 
     } else{
       # Otherwise get the most stable result in the transition region
@@ -145,7 +133,6 @@ findOptimalResult <- function(key_stats, conservative = TRUE, nres = 40){
   return(optimal_stability_idx)
 }
 
-#' @export
 buildKeyStat <- function(rand_matrix = NULL, nres = 40){
   step <- signif(1/nres, digits = 3)
   # Set up a key stat dataframe
@@ -165,7 +152,6 @@ buildKeyStat <- function(rand_matrix = NULL, nres = 40){
   return(key_stats_df)
 }
 
-#' @export
 calcStability <- function(rand_idx_matrix = NULL, nres = 40){
   # WITHIN GENERATE STABILITY VALUES
   stability_values <- rand_idx_matrix$cluster_index_consec
@@ -249,7 +235,6 @@ calcStability <- function(rand_idx_matrix = NULL, nres = 40){
 }
 
 
-#' @export
 chooseNew <- function(n = NULL, k = NULL) {
   n <- c(n); out1 <- rep(0,length(n));
   for (i in c(1:length(n)) ){
@@ -259,7 +244,6 @@ chooseNew <- function(n = NULL, k = NULL) {
   return(out1)
 }
 
-#' @export
 calcRandIndex <- function (x, adjust = TRUE)
 {
   # Setting up variables for calculations
@@ -297,7 +281,6 @@ calcRandIndex <- function (x, adjust = TRUE)
   }
 }
 
-#' @export
 calcRandIndexMatrix <- function(cluster_matrix, original_clusters, cluster_list){
   # Values to output to
   cluster_index_consec <-list()
@@ -322,7 +305,6 @@ calcRandIndexMatrix <- function(cluster_matrix, original_clusters, cluster_list)
   return(rand_idx_matrix)
 }
 
-#' @export
 retrieveCluster <- function(x, hclust_obj = NULL, distance_matrix = NULL){
   print(sprintf("Calculating clusters from cut height %1.2f", x))
   clusters <- dynamicTreeCut::cutreeDynamic(hclust_obj,

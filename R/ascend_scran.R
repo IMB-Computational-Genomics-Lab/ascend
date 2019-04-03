@@ -90,7 +90,7 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5){
   }
   
   # Convert to SingleCellExperiment
-  sce_obj <- EMSet2SCE(object)
+  sce_obj <- convert(object, to = "sce")
   
   # Remove spike-ins if present
   if (!is.null(SingleCellExperiment::isSpike(object))){
@@ -131,7 +131,7 @@ scranNormalise <- function(object, quickCluster = FALSE, min.mean = 1e-5){
   size_factors <- SingleCellExperiment::sizeFactors(norm_obj)
   
   # Return EMSet
-  em_set <- SCE2EMSet(norm_obj)
+  em_set <- convert(norm_obj, to = "EMSet")
 
   # Update log
   log$NormalisationMethod <- "Deconvolution"
