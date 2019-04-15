@@ -5,7 +5,6 @@
 #
 ################################################################################
 
-# Internal function - called by Convert function
 convertToScone <- function(x){
   # Coercian to experiment loses rowData for some reason
   # Merge colInfo and colData
@@ -31,8 +30,6 @@ convertToScone <- function(x){
   return(out)
 }
 
-
-# Internal function - called by Convert function
 convertToSCE <- function(x){
   # Retrieve EMSet-specific slots
   col_info <- colInfo(x)
@@ -51,7 +48,6 @@ convertToSCE <- function(x){
   return(object)
 }
 
-# Internal function - called by Convert function
 convertSCEtoEMSet <- function(x){
   # Set ascend slots to retrieve
   ascend_slots <- c("colInfo", "rowInfo", "log", "clusterAnalysis")
@@ -96,7 +92,7 @@ convertSCEtoEMSet <- function(x){
   return(object)
 }
 
-# Internal function - called by Convert function
+
 convertEMSetToSeurat <- function(x){
   if (is(x, "EMSet")){
     x <- convertToSCE(x)   

@@ -5,11 +5,21 @@
 #
 ################################################################################
 
+#' @name addGeneLabel
+#' @rdname addGeneLabel
 #' @export
 setGeneric("addGeneLabel", function(x, ...,  gene) standardGeneric("addGeneLabel"))
 
 #' addGeneLabel
 #' 
+#' Labels cells if they express gene(s) as a condition.
+#' 
+#' @examples
+#' \dontrun{
+#' em_set <- addGeneLabel(em_set, gene = c("MALAT1"))
+#' }
+#' @name addGeneLabel
+#' @rdname addGeneLabel 
 #' @include ascend_objects.R
 #' @importFrom SingleCellExperiment normcounts counts
 #' @importClassesFrom S4Vectors DataFrame
