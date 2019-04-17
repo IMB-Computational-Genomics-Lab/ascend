@@ -4,7 +4,7 @@
 \alias{plotPCAVariance}
 \title{plotPCAVariance}
 \usage{
-plotPCAVariance(object, n = 100)
+plotPCAVariance(object, n = 50)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} that has undergone PCA.}
@@ -33,7 +33,7 @@ EMSet <- excludeControl(EMSet, control = c("Mt", "Rb"))
 EMSet <- runPCA(EMSet)
 
 # PCA Variance
-pca_variance_plot <- plotPCAVariance(EMSet, n = 100)
+pca_variance_plot <- plotPCAVariance(EMSet, n = 40)
 
 }
 }

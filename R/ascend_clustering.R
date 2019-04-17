@@ -355,7 +355,6 @@ setGeneric("runCORE", def = function(object,
 #' @include ascend_objects.R
 #' @include ascend_dimreduction.R
 #' @importFrom stats dist setNames
-#' @importFrom fastcluster hclust
 #' @importFrom dynamicTreeCut cutreeDynamic
 #' @importFrom BiocParallel bplapply
 #' @export
@@ -365,19 +364,31 @@ setMethod("runCORE", signature("EMSet"), function(object,
                                                   dims = 20,
                                                   nres = 40, 
                                                   remove.outliers = FALSE){
-  # Fill in missing arguments
+  
+  # These defaults aren't getting passed on...
   if (missing(conservative)){
-    conservative <- TRUE
+    conservative = TRUE
   }
+  
+  if (missing(dims)){
+    dims = 20
+  }
+  
   if (missing(nres)){
-    nres <- 40
+    nres = 40
   }
+  
   if (missing(remove.outliers)){
-    remove.outliers <- TRUE
+    remove.outliers = FALSE
+  }
+  
+  if (!("PCA" %in% reducedDimNames(object))){
+    stop("Please calculate PCA values using runPCA before using this function.")
   }
   
   pca_matrix <- SingleCellExperiment::reducedDim(object, "PCA")
-  if (ncol(pca_matrix) > dims){
+  
+  if (ncol(pca_matrix) >= dims){
     pca_matrix <- pca_matrix[ , 1:dims]
   }
   
@@ -396,6 +407,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
     print("Calculating distance matrix...")
     distance_matrix <- stats::dist(pca_matrix)
     print("Generating hclust object via fastcluster...")
+    loadNamespace("fastcluster")
     original_tree <- fastcluster::hclust(distance_matrix, method="ward.D2")
     print("Using dynamicTreeCut to generate reference set of clusters...")
     clusters <- unname(dynamicTreeCut::cutreeDynamic(original_tree,

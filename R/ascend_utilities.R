@@ -6,6 +6,7 @@
 ################################################################################
 
 convertToScone <- function(x){
+  loadNamespace("scone")
   # Coercian to experiment loses rowData for some reason
   # Merge colInfo and colData
   metadata <- metadata(x)
@@ -94,6 +95,7 @@ convertSCEtoEMSet <- function(x){
 
 
 convertEMSetToSeurat <- function(x){
+  loadNamespace("Seurat")
   if (is(x, "EMSet")){
     x <- convertToSCE(x)   
   } else{
@@ -120,9 +122,18 @@ convertEMSetToSeurat <- function(x){
 }
 
 convertSeuratToEMSet <- function(x){
+  loadNamespace("Seurat")
+  
+  # Ensure count matrix is a sparseMatrix
+  if (is(x@data, "dgeMatrix")){
+    x@data <- as(x@data, "dgCMatrix")
+  }
   x <- Seurat::Convert(x, to = "sce")
   colData <- SummarizedExperiment::colData(x)
-  colData <- colData[, !(colnames(colData) %in% grep("^qc_", colnames(colData), value = TRUE))]
+  if (length(grep("^qc_", colnames(colData))) > 0){
+    colData <- colData[, !(colnames(colData) %in% grep("^qc_", colnames(colData), value = TRUE))]    
+  } 
+  
   SummarizedExperiment::colData(x) <- colData
   object <- EMSet(x)
   return(object)  

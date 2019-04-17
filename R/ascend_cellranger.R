@@ -51,7 +51,10 @@ loadCellRanger <- function(x){
   genes$gene_id <- make.unique(genes$gene_id)
   genes <- genes[ , c("gene_id", "ensembl_gene_id")]
   
+  # Read in sparseMatrix
   expression_matrix <- Matrix::readMM(matrix_file)
+  
+  # Coerce into dgCMatrix
   expression_matrix <- as(expression_matrix, "dgCMatrix")
   colnames(expression_matrix) <- barcodes[, "cell_barcode"]
   rownames(expression_matrix) <- genes[, "gene_id"]

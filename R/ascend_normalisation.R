@@ -25,11 +25,12 @@
 #' # Generate example colInfo
 #' col_info <- data.frame(cell_barcode = colnames(count_matrix))
 #' col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
-#' 
+#' rownames(col_info) <- col_info$cell_barcode
+#'
 #' # Create test EMSet
-#' em_set <- EMSet(list(counts = count_matrix), colInfo = col_info)
+#' em_set <- EMSet(count_matrix, colInfo = col_info)
 #' 
-#' # Normalise by RLE
+#' # Normalise batches
 #' norm_set <- normaliseBatches(em_set)
 #' 
 #' @importFrom BiocParallel bplapply
@@ -93,7 +94,7 @@ normaliseBatches <- function(object){
   names(size_factor_vector) <- colnames(scaled_counts)
   
   # Load data back into matrix
-  SingleCellExperiment::counts(object) <- scaled_counts[rownames(object), colnames(object)]
+  SingleCellExperiment::counts(object) <- scaled_counts[rownames(counts), colnames(counts)]
   SingleCellExperiment::sizeFactors(object, "batch") <- size_factor_vector 
   
   print("Re-calculating QC metrics...")

@@ -13,7 +13,6 @@ Imports: utils,
     stats,
     fields,
     BiocParallel,
-    Rtsne,
     grDevices, 
     graphics, 
     ggplot2,
@@ -29,13 +28,18 @@ Imports: utils,
     MASS,
     GenomeInfoDb,
     GenomeInfoDbData,
-    fastcluster,
-    BiocGenerics,
-    locfit
-Suggests: scater,
+    BiocGenerics
+Suggests: umap,
+    scater,
     scran,
+    Seurat,
+    scone,
     devtools,
+    Rtsne,
+    irlba,
     knitr,
+    locfit,    
+    fastcluster,
     rmarkdown,
     testthat,
     KernSmooth,
@@ -68,6 +72,7 @@ Collate:
     'ascend_scran.R'
     'ascend_subsetters.R'
     'ascend_utilities.R'
+    'data.R'
 biocViews: Software, 
     WorkflowStep, 
     Preprocessing, 

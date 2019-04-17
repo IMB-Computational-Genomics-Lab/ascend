@@ -24,7 +24,8 @@ func_DESeq <- function(x,
                        condition.b = NULL,
                        fitType = NULL,
                        method = NULL){
-  #library(DESeq, quietly = TRUE)
+  loadNamespace("DESeq")
+  loadNamespace("locfit")
   subset_matrix <- expression_matrix[x, ]
   count_dataset <- DESeq::newCountDataSet(subset_matrix, conditions = condition_list)
   count_dataset <- DESeq::estimateSizeFactors(count_dataset)
@@ -190,6 +191,7 @@ runDESeq <- function(object, group = NULL, condition.a = NULL,
     print("DESeq complete! Adjusting results...")
     de_results <- dplyr::bind_rows(de_list)    
   } else{
+    loadNamespace("DESeq")
     subset_matrix <- expression_matrix[gene_list, ]
     count_dataset <- DESeq::newCountDataSet(subset_matrix, conditions = condition_list)
     count_dataset <- DESeq::estimateSizeFactors(count_dataset)

@@ -6,6 +6,59 @@
 ################################################################################
 
 #' @export
+setGeneric("runUMAP", def = function(object, ..., method, config){
+  standardGeneric("runUMAP")
+})
+
+#' runUMAP
+#' 
+#' Wrapper for the \code{\link[umap]{umap}} function. 
+#' 
+#' @param object An EMSet
+#' @param method Method to use with the UMAP function - naive (default) or 
+#' umap-learn (Python package required)
+#' @param config Configuration to use with UMAP function (Optional) 
+#' @param ... Additional arguments to pass to the UMAP function
+#' @return UMAP matrix stored in "UMAP" slot in reducedDims
+#' 
+#' @name runUMAP
+#' @rdname runUMAP 
+#' @importFrom SummarizedExperiment assayNames
+#' @export
+#' 
+setMethod("runUMAP", signature = "EMSet", function(object,
+                                                   ...,
+                                                   method = c("naive", "umap-learn"),
+                                                   config = NULL){
+  loadNamespace("umap")
+    # Check if normcounts are in arrayNames
+  if (!("normcounts" %in% SummarizedExperiment::assayNames(object))){
+    stop("Please normalise your data before proceeding.")
+  }
+  
+  if (missing(method)){
+    method <- "naive"
+  }
+  
+  if (missing(config)){
+    config <- umap::umap.defaults
+  }
+  
+  # Run UMAP
+  umap_obj <- umap::umap(as.matrix(Matrix::t(normcounts(object))), method = method, config = config, ...)
+  
+  # Get generated values from UMAP object
+  umap_matrix <- umap_obj$layout
+  
+  # Store in object
+  reducedDim(object, "UMAP") <- umap_matrix
+  log <- progressLog(object)
+  log$UMAP <- umap_obj$config
+  progressLog(object) <- log
+  return(object)
+})
+
+#' @export
 setGeneric("runTSNE", def = function(object, ..., PCA, dims, seed, 
                                      perplexity, theta) {
   standardGeneric("runTSNE")  
@@ -36,7 +89,6 @@ setGeneric("runTSNE", def = function(object, ..., PCA, dims, seed,
 #' @include ascend_objects.R
 #' @importFrom SingleCellExperiment reducedDimNames reducedDims normcounts
 #' @importFrom methods is
-#' @importFrom Rtsne Rtsne
 #' @export
 #'
 setMethod("runTSNE", signature("EMSet"), function(object, ...,
@@ -78,6 +130,7 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
   
   print("Running Rtsne...")
   set.seed(seed)
+  loadNamespace("Rtsne")
   tsne <- Rtsne::Rtsne(raw_matrix, dims = dims, 
                        pca = PCA, 
                        perplexity = perplexity, 
@@ -153,6 +206,7 @@ setMethod("runPCA", signature("EMSet"), function(object,
   # Subset matrix
   matrix <- matrix[names(top_genes), ]
   print("Computing 50 PCs with irlba...")
+  loadNamespace("irlba")
   matrix_irlba <- irlba::prcomp_irlba(Matrix::t(matrix), n = 50, retx = TRUE, scale. = scaling)
   pca_percent_var <- (matrix_irlba$sdev^2/sum(matrix_irlba$sdev^2))
   print("PCA complete! Loading PCA into EMSet...")
