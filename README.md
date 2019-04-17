@@ -73,7 +73,7 @@ Remaining packages can be installed as follows:
 # List of packages to install
 cran_packages <- c("reshape2", "fields", "ggbeeswarm", "gridExtra",
                    "dynamicTreeCut", "dendextend", "RColorBrewer",
-                   "locfit", "KernSmooth")
+                   "locfit", "KernSmooth", "fastcluster", "irlba")
 
 # Easy command to install all at once
 install.packages(cran_packages)
@@ -123,7 +123,7 @@ package.
 library(devtools)
 
 # Use devtools to install the package
-install_github("IMB-Computational-Genomics-Lab/ascend")
+install_github("IMB-Computational-Genomics-Lab/ascend", build_vignettes = TRUE)
 
 # Load the package in R
 library(ascend)
