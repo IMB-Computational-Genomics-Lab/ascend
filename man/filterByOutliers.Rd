@@ -36,9 +36,10 @@ This function then loads the filtered expression matrix into the \linkS4class{EM
 }
 \examples{
 # Load EMSet
-raw_emset <- ascend::data_package$raw_emset
+raw_emset <- ascend::raw_set
 
 # Filter by outliers with default settings
-filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, control.threshold = 3)
+filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, 
+gene.threshold = 1.5, control.threshold = 3)
 
 }

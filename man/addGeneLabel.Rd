@@ -3,11 +3,19 @@
 \docType{methods}
 \name{addGeneLabel}
 \alias{addGeneLabel}
+\alias{addGeneLabel,EMSet-method}
 \title{addGeneLabel}
 \usage{
 addGeneLabel(x, ..., gene)
 
 \S4method{addGeneLabel}{EMSet}(x, ..., gene = c())
+}
+\arguments{
+\item{x}{\linkS4class{EMSet}}
+
+\item{...}{...}
+
+\item{gene}{List of gene markers}
 }
 \description{
 Labels cells if they express gene(s) as a condition.
@@ -16,4 +24,5 @@ Labels cells if they express gene(s) as a condition.
 \dontrun{
 em_set <- addGeneLabel(em_set, gene = c("MALAT1"))
 }
+
 }

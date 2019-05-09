@@ -24,9 +24,9 @@ is optional.
 }
 \examples{
 # Load EMSet
-raw_emset <- ascend::data_package$raw_emset
+raw_emset <- ascend::raw_set
 
 # Filter low abundance genes expressed in less than 1\% of cells
-filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 1)
+filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 0.1)
 
 }

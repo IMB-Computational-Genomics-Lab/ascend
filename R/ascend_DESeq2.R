@@ -91,6 +91,7 @@ runDESeq2 <- function(object,
   gene_list <- dplyr::intersect(dplyr::intersect(top_genes, nonzero_genes), variable_genes)
   expression_matrix <- round(expression_matrix + 1)
   
+  loadNamespace("DESeq2")
   # Feed chunks into DESeq
   deseq_obj <- DESeq2::DESeqDataSetFromMatrix(countData = expression_matrix, 
                                               colData = condition_df,

@@ -5,11 +5,6 @@
 #
 ################################################################################
 
-#' @name addGeneLabel
-#' @rdname addGeneLabel
-#' @export
-setGeneric("addGeneLabel", function(x, ...,  gene) standardGeneric("addGeneLabel"))
-
 #' addGeneLabel
 #' 
 #' Labels cells if they express gene(s) as a condition.
@@ -18,13 +13,19 @@ setGeneric("addGeneLabel", function(x, ...,  gene) standardGeneric("addGeneLabel
 #' \dontrun{
 #' em_set <- addGeneLabel(em_set, gene = c("MALAT1"))
 #' }
-#' @name addGeneLabel
-#' @rdname addGeneLabel 
+#' 
+#' @param x \linkS4class{EMSet}
+#' @param gene List of gene markers
+#' @param ... ...
+#' 
 #' @include ascend_objects.R
 #' @importFrom SingleCellExperiment normcounts counts
 #' @importClassesFrom S4Vectors DataFrame
 #' @export
 #' 
+setGeneric("addGeneLabel", function(x, ...,  gene) standardGeneric("addGeneLabel"))
+
+#' @rdname addGeneLabel
 setMethod("addGeneLabel", signature(x = "EMSet"), function(x, ..., gene = c()){
   if (any(!(gene %in% rownames(x)))){
     stop("Please ensure all listed genes/transcripts are present in the matrix.")
@@ -55,9 +56,6 @@ setMethod("addGeneLabel", signature(x = "EMSet"), function(x, ..., gene = c()){
   return(x)
 })
 
-
-#' @include ascend_objects.R
-#' @export
 calculateControlMetrics <- function(x, expression_matrix = NULL, gene_info = NULL, qc_cell_df = NULL){
   control_name <- x
   control_gene_info <- subset(gene_info, gene_info[, "control_group"] == control_name)
@@ -68,8 +66,6 @@ calculateControlMetrics <- function(x, expression_matrix = NULL, gene_info = NUL
   return(output)
 }
 
-#' @include ascend_objects.R
-#' @export
 calcControlQC <- function(x, gene_info = NULL, qc_cell_df = NULL){
   # Group together - hopefully user hasn't annotated anything else in that column
   control_groups <- unique(gene_info[, "control_group"])
@@ -101,10 +97,6 @@ calcControlQC <- function(x, gene_info = NULL, qc_cell_df = NULL){
   return(qc_cell_df)
 }
 
-
-#' @export
-setGeneric("calculateQC", function(object, ...) standardGeneric("calculateQC"))
-
 #' calculateQC
 #' 
 #' Calculates the following values for quality control:
@@ -129,16 +121,21 @@ setGeneric("calculateQC", function(object, ...) standardGeneric("calculateQC"))
 #' 
 #' @examples
 #' # Load example dataset
-#' object <- ascend::data_package$raw_emset
+#' object <- ascend::raw_set
 #' 
 #' # Recalculate quality control metrics
 #' object <- calculateQC(object)
+#' 
+#' @param object An \linkS4class{EMSet}
 #' 
 #' @include ascend_objects.R
 #' @importFrom S4Vectors DataFrame merge
 #' @importFrom SingleCellExperiment counts
 #' @importFrom SummarizedExperiment rowData colData
 #' @export
+setGeneric("calculateQC", function(object) standardGeneric("calculateQC"))
+
+#' @rdname calculateQC
 setMethod("calculateQC", "EMSet", function(object){
   # Metrics - save trouble of retrieving object over and over
   expression_matrix <- SingleCellExperiment::counts(object)
@@ -226,9 +223,6 @@ setMethod("calculateQC", "EMSet", function(object){
   return(object)
 })
 
-#' @export
-setGeneric("convertGeneID", function(object, ..., new.annotation) standardGeneric("convertGeneID"))
-
 #' convertGeneID
 #' 
 #' Switches gene identifiers used in the EMSet to the identifiers stored in a 
@@ -236,7 +230,7 @@ setGeneric("convertGeneID", function(object, ..., new.annotation) standardGeneri
 #' 
 #' @examples
 #' # Load data
-#' x <- ascend::data_package$raw_emset
+#' x <- ascend::raw_set
 #' 
 #' # Extract rowInfo from EMSet
 #' row_info <- rowInfo(x)
@@ -251,11 +245,19 @@ setGeneric("convertGeneID", function(object, ..., new.annotation) standardGeneri
 #' # Switch identifiers
 #' switched_annotations <- convertGeneID(x, new.annotation = "ensembl_id")
 #' 
+#' @param object \linkS4class{EMSet}
+#' @param ... ...
+#' @param new.annotation Name of the column where the new set of identifiers 
+#' are stored in rowInfo
+#' 
 #' @include ascend_objects.R
 #' @include ascend_getters.R
 #' @include ascend_setters.R
 #' @importFrom SummarizedExperiment rowData
 #' @export
+setGeneric("convertGeneID", function(object, ..., new.annotation) standardGeneric("convertGeneID"))
+
+#' @rdname convertGeneID
 setMethod("convertGeneID", "EMSet", function(object, ..., new.annotation = NULL){
   # Get old information
   row_info <- rowInfo(object)
@@ -317,9 +319,6 @@ setMethod("convertGeneID", "EMSet", function(object, ..., new.annotation = NULL)
   return(renamed_set)  
 })
 
-#' @export
-setGeneric("calculateCV", function(object) standardGeneric("calculateCV"))
-
 #' calculateCV
 #' 
 #' Calculates the Coefficient of Variation (CV) for each gene using normalised
@@ -327,7 +326,7 @@ setGeneric("calculateCV", function(object) standardGeneric("calculateCV"))
 #' 
 #' @examples
 #' # Load example dataset
-#' x <- ascend::data_package$processed_emset
+#' x <- ascend::analyzed_set
 #' 
 #' # Calculate CV 
 #' x <- calculateCV(x)
@@ -335,12 +334,16 @@ setGeneric("calculateCV", function(object) standardGeneric("calculateCV"))
 #' # Show CV results
 #' rowData(x)
 #' 
+#' @param object \linkS4class{EMSet}
 #' @include ascend_objects.R
 #' @include ascend_getters.R
 #' @include ascend_setters.R
 #' @importFrom SummarizedExperiment rowData
 #' @export
 #' 
+setGeneric("calculateCV", function(object) standardGeneric("calculateCV"))
+
+#' @rdname calculateCV
 setMethod("calculateCV", "EMSet", function(object){
   # Check if data has been normalised
   if (!("normcounts" %in% SummarizedExperiment::assayNames(object))){
@@ -352,7 +355,8 @@ setMethod("calculateCV", "EMSet", function(object){
   metrics <- as.data.frame(SummarizedExperiment::rowData(object))
 
   # Calculate standard deviation of gene
-  sd_genes <- apply(expression_matrix, 1, sd)
+  sd_genes <- apply(expression_matrix, 1, stats::sd)
+  
   # Coefficient of variation
   cv_genes <- (sd_genes/metrics$qc_meancounts)
   

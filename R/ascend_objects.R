@@ -61,6 +61,7 @@ validateEMSet <- function(object){
 #' Bioconductor.  
 #' 
 #' `ascend`-specific slots are as follows:
+#' 
 #' @slot colInfo A data frame containing each cell identifier, its 
 #' associated batch/sample and additional information such as conditions. This 
 #' slot was called CellInformation in earlier versions of `ascend`.
@@ -72,32 +73,6 @@ validateEMSet <- function(object){
 #' hclust object
 #' @slot log A record of functions used on an \linkS4class{EMSet}.
 #' 
-#' The following data is loaded into \linkS4class{SingleCellExperiment} slots:
-#' @slot assays Raw expression matrix is loaded into the \code{counts} slot.
-#' Normalised counts are loaded into the following based on their normalisation
-#' method:
-#'  \describe{
-#'   \item{normcounts}{Counts normalised by `ascend`'s RLE method.}
-#'   \item{logcounts}{Counts normalised by `scran`'s deconvolution method.}
-#' }
-#' @slot colData The following cell-based QC metrics are stored in this 
-#' DataFrame:
-#' \describe{
-#' \item{qc_libsize}{Total number of transcripts per cell.}
-#' \item{qc_ngenes}{Total number of expressed genes per cell.}
-#' \item{qc_control_expression}{Percentage of control expression to total 
-#' expression.}
-#' }
-#' @slot rowData The following gene-based QC metrics are stored in this
-#' DataFrame:
-#' \describe{
-#' \item{qc_ncounts}{Total gene expression across dataset.}
-#' \item{qc_ncells}{Number of cells the gene is expressed in.}
-#' \item{qc_meancounts}{Mean expression level of the gene.}
-#' \item{qc_topgeneranking}{Position of gene in top gene expression rankings.}
-#' \item{qc_pct_total_expression}{Proportion of gene expression to total
-#' expression.}
-#' }
 #' @name EMSet-class
 #' @rdname EMSet-class
 #' @import methods
@@ -115,11 +90,12 @@ validateEMSet <- function(object){
                        prototype = prototype(new("SingleCellExperiment")),
                        validity = validateEMSet)
 
+#' @param object \linkS4class{EMSet}
 #' @importFrom SummarizedExperiment assayNames rowData colData
 #' @importFrom S4Vectors metadata
 #' @importFrom BiocGenerics rownames colnames
 #' @importFrom SingleCellExperiment reducedDimNames spikeNames
-#' @aliases EMSet
+#' @rdname EMSet
 #' @export
 #' 
 setMethod("show", "EMSet", function(object){

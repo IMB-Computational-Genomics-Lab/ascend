@@ -73,7 +73,7 @@ Remaining packages can be installed as follows:
 # List of packages to install
 cran_packages <- c("reshape2", "fields", "ggbeeswarm", "gridExtra",
                    "dynamicTreeCut", "dendextend", "RColorBrewer",
-                   "locfit", "KernSmooth", "fastcluster", "irlba")
+                   "locfit", "KernSmooth", "irlba")
 
 # Easy command to install all at once
 install.packages(cran_packages)
@@ -91,17 +91,18 @@ commands for the installation of packages.
 Use the following code to retrieve the latest installer from Bioconductor.
 
 ```r
-## try http:// if https:// URLs are not supported
-source("https://bioconductor.org/biocLite.R")
-biocLite()
+## Get BiocManger from CRAN
+install.packages("BiocManager")
+
 ```
 
-You can then install the Bioconductor packages using `biocLite`.
+You can then install the Bioconductor packages using `install`.
 
 ```r
+library(BiocManager)
 bioconductor_packages <- c("Biobase", "BiocGenerics", "BiocParallel",
                            "SingleCellExperiment", "GenomeInfoDb", "GenomeInfoDbData")
-biocLite(bioconductor_packages)
+install(bioconductor_packages)
 ```
 
 ##### 3.2.2.2 scater/scran package installation
@@ -123,7 +124,7 @@ package.
 library(devtools)
 
 # Use devtools to install the package
-install_github("IMB-Computational-Genomics-Lab/ascend", build_vignettes = TRUE)
+install_github("IMB-Computational-Genomics-Lab/ascend")
 
 # Load the package in R
 library(ascend)

@@ -5,61 +5,76 @@
 #
 ################################################################################
 
+#' clusterAnalysis
+#' 
+#' Convenience method to access cluster analysis data from an 
+#' \linkS4class{EMSet}.
+#' 
+#' @param x \linkS4class{EMSet} 
+#' @param ... ...
+#' 
+#' @return List of cluster-related analyses
 #' @include ascend_objects.R
 #' @export
 setGeneric("clusterAnalysis", function(x, ...) standardGeneric("clusterAnalysis"))
 
-#' clusterAnalysis
-#' 
-#' Convenience method to retrieve cluster analysis data from the slot.
-#' 
-#' @include ascend_objects.R
-#' @export
+#' @rdname clusterAnalysis
 setMethod("clusterAnalysis", "EMSet", function(x){
   output <- x@clusterAnalysis
   return(output)
 })
 
+#' controls
+#' 
+#' Access set controls.
+#' 
+#' @param x \linkS4class{EMSet}
+#' @param ... ...
+#' 
 #' @include ascend_objects.R
 #' @export
 setGeneric("controls", function(x, ...) standardGeneric("controls"))
 
-#' controls
-#' 
-#' Retrieve list of set controls.
-#' @include ascend_objects.R
-#' @export
+#' @rdname controls
 setMethod("controls", "EMSet", function(x){
   controls <- x@log$set_controls
   return(controls)
 })
 
+#' progressLog
+#' 
+#' Access log stored in the \linkS4class{EMSet}.
+#' 
+#' @param x \linkS4class{EMSet}
+#' @param ... ...
+#' @return A list of information.
+#' 
 #' @include ascend_objects.R
 #' @export
 setGeneric("progressLog", function(x, ...) standardGeneric("progressLog"))
 
-#' progressLog
-#' 
-#' Covenience method to retrieve the progress log.
-#' 
-#' @include ascend_objects.R
-#' @export
+#' @rdname progressLog
 setMethod("progressLog", signature(x = "EMSet"), function(x){
   output <- x@log
   return(output)
 })
 
-#' @include ascend_objects.R
-#' @export
-setGeneric("colInfo", function(x, ...) standardGeneric("colInfo"))
-
 #' colInfo
 #' 
-#' Convenience method to retrieve cell information.
+#' Access cell information stored in colInfo.
+#' 
+#' @param x \linkS4class{EMSet}
+#' @param ... ...
+#' @param withDimnames Retrieve rownames of DataFrame Default: TRUE
+#' 
+#' @return colInfo DataFrame
 #' 
 #' @include ascend_objects.R
 #' @importFrom BiocGenerics rownames
 #' @export
+setGeneric("colInfo", function(x, ...) standardGeneric("colInfo"))
+
+#' @rdname colInfo
 setMethod("colInfo", "EMSet", function(x, withDimnames = TRUE){
   output <- x@colInfo
   
@@ -70,18 +85,22 @@ setMethod("colInfo", "EMSet", function(x, withDimnames = TRUE){
   return(output)
 })
  
-#' @include ascend_objects.R
-#' @export
-setGeneric("rowInfo", function(x, ...) standardGeneric("rowInfo"))
-
-
 #' rowInfo
 #' 
-#' Convenience method to retrieve gene information.
+#' Access gene information stored in rowInfo.
+#'
+#' @param x \linkS4class{EMSet}
+#' @param ... ...
+#' @param withDimnames TRUE or FALSE
+#' 
+#' @return rowInfo DataFrame
 #' 
 #' @include ascend_objects.R
 #' @importFrom BiocGenerics rownames
 #' @export
+setGeneric("rowInfo", function(x, ...) standardGeneric("rowInfo"))
+
+#' @rdname rowInfo
 setMethod("rowInfo", "EMSet", function(x, withDimnames = TRUE){
   output <- x@rowInfo
   if (withDimnames){
@@ -89,9 +108,14 @@ setMethod("rowInfo", "EMSet", function(x, withDimnames = TRUE){
   }
   return(output)
 })
-
-#' @include ascend_objects.R
-#' @export
+ 
+#' Subsetter for EMSet
+#' 
+#' @param x An \linkS4class{EMSet}
+#' @param i Row index
+#' @param j Col index
+#' @param drop Drop stuff
+#' 
 setMethod("[", "EMSet", function(x, i, j, drop=TRUE) {
   # Extract infos from original dataset
   col_info <- colInfo(x, withDimnames=FALSE)

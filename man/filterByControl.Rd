@@ -26,9 +26,10 @@ with the \code{\link{filterByOutliers}} function.
 }
 \examples{
 # Load EMSet
-raw_emset <- ascend::data_package$raw_emset
+raw_emset <- ascend::raw_set
 
 # Filter by outliers with default settings
-filtered_emset <- filterByControl(raw_emset, control = "control1", pct.threshold = 20)
+filtered_emset <- filterByControl(raw_emset, control = "Mt", 
+pct.threshold = 20)
 
 }

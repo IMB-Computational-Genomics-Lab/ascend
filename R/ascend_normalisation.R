@@ -36,7 +36,6 @@
 #' @importFrom BiocParallel bplapply
 #' @importFrom stats median
 #' @importFrom S4Vectors merge
-#' @importFrom Matrix t
 #' @importFrom SummarizedExperiment colData
 #' @importFrom SingleCellExperiment counts sizeFactors
 #' 
@@ -57,45 +56,63 @@ normaliseBatches <- function(object){
     stop("Please define batches in a column called 'batch' in colInfo")
   }
   
-  # Extract data from object
-  counts <- SingleCellExperiment::counts(object)
-  col_data <- SummarizedExperiment::colData(object)
-  cell_info <- S4Vectors::merge(col_info, col_data, by = "cell_barcode")
-  cell_info <- cell_info[match(colnames(counts), cell_info$cell_barcode), ]
+  # Extract components we require
+  counts <- counts(object)
+  col_info <- colInfo(object)
+  col_data <- colData(object)
   
-  # Pick out important information
+  # Merge into cell_info
+  cell_info <- merge(col_info, col_data, by = "cell_barcode")
+  
+  # We want library sizes per batch
+  batches <- sort(unique(cell_info$batch))
   info_df <- cell_info[, c("cell_barcode", "batch", "qc_libsize")]
+  
+  # Calculate between-batch sizeFactor
   batchSizeFactors <- sapply(batches, function(x) stats::median(info_df[which(info_df$batch == x), "qc_libsize"]))
   betweenBatchSizeFactor <- stats::median(batchSizeFactors)
   
-  print("Scaling counts...")
-  
-  chunked_matrix <- lapply(batches, function(x){
-    cell_barcodes <- info_df[info_df$batch == x, "cell_barcode"]
-    return(counts[, cell_barcodes])
-  })
-  
-  names(chunked_matrix) <- batches
-  
-  scaleBatch <- function(x, size_factor = NULL){
-    batch_counts <- stats::median(Matrix::colSums(x))
-    batch_norm_factor <- batch_counts / size_factor
-    scaled_matrix <- Matrix::t(Matrix::t(x) / batch_norm_factor)
-    return(list(norm_factor = batch_norm_factor, scaled_matrix = scaled_matrix))
+  # For each batch, calculate batch sizeFactor
+  scaleBatch <- function(x, info_df = NULL, counts = NULL, betweenBatchSizeFactor = NULL){
+    median_libsize <- stats::median(info_df[which(info_df$batch == x), "qc_libsize"])
+    batch_sizeFactor <- median_libsize / betweenBatchSizeFactor
+    scaled_matrix <- (counts[, info_df[which(info_df$batch == x), "cell_barcode"]])/batch_sizeFactor
+    return(list(sizeFactor = batch_sizeFactor, scaled_matrix = scaled_matrix))
   }
   
-  scaled_data <- BiocParallel::bplapply(chunked_matrix, scaleBatch, size_factor = betweenBatchSizeFactor)
+  # Get number of workers
+  workers <- BiocParallel::bpnworkers(BiocParallel::bpparam())
   
-  # Collect data
-  scaled_count_list <- lapply(scaled_data, function(x) x$scaled_matrix)
-  scaled_counts <- do.call(cbind, scaled_count_list)
-  size_factors <- sapply(scaled_data, function(x) x$norm_factor)
-  size_factor_vector <- lapply(colnames(scaled_counts), function(x) size_factors[[cell_info$batch[cell_info$cell_barcode == x]]])
-  names(size_factor_vector) <- colnames(scaled_counts)
+  # Divide among workers if there are more
+  # Otherwise no
+  if (length(batches) >= workers){
+    scaled_data <- BiocParallel::bplapply(batches, scaleBatch, 
+                                          info_df = info_df, 
+                                          counts = counts, 
+                                          betweenBatchSizeFactor = betweenBatchSizeFactor)
+  } else{
+    scaled_data <- lapply(batches, scaleBatch, 
+                          info_df = info_df, 
+                          counts = counts, 
+                          betweenBatchSizeFactor = betweenBatchSizeFactor)
+  }
   
-  # Load data back into matrix
-  SingleCellExperiment::counts(object) <- scaled_counts[rownames(counts), colnames(counts)]
-  SingleCellExperiment::sizeFactors(object, "batch") <- size_factor_vector 
+  names(scaled_data) <- batches
+  
+  # Get matrix
+  scaled_matrix <- do.call(cbind, sapply(names(scaled_data), function(x) scaled_data[[x]][["scaled_matrix"]]))
+  scaled_matrix <- scaled_matrix[rownames(counts), colnames(counts)]
+  size_factors <- sapply(names(scaled_data), function(x) scaled_data[[x]][["sizeFactor"]])
+  sizeFactors <- S4Vectors::DataFrame(cell_barcode = info_df$cell_barcode, sizeFactor = 0)
+  
+  for (batch in names(size_factors)){
+    sizeFactors[which(info_df$batch == batch), "sizeFactor"] = size_factors[[batch]]
+  }
+  rownames(sizeFactors) <- sizeFactors$cell_barcode
+  sizeFactors <- sizeFactors[colnames(counts), ]
+  
+  counts(object) <- scaled_matrix
+  SingleCellExperiment::sizeFactors(object, "batch") <- sizeFactors$sizeFactor
   
   print("Re-calculating QC metrics...")
   progress_log <- progressLog(object)

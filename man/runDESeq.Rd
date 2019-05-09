@@ -15,7 +15,7 @@ filtering and normalisation.}
 
 \item{group}{Name of the column in the colInfo dataframe where you have
 defined the conditions you would like to test. eg cluster to compare clusters
-identified by \code{\link[ascend:runCORE-EMSet-method]{runCORE}}.}
+identified by \code{\link[ascend:runCORE]{runCORE}}.}
 
 \item{condition.a}{Condition of the group you want to use as the baseline.}
 

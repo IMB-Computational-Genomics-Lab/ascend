@@ -31,36 +31,6 @@ the user. This slot was called GeneInformation in earlier versions of `ascend`.}
 \item{\code{clusterAnalysis}}{Objects related to clustering - distance matrix and
 hclust object}
 
-\item{\code{log}}{A record of functions used on an \linkS4class{EMSet}.
-
-The following data is loaded into \linkS4class{SingleCellExperiment} slots:}
-
-\item{\code{assays}}{Raw expression matrix is loaded into the \code{counts} slot.
-Normalised counts are loaded into the following based on their normalisation
-method:
- \describe{
-  \item{normcounts}{Counts normalised by `ascend`'s RLE method.}
-  \item{logcounts}{Counts normalised by `scran`'s deconvolution method.}
-}}
-
-\item{\code{colData}}{The following cell-based QC metrics are stored in this 
-DataFrame:
-\describe{
-\item{qc_libsize}{Total number of transcripts per cell.}
-\item{qc_ngenes}{Total number of expressed genes per cell.}
-\item{qc_control_expression}{Percentage of control expression to total 
-expression.}
-}}
-
-\item{\code{rowData}}{The following gene-based QC metrics are stored in this
-DataFrame:
-\describe{
-\item{qc_ncounts}{Total gene expression across dataset.}
-\item{qc_ncells}{Number of cells the gene is expressed in.}
-\item{qc_meancounts}{Mean expression level of the gene.}
-\item{qc_topgeneranking}{Position of gene in top gene expression rankings.}
-\item{qc_pct_total_expression}{Proportion of gene expression to total
-expression.}
-}}
+\item{\code{log}}{A record of functions used on an \linkS4class{EMSet}.}
 }}
 

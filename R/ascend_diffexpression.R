@@ -46,7 +46,7 @@ bimodLikData <- function(x, xmin = 0) {
   if (length(x = x2) < 2) {
     mysd <- 1
   } else {
-    mysd <- sd(x = x2)
+    mysd <- stats::sd(x = x2)
   }
   #likelihood for observing x2 
   likB <- length(x = x2) *

@@ -5,11 +5,6 @@
 #
 ################################################################################
 
-#' @export
-setGeneric("runUMAP", def = function(object, ..., method, config){
-  standardGeneric("runUMAP")
-})
-
 #' runUMAP
 #' 
 #' Wrapper for the \code{\link[umap]{umap}} function. 
@@ -21,11 +16,14 @@ setGeneric("runUMAP", def = function(object, ..., method, config){
 #' @param ... Additional arguments to pass to the UMAP function
 #' @return UMAP matrix stored in "UMAP" slot in reducedDims
 #' 
-#' @name runUMAP
-#' @rdname runUMAP 
 #' @importFrom SummarizedExperiment assayNames
 #' @export
-#' 
+setGeneric("runUMAP", def = function(object, ..., method, config){
+  standardGeneric("runUMAP")
+})
+
+
+#' @rdname runUMAP
 setMethod("runUMAP", signature = "EMSet", function(object,
                                                    ...,
                                                    method = c("naive", "umap-learn"),
@@ -58,12 +56,6 @@ setMethod("runUMAP", signature = "EMSet", function(object,
   return(object)
 })
 
-#' @export
-setGeneric("runTSNE", def = function(object, ..., PCA, dims, seed, 
-                                     perplexity, theta) {
-  standardGeneric("runTSNE")  
-})
-
 #' runTSNE
 #' 
 #' Wrapper for the \code{\link[Rtsne]{Rtsne}} function. Users may call this 
@@ -82,7 +74,6 @@ setGeneric("runTSNE", def = function(object, ..., PCA, dims, seed,
 #' @param perplexity (Optional) Numeric; perplexity parameter. Default: 30.
 #' @param theta (Optional) Numeric; Speed/accuracy trade-off. 
 #' (increase for less accuracy). Default: 0.5.
-
 #' @return A dataframe containing expression data for each cell reduced to 
 #' selected number of dimensions.
 #' 
@@ -90,7 +81,12 @@ setGeneric("runTSNE", def = function(object, ..., PCA, dims, seed,
 #' @importFrom SingleCellExperiment reducedDimNames reducedDims normcounts
 #' @importFrom methods is
 #' @export
-#'
+setGeneric("runTSNE", def = function(object, ..., PCA, dims, seed, 
+                                     perplexity, theta) {
+  standardGeneric("runTSNE")  
+})
+
+#' @rdname runTSNE
 setMethod("runTSNE", signature("EMSet"), function(object, ...,
                                                   PCA = FALSE, 
                                                   dims = 2, 
@@ -145,18 +141,11 @@ setMethod("runTSNE", signature("EMSet"), function(object, ...,
   return(object)
 })
 
-#' @importFrom stats var
-#' @export
 calcVariance <- function(x, axis = c("row", "column")){
   direction <- list(row = 1, column = 2)
   variance <- apply(x, direction[[axis]], stats::var)
   return(variance)
 }
-
-#' @export
-setGeneric("runPCA", def = function(object, ...., ngenes, scaling) {
-             standardGeneric("runPCA")
-           })
 
 #' runPCA
 #'
@@ -171,12 +160,19 @@ setGeneric("runPCA", def = function(object, ...., ngenes, scaling) {
 #' Default: 1500.
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values. 
 #' Default: TRUE.
+#' @param ... Additional arguments to pass to irlba
 #' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @include ascend_objects.R
 #' @importFrom SingleCellExperiment normcounts reducedDim
 #' @export
-setMethod("runPCA", signature("EMSet"), function(object, 
+setGeneric("runPCA", def = function(object, ..., ngenes, scaling) {
+             standardGeneric("runPCA")
+           })
+
+#' @rdname runPCA
+setMethod("runPCA", signature("EMSet"), function(object,
+                                                 ...,
                                                  ngenes = 1500,
                                                  scaling = TRUE){
   # Check for ngenes
@@ -207,7 +203,11 @@ setMethod("runPCA", signature("EMSet"), function(object,
   matrix <- matrix[names(top_genes), ]
   print("Computing 50 PCs with irlba...")
   loadNamespace("irlba")
-  matrix_irlba <- irlba::prcomp_irlba(Matrix::t(matrix), n = 50, retx = TRUE, scale. = scaling)
+  matrix_irlba <- irlba::prcomp_irlba(Matrix::t(matrix), 
+                                      n = 50, 
+                                      retx = TRUE, 
+                                      scale. = scaling,
+                                      ...)
   pca_percent_var <- (matrix_irlba$sdev^2/sum(matrix_irlba$sdev^2))
   print("PCA complete! Loading PCA into EMSet...")
   matrix <- as.matrix(matrix_irlba$x)

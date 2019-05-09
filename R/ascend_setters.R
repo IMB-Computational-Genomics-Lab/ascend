@@ -5,12 +5,13 @@
 #
 ################################################################################
 
+#' @rdname controls
+#' @param value Named list of control genes
 #' @include ascend_objects.R
 #' @export
 setGeneric("controls<-", function(x, ...,  value) standardGeneric("controls<-"))
 
-#' @include ascend_objects.R
-#' @export
+#' @rdname controls
 setReplaceMethod("controls", signature(x = "EMSet"), function(x, value){
   # Get row information
   row_info <- rowInfo(x)
@@ -47,38 +48,40 @@ setReplaceMethod("controls", signature(x = "EMSet"), function(x, value){
   return(x)
 })
 
-
+#' @rdname clusterAnalysis
+#' @param value List to store in the clusterAnalysis slot
 #' @include ascend_objects.R
 #' @export
 setGeneric("clusterAnalysis<-", function(x, ..., value) standardGeneric("clusterAnalysis<-")) 
 
-#' @include ascend_objects.R
-#' @export
+#' @rdname clusterAnalysis
 setReplaceMethod("clusterAnalysis", "EMSet", function(x, value) {
   # Sync colInfo, matrix and subsequent objects
   x@clusterAnalysis <- value
   x
 })
 
+#' @rdname progressLog
+#' @param value List to store in the progressLog slot
 #' @include ascend_objects.R
 #' @export
 setGeneric("progressLog<-", function(x, ..., value) standardGeneric("progressLog<-")) 
 
-#' @include ascend_objects.R
-#' @export
+#' @rdname progressLog
 setReplaceMethod("progressLog", "EMSet", function(x, value) {
   # Sync colInfo, matrix and subsequent objects
   x@log <- value
   x
 })
 
-#' @include ascend_objects.R
-#' @export
-setGeneric("colInfo<-", function(x, ..., value) standardGeneric("colInfo<-")) 
-
+#' @rdname colInfo
+#' @param value DataFrame to store in colInfo slot.
 #' @include ascend_objects.R
 #' @importClassesFrom S4Vectors DataFrame
 #' @export
+setGeneric("colInfo<-", function(x, ..., value) standardGeneric("colInfo<-")) 
+
+#' @rdname colInfo
 setReplaceMethod("colInfo", signature(x = "EMSet"), function(x, value) {
   # If it's a data frame
   if (is.data.frame(value)){
@@ -93,13 +96,15 @@ setReplaceMethod("colInfo", signature(x = "EMSet"), function(x, value) {
   x
 })
 
-#' @include ascend_objects.R
-#' @export
-setGeneric("rowInfo<-", function(x, ..., value) standardGeneric("rowInfo<-"))
 
+#' @rdname rowInfo
+#' @param value DataFrame to store in rowInfo slot.
 #' @include ascend_objects.R
 #' @importClassesFrom S4Vectors DataFrame
 #' @export
+setGeneric("rowInfo<-", function(x, ..., value) standardGeneric("rowInfo<-"))
+
+#' @rdname rowInfo
 setReplaceMethod("rowInfo", signature(x = "EMSet"),  function(x, value) {
   # Make rownames of value equal value[,1]
   if (is.data.frame(value)){
@@ -112,9 +117,14 @@ setReplaceMethod("rowInfo", signature(x = "EMSet"),  function(x, value) {
   x
 })
 
-#' @include ascend_objects.R
-#' @importClassesFrom SummarizedExperiment SummarizedExperiment
-#' @export
+#' Replace entries of EMSet
+#' 
+#' @param x EMSet
+#' @param i Row index
+#' @param j Column index
+#' @param value Replacement dataframe
+#' @param ... ...
+#' 
 setReplaceMethod("[", c("EMSet", "ANY", "ANY", "EMSet"),
                  function(x, i, j, ..., value) {
                    # Extract infos from original dataset

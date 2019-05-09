@@ -7,9 +7,9 @@
 plotControlPctPerSample(object, control = NULL)
 }
 \arguments{
-\item{object}{An \code{\linkS4class{EMSet}} object.}
+\item{object}{An \code{\linkS4class{EMSet}}}
 
-\item{control.name}{Name of the control you would like to plot.}
+\item{control}{Name of the control you would like to plot.}
 }
 \value{
 A ggplot2 object containing a violin-beeswarm plot

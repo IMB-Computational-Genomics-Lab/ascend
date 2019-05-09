@@ -5,17 +5,20 @@
 #
 ################################################################################
 
-#' @export
-setGeneric(name = "useVariableGenes", def = function(object, ..., ngenes) {
-  standardGeneric("useVariableGenes")
-})
-
 #' useVariableGenes
 #' 
 #' Reduces an EMSet to a range of the most variable genes as determined by 
-#' the values calculated by \code{\link[ascend:calculateCV-EMSet-method]{calculateCV}}.
+#' the values calculated by \code{\link[ascend:calculateCV]{calculateCV}}.
+#' 
+#' @param object \linkS4class{EMSet}
+#' @param ngenes Number of variable genes to use (Default: 1500 genes)
 #' 
 #' @export
+setGeneric(name = "useVariableGenes", def = function(object, ngenes) {
+  standardGeneric("useVariableGenes")
+})
+
+#' @rdname useVariableGenes
 setMethod("useVariableGenes", signature("EMSet"), function(object,
                                                            ngenes = 1500){
   # Check CV values have been calculated
@@ -33,21 +36,22 @@ setMethod("useVariableGenes", signature("EMSet"), function(object,
   return(subset_object)
 })
 
-#' @export
-setGeneric(name = "excludeControl", def = function(object, ...., control) {
-  standardGeneric("excludeControl")
-})
-
 #' excludeControl
 #' 
 #' Excludes a control group from an \linkS4class{EMSet}.
 #' 
 #' @param object An \linkS4class{EMSet}.
+#' @param ... ...
 #' @param control Name of the control group you would like to exclude. It must
 #' be in the `control` column of rowInfo.
 #' 
 #' @return An \linkS4class{EMSet} without the specified control group.
 #' @export
+setGeneric(name = "excludeControl", def = function(object, ..., control) {
+  standardGeneric("excludeControl")
+})
+
+#' @rdname excludeControl
 setMethod("excludeControl", signature("EMSet"), function(object, 
                                                           control = c()){
   # Retrieve rowInfo
@@ -91,16 +95,12 @@ setMethod("excludeControl", signature("EMSet"), function(object,
   return(return_set)
 })
 
-#' @export
-setGeneric(name = "subsetCondition", def = function(object, ..., by, conditions) {
-  standardGeneric("subsetCondition")
-})
-
 #' subsetCondition
 #'
 #' Subset cells of specific conditions from an \code{\linkS4class{EMSet}}.
 #'
 #' @param object An \code{\linkS4class{EMSet}}
+#' @param ... ...
 #' @param by A list containing parameter to subset object by. These should be 
 #' present as a column in colInfo and names in the named list `conditions`.
 #' @param conditions  Conditions you would like to select. They should be 
@@ -112,13 +112,18 @@ setGeneric(name = "subsetCondition", def = function(object, ..., by, conditions)
 #' 
 #' @examples
 #' # Load a pre-existing EMSet
-#' em_set <- ascend::data_package$processed_emset
+#' em_set <- ascend::analyzed_set
 #' 
 #' # Subset batch 1
 #' batch1 <- subsetCondition(em_set, by = "batch", conditions = list(batch = 1))
 #' 
 #' @include ascend_objects.R
 #' @export
+setGeneric(name = "subsetCondition", def = function(object, ..., by, conditions) {
+  standardGeneric("subsetCondition")
+})
+
+#' @rdname subsetCondition
 setMethod("subsetCondition", signature("EMSet"), function(object, 
                                                           by = c(), 
                                                           conditions = list()) {

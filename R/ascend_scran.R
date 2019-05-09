@@ -21,9 +21,9 @@
 #' @importFrom BiocParallel bpparam
 #' @export
 #'
-scranCellCycle <- function(object, training_set = NULL) {
+scranCellCycle <- function(object, training.set = NULL) {
   
-  if(is.null(training_set)){
+  if(is.null(training.set)){
     stop("Please specify a cyclone training set.")
   }
   
@@ -32,7 +32,7 @@ scranCellCycle <- function(object, training_set = NULL) {
   
   # Run cyclone with cell cycle assignments as a vector
   print("Running cyclone from scran...")
-  cc_assignments <- scran::cyclone(expression_matrix, pairs = training_set, rownames(expression_matrix), BPPARAM = BiocParallel::bpparam())
+  cc_assignments <- scran::cyclone(expression_matrix, pairs = training.set, rownames(expression_matrix), BPPARAM = BiocParallel::bpparam())
   col_info <- as.data.frame(colInfo(object))
   col_data <- as.data.frame(SummarizedExperiment::colData(object))
   cc_assignments <- as.data.frame(cc_assignments)

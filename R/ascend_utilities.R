@@ -117,7 +117,7 @@ convertEMSetToSeurat <- function(x){
   }
   
   # Convert to Seurat
-  object <- Seurat::Convert(from = x, to = "seurat")
+  object <- Seurat::as.Seurat(x)
   return(object)
 }
 
@@ -128,7 +128,7 @@ convertSeuratToEMSet <- function(x){
   if (is(x@data, "dgeMatrix")){
     x@data <- as(x@data, "dgCMatrix")
   }
-  x <- Seurat::Convert(x, to = "sce")
+  x <- Seurat::as.SingleCellExperiment(x)
   colData <- SummarizedExperiment::colData(x)
   if (length(grep("^qc_", colnames(colData))) > 0){
     colData <- colData[, !(colnames(colData) %in% grep("^qc_", colnames(colData), value = TRUE))]    
@@ -183,9 +183,6 @@ convert <- function(x, to = c("sce", "seurat", "scone", "EMSet")){
   }
   return(object)
 }
-
-
-
 
 unLog2Matrix <- function(x){
   # Convert to matrix

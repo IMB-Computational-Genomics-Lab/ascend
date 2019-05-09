@@ -6,6 +6,9 @@
 \usage{
 plotGeneNumber(object)
 }
+\arguments{
+\item{object}{An \linkS4class{EMSet}}
+}
 \description{
 Generates a histogram of the number of genes per cell.
 }

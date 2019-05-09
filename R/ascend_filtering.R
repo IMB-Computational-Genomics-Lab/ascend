@@ -20,10 +20,10 @@
 #' 
 #' @examples
 #' # Load EMSet
-#' raw_emset <- ascend::data_package$raw_emset
+#' raw_emset <- ascend::raw_set
 #' 
 #' # Filter low abundance genes expressed in less than 1% of cells
-#' filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 1)
+#' filtered_emset <- filterLowAbundanceGenes(raw_emset, pct.threshold = 0.1)
 #' 
 #' @importFrom SummarizedExperiment colData rowData 
 #' @importFrom Matrix rowSums
@@ -110,10 +110,11 @@ filterLowAbundanceGenes <- function(object, pct.threshold = 1){
 #' 
 #' @examples
 #' # Load EMSet
-#' raw_emset <- ascend::data_package$raw_emset
+#' raw_emset <- ascend::raw_set
 #' 
 #' # Filter by outliers with default settings
-#' filtered_emset <- filterByControl(raw_emset, control = "control1", pct.threshold = 20)
+#' filtered_emset <- filterByControl(raw_emset, control = "Mt", 
+#' pct.threshold = 20)
 #'
 #' @importFrom S4Vectors merge
 #' @importFrom SummarizedExperiment colData rowData
@@ -227,10 +228,11 @@ filterByControl <- function(object, control = NULL, pct.threshold = 20){
 #' 
 #' @examples
 #' # Load EMSet
-#' raw_emset <- ascend::data_package$raw_emset
+#' raw_emset <- ascend::raw_set
 #' 
 #' # Filter by outliers with default settings
-#' filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, control.threshold = 3)
+#' filtered_emset <- filterByOutliers(raw_emset, cell.threshold = 3, 
+#' gene.threshold = 1.5, control.threshold = 3)
 #' 
 #' @importFrom dplyr semi_join
 #' @importFrom BiocParallel bplapply
@@ -291,7 +293,7 @@ filterByOutliers <- function(object,
     lower_limit <- med_val - nmads * mad_val
     if (type == "lower"){
       upper_limit <- Inf
-    } else if (type == "higher") {
+    } else if (type == "upper") {
       lower_limit <- -Inf
     }
     return(values < lower_limit | upper_limit < values)
@@ -300,7 +302,7 @@ filterByOutliers <- function(object,
   ## Start identifying cells by barcodes
   # Returns boolean - do not merge yet
   cells_libsize_upper <- findOutliers(log10_total_counts, nmads=cell.threshold, type="lower") ## Remove cells with low expression
-  cells_libsize_lower <- findOutliers(log10_total_counts, nmads=cell.threshold, type="higher") ## Remove cells with low expression
+  cells_libsize_lower <- findOutliers(log10_total_counts, nmads=cell.threshold, type="upper") ## Remove cells with low expression
   cells_feature <- findOutliers(log10_features_counts_per_cell, nmads=control.threshold, type="lower") ## Remove cells with low number of genes
   cells_ngenes <- findOutliers(cell_info$qc_ngenes, nmads = gene.threshold, type = "lower")
   

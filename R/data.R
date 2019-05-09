@@ -10,6 +10,7 @@
 #'   \item{row_info}{DataFrame containing gene names and corresponding ENSEMBL 
 #'   gene identifiers}
 #'   }
+#' @name raw
 #' @source \url{https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6108/}
 "raw"
 
@@ -26,6 +27,7 @@
 #'   \item{controls}{A list containing mitochondrial-associated transcripts and
 #'   ribosomal-associated transcripts}
 #'   }
+#' @name raw_set
 #' @source \url{https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6108/}
 "raw_set"
 
@@ -74,6 +76,7 @@
 #' working_set <- runCORE(working_set, conservative = FALSE, nres = 40, 
 #' dims = 20, remove.outliers = TRUE)
 #' }
+#' @name analyzed_set
 #' @source \url{https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6108/}
 "analyzed_set"
 

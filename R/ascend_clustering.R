@@ -315,16 +315,6 @@ retrieveCluster <- function(x, hclust_obj = NULL, distance_matrix = NULL){
   return(output_list)
 }
 
-#' @include ascend_objects.R
-#' @export
-setGeneric("runCORE", def = function(object, 
-                                     ..., 
-                                     conservative,
-                                     nres,
-                                     remove.outliers) {
-  standardGeneric("runCORE")  
-})
-
 #' runCORE
 #'
 #' This function determines the optimal number of clusters for a dataset.
@@ -350,6 +340,8 @@ setGeneric("runCORE", def = function(object,
 #' @param remove.outliers Remove cells that weren't assigned a cluster with
 #' dynamicTreeCut. This is indicative of outlier cells within the sample.
 #' Default: FALSE.
+#' @param ... ...
+#' 
 #' @return An \code{\linkS4class{EMSet}} with cluster information loaded into the
 #' Clusters slot.
 #' @include ascend_objects.R
@@ -359,6 +351,15 @@ setGeneric("runCORE", def = function(object,
 #' @importFrom BiocParallel bplapply
 #' @export
 #'
+setGeneric("runCORE", def = function(object, 
+                                     ..., 
+                                     conservative,
+                                     nres,
+                                     remove.outliers) {
+  standardGeneric("runCORE")  
+})
+
+#' @rdname runCORE
 setMethod("runCORE", signature("EMSet"), function(object, 
                                                   conservative = TRUE,
                                                   dims = 20,

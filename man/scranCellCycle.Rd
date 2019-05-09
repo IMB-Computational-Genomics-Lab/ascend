@@ -4,7 +4,7 @@
 \alias{scranCellCycle}
 \title{scranCellCycle}
 \usage{
-scranCellCycle(object, training_set = NULL)
+scranCellCycle(object, training.set = NULL)
 }
 \arguments{
 \item{object}{An \code{\linkS4class{EMSet}} object.}

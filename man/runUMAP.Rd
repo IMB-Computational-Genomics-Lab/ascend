@@ -3,8 +3,11 @@
 \docType{methods}
 \name{runUMAP}
 \alias{runUMAP}
+\alias{runUMAP,EMSet-method}
 \title{runUMAP}
 \usage{
+runUMAP(object, ..., method, config)
+
 \S4method{runUMAP}{EMSet}(object, ..., method = c("naive", "umap-learn"),
   config = NULL)
 }
