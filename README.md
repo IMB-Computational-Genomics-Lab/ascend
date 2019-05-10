@@ -72,8 +72,8 @@ Remaining packages can be installed as follows:
 ```r
 # List of packages to install
 cran_packages <- c("reshape2", "fields", "ggbeeswarm", "gridExtra",
-                   "dynamicTreeCut", "dendextend", "RColorBrewer",
-                   "locfit", "KernSmooth", "irlba")
+                   "dynamicTreeCut", "dendextend", "RColorBrewer", 
+                   "KernSmooth", "irlba")
 
 # Easy command to install all at once
 install.packages(cran_packages)
