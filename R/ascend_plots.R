@@ -738,8 +738,7 @@ plotMDS <- function(object, Dim1 = 1, Dim2 = 2, group = NULL, density = FALSE, P
 #' EMSet <- runUMAP(EMSet, method = "naive", config = umap.config)
 #' 
 #' # Plot with t-SNE 
-#' tsne_plot <- plotUMAP(EMSet, Dim1 = 1, Dim2 = 2, group = "cluster", density = FALSE)
-#' 
+#' umap_plot <- plotUMAP(EMSet, Dim1 = 1, Dim2 = 2, group = "cluster", density = FALSE)
 #' }
 #' @importFrom ggplot2 ggplot aes geom_point labs ggtitle scale_alpha theme_bw
 #' @export

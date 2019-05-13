@@ -16,6 +16,7 @@
 #' @param ... Additional arguments to pass to the UMAP function
 #' @return UMAP matrix stored in "UMAP" slot in reducedDims
 #' 
+#' @importFrom umap umap
 #' @importFrom SummarizedExperiment assayNames
 #' @export
 setGeneric("runUMAP", def = function(object, ..., method, config){
@@ -164,6 +165,8 @@ calcVariance <- function(x, axis = c("row", "column")){
 #' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @include ascend_objects.R
+#' 
+#' @importFrom irlba prcomp_irlba
 #' @importFrom SingleCellExperiment normcounts reducedDim
 #' @export
 setGeneric("runPCA", def = function(object, ..., ngenes, scaling) {

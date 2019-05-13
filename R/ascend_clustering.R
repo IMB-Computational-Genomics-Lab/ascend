@@ -347,6 +347,7 @@ retrieveCluster <- function(x, hclust_obj = NULL, distance_matrix = NULL){
 #' @include ascend_objects.R
 #' @include ascend_dimreduction.R
 #' @importFrom stats dist setNames
+#' @importFrom fastcluster hclust
 #' @importFrom dynamicTreeCut cutreeDynamic
 #' @importFrom BiocParallel bplapply
 #' @export
@@ -383,7 +384,7 @@ setMethod("runCORE", signature("EMSet"), function(object,
     remove.outliers = FALSE
   }
   
-  if (!("PCA" %in% reducedDimNames(object))){
+  if (!("PCA" %in% SingleCellExperiment::reducedDimNames(object))){
     stop("Please calculate PCA values using runPCA before using this function.")
   }
   
