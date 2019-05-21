@@ -93,7 +93,13 @@ regressConfoundingFactors <- function(object, candidate.genes = c()) {
     counts <- as.data.frame(counts)
   }
   
-  covariate_matrix <- counts[, candidate.genes]
+  if (length(candidate.genes) > 1){
+    covariate_matrix <- counts[, candidate.genes]    
+  } else{
+    covariate_matrix <- as.data.frame(counts[, candidate.genes])
+    colnames(covariate_matrix) <- candidate.genes
+  }
+
   
   # Calculate residuals
   residuals <- BiocParallel::bplapply(candidate.genes,
