@@ -5,6 +5,26 @@
 #
 ################################################################################
 
+#' @rdname regcounts
+#' @param value A matrix with confounding factors regressed out
+#' @include ascend_objects.R
+#' @include ascend_confoundingfactors.R
+#' @export
+setGeneric("regcounts<-", function(x, ..., value) standardGeneric("regcounts<-"))
+
+#' @rdname regcounts
+setReplaceMethod("regcounts", signature(x = "EMSet"), function(x, value){
+  assays <- SummarizedExperiment::assays(x)
+  assays$regcounts <- value
+  
+  # Add to assays
+  SummarizedExperiment::assays(x) <- assays
+  
+  # Return
+  return(x)
+})
+
+
 #' @rdname controls
 #' @param value Named list of control genes
 #' @include ascend_objects.R

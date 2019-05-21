@@ -19,19 +19,10 @@ expression (RLE). Only counts that are greater than zero are considered in
 this normalisation method.
 }
 \examples{
-# Generate example matrix
-count_matrix <- matrix(sample(0:1, 900, replace=TRUE),30,30)
-colnames(count_matrix) <- paste0("Cell-", 1:ncol(count_matrix))
-rownames(count_matrix) <- paste0("Gene-", 1:nrow(count_matrix))
+# Load example EMSet
+em_set <- ascend::raw_set
 
-# Generate example colInfo
-col_info <- data.frame(cell_barcode = colnames(count_matrix))
-col_info$batch <- sample(1:4, nrow(col_info), replace = TRUE)
-
-# Create test EMSet
-em_set <- EMSet(list(counts = count_matrix), colInfo = col_info)
-
-# Normalise by RLE
+# Normalise batches
 norm_set <- normaliseByRLE(em_set)
 
 }

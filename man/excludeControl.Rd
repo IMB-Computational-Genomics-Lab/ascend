@@ -24,3 +24,11 @@ An \linkS4class{EMSet} without the specified control group.
 \description{
 Excludes a control group from an \linkS4class{EMSet}.
 }
+\examples{
+# Load example EMSet
+em_set <- ascend::raw_set
+
+# Exclude Mitochondrial-related genes
+em_set <- excludeControl(em_set, control = "Mt")
+
+}

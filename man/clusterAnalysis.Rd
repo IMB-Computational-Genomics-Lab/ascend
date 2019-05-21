@@ -30,3 +30,11 @@ List of cluster-related analyses
 Convenience method to access cluster analysis data from an 
 \linkS4class{EMSet}.
 }
+\examples{
+
+# Load analysed EMSet
+em_set <- ascend::analyzed_set
+
+cluster_analysis <- clusterAnalysis(em_set)
+
+}

@@ -222,7 +222,6 @@ loadCounts <- function(x){
 #' # EMSet from a matrix
 #' em_set <- EMSet(count_matrix)
 #' 
-#' 
 #' @return An \linkS4class{EMSet}.
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment colData rowData
@@ -260,9 +259,9 @@ EMSet <- function(x,
         # Create colData if user hasn't supplied one
         if (missing(colData)){
           if (missing(colInfo)){
-            colData <- S4Vectors::DataFrame(cell_barcode = colnames(counts), row.names = colnames(counts))      
+            colData <- DataFrame(cell_barcode = colnames(counts), row.names = colnames(counts))      
           } else{
-            colData <- S4Vectors::DataFrame(cell_barcode = colInfo[, 1], row.names = colInfo[, 1]) 
+            colData <- DataFrame(cell_barcode = colInfo[, 1], row.names = colInfo[, 1]) 
           }
         } else{
           # Check if the supplied colData matches cell identifiers in the count data
@@ -278,10 +277,10 @@ EMSet <- function(x,
           }
         }
       }
-      SummarizedExperiment::colData(counts) <- colData
+      colData(counts) <- colData
       
-      if (ncol(SummarizedExperiment::rowData(counts)) > 0){
-        rowData <- SummarizedExperiment::rowData(counts)
+      if (ncol(rowData(counts)) > 0){
+        rowData <- rowData(counts)
         
         # Check gene ids are present
         gene_ids <- rownames(counts)
@@ -308,12 +307,12 @@ EMSet <- function(x,
           if (missing(rowInfo)){
             # Ensure we use the same header as other datasets
             gene_id_name <- "gene_id"
-            rowData <- S4Vectors::DataFrame(gene_id = rownames(counts), row.names = rownames(counts))      
+            rowData <- DataFrame(gene_id = rownames(counts), row.names = rownames(counts))      
           } else{
             gene_id_name <- colnames(rowInfo)[1]
             gene_ids <- list()
             gene_ids[[gene_id_name]] <- rowInfo[, 1]
-            rowData <- S4Vectors::DataFrame(gene_ids, row.names = rownames(counts))
+            rowData <- DataFrame(gene_ids, row.names = rownames(counts))
           }
           
         } else{
@@ -330,11 +329,11 @@ EMSet <- function(x,
         }
       }
       
-      SummarizedExperiment::rowData(counts) <- rowData
+      rowData(counts) <- rowData
       
       # Now check colInfo
       if (missing(colInfo)){
-        colInfo <- S4Vectors::DataFrame(cell_barcode = colnames(counts), 
+        colInfo <- DataFrame(cell_barcode = colnames(counts), 
                                         batch = rep(1, ncol(counts)), 
                                         row.names = colnames(counts)) 
       } else{
@@ -350,13 +349,12 @@ EMSet <- function(x,
       if (missing(rowInfo)){
         gene_list <- list()
         gene_list[[gene_id_name]] <- rownames(counts)
-        rowInfo <- S4Vectors::DataFrame(gene_list, 
-                                        row.names = rownames(counts))
+        rowInfo <- DataFrame(gene_list, row.names = rownames(counts))
       }
       
       # Make sure rownames are column 1 in colInfo, rowInfo, colData, rowData
-      colInfo <- S4Vectors::DataFrame(colInfo, row.names = as.vector(colInfo[, 1]))
-      rowInfo <- S4Vectors::DataFrame(rowInfo, row.names = as.vector(rowInfo[, 1]))
+      colInfo <- DataFrame(colInfo, row.names = as.vector(colInfo[, 1]))
+      rowInfo <- DataFrame(rowInfo, row.names = as.vector(rowInfo[, 1]))
       
       # Now that everything is in order, create an EMSet
       object <- new("EMSet",

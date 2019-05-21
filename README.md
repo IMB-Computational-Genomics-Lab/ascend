@@ -71,9 +71,7 @@ Remaining packages can be installed as follows:
 
 ```r
 # List of packages to install
-cran_packages <- c("reshape2", "fields", "ggbeeswarm", "gridExtra",
-                   "dynamicTreeCut", "dendextend", "RColorBrewer", 
-                   "KernSmooth", "irlba")
+cran_packages <- c("gridExtra","RColorBrewer")
 
 # Easy command to install all at once
 install.packages(cran_packages)
@@ -99,10 +97,10 @@ install.packages("BiocManager")
 You can then install the Bioconductor packages using `install`.
 
 ```r
-library(BiocManager)
-bioconductor_packages <- c("Biobase", "BiocGenerics", "BiocParallel",
-                           "SingleCellExperiment", "GenomeInfoDb", "GenomeInfoDbData")
-install(bioconductor_packages)
+bioconductor_packages <- c("BiocParallel", "BiocGenerics",
+                           "SingleCellExperiment", "GenomeInfoDb", 
+                           "GenomeInfoDbData")
+BiocManager::install(bioconductor_packages)
 ```
 
 ##### 3.2.2.2 scater/scran package installation

@@ -57,5 +57,4 @@ em_set <- EMSet(list(counts = count_matrix))
 # EMSet from a matrix
 em_set <- EMSet(count_matrix)
 
-
 }

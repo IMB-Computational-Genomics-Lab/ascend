@@ -99,8 +99,17 @@ worker_LRT <- function(x, test_matrix = NULL, control_matrix = NULL){
 #' @param group A column in colInfo that contains a vector of conditions.
 #' @param condition.a Condition(s) of first group of cells.
 #' @param condition.b Condition(s) of second group of cells.
-#' @param subsampling TRUE or FALSE (Default). Whether or not to subsample from larger group of cells if cell populations are uneven.
+#' @param subsampling TRUE or FALSE (Default). Whether or not to subsample 
+#' from larger group of cells if cell populations are uneven.
 #' @param ngenes Test this number of the most variable genes in the dataset.
+#' 
+#' @examples 
+#' # Load example EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Compare cluster 1 vs cluster 2
+#' cluster1_vs_cluster2 <- runDiffExpression(em_set, group = "cluster",
+#' condition.a = 1, condition.b = 2, subsampling = FALSE, ngenes = 1500)
 #' 
 #' @importFrom methods is
 #' @importFrom SingleCellExperiment normcounts

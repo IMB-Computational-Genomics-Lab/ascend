@@ -31,3 +31,15 @@ rowInfo DataFrame
 \description{
 Access gene information stored in rowInfo.
 }
+\examples{
+
+# Load EMSet
+em_set <- ascend::raw_set
+
+# Retrieve colInfo
+row_info <- rowInfo(em_set)
+
+# Set colInfo
+rowInfo(em_set) <- row_info
+
+}

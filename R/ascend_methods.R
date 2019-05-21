@@ -10,9 +10,8 @@
 #' Labels cells if they express gene(s) as a condition.
 #' 
 #' @examples
-#' \dontrun{
+#' em_set <- ascend::raw_set
 #' em_set <- addGeneLabel(em_set, gene = c("MALAT1"))
-#' }
 #' 
 #' @param x \linkS4class{EMSet}
 #' @param gene List of gene markers
@@ -23,7 +22,8 @@
 #' @importClassesFrom S4Vectors DataFrame
 #' @export
 #' 
-setGeneric("addGeneLabel", function(x, ...,  gene) standardGeneric("addGeneLabel"))
+setGeneric("addGeneLabel", function(x, ...,  gene) 
+  standardGeneric("addGeneLabel"))
 
 #' @rdname addGeneLabel
 setMethod("addGeneLabel", signature(x = "EMSet"), function(x, ..., gene = c()){
@@ -182,8 +182,11 @@ setMethod("calculateQC", "EMSet", function(object){
                            qc_topgeneranking = qc_generankings,
                            qc_pct_total_expression = qc_pct_total_expression)
   qc_gene_df[, gene_id_name] <- rownames(qc_gene_df)
-  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), qc_gene_df[ , gene_id_name]), c(gene_id_name, "qc_ncounts", "qc_ncells",
-                                                                                     "qc_meancounts", "qc_topgeneranking", "qc_pct_total_expression")]
+  qc_gene_df <- qc_gene_df[match(rownames(expression_matrix), 
+                                 qc_gene_df[ , gene_id_name]), 
+                           c(gene_id_name, "qc_ncounts", "qc_ncells",
+                             "qc_meancounts", "qc_topgeneranking", 
+                             "qc_pct_total_expression")]
   
   # For control-related metrics
   if ("control_group" %in% colnames(old_rowInfo) && any(!is.na(old_rowInfo["control_group"]))){
@@ -232,18 +235,8 @@ setMethod("calculateQC", "EMSet", function(object){
 #' # Load data
 #' x <- ascend::raw_set
 #' 
-#' # Extract rowInfo from EMSet
-#' row_info <- rowInfo(x)
-#' 
-#' # Create new set of identifiers
-#' ensembl_id <- paste0("ENSG0000000000", 1:nrow(row_info))
-#' row_info$ensembl_id <- ensembl_id
-#' 
-#' # Replace rowInfo in EMSet
-#' rowInfo(x) <- row_info
-#' 
 #' # Switch identifiers
-#' switched_annotations <- convertGeneID(x, new.annotation = "ensembl_id")
+#' x <- convertGeneID(x, new.annotation = "ensembl_gene_id")
 #' 
 #' @param object \linkS4class{EMSet}
 #' @param ... ...
@@ -254,14 +247,17 @@ setMethod("calculateQC", "EMSet", function(object){
 #' @include ascend_getters.R
 #' @include ascend_setters.R
 #' @importFrom SummarizedExperiment rowData
+#' @importFrom S4Vectors DataFrame
 #' @export
-setGeneric("convertGeneID", function(object, ..., new.annotation) standardGeneric("convertGeneID"))
+setGeneric("convertGeneID", function(object, ..., new.annotation) 
+  standardGeneric("convertGeneID"))
 
 #' @rdname convertGeneID
-setMethod("convertGeneID", "EMSet", function(object, ..., new.annotation = NULL){
+setMethod("convertGeneID", "EMSet", function(object, ..., 
+                                             new.annotation = NULL){
   # Get old information
   row_info <- rowInfo(object)
-  row_data <- SummarizedExperiment::rowData(object)
+  row_data <- rowData(object)
   row_info_names <- colnames(row_info)
   row_data_names <- colnames(row_data)
   old.annotation <- row_info_names[1]
@@ -276,8 +272,10 @@ setMethod("convertGeneID", "EMSet", function(object, ..., new.annotation = NULL)
   }
   
   # Identify non-identifier columns
-  other_columns_info <- row_info_names[which(!(row_info_names %in% c(old.annotation, new.annotation)))]
-  other_columns_data <- row_data_names[which(!(row_data_names %in% c(old.annotation, new.annotation)))]
+  other_columns_info <- row_info_names[which(!(row_info_names %in% 
+                                                 c(old.annotation, new.annotation)))]
+  other_columns_data <- row_data_names[which(!(row_data_names %in% 
+                                                 c(old.annotation, new.annotation)))]
   
   # New order for rowInfo
   reordered_columns_info <- c(new.annotation, old.annotation, other_columns_info)
@@ -301,7 +299,8 @@ setMethod("convertGeneID", "EMSet", function(object, ..., new.annotation = NULL)
     control_list <- log$set_controls
     converted_controls <- lapply(names(control_list), function(x){
       old_gene_ids <- control_list[[x]]
-      new_gene_ids <- reordered_rowInfo[which(reordered_rowInfo[ , old.annotation] %in% old_gene_ids), new.annotation]
+      new_gene_ids <- reordered_rowInfo[which(reordered_rowInfo[ , old.annotation] 
+                                              %in% old_gene_ids), new.annotation]
       return(new_gene_ids)
     })
     names(converted_controls) <- names(control_list)
@@ -311,8 +310,8 @@ setMethod("convertGeneID", "EMSet", function(object, ..., new.annotation = NULL)
   # Replace slots
   progressLog(renamed_set) <- log
   BiocGenerics::rownames(renamed_set) <- new_annotations
-  SummarizedExperiment::rowData(renamed_set) <- S4Vectors::DataFrame(reordered_rowData)
-  rowInfo(renamed_set) <- S4Vectors::DataFrame(reordered_rowInfo)
+  rowData(renamed_set) <- DataFrame(reordered_rowData)
+  rowInfo(renamed_set) <- DataFrame(reordered_rowInfo)
   
   # Recalculate QC
   renamed_set <- calculateQC(renamed_set)

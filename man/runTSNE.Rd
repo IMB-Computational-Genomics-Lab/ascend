@@ -40,3 +40,11 @@ Wrapper for the \code{\link[Rtsne]{Rtsne}} function. Users may call this
 directly or call it through the \code{\link{plotTSNE}} function and also pass
 additional arguments related to the \code{\link[Rtsne]{Rtsne}} function.
 }
+\examples{
+# Load example EMSet
+em_set <- ascend::analyzed_set
+
+# Run tSNE
+em_set <- runTSNE(em_set, PCA = TRUE, dims = 2, seed = 1)
+
+}

@@ -16,6 +16,13 @@
 #' @param ... Additional arguments to pass to the UMAP function
 #' @return UMAP matrix stored in "UMAP" slot in reducedDims
 #' 
+#' @examples 
+#' # Load example EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Run UMAP
+#' em_set <- runUMAP(em_set, method = "naive")
+#' 
 #' @importFrom umap umap
 #' @importFrom SummarizedExperiment assayNames
 #' @export
@@ -78,7 +85,15 @@ setMethod("runUMAP", signature = "EMSet", function(object,
 #' @return A dataframe containing expression data for each cell reduced to 
 #' selected number of dimensions.
 #' 
+#' @examples
+#' # Load example EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Run tSNE
+#' em_set <- runTSNE(em_set, PCA = TRUE, dims = 2, seed = 1)
+#' 
 #' @include ascend_objects.R
+#' @importFrom Rtsne Rtsne
 #' @importFrom SingleCellExperiment reducedDimNames reducedDims normcounts
 #' @importFrom methods is
 #' @export
@@ -165,6 +180,14 @@ calcVariance <- function(x, axis = c("row", "column")){
 #' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
 #' slot.
 #' @include ascend_objects.R
+#' 
+#' @examples 
+#' # Load example EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Run PCA
+#' em_set <- runPCA(em_set, scaling = TRUE, ngenes = 1500)
+#' 
 #' 
 #' @importFrom irlba prcomp_irlba
 #' @importFrom SingleCellExperiment normcounts reducedDim

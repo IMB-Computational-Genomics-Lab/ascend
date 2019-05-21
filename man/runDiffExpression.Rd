@@ -16,7 +16,8 @@ runDiffExpression(object, group = NULL, condition.a = NULL,
 
 \item{condition.b}{Condition(s) of second group of cells.}
 
-\item{subsampling}{TRUE or FALSE (Default). Whether or not to subsample from larger group of cells if cell populations are uneven.}
+\item{subsampling}{TRUE or FALSE (Default). Whether or not to subsample 
+from larger group of cells if cell populations are uneven.}
 
 \item{ngenes}{Test this number of the most variable genes in the dataset.}
 }
@@ -25,4 +26,13 @@ This function uses a combined Likelihood-Ratio Test (LRT) for
 discrete/continuous models to examine differentially expressed genes, on a 
 gene-gene level. This method was adapted from the method published by [McDavid
 et al. 2013](https://doi.org/10.1093/bioinformatics/bts714).
+}
+\examples{
+# Load example EMSet
+em_set <- ascend::analyzed_set
+
+# Compare cluster 1 vs cluster 2
+cluster1_vs_cluster2 <- runDiffExpression(em_set, group = "cluster",
+condition.a = 1, condition.b = 2, subsampling = FALSE, ngenes = 1500)
+
 }

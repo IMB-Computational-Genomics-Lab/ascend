@@ -4,7 +4,7 @@
 \name{analyzed_set}
 \alias{analyzed_set}
 \title{Retinal Ganglion Cells (100 THY-1 positive, 100 THY-1 negative)}
-\format{An object of class \code{EMSet} with 18781 rows and 196 columns.}
+\format{An object of class \code{EMSet} with 17927 rows and 137 columns.}
 \source{
 \url{https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6108/}
 }

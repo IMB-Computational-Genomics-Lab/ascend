@@ -49,3 +49,12 @@ This will return an EMSet with the following objects:
     \item{KeyStats}{A dataframe containing information on each generated clustering result, that is used to determine the optimal cluster number.}
 }
 }
+\examples{
+# Load example EMSet
+em_set <- ascend::analyzed_set
+
+# Run CORE with default parameters
+em_set <- runCORE(em_set, conservative = TRUE,
+dims = 20, nres = 40, remove.outliers = TRUE)
+
+}

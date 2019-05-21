@@ -13,19 +13,21 @@ regressConfoundingFactors(object, candidate.genes = c())
 Refer to the vignette on how to choose genes for regression.}
 }
 \value{
-An \code{\linkS4class{EMSet}} with confounding factors regressed from the
-expression values.
+An \code{\linkS4class{EMSet}} with confounding factors regressed 
+from the expression values.
 }
 \description{
 This function generates a scaled regression matrix based on candidate genes
 supplied by the user. This function should be used after normalisation.
 }
 \examples{
-\dontrun{
+# Load example EMSet
+em_set <- ascend::analyzed_set
+
 # Define genes to regress
 confoundingGenes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2")
-regressedSet <- regressConfoundingFactors(EMSet, 
+
+regressedSet <- regressConfoundingFactors(em_set, 
 candidate.genes = confoundingGenes)
-}
 
 }

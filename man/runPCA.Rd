@@ -32,3 +32,12 @@ Reduce the dimensions of an expression matrix stored in an
 be reduced prior to clustering analysis as it is used to construct the 
 distance matrix.
 }
+\examples{
+# Load example EMSet
+em_set <- ascend::analyzed_set
+
+# Run PCA
+em_set <- runPCA(em_set, scaling = TRUE, ngenes = 1500)
+
+
+}

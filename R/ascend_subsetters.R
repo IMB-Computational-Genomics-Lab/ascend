@@ -13,6 +13,16 @@
 #' @param object \linkS4class{EMSet}
 #' @param ngenes Number of variable genes to use (Default: 1500 genes)
 #' 
+#' @examples
+#' # Load example EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Calculate gene variance
+#' em_set <- calculateCV(em_set)
+#'   
+#' # Use 1500 of the most variable genes
+#' em_set <- useVariableGenes(em_set, ngenes = 1500)
+#' 
 #' @export
 setGeneric(name = "useVariableGenes", def = function(object, ngenes) {
   standardGeneric("useVariableGenes")
@@ -44,6 +54,13 @@ setMethod("useVariableGenes", signature("EMSet"), function(object,
 #' @param ... ...
 #' @param control Name of the control group you would like to exclude. It must
 #' be in the `control` column of rowInfo.
+#' 
+#' @examples 
+#' # Load example EMSet
+#' em_set <- ascend::raw_set
+#' 
+#' # Exclude Mitochondrial-related genes
+#' em_set <- excludeControl(em_set, control = "Mt")
 #' 
 #' @return An \linkS4class{EMSet} without the specified control group.
 #' @export

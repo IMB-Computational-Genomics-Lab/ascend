@@ -21,8 +21,7 @@ addGeneLabel(x, ..., gene)
 Labels cells if they express gene(s) as a condition.
 }
 \examples{
-\dontrun{
+em_set <- ascend::raw_set
 em_set <- addGeneLabel(em_set, gene = c("MALAT1"))
-}
 
 }

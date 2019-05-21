@@ -5,6 +5,29 @@
 #
 ################################################################################
 
+#' regcounts
+#' 
+#' Convenience method to access regressed counts from an \linkS4class{EMSet}.
+#' 
+#' @param x \linkS4class{EMSet} 
+#' @param ... ...
+#' 
+#' @return Regressed count matrix
+#' @include ascend_objects.R
+#' @export
+setGeneric("regcounts", function(x, ...) 
+  standardGeneric("regcounts"))
+
+#' @rdname regcounts
+setMethod("regcounts", "EMSet", function(x){
+  if ("regcounts" %in% SummarizedExperiment::assayNames(x)){
+    counts <- SummarizedExperiment::assays(counts)$regcounts
+    return(counts)
+  } else{
+    stop("regcounts slot is empty.")
+  }
+})
+
 #' clusterAnalysis
 #' 
 #' Convenience method to access cluster analysis data from an 
@@ -13,10 +36,18 @@
 #' @param x \linkS4class{EMSet} 
 #' @param ... ...
 #' 
+#' @examples
+#' 
+#' # Load analysed EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' cluster_analysis <- clusterAnalysis(em_set)
+#' 
 #' @return List of cluster-related analyses
 #' @include ascend_objects.R
 #' @export
-setGeneric("clusterAnalysis", function(x, ...) standardGeneric("clusterAnalysis"))
+setGeneric("clusterAnalysis", function(x, ...) 
+  standardGeneric("clusterAnalysis"))
 
 #' @rdname clusterAnalysis
 setMethod("clusterAnalysis", "EMSet", function(x){
@@ -30,6 +61,16 @@ setMethod("clusterAnalysis", "EMSet", function(x){
 #' 
 #' @param x \linkS4class{EMSet}
 #' @param ... ...
+#' 
+#' @examples
+#' # Load EMSet
+#' em_set <- ascend::raw_set
+#' 
+#' # Access controls
+#' controls <- controls(em_set)
+#' 
+#' # Set controls
+#' controls(em_set) <- controls
 #' 
 #' @include ascend_objects.R
 #' @export
@@ -48,6 +89,16 @@ setMethod("controls", "EMSet", function(x){
 #' @param x \linkS4class{EMSet}
 #' @param ... ...
 #' @return A list of information.
+#' 
+#' @examples
+#' # Load EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Retrieve progress log
+#' log <- progressLog(em_set)
+#' 
+#' # Set progressLog
+#' progressLog(em_set) <- log
 #' 
 #' @include ascend_objects.R
 #' @export
@@ -68,6 +119,16 @@ setMethod("progressLog", signature(x = "EMSet"), function(x){
 #' @param withDimnames Retrieve rownames of DataFrame Default: TRUE
 #' 
 #' @return colInfo DataFrame
+#' 
+#' @examples 
+#' # Load EMSet
+#' em_set <- ascend::raw_set
+#' 
+#' # Retrieve colInfo
+#' column_info <- colInfo(em_set)
+#' 
+#' # Set colInfo
+#' colInfo(em_set) <- column_info
 #' 
 #' @include ascend_objects.R
 #' @importFrom BiocGenerics rownames
@@ -94,6 +155,17 @@ setMethod("colInfo", "EMSet", function(x, withDimnames = TRUE){
 #' @param withDimnames TRUE or FALSE
 #' 
 #' @return rowInfo DataFrame
+#' 
+#' @examples
+#' 
+#' # Load EMSet
+#' em_set <- ascend::raw_set
+#' 
+#' # Retrieve colInfo
+#' row_info <- rowInfo(em_set)
+#' 
+#' # Set colInfo
+#' rowInfo(em_set) <- row_info
 #' 
 #' @include ascend_objects.R
 #' @importFrom BiocGenerics rownames

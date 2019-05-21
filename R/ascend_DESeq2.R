@@ -95,7 +95,7 @@ runDESeq2 <- function(object,
   # Feed chunks into DESeq
   deseq_obj <- DESeq2::DESeqDataSetFromMatrix(countData = expression_matrix, 
                                               colData = condition_df,
-                                              design = as.formula(paste0("~ ", group)))
+                                              design = stats::as.formula(paste0("~ ", group)))
   
   deseq_result <- DESeq2::DESeq(deseq_obj, 
                                 fitType = fitType, 

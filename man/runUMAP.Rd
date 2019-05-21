@@ -27,3 +27,11 @@ UMAP matrix stored in "UMAP" slot in reducedDims
 \description{
 Wrapper for the \code{\link[umap]{umap}} function.
 }
+\examples{
+# Load example EMSet
+em_set <- ascend::analyzed_set
+
+# Run UMAP
+em_set <- runUMAP(em_set, method = "naive")
+
+}

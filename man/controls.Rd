@@ -26,3 +26,14 @@ controls(x, ...)
 \description{
 Access set controls.
 }
+\examples{
+# Load EMSet
+em_set <- ascend::raw_set
+
+# Access controls
+controls <- controls(em_set)
+
+# Set controls
+controls(em_set) <- controls
+
+}

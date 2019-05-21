@@ -31,3 +31,14 @@ colInfo DataFrame
 \description{
 Access cell information stored in colInfo.
 }
+\examples{
+# Load EMSet
+em_set <- ascend::raw_set
+
+# Retrieve colInfo
+column_info <- colInfo(em_set)
+
+# Set colInfo
+colInfo(em_set) <- column_info
+
+}

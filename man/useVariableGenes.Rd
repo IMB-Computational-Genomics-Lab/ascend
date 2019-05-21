@@ -19,3 +19,14 @@ useVariableGenes(object, ngenes)
 Reduces an EMSet to a range of the most variable genes as determined by 
 the values calculated by \code{\link[ascend:calculateCV]{calculateCV}}.
 }
+\examples{
+# Load example EMSet
+em_set <- ascend::analyzed_set
+
+# Calculate gene variance
+em_set <- calculateCV(em_set)
+  
+# Use 1500 of the most variable genes
+em_set <- useVariableGenes(em_set, ngenes = 1500)
+
+}

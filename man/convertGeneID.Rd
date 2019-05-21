@@ -26,17 +26,7 @@ column of rowInfo.
 # Load data
 x <- ascend::raw_set
 
-# Extract rowInfo from EMSet
-row_info <- rowInfo(x)
-
-# Create new set of identifiers
-ensembl_id <- paste0("ENSG0000000000", 1:nrow(row_info))
-row_info$ensembl_id <- ensembl_id
-
-# Replace rowInfo in EMSet
-rowInfo(x) <- row_info
-
 # Switch identifiers
-switched_annotations <- convertGeneID(x, new.annotation = "ensembl_id")
+x <- convertGeneID(x, new.annotation = "ensembl_gene_id")
 
 }

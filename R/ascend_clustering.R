@@ -342,6 +342,14 @@ retrieveCluster <- function(x, hclust_obj = NULL, distance_matrix = NULL){
 #' Default: FALSE.
 #' @param ... ...
 #' 
+#' @examples 
+#' # Load example EMSet
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Run CORE with default parameters
+#' em_set <- runCORE(em_set, conservative = TRUE,
+#' dims = 20, nres = 40, remove.outliers = TRUE)
+#' 
 #' @return An \code{\linkS4class{EMSet}} with cluster information loaded into the
 #' Clusters slot.
 #' @include ascend_objects.R

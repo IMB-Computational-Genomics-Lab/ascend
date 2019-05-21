@@ -41,6 +41,16 @@ convertToSCE <- function(x){
   # Convert into SingleCellExperiment
   object <- as(x, "SingleCellExperiment")
   
+  if (is(SingleCellExperiment::counts(object), "dgeMatrix")){
+    SingleCellExperiment::counts(object) <- as(SingleCellExperiment::counts(object), "dgCMatrix")
+    if ("normcounts" %in% SummarizedExperiment::assayNames(object)){
+      SingleCellExperiment::normcounts(object) <- as(SingleCellExperiment::normcounts(object), "dgCMatrix")    
+    }
+    if ("logcounts" %in% SummarizedExperiment::assayNames(object)){
+      SingleCellExperiment::logcounts(object) <- as(SingleCellExperiment::logcounts(object), "dgCMatrix")
+    }
+  }
+  
   # Load everything EMSet-related into metatadata 
   S4Vectors::metadata(object) <- list(colInfo = col_info,
                                       rowInfo = row_info,
@@ -113,7 +123,7 @@ convertEMSetToSeurat <- function(x){
     } else{
       stop("Please arrange your assays into lists.")
     }
-    SingleCellExperiment::logcounts(x) <- logcounts
+    SingleCellExperiment::logcounts(x) <- as(logcounts, "dgCMatrix")
   }
   
   # Convert to Seurat

@@ -29,3 +29,14 @@ A list of information.
 \description{
 Access log stored in the \linkS4class{EMSet}.
 }
+\examples{
+# Load EMSet
+em_set <- ascend::analyzed_set
+
+# Retrieve progress log
+log <- progressLog(em_set)
+
+# Set progressLog
+progressLog(em_set) <- log
+
+}
