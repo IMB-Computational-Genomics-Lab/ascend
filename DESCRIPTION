@@ -9,12 +9,12 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Imports: utils,
+Imports: 
+    utils,
     stats,
     fields,
-    BiocParallel,
-    grDevices, 
-    graphics, 
+    grDevices,
+    graphics,
     ggplot2,
     ggbeeswarm,
     RColorBrewer,
@@ -26,12 +26,13 @@ Imports: utils,
     dplyr,
     tidyr,
     MASS,
-    BiocParallel,
     BiocGenerics,
     umap,
     Rtsne,
     irlba,
-    fastcluster
+    fastcluster,
+    Rcpp,
+    RcppArmadillo
 Suggests: 
     scater,
     scran,
@@ -51,15 +52,17 @@ Depends: R (>= 3.5.0),
     Matrix,
     S4Vectors,
     SummarizedExperiment,
-    SingleCellExperiment
+    SingleCellExperiment,
+    BiocParallel
 Collate: 
+    'RcppExports.R'
     'ascend.R'
     'ascend_DESeq.R'
     'ascend_DESeq2.R'
     'ascend_confoundingfactors.R'
     'ascend_objects.R'
-    'ascend_setters.R'
     'ascend_getters.R'
+    'ascend_setters.R'
     'ascend_methods.R'
     'ascend_cellranger.R'
     'ascend_dimreduction.R'
@@ -82,3 +85,6 @@ biocViews: Software,
     GeneExpression,
     SingleCell,
     DifferentialExpression
+LinkingTo:
+    Rcpp,
+    RcppArmadillo

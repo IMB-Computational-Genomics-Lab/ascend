@@ -12,4 +12,12 @@ validateEMSet(object)
 \description{
 Validation function for the EMSet.
 }
+\examples{
+# Load example EMSet
+em_set <- ascend::raw_set
+
+# Validate
+validateEMSet(em_set)
+
+}
 \keyword{internal}

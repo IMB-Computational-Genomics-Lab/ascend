@@ -34,3 +34,10 @@ hclust object}
 \item{\code{log}}{A record of functions used on an \linkS4class{EMSet}.}
 }}
 
+\examples{
+# Load example EMSet from package
+em_set <- ascend::raw_set
+
+class(em_set)
+
+}

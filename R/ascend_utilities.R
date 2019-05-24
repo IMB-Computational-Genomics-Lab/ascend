@@ -162,6 +162,13 @@ convertSeuratToEMSet <- function(x){
 #' @param to sce, seurat, scone, EMSet
 #' @return Object in specified format
 #' 
+#' @examples 
+#' # Load EMSet
+#' em_set <- ascend::raw_set
+#' 
+#' # Convert to Single Cell Experiment
+#' sce <- convert(em_set, to =  "sce")
+#' 
 #' @export
 #' 
 convert <- function(x, to = c("sce", "seurat", "scone", "EMSet")){

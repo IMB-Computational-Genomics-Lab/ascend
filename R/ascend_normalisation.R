@@ -137,60 +137,69 @@ normaliseBatches <- function(object){
 #' @export
 #'
 normaliseByRLE <- function(object) {
-  # Functions to use
-  calcNormFactor <- function(x, rowData = NULL) {
-    x_geomeans <- cbind(x, rowData[names(x), "geoMean"])
-    x_geomeans <- subset(x_geomeans, x_geomeans[,1 ] > 0)
-    nonzero_median <- median(x_geomeans[,1] / x_geomeans[, 2])
-    return(nonzero_median)
-  }
-  
-  # Functions to use
-  calcGeoMeans <- function(x){
-    x <- x[x > 0]
-    x<- exp(mean(log(x)))
-    return(x)
-  }
-  
-  if (!is.null(progressLog(object)$NormalisationMethod)){
-    stop("This data is already normalised.")
-  }
-  
-  # Calculate geometric means, then use to calculate normFactors
-  expression_matrix <- SingleCellExperiment::counts(object)
-  
-  # Drop nonzero rows
-  expression_matrix <- expression_matrix[Matrix::rowSums(expression_matrix) > 0, ]
-  
-  print("Calculating geometric means...")
-  geo_means <- apply(expression_matrix, 1, calcGeoMeans)
-  
+  print("Retrieving objects from EMSet")
+  # Get data from object
+  counts <- counts(object)
+  rowInfo <- rowInfo(object)
+  colInfo <- colInfo(object)
   rowData <- SummarizedExperiment::rowData(object)
-  gene_ids <- rowData[, 1]
-  geomean_list <- list()
-  geomean_list[[colnames(rowData)[1]]] <- gene_ids
-  geomean_list$geoMean <- 0
-  geomean_df <- S4Vectors::DataFrame(geomean_list)
-  geomean_df$geoMean[which(geomean_df[,1] %in% names(geo_means))] <- as.vector(geo_means)
-  rownames(geomean_df) <- geomean_df[, 1]
-  rowData <- S4Vectors::merge(rowData, geomean_df, by = 1)
+  colData <- SummarizedExperiment::colData(object)
+  gene_id_name <- colnames(rowData)[1]
+  obj_types <- is(counts)
+  
+  # Drop nonzero counts
+  counts <- counts[rowData[rowData$qc_ncells > 0, 1], ]
+  
+  # Calculate geometric means using Rcpp
+  print("Calculating geometric means for nonzero genes...")
+  if ("sparseMatrix" %in% obj_types){
+    geo_means <- calcGeoMeansSparse(counts)
+  } else{
+    geo_means <- calcGeoMeansDense(counts)
+  }
+  
+  # Calculate geoMeans
+  print("Geometric means calculation complete!")
+  geomean_list <- rownames(counts)
+  geomean_df <- S4Vectors::DataFrame(gene_id = geomean_list, geoMean = geo_means)
+  colnames(geomean_df) <- c(gene_id_name, "geoMean")
+  rowData <- S4Vectors::merge(rowData, geomean_df, by = 1, all = TRUE)
+  rowData$geoMean[which(is.na(rowData$geoMean))] <- 0
   rownames(rowData) <- rowData[, 1]
   
-  expression_matrix <- SingleCellExperiment::counts(object)
-  norm_factor <- apply(expression_matrix, 2, calcNormFactor, rowData = rowData)
+  # Retrieve original counts and rearrange rowData to match
+  counts <- SingleCellExperiment::counts(object)
+  rowData <- rowData[rownames(counts), ]
   
-  # Add to sizeFactors
-  SingleCellExperiment::sizeFactors(object, "RLE") <- norm_factor
+  # Use Rcpp to calculate normFactor
+  geomeans_list <- rowData[, "geoMean"]
+  print("Calculating size factors...")
+  if ("sparseMatrix" %in% obj_types){
+    sizeFactors <- calcNormFactorSparse(counts, geomeans_list)
+  } else{
+    sizeFactors <- calcNormFactorDense(counts, geomeans_list)
+  }
   
-  # Scale counts
-  print("Scaling counts...")
-  norm_matrix <- Matrix::t(Matrix::t(expression_matrix/norm_factor))
-  remove(expression_matrix)
-  log2_matrix <- log2(norm_matrix + 1)
+  # Add sizeFactors to object
+  print("Size factors calculated.")
+  SingleCellExperiment::sizeFactors(object, "RLE") <- sizeFactors
   
-  print("Storing normalised counts")
-  SingleCellExperiment::normcounts(object) <- norm_matrix[rownames(object), colnames(object)]
-  SingleCellExperiment::logcounts(object) <- log2_matrix[rownames(object), colnames(object)]
+  # Apply sizeFactors
+  print("Applying size factors to counts...")
+  normcounts <- Matrix::t(Matrix::t(counts)/sizeFactors)
+  logcounts <- log2(normcounts + 1)
+  
+  # Reorganise
+  print("Normalisation complete. Returning EMSet...")
+  normcounts <- normcounts[rownames(object), colnames(object)]
+  logcounts <- logcounts[rownames(object), colnames(object)]
+  
+  # Get ready to store
+  normcounts <- as(normcounts, obj_types[1])
+  logcounts <- as(logcounts, obj_types[1])
+  
+  SingleCellExperiment::normcounts(object) <- normcounts 
+  SingleCellExperiment::logcounts(object) <- logcounts
   SummarizedExperiment::rowData(object) <- rowData[rownames(object), ]
   
   log <- progressLog(object)

@@ -12,8 +12,19 @@
 #' @param x \linkS4class{EMSet} 
 #' @param ... ...
 #' 
+#' @examples
+#' # Load em_set
+#' em_set <- ascend::analyzed_set
+#' 
+#' # Regress out CDK4
+#' reg_set <- regressConfoundingFactors(em_set, candidate.genes = "CDK4")
+#' 
+#' # Access regressed matrix
+#' reg_counts <- regcounts(reg_set)
+#' 
 #' @return Regressed count matrix
 #' @include ascend_objects.R
+#' @include ascend_confoundingfactors.R
 #' @export
 setGeneric("regcounts", function(x, ...) 
   standardGeneric("regcounts"))
@@ -21,10 +32,9 @@ setGeneric("regcounts", function(x, ...)
 #' @rdname regcounts
 setMethod("regcounts", "EMSet", function(x){
   if ("regcounts" %in% SummarizedExperiment::assayNames(x)){
-    counts <- SummarizedExperiment::assays(counts)$regcounts
+    assays <- SummarizedExperiment::assays(x)
+    counts <- assays$regcounts
     return(counts)
-  } else{
-    stop("regcounts slot is empty.")
   }
 })
 

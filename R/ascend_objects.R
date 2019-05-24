@@ -10,6 +10,14 @@
 #' 
 #' @param object An EMSet that has been created, but needs validation.
 #' @keywords internal
+#' 
+#' @examples
+#' # Load example EMSet
+#' em_set <- ascend::raw_set
+#' 
+#' # Validate
+#' validateEMSet(em_set)
+#' 
 #' @export
 validateEMSet <- function(object){
   # Store errors in an object. If length is greater than 0, indicates multiple
@@ -73,8 +81,15 @@ validateEMSet <- function(object){
 #' hclust object
 #' @slot log A record of functions used on an \linkS4class{EMSet}.
 #' 
+#' @examples 
+#' # Load example EMSet from package
+#' em_set <- ascend::raw_set
+#' 
+#' class(em_set)
+#' 
 #' @name EMSet-class
 #' @rdname EMSet-class
+#'
 #' @import methods
 #' @importClassesFrom S4Vectors DataFrame
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment

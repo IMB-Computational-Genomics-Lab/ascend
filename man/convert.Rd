@@ -22,3 +22,11 @@ SingleCellExperiment and Seurat objects to an EMSet.
 To convert between Seurat and SingleCellExperiment, it is recommended you use 
 the instructions for Seurat [here](https://satijalab.org/seurat/conversion_vignette.html#converting-tofrom-singlecellexperiment).
 }
+\examples{
+# Load EMSet
+em_set <- ascend::raw_set
+
+# Convert to Single Cell Experiment
+sce <- convert(em_set, to =  "sce")
+
+}

@@ -27,10 +27,9 @@ regressGene <- function(x, covariate_matrix = NULL, counts = NULL) {
 #' em_set <- ascend::analyzed_set
 #' 
 #' # Define genes to regress
-#' confoundingGenes <- c("CDK4","CCND1","NOC2L","ATAD3C", "CCNL2")
+#' genes <- c("CDK4","CCND1")
 #' 
-#' regressedSet <- regressConfoundingFactors(em_set, 
-#' candidate.genes = confoundingGenes)
+#' regressedSet <- regressConfoundingFactors(em_set, candidate.genes = genes)
 #' 
 #' @importFrom Matrix t
 #' @importFrom BiocParallel bplapply
