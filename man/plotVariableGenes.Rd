@@ -28,10 +28,9 @@ Please use the \code{\link[ascend:calculateCV]{calculateCV}}
 function before using this function.
 }
 \examples{
-\dontrun{
+em_set <- ascend::analyzed_set
 em_set <- calculateCV(em_set)
 variable_gene_plot <- plotVariableGenes(em_set, ngenes = 1500, 
 label.size = 3, point.size = 0.5, check.overlap = TRUE)
-}
 
 }

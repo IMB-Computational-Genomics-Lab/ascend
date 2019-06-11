@@ -14,6 +14,7 @@ double calcGeoMeanVal(NumericVector inputCounts){
 //' Calculate geometric means for dense matrices
 //'
 //' @param x A NumericMatrix
+//' @return A vector of geometric means for each gene
 //' @export
 //' 
 // [[Rcpp::export]]
@@ -51,6 +52,7 @@ double calcNormFactor(NumericVector x,
 //'
 //' @param x matrix
 //' @param y geometric means
+//' @return A numeric vector with sizeFactors for each cell
 //' @export
 // [[Rcpp::export]]
 NumericVector calcNormFactorDense(NumericMatrix x, NumericVector y){
@@ -68,26 +70,5 @@ NumericVector calcNormFactorDense(NumericMatrix x, NumericVector y){
     out(i) = normFactor;
   }
   return(out);
-}
-
-//' Apply size factors to dense matrix
-//' 
-//' @param x A dense matrix
-//' @param y Size factors
-//' @export
-//' 
-// [[Rcpp::export]]
-NumericMatrix applyRLE(NumericMatrix x, NumericVector y){
-  // Number of columns
-  int ncol = x.ncol();
-  
-  // Output matrix
-  NumericMatrix out(x.size());
-  
-  // Iterate over columns, divide all values by sizeFactor
-  for (int i = 0; i < ncol; i++){
-    out(_, i) = x(_, i) / y(i);
-  }
-  return out;
 }
 

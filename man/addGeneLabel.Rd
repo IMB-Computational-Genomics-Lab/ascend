@@ -6,16 +6,17 @@
 \alias{addGeneLabel,EMSet-method}
 \title{addGeneLabel}
 \usage{
-addGeneLabel(x, ..., gene)
+addGeneLabel(x, gene)
 
-\S4method{addGeneLabel}{EMSet}(x, ..., gene = c())
+\S4method{addGeneLabel}{EMSet}(x, gene = c())
 }
 \arguments{
 \item{x}{\linkS4class{EMSet}}
 
-\item{...}{...}
-
 \item{gene}{List of gene markers}
+}
+\value{
+An EMSet with the expression of the specified genes noted in colInfo
 }
 \description{
 Labels cells if they express gene(s) as a condition.

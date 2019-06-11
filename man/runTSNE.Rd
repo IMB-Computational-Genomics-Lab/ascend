@@ -32,8 +32,7 @@ Default: 0.}
 (increase for less accuracy). Default: 0.5.}
 }
 \value{
-A dataframe containing expression data for each cell reduced to 
-selected number of dimensions.
+t-SNE coordinates in the "TSNE" slot of reducedDims
 }
 \description{
 Wrapper for the \code{\link[Rtsne]{Rtsne}} function. Users may call this 

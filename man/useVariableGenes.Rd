@@ -15,6 +15,9 @@ useVariableGenes(object, ngenes)
 
 \item{ngenes}{Number of variable genes to use (Default: 1500 genes)}
 }
+\value{
+EMSet reduced to specified number of variable genes.
+}
 \description{
 Reduces an EMSet to a range of the most variable genes as determined by 
 the values calculated by \code{\link[ascend:calculateCV]{calculateCV}}.

@@ -184,24 +184,26 @@ normaliseByRLE <- function(object) {
   print("Size factors calculated.")
   SingleCellExperiment::sizeFactors(object, "RLE") <- sizeFactors
   
+  # Reorganise to save on memory because it is a memory hog for 22K cells
+  # Garbage collection!
   # Apply sizeFactors
   print("Applying size factors to counts...")
   normcounts <- Matrix::t(Matrix::t(counts)/sizeFactors)
-  logcounts <- log2(normcounts + 1)
-  
-  # Reorganise
-  print("Normalisation complete. Returning EMSet...")
   normcounts <- normcounts[rownames(object), colnames(object)]
-  logcounts <- logcounts[rownames(object), colnames(object)]
-  
-  # Get ready to store
   normcounts <- as(normcounts, obj_types[1])
-  logcounts <- as(logcounts, obj_types[1])
-  
   SingleCellExperiment::normcounts(object) <- normcounts 
-  SingleCellExperiment::logcounts(object) <- logcounts
-  SummarizedExperiment::rowData(object) <- rowData[rownames(object), ]
+  print("Normalised counts stored in EMSet.")
   
+  print("Converting to logcounts...")  
+  remove(counts)
+  logcounts <- log2(normcounts + 1)
+  remove(normcounts)
+  logcounts <- logcounts[rownames(object), colnames(object)]
+  logcounts <- as(logcounts, obj_types[1])
+  SingleCellExperiment::logcounts(object) <- logcounts
+  # Get ready to store
+  print("Log-normalised counts complete. Returning EMSet...")
+  SummarizedExperiment::rowData(object) <- rowData[rownames(object), ]
   log <- progressLog(object)
   log$NormalisationMethod <- "RLE"
   progressLog(object) <- log

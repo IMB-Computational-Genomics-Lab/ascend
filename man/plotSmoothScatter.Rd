@@ -16,7 +16,9 @@ A ggplot2 glob containing the histogram.
 Generates a smooth scatter of of average counts for each gene per cell.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
 smooth_scatter <- plotSmoothScatter(EMSet)
-}
+
 }

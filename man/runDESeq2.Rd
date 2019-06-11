@@ -21,6 +21,9 @@ runDESeq2(object, group = NULL, condition.a = NULL,
 
 \item{ngenes}{Number of genes you want to test (Default: all genes)}
 }
+\value{
+Results from DESeq2
+}
 \description{
 Wrapper for DESeq2.
 }

@@ -47,7 +47,7 @@ Suggests:
     DESeq,
     DESeq2
 VignetteBuilder: knitr
-Depends: R (>= 3.5.0),
+Depends: R (>= 3.6.0),
     methods,
     Matrix,
     S4Vectors,

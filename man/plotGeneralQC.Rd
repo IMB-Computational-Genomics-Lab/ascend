@@ -46,7 +46,10 @@ expression.}
 }
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
+# Plot general QC
 general_qc_plots <- plotGeneralQC(EMSet)
-}
+
 }

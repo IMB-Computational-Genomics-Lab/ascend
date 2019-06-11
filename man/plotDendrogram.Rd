@@ -17,7 +17,8 @@ Generates a colour-labelled dendrogram to the device, using a clustered
 \code{\linkS4class{EMSet}}.
 }
 \examples{
-\dontrun{
+# Load example EMSet
+em_set <- ascend::analyzed_set
 plotDendrogram(em_set)
-}
+
 }

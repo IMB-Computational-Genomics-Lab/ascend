@@ -198,6 +198,8 @@ setMethod("rowInfo", "EMSet", function(x, withDimnames = TRUE){
 #' @param j Col index
 #' @param drop Drop stuff
 #' 
+#' @return Subsetted EMSet
+#' 
 setMethod("[", "EMSet", function(x, i, j, drop=TRUE) {
   # Extract infos from original dataset
   col_info <- colInfo(x, withDimnames=FALSE)

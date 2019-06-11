@@ -23,6 +23,9 @@ controls(x, ...) <- value
 
 \item{value}{Named list of control genes}
 }
+\value{
+EMSet with defined controls and qc metrics associated with controls
+}
 \description{
 Access set controls.
 }

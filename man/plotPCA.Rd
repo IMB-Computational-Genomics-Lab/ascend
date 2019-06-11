@@ -27,20 +27,11 @@ more closely to the distance between points and therefore is good to use
 to review the effectiveness of clustering by the CORE algorithm.
 }
 \examples{
-\dontrun{
-# Normalise counts
-EMSet <- normaliseByRLE(EMSet)
+# Load EMSet
+em_set <- ascend::analyzed_set
 
-# Remove controls
-EMSet <- excludeControl(EMSet, control = c("Mt", "Rb"))
-# Dimensionality reduction
-EMSet <- runPCA(EMSet)
+# Generate PCA plot
+pca_plot <- plotPCA(em_set, PCX = 1, PCY = 2, 
+group = "cluster", density = TRUE)
 
-# Clustering
-EMSet <- runCORE(EMSet)
-
-# Generate MDS
-pca_plot <- plotPCA(EMSet, PCX = 1, PCY = 2, group = "cluster")
-
-}
 }

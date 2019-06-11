@@ -16,6 +16,7 @@
 #' @param condition.b Condition B to test
 #' @param fitType DESeq argument - fitType to use
 #' @param method DESeq argument - method to use
+#' @return List of chunked results for DESeq
 #' @export
 func_DESeq <- function(x, 
                        expression_matrix = NULL, 
@@ -53,12 +54,15 @@ func_DESeq <- function(x,
 #' @param method Method used by \pkg{DESeq} to compute emperical dispersion.
 #' Options: pooled, pooled-CR, per-condition (Default), blind.
 #' @param parallel Run DESeq through parallelised wrapper (Default: TRUE)
-#' @return A dataframe containing \pkg{DESeq} results
+#' @return A data frame containing \pkg{DESeq} results
+#' 
 #' @examples
 #' \dontrun{
+#' library(DESeq)
 #' cluster1_vs_others <- runDESeq(EMSet, group = "cluster", condition.a = "1",
 #' condition.b = c("2", "3"), ngenes = 1500, fitType = "local", method = "per-condition")
 #' }
+#' 
 #' @importFrom BiocParallel bplapply bpnworkers bpparam
 #' @importFrom dplyr intersect bind_rows
 #' @importFrom SingleCellExperiment rowData normcounts

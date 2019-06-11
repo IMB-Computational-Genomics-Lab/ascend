@@ -70,7 +70,7 @@ differentialLRT <- function(x, y, xmin = 0) {
     lrt_diff <- 2 * (lrtX + lrtY - lrtZ)
   }
   
-  return(stats::pchisq(q = lrt_diff, df = 3, lower.tail = F))
+  return(stats::pchisq(q = lrt_diff, df = 3, lower.tail = FALSE))
 }
 
 runGeneLRT <- function(gene, test_matrix = NULL, control_matrix = NULL){
@@ -95,13 +95,14 @@ worker_LRT <- function(x, test_matrix = NULL, control_matrix = NULL){
 #' gene-gene level. This method was adapted from the method published by [McDavid
 #' et al. 2013](https://doi.org/10.1093/bioinformatics/bts714).
 #' 
-#' @param object An \linkS4class{EMSet}.
-#' @param group A column in colInfo that contains a vector of conditions.
-#' @param condition.a Condition(s) of first group of cells.
-#' @param condition.b Condition(s) of second group of cells.
+#' @param object An \linkS4class{EMSet} that has undergone filtering and 
+#' normalisation
+#' @param group A column in colInfo that contains a vector of conditions
+#' @param condition.a Condition(s) of first group of cells
+#' @param condition.b Condition(s) of second group of cells
 #' @param subsampling TRUE or FALSE (Default). Whether or not to subsample 
-#' from larger group of cells if cell populations are uneven.
-#' @param ngenes Test this number of the most variable genes in the dataset.
+#' from larger group of cells if cell populations are uneven
+#' @param ngenes Test this number of the most variable genes in the dataset
 #' 
 #' @examples 
 #' # Load example EMSet
@@ -111,6 +112,7 @@ worker_LRT <- function(x, test_matrix = NULL, control_matrix = NULL){
 #' cluster1_vs_cluster2 <- runDiffExpression(em_set, group = "cluster",
 #' condition.a = 1, condition.b = 2, subsampling = FALSE, ngenes = 1500)
 #' 
+#' @return A data frame with DE analysis results
 #' @importFrom methods is
 #' @importFrom SingleCellExperiment normcounts
 #' @importFrom BiocParallel bpvec

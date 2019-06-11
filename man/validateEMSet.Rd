@@ -9,6 +9,9 @@ validateEMSet(object)
 \arguments{
 \item{object}{An EMSet that has been created, but needs validation.}
 }
+\value{
+Validated \linkS4class{EMSet}.
+}
 \description{
 Validation function for the EMSet.
 }

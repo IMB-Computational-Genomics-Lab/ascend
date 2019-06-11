@@ -25,6 +25,8 @@ regcounts(x, ...) <- value
 }
 \value{
 Regressed count matrix
+
+value stored in regcounts slot of EMSet
 }
 \description{
 Convenience method to access regressed counts from an \linkS4class{EMSet}.

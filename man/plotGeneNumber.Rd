@@ -9,11 +9,17 @@ plotGeneNumber(object)
 \arguments{
 \item{object}{An \linkS4class{EMSet}}
 }
+\value{
+A histogram containing the distribution of number of genes per cell.
+}
 \description{
 Generates a histogram of the number of genes per cell.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
+# Plot gene numbers
 gene_number_plot <- plotGeneNumber(EMSet)
-}
+
 }

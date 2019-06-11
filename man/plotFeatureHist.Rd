@@ -16,7 +16,10 @@ A ggplot2 glob containing the histogram.
 Generates a histogram of all cell feature counts.
 }
 \examples{
-\dontrun{
-feature_plot <- plotFeatureHist(EMSet)
-}
+# Load unprocessed EMSet
+em_set <- ascend::raw_set
+
+# Use function to plot features
+feature_plot <- plotFeatureHist(em_set)
+
 }

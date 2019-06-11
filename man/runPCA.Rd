@@ -16,15 +16,15 @@ normalisation.}
 
 \item{...}{Additional arguments to pass to irlba}
 
-\item{ngenes}{The top number of genes you would like to perform the reduction by. 
-Default: 1500.}
+\item{ngenes}{The top number of genes you would like to perform the reduction 
+by. Default: 1500.}
 
 \item{scaling}{Boolean - set to FALSE if you do not want to scale your values. 
 Default: TRUE.}
 }
 \value{
-An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
-slot.
+An \linkS4class{EMSet} with a PCA-reduced matrix stored under PCA in
+the reducedDims slot
 }
 \description{
 Reduce the dimensions of an expression matrix stored in an 

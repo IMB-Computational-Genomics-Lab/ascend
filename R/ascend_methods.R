@@ -15,18 +15,18 @@
 #' 
 #' @param x \linkS4class{EMSet}
 #' @param gene List of gene markers
-#' @param ... ...
+#' @return An EMSet with the expression of the specified genes noted in colInfo
 #' 
 #' @include ascend_objects.R
 #' @importFrom SingleCellExperiment normcounts counts
 #' @importClassesFrom S4Vectors DataFrame
 #' @export
 #' 
-setGeneric("addGeneLabel", function(x, ...,  gene) 
+setGeneric("addGeneLabel", function(x, gene) 
   standardGeneric("addGeneLabel"))
 
 #' @rdname addGeneLabel
-setMethod("addGeneLabel", signature(x = "EMSet"), function(x, ..., gene = c()){
+setMethod("addGeneLabel", signature(x = "EMSet"), function(x, gene = c()){
   if (any(!(gene %in% rownames(x)))){
     stop("Please ensure all listed genes/transcripts are present in the matrix.")
   }
@@ -127,6 +127,7 @@ calcControlQC <- function(x, gene_info = NULL, qc_cell_df = NULL){
 #' object <- calculateQC(object)
 #' 
 #' @param object An \linkS4class{EMSet}
+#' @return QC values stored in an EMSet's rowData and colData slots
 #' 
 #' @include ascend_objects.R
 #' @importFrom S4Vectors DataFrame merge
@@ -136,7 +137,7 @@ calcControlQC <- function(x, gene_info = NULL, qc_cell_df = NULL){
 setGeneric("calculateQC", function(object) standardGeneric("calculateQC"))
 
 #' @rdname calculateQC
-setMethod("calculateQC", "EMSet", function(object){
+setMethod("calculateQC", signature(object = "EMSet"), function(object){
   # Metrics - save trouble of retrieving object over and over
   expression_matrix <- SingleCellExperiment::counts(object)
   
@@ -239,9 +240,11 @@ setMethod("calculateQC", "EMSet", function(object){
 #' x <- convertGeneID(x, new.annotation = "ensembl_gene_id")
 #' 
 #' @param object \linkS4class{EMSet}
-#' @param ... ...
 #' @param new.annotation Name of the column where the new set of identifiers 
 #' are stored in rowInfo
+#' 
+#' @return An EMSet with genes swapped to identifiers stored in specified column
+#' of colInfo.
 #' 
 #' @include ascend_objects.R
 #' @include ascend_getters.R
@@ -249,11 +252,11 @@ setMethod("calculateQC", "EMSet", function(object){
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom S4Vectors DataFrame
 #' @export
-setGeneric("convertGeneID", function(object, ..., new.annotation) 
+setGeneric("convertGeneID", function(object, new.annotation) 
   standardGeneric("convertGeneID"))
 
 #' @rdname convertGeneID
-setMethod("convertGeneID", "EMSet", function(object, ..., 
+setMethod("convertGeneID", signature(object = "EMSet"), function(object,
                                              new.annotation = NULL){
   # Get old information
   row_info <- rowInfo(object)
@@ -333,7 +336,9 @@ setMethod("convertGeneID", "EMSet", function(object, ...,
 #' # Show CV results
 #' rowData(x)
 #' 
-#' @param object \linkS4class{EMSet}
+#' @param object An \linkS4class{EMSet}
+#' @return An EMSet with calculated CV values.
+#' 
 #' @include ascend_objects.R
 #' @include ascend_getters.R
 #' @include ascend_setters.R
@@ -343,7 +348,7 @@ setMethod("convertGeneID", "EMSet", function(object, ...,
 setGeneric("calculateCV", function(object) standardGeneric("calculateCV"))
 
 #' @rdname calculateCV
-setMethod("calculateCV", "EMSet", function(object){
+setMethod("calculateCV", signature(object = "EMSet"), function(object){
   # Check if data has been normalised
   if (!("normcounts" %in% SummarizedExperiment::assayNames(object))){
     stop("Please normalise your data before using this function.")

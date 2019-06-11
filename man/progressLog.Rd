@@ -22,6 +22,8 @@ progressLog(x, ...) <- value
 \item{...}{...}
 
 \item{value}{List to store in the progressLog slot}
+
+\item{EMSet}{with values stored in progressLog slot}
 }
 \value{
 A list of information.

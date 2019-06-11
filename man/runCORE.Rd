@@ -28,8 +28,8 @@ Default: FALSE.}
 \item{dims}{Number of PC components to use in distance matrix generation. Default: 20}
 }
 \value{
-An \code{\linkS4class{EMSet}} with cluster information loaded into the
-Clusters slot.
+An \code{\linkS4class{EMSet}} with cluster information loaded into 
+the clusterAnalysis and colInfo slots
 }
 \description{
 This function determines the optimal number of clusters for a dataset.

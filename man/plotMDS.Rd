@@ -34,20 +34,11 @@ EMSet:
 3. Normalised, log-transformed count matrix stored in logcounts.
 }
 \examples{
-\dontrun{
-# Normalise counts
-EMSet <- normaliseByRLE(EMSet)
-
-# Remove controls
-EMSet <- excludeControl(EMSet, control = c("Mt", "Rb"))
-# Dimensionality reduction
-EMSet <- runPCA(EMSet)
-
-# Clustering
-EMSet <- runCORE(EMSet)
+# Load EMSet
+em_set <- ascend::analyzed_set
 
 # Generate MDS
-mds_plot <- plotMDS(EMSet, Dim1 = 1, Dim2 = 2, group = "cluster")
+mds_plot <- plotMDS(em_set, Dim1 = 1, Dim2 = 2, 
+group = "cluster", PCA = TRUE)
 
-}
 }

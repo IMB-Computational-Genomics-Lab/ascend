@@ -18,6 +18,9 @@
 
 \item{value}{Replacement dataframe}
 }
+\value{
+Updated EMSet
+}
 \description{
 Replace entries of EMSet
 }

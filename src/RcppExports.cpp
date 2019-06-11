@@ -29,18 +29,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// applyRLE
-NumericMatrix applyRLE(NumericMatrix x, NumericVector y);
-RcppExport SEXP _ascend_applyRLE(SEXP xSEXP, SEXP ySEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(applyRLE(x, y));
-    return rcpp_result_gen;
-END_RCPP
-}
 // convertSparse
 arma::sp_mat convertSparse(S4 mat);
 RcppExport SEXP _ascend_convertSparse(SEXP matSEXP) {
@@ -79,7 +67,6 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_ascend_calcGeoMeansDense", (DL_FUNC) &_ascend_calcGeoMeansDense, 1},
     {"_ascend_calcNormFactorDense", (DL_FUNC) &_ascend_calcNormFactorDense, 2},
-    {"_ascend_applyRLE", (DL_FUNC) &_ascend_applyRLE, 2},
     {"_ascend_convertSparse", (DL_FUNC) &_ascend_convertSparse, 1},
     {"_ascend_calcGeoMeansSparse", (DL_FUNC) &_ascend_calcGeoMeansSparse, 1},
     {"_ascend_calcNormFactorSparse", (DL_FUNC) &_ascend_calcNormFactorSparse, 2},

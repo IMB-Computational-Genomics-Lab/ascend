@@ -17,7 +17,10 @@ Plots Stability, Consecutive RI and Rand Index. This can be used to determine
 the optimal resolution of the clustering results.
 }
 \examples{
-\dontrun{
+# Load example EMSet that has undergone processing
+em_set <- ascend::analyzed_set
+
+# Use function to plot stability scores
 stability_plot <- plotStability(em_set)
-}
+
 }

@@ -27,6 +27,8 @@ rowInfo(x, ...) <- value
 }
 \value{
 rowInfo DataFrame
+
+EMSet with value stored in rowInfo slot.
 }
 \description{
 Access gene information stored in rowInfo.

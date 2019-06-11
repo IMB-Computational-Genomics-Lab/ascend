@@ -82,8 +82,7 @@ setMethod("runUMAP", signature = "EMSet", function(object,
 #' @param perplexity (Optional) Numeric; perplexity parameter. Default: 30.
 #' @param theta (Optional) Numeric; Speed/accuracy trade-off. 
 #' (increase for less accuracy). Default: 0.5.
-#' @return A dataframe containing expression data for each cell reduced to 
-#' selected number of dimensions.
+#' @return t-SNE coordinates in the "TSNE" slot of reducedDims
 #' 
 #' @examples
 #' # Load example EMSet
@@ -172,13 +171,14 @@ calcVariance <- function(x, axis = c("row", "column")){
 #'  
 #' @param object An \linkS4class{EMSet} that has undergone filtering and 
 #' normalisation.
-#' @param ngenes The top number of genes you would like to perform the reduction by. 
-#' Default: 1500.
+#' @param ngenes The top number of genes you would like to perform the reduction 
+#' by. Default: 1500.
 #' @param scaling Boolean - set to FALSE if you do not want to scale your values. 
 #' Default: TRUE.
 #' @param ... Additional arguments to pass to irlba
-#' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored in the PCA
-#' slot.
+#' @return An \linkS4class{EMSet} with a PCA-reduced matrix stored under PCA in
+#' the reducedDims slot
+#' 
 #' @include ascend_objects.R
 #' 
 #' @examples 

@@ -9,6 +9,9 @@ calcGeoMeansDense(x)
 \arguments{
 \item{x}{A NumericMatrix}
 }
+\value{
+A vector of geometric means for each gene
+}
 \description{
 Calculate geometric means for dense matrices
 }

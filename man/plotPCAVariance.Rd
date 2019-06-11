@@ -22,18 +22,10 @@ the smallest percent variance. This plot is for determining the optimal
 number of PCs to retain for further analysis.
 }
 \examples{
-\dontrun{
-# Normalise counts
-EMSet <- normaliseByRLE(EMSet)
+# Load EMSet
+em_set <- ascend::analyzed_set
 
-# Remove controls
-EMSet <- excludeControl(EMSet, control = c("Mt", "Rb"))
+# Plot PCA variance
+pca_variance_plot <- plotPCAVariance(em_set, n = 10)
 
-# Dimensionality reduction
-EMSet <- runPCA(EMSet)
-
-# PCA Variance
-pca_variance_plot <- plotPCAVariance(EMSet, n = 40)
-
-}
 }

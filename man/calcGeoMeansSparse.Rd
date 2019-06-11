@@ -9,6 +9,9 @@ calcGeoMeansSparse(sparseMatrix)
 \arguments{
 \item{sparseMatrix}{Sparse matrix from R}
 }
+\value{
+A numeric vector of geometric means
+}
 \description{
 Calculate geometric means of sparse matrices
 }

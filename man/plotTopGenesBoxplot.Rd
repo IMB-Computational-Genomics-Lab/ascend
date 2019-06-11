@@ -22,7 +22,10 @@ Generates a boxplot using \link[ggplot2]{geom_boxplot} of the most expressed
 genes in the dataset, in a range defined by the user.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
+# Plot top gene expression
 top_genes <- plotTopGenesBoxplot(EMSet, n = 20, controls = FALSE)
-}
+
 }

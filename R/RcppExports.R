@@ -4,6 +4,7 @@
 #' Calculate geometric means for dense matrices
 #'
 #' @param x A NumericMatrix
+#' @return A vector of geometric means for each gene
 #' @export
 #' 
 calcGeoMeansDense <- function(x) {
@@ -15,24 +16,16 @@ calcGeoMeansDense <- function(x) {
 #'
 #' @param x matrix
 #' @param y geometric means
+#' @return A numeric vector with sizeFactors for each cell
 #' @export
 calcNormFactorDense <- function(x, y) {
     .Call('_ascend_calcNormFactorDense', PACKAGE = 'ascend', x, y)
 }
 
-#' Apply size factors to dense matrix
-#' 
-#' @param x A dense matrix
-#' @param y Size factors
-#' @export
-#' 
-applyRLE <- function(x, y) {
-    .Call('_ascend_applyRLE', PACKAGE = 'ascend', x, y)
-}
-
 #' Convert R sparse matrix to RcppArmadillo sparse matrix
 #' 
 #' @param mat Sparse matrix object from R
+#' @return Matrix in RcppArmadillo's sp_mat format
 #' @export
 #' 
 convertSparse <- function(mat) {
@@ -42,6 +35,7 @@ convertSparse <- function(mat) {
 #' Calculate geometric means of sparse matrices
 #' 
 #' @param sparseMatrix Sparse matrix from R
+#' @return A numeric vector of geometric means
 #' @export
 #' 
 calcGeoMeansSparse <- function(sparseMatrix) {
@@ -52,6 +46,7 @@ calcGeoMeansSparse <- function(sparseMatrix) {
 #' 
 #' @param sparseMatrix A sparse matrix from R
 #' @param geoMeans List of size factors
+#' @return A numeric vector comprised of cell-specific size factors
 #' @export
 #' 
 calcNormFactorSparse <- function(sparseMatrix, geoMeans) {

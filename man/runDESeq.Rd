@@ -33,7 +33,7 @@ Options: pooled, pooled-CR, per-condition (Default), blind.}
 \item{parallel}{Run DESeq through parallelised wrapper (Default: TRUE)}
 }
 \value{
-A dataframe containing \pkg{DESeq} results
+A data frame containing \pkg{DESeq} results
 }
 \description{
 This wrapper runs differential expression analysis via the \pkg{DESeq} 
@@ -41,7 +41,9 @@ package.
 }
 \examples{
 \dontrun{
+library(DESeq)
 cluster1_vs_others <- runDESeq(EMSet, group = "cluster", condition.a = "1",
 condition.b = c("2", "3"), ngenes = 1500, fitType = "local", method = "per-condition")
 }
+
 }

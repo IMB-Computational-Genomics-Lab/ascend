@@ -25,6 +25,8 @@ clusterAnalysis(x, ...) <- value
 }
 \value{
 List of cluster-related analyses
+
+EMSet with values stored in clusterAnalysis slot
 }
 \description{
 Convenience method to access cluster analysis data from an 

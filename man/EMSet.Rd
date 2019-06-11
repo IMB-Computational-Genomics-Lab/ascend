@@ -30,7 +30,7 @@ dense matrix or sparse matrix.}
 control groups.}
 }
 \value{
-An \linkS4class{EMSet}.
+An \linkS4class{EMSet} object.
 }
 \description{
 \code{\link{EMSet}} generates a \linkS4class{EMSet} object for use with 

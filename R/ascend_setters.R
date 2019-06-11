@@ -7,6 +7,7 @@
 
 #' @rdname regcounts
 #' @param value A matrix with confounding factors regressed out
+#' @return value stored in regcounts slot of EMSet
 #' @include ascend_objects.R
 #' @include ascend_getters.R
 #' @include ascend_confoundingfactors.R
@@ -26,6 +27,7 @@ setReplaceMethod("regcounts", signature(x = "EMSet"), function(x, value){
 
 #' @rdname controls
 #' @param value Named list of control genes
+#' @return EMSet with defined controls and qc metrics associated with controls
 #' @include ascend_objects.R
 #' @export
 setGeneric("controls<-", function(x, ...,  value) standardGeneric("controls<-"))
@@ -69,6 +71,7 @@ setReplaceMethod("controls", signature(x = "EMSet"), function(x, value){
 
 #' @rdname clusterAnalysis
 #' @param value List to store in the clusterAnalysis slot
+#' @return EMSet with values stored in clusterAnalysis slot
 #' @include ascend_objects.R
 #' @export
 setGeneric("clusterAnalysis<-", function(x, ..., value) standardGeneric("clusterAnalysis<-")) 
@@ -82,6 +85,7 @@ setReplaceMethod("clusterAnalysis", "EMSet", function(x, value) {
 
 #' @rdname progressLog
 #' @param value List to store in the progressLog slot
+#' @param EMSet with values stored in progressLog slot
 #' @include ascend_objects.R
 #' @export
 setGeneric("progressLog<-", function(x, ..., value) standardGeneric("progressLog<-")) 
@@ -118,6 +122,7 @@ setReplaceMethod("colInfo", signature(x = "EMSet"), function(x, value) {
 
 #' @rdname rowInfo
 #' @param value DataFrame to store in rowInfo slot.
+#' @return EMSet with value stored in rowInfo slot.
 #' @include ascend_objects.R
 #' @importClassesFrom S4Vectors DataFrame
 #' @export
@@ -143,6 +148,7 @@ setReplaceMethod("rowInfo", signature(x = "EMSet"),  function(x, value) {
 #' @param j Column index
 #' @param value Replacement dataframe
 #' @param ... ...
+#' @return Updated EMSet
 #' 
 setReplaceMethod("[", c("EMSet", "ANY", "ANY", "EMSet"),
                  function(x, i, j, ..., value) {

@@ -9,6 +9,9 @@ convertSparse(mat)
 \arguments{
 \item{mat}{Sparse matrix object from R}
 }
+\value{
+Matrix in RcppArmadillo's sp_mat format
+}
 \description{
 Convert R sparse matrix to RcppArmadillo sparse matrix
 }

@@ -13,6 +13,9 @@ calculateQC(object)
 \arguments{
 \item{object}{An \linkS4class{EMSet}}
 }
+\value{
+QC values stored in an EMSet's rowData and colData slots
+}
 \description{
 Calculates the following values for quality control:
 }

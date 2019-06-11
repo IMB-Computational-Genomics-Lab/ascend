@@ -7,6 +7,7 @@ using namespace arma;
 //' Convert R sparse matrix to RcppArmadillo sparse matrix
 //' 
 //' @param mat Sparse matrix object from R
+//' @return Matrix in RcppArmadillo's sp_mat format
 //' @export
 //' 
 // [[Rcpp::export]]
@@ -27,6 +28,7 @@ arma::sp_mat convertSparse(S4 mat) {
 //' Calculate geometric means of sparse matrices
 //' 
 //' @param sparseMatrix Sparse matrix from R
+//' @return A numeric vector of geometric means
 //' @export
 //' 
 // [[Rcpp::export]]
@@ -60,6 +62,7 @@ NumericVector calcGeoMeansSparse(S4 sparseMatrix){
 //' 
 //' @param sparseMatrix A sparse matrix from R
 //' @param geoMeans List of size factors
+//' @return A numeric vector comprised of cell-specific size factors
 //' @export
 //' 
 // [[Rcpp::export]]

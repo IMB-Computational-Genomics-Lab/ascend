@@ -28,10 +28,15 @@ A scatter plot rendered by ggplot2's geom_point.
 Produces a volcano plot featuring differential expression results.
 }
 \examples{
-\dontrun{
-library(ggplot2)
-my_volcano_plot <- PlotDEVolcano(de_result_df, threshold = 5e-3, l2fc = 2) +
-ggtitle("My Volcano Plot")
-}
+# Load EMSet that has undergone analysis
+em_set <- ascend::analyzed_set
+
+# Run differential expression analysis using combined LRT
+de_result_df <- runDiffExpression(em_set, group = "cluster", 
+condition.a = 1, condition.b = 2, ngenes = 1500, subsampling = FALSE)
+
+# Use function to generate volcano plot
+my_volcano_plot <- plotVolcano(de_result_df, threshold = 5e-3, l2fc = 2,
+labels = FALSE, check.overlap = FALSE)
 
 }

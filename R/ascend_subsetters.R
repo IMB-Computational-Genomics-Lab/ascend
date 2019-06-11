@@ -23,6 +23,8 @@
 #' # Use 1500 of the most variable genes
 #' em_set <- useVariableGenes(em_set, ngenes = 1500)
 #' 
+#' @return EMSet reduced to specified number of variable genes.
+#' 
 #' @export
 setGeneric(name = "useVariableGenes", def = function(object, ngenes) {
   standardGeneric("useVariableGenes")

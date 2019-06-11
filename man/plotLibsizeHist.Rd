@@ -16,7 +16,10 @@ A ggplot2 glob containing the histogram.
 Generates a histogram of all cell library sizes.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
+# Plot libsize histograms
 libsize_hist <- plotLibsizeHist(EMSet)
-}
+
 }

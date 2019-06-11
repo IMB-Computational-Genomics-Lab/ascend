@@ -11,6 +11,9 @@ calcNormFactorDense(x, y)
 
 \item{y}{geometric means}
 }
+\value{
+A numeric vector with sizeFactors for each cell
+}
 \description{
 Calculate size factors for dense matrices
 }

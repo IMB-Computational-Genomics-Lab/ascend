@@ -11,7 +11,10 @@ calculateCV(object)
 \S4method{calculateCV}{EMSet}(object)
 }
 \arguments{
-\item{object}{\linkS4class{EMSet}}
+\item{object}{An \linkS4class{EMSet}}
+}
+\value{
+An EMSet with calculated CV values.
 }
 \description{
 Calculates the Coefficient of Variation (CV) for each gene using normalised

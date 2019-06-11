@@ -8,18 +8,22 @@ runDiffExpression(object, group = NULL, condition.a = NULL,
   condition.b = NULL, subsampling = FALSE, ngenes = NULL)
 }
 \arguments{
-\item{object}{An \linkS4class{EMSet}.}
+\item{object}{An \linkS4class{EMSet} that has undergone filtering and 
+normalisation}
 
-\item{group}{A column in colInfo that contains a vector of conditions.}
+\item{group}{A column in colInfo that contains a vector of conditions}
 
-\item{condition.a}{Condition(s) of first group of cells.}
+\item{condition.a}{Condition(s) of first group of cells}
 
-\item{condition.b}{Condition(s) of second group of cells.}
+\item{condition.b}{Condition(s) of second group of cells}
 
 \item{subsampling}{TRUE or FALSE (Default). Whether or not to subsample 
-from larger group of cells if cell populations are uneven.}
+from larger group of cells if cell populations are uneven}
 
-\item{ngenes}{Test this number of the most variable genes in the dataset.}
+\item{ngenes}{Test this number of the most variable genes in the dataset}
+}
+\value{
+A data frame with DE analysis results
 }
 \description{
 This function uses a combined Likelihood-Ratio Test (LRT) for 

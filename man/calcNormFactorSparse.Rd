@@ -11,6 +11,9 @@ calcNormFactorSparse(sparseMatrix, geoMeans)
 
 \item{geoMeans}{List of size factors}
 }
+\value{
+A numeric vector comprised of cell-specific size factors
+}
 \description{
 Calculate size factors from sparse matrices
 }

@@ -17,7 +17,10 @@ Generates a barplot of each cell's library size, and arranges them in
 descending order.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
+# Plot libsize boxplot
 libsize_barplot <- plotLibsizeBoxplot(EMSet)
-}
+
 }

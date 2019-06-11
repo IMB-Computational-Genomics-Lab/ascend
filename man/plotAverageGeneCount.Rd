@@ -18,7 +18,9 @@ A ggplot2 glob containing the histogram.
 Generates a histogram of average counts for each gene.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
 # Plot average gene count
 average_genes <- plotAverageGeneCount(EMSet, metric = "average")
 
@@ -28,5 +30,4 @@ average_gene_2 <- plotAverageGeneCount(EMSet, metric = "log2")
 # Plot log10 average gene count
 average_gene_10 <- plotAverageGeneCount(EMSet, metric = "log10")
 
-}
 }

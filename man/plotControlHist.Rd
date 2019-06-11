@@ -18,7 +18,10 @@ A ggplot2 histogram
 Generates a histogram of percentage of control per samples.
 }
 \examples{
-\dontrun{
-control_histogram <- plotControlHist(EMSet, control = "Mt")
-}
+# Load unprocessed EMSet
+em_set <- ascend::raw_set
+
+# Plot controls
+control_histogram <- plotControlHist(em_set, control = "Mt")
+
 }

@@ -20,6 +20,8 @@
 #' @param fitType Type of fit to use with DESeq2 - parametric, local (Default) and mean.
 #' @param ngenes Number of genes you want to test (Default: all genes)
 #' 
+#' @return Results from DESeq2
+#' 
 #' @importFrom dplyr intersect
 #' @importFrom SingleCellExperiment rowData counts
 #' @export

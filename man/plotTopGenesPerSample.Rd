@@ -17,7 +17,10 @@ Generates a violin-beeswarm plot of top gene counts and contribution to to
 a cell's total expression.
 }
 \examples{
-\dontrun{
-top_genes_violin <- plotTopGenesPerSample(EMSet)
-}
+# Load unprocessed EMSet
+em_set <- ascend::raw_set
+
+# Plot top genes
+topgenes <- plotTopGenesPerSample(em_set)
+
 }

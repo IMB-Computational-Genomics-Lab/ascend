@@ -19,7 +19,10 @@ Generates a violin/beeswarm plot of percentage of control expression per
 sample. Called by \code{\link[ascend:plotGeneralQC]{plotGeneralQC}}.
 }
 \examples{
-\dontrun{
+# Load EMSet
+EMSet <- ascend::raw_set
+
+# Generate control violin
 control_violin <- plotControlPctPerSample(EMSet, control = "Mt")
-}
+
 }

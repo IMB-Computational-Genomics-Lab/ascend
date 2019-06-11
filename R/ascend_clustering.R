@@ -350,8 +350,9 @@ retrieveCluster <- function(x, hclust_obj = NULL, distance_matrix = NULL){
 #' em_set <- runCORE(em_set, conservative = TRUE,
 #' dims = 20, nres = 40, remove.outliers = TRUE)
 #' 
-#' @return An \code{\linkS4class{EMSet}} with cluster information loaded into the
-#' Clusters slot.
+#' @return An \code{\linkS4class{EMSet}} with cluster information loaded into 
+#' the clusterAnalysis and colInfo slots
+#' 
 #' @include ascend_objects.R
 #' @include ascend_dimreduction.R
 #' @importFrom stats dist setNames

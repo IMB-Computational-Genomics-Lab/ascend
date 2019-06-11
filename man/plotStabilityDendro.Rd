@@ -18,11 +18,10 @@ below. This function is derived from the plotDendroAndColors function found
 in the \pkg{WGCNA} package.
 }
 \examples{
-\dontrun{
-pdf("MyStabilityDendrogram.pdf")
-#' # Load clustered EMSet
+# Load clustered EMSet
+em_set <- ascend::analyzed_set
+
 # Plot stability dendrogram
-PlotStabilityDendro(EMSet)
-dev.off()
-}
+plotStabilityDendro(em_set)
+
 }

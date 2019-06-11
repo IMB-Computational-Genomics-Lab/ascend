@@ -7,10 +7,11 @@
 loadCellRanger(x)
 }
 \arguments{
-\item{x}{Path to Cell Ranger filtered output (eg. outs/filtered_gene_bc_matrices_mex/GRCh38p7)}
+\item{x}{Path to Cell Ranger filtered output 
+(eg. outs/filtered_gene_bc_matrices_mex/GRCh38p7)}
 }
 \value{
-A list containing the following objects: gene_info, cell_info, counts
+An \linkS4class{EMSet} with Mt and Rb genes set as controls
 }
 \description{
 Automatically loads and prepares data from a folder containing Cell Ranger

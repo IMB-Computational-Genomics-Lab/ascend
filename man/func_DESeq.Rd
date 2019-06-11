@@ -23,6 +23,9 @@ func_DESeq(x, expression_matrix = NULL, condition_list = NULL,
 
 \item{method}{DESeq argument - method to use}
 }
+\value{
+List of chunked results for DESeq
+}
 \description{
 Function called by parallel version of runDESeq.
 }

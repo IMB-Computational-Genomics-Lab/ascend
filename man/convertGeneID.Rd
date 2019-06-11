@@ -6,17 +6,19 @@
 \alias{convertGeneID,EMSet-method}
 \title{convertGeneID}
 \usage{
-convertGeneID(object, ..., new.annotation)
+convertGeneID(object, new.annotation)
 
-\S4method{convertGeneID}{EMSet}(object, ..., new.annotation = NULL)
+\S4method{convertGeneID}{EMSet}(object, new.annotation = NULL)
 }
 \arguments{
 \item{object}{\linkS4class{EMSet}}
 
-\item{...}{...}
-
 \item{new.annotation}{Name of the column where the new set of identifiers 
 are stored in rowInfo}
+}
+\value{
+An EMSet with genes swapped to identifiers stored in specified column
+of colInfo.
 }
 \description{
 Switches gene identifiers used in the EMSet to the identifiers stored in a 

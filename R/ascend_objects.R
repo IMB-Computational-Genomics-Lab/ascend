@@ -3,7 +3,8 @@
 # ascend_objects.R
 # description: Code related to the creation and maintenance of the EMSet
 #
-################################################################################ 
+################################################################################
+
 #' validateEMSet
 #'
 #' Validation function for the EMSet.
@@ -18,6 +19,7 @@
 #' # Validate
 #' validateEMSet(em_set)
 #' 
+#' @return Validated \linkS4class{EMSet}.
 #' @export
 validateEMSet <- function(object){
   # Store errors in an object. If length is greater than 0, indicates multiple
@@ -237,7 +239,7 @@ loadCounts <- function(x){
 #' # EMSet from a matrix
 #' em_set <- EMSet(count_matrix)
 #' 
-#' @return An \linkS4class{EMSet}.
+#' @return An \linkS4class{EMSet} object.
 #' @importFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment colData rowData
 #' @export

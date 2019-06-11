@@ -20,3 +20,14 @@ This function is for the comparison of pre- and post- batch-normalised
 datasets that have been loaded into an EMSet. Cells found in these datasets 
 must have the same identifiers.
 }
+\examples{
+# Load example EMSet 
+raw_object <- ascend::raw_set
+
+# Run batch normalisation
+norm_object <- normaliseBatches(raw_object)
+
+# Generate plot
+plot <- plotBatchNormQC(raw_object = raw_object, norm_object = norm_object)
+
+}

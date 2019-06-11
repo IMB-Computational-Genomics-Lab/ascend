@@ -16,7 +16,10 @@ A ggplot2 object containing a violin-beeswarm plot
 Generates a violin-beeswarm plot of library sizes per sample.
 }
 \examples{
-\dontrun{
+# Load unprocessed EMSet
+EMSet <- ascend::raw_set
+
+# Plot library size per sample
 libsize_per_sample <- plotLibsizePerSample(EMSet)
-}
+
 }

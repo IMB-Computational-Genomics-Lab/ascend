@@ -16,6 +16,9 @@
 
 \item{drop}{Drop stuff}
 }
+\value{
+Subsetted EMSet
+}
 \description{
 Subsetter for EMSet
 }
