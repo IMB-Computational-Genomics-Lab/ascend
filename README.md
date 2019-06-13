@@ -3,7 +3,11 @@
 ![alt text](workflow.png?raw=true "ascend workflow summary")
 
 ### 1. Introduction
-`ascend` (Analysis of Single Cell Expression, Normalisation and Differential expression) is a user-friendly scRNA-seq analysis toolkit implemented in R. Using pre-existing and novel methods, `ascend` offers quick and robust tools for quality control, normalisation, dimensionality reduction, clustering and differential expression.
+`ascend` (Analysis of Single Cell Expression, Normalisation and Differential 
+expression) is a user-friendly scRNA-seq analysis toolkit implemented in R. 
+Using pre-existing and novel methods, `ascend` offers quick and robust tools 
+for quality control, normalisation, dimensionality reduction, clustering and 
+differential expression.
 
 ### 2. Preparing data for 'ascend'
 `ascend` takes transcript counts, either as read counts or UMI counts that are
@@ -17,7 +21,8 @@ The expression matrix is loaded into a container object known as an Expression
 and Metadata Set (EMSet). This object is also capable of storing metadata
 related to cells and genes.
 
-Please refer to the vignettes (browseVignettes("ascend") in R) for more information on how to use this package.
+Please refer to the vignettes (browseVignettes("ascend") in R) for more 
+information on how to use this package.
 
 
 ### 2.1 Updating EMSets created with older versions of `ascend`
@@ -44,12 +49,13 @@ Feel free to skip some steps if you have already done those steps.
 ##### 3.1.1 R installation
 Please follow the R installation instructions [here](https://mirror.aarnet.edu.au/pub/CRAN/).
 If you are a Windows user, make sure you install Rtools. Please note the `ascend`
-package requires R version >= 3.5.0. The latest version of R version 3.5.1 is
+package requires R version >= 3.5.0. The latest version of R version 3.6 is
 best.
 
-##### 3.1.2 R programming environment
-The workshop will be done in [RStudio](https://www.rstudio.com/products/rstudio/download/),
-but feel free to set up your own R workspace.
+##### 3.1.2 Installing Rcpp and RcppArmadillo
+Please setup Rcpp and RcppArmadillo before installing *ascend*. Instructions are
+operating system-dependant, so please refer to [this](https://teuder.github.io/rcpp4everyone_en/020_install.html) 
+page for setup instructions.
 
 #### 3.2 Package Installations
 You will need to install the following packages to run the development version
@@ -78,7 +84,9 @@ install.packages(cran_packages)
 ```
 
 Note:
-There may be issues for some users related to the R package "stringi". This package is a dependancy for some of the packages from Bioconductor. Try installing this package from this website https://cran.r-project.org/web/packages/stringi/index.html.
+There may be issues for some users related to the R package "stringi". 
+This package is a dependancy for some of the packages from Bioconductor. Try 
+installing this package from this website https://cran.r-project.org/web/packages/stringi/index.html.
 
 ##### 3.2.2 Packages from Bioconductor
 Bioconductor is a repository for R packages  related to the analysis and
