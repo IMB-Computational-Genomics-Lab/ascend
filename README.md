@@ -1,1 +1,1 @@
-THIS REPOSITORY HAS NOW MOVED TO [POWELLGENOMICSLAB/ascend](https://github.com/powellgenomicslab/ascend)!
+THIS REPOSITORY HAS NOW MOVED TO [powellgenomicslab/ascend](https://github.com/powellgenomicslab/ascend)!
